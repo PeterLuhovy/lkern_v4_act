@@ -1,0 +1,48 @@
+# ================================================================
+# L-KERN v4 - Development Dockerfile
+# ================================================================
+# Service: lkms201-web-ui (React Frontend)
+# Port: Configured via .env (LKMS201_PORT_INTERNAL)
+# Hot-reload: Enabled via volume mounting
+# ================================================================
+
+FROM node:20-slim
+
+# Install system dependencies for native modules
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Corepack for Yarn 4
+RUN corepack enable && \
+    corepack prepare yarn@4.5.3 --activate
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Create .yarnrc.yml for Docker (node-modules mode, no yarnPath)
+RUN echo "nodeLinker: node-modules" > .yarnrc.yml
+
+# Install dependencies (creates node_modules, not PnP)
+RUN yarn install
+
+# Copy project configuration
+COPY nx.json tsconfig.base.json eslint.config.mjs ./
+
+# Port will be set via environment variable
+# Default: 4201 (can be overridden in docker-compose.yml)
+ARG VITE_PORT=4201
+ENV VITE_PORT=${VITE_PORT}
+
+EXPOSE ${VITE_PORT}
+
+# Start development server
+# Source code mounted via docker-compose volumes for hot-reload
+CMD yarn nx dev web-ui --host ${VITE_HOST:-0.0.0.0} --port ${VITE_PORT}

@@ -1,0 +1,23 @@
+{
+  "name": "@l-kern/config",
+  "version": "1.0.0",
+  "description": "L-KERN v4 shared configuration, constants, translations, and theme system",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./constants": "./src/constants/index.ts",
+    "./translations": "./src/translations/index.tsx",
+    "./theme": "./src/theme/ThemeContext.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.2"
+  }
+}

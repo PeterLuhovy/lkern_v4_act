@@ -1,0 +1,198 @@
+# ================================================================
+# L-KERN v4 - Docker Compose Configuration
+# ================================================================
+# Version: 1.0.0
+# Created: 2025-10-13
+#
+# Configuration: .env file
+# Port Mapping: docs/architecture/port-mapping.md
+#
+# All values are loaded from .env - NO hardcoded values!
+# ================================================================
+
+
+# ================================================================
+# NETWORKS
+# ================================================================
+networks:
+  backend:
+    driver: bridge
+    name: ${NETWORK_BACKEND}
+  database:
+    driver: bridge
+    name: ${NETWORK_DATABASE}
+
+# ================================================================
+# VOLUMES
+# ================================================================
+volumes:
+  node_modules:
+    name: ${VOLUME_NODE_MODULES}
+  postgres_data:
+    name: ${LKMS501_VOLUME_DATA}
+
+# ================================================================
+# SERVICES
+# ================================================================
+services:
+
+  # ============================================================
+  # FRONTEND APPLICATIONS (LKMS 200-299)
+  # ============================================================
+
+  lkms201-web-ui:
+    build:
+      context: .
+      dockerfile: ${LKMS201_DOCKERFILE}
+    container_name: ${LKMS201_CONTAINER_NAME}
+    restart: ${LKMS201_RESTART_POLICY}
+    environment:
+      - SERVICE_NAME=${LKMS201_SERVICE_NAME}
+      - SERVICE_VERSION=${LKMS201_VERSION}
+      - NODE_ENV=${NODE_ENV}
+      - VITE_PORT=${LKMS201_VITE_PORT}
+      - VITE_HOST=${LKMS201_VITE_HOST}
+      - VITE_API_CONTACTS=${VITE_API_CONTACTS}
+      - VITE_API_ORDERS=${VITE_API_ORDERS}
+      - VITE_API_AUTH=${VITE_API_AUTH}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+    ports:
+      - "${LKMS201_PORT_EXTERNAL}:${LKMS201_PORT_INTERNAL}"
+    volumes:
+      # Source code (hot-reload - read-write for file watching)
+      - ./apps:/app/apps
+      - ./packages:/app/packages
+      - ./nx.json:/app/nx.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      # NOTE: Do NOT mount package.json, yarn.lock, .yarnrc.yml, .yarn
+      # Dockerfile creates its own .yarnrc.yml without yarnPath
+      # Preserve node_modules (from Docker image)
+      - node_modules:/app/node_modules
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${LKMS201_PORT_INTERNAL}"]
+      interval: ${LKMS201_HEALTHCHECK_INTERVAL}
+      timeout: ${LKMS201_HEALTHCHECK_TIMEOUT}
+      retries: ${LKMS201_HEALTHCHECK_RETRIES}
+      start_period: ${LKMS201_HEALTHCHECK_START_PERIOD}
+
+  # ============================================================
+  # BUSINESS MICROSERVICES (LKMS 100-199)
+  # ============================================================
+
+  # lkms101-contacts:
+  #   build:
+  #     context: .
+  #     dockerfile: ${LKMS101_DOCKERFILE}
+  #   container_name: ${LKMS101_CONTAINER_NAME}
+  #   restart: ${LKMS101_RESTART_POLICY}
+  #   environment:
+  #     - SERVICE_NAME=${LKMS101_SERVICE_NAME}
+  #     - SERVICE_VERSION=${LKMS101_VERSION}
+  #     - SERVER_HOST=${LKMS101_SERVER_HOST}
+  #     - SERVER_RELOAD=${LKMS101_SERVER_RELOAD}
+  #     - LOG_LEVEL=${LKMS101_LOG_LEVEL}
+  #     - DEBUG=${LKMS101_DEBUG}
+  #     - DATABASE_HOST=${LKMS101_DB_HOST}
+  #     - DATABASE_PORT=${LKMS101_DB_PORT}
+  #     - DATABASE_NAME=${LKMS101_DB_NAME}
+  #     - DATABASE_USER=${LKMS101_DB_USER}
+  #     - DATABASE_PASSWORD=${LKMS101_DB_PASSWORD}
+  #     - CORS_ORIGINS=${CORS_ORIGINS_DEV}
+  #     - CORS_MAX_AGE=${CORS_MAX_AGE}
+  #     - CORS_ALLOW_CREDENTIALS=${CORS_ALLOW_CREDENTIALS}
+  #   ports:
+  #     - "${LKMS101_PORT_EXTERNAL}:${LKMS101_PORT_INTERNAL}"
+  #   volumes:
+  #     - ./services/lkms101-contacts/src:/app/src:ro
+  #     - ./packages:/app/packages:ro
+  #   networks:
+  #     - backend
+  #     - database
+  #   depends_on:
+  #     lkms501-postgres:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:${LKMS101_PORT_INTERNAL}/health"]
+  #     interval: ${LKMS101_HEALTHCHECK_INTERVAL}
+  #     timeout: ${LKMS101_HEALTHCHECK_TIMEOUT}
+  #     retries: ${LKMS101_HEALTHCHECK_RETRIES}
+  #     start_period: ${LKMS101_HEALTHCHECK_START_PERIOD}
+
+  # ============================================================
+  # DATA SERVICES (LKMS 500-599)
+  # ============================================================
+
+  # lkms501-postgres:
+  #   image: ${LKMS501_IMAGE}
+  #   container_name: ${LKMS501_CONTAINER_NAME}
+  #   restart: ${LKMS501_RESTART_POLICY}
+  #   environment:
+  #     - POSTGRES_USER=${LKMS501_POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${LKMS501_POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${LKMS501_POSTGRES_DB}
+  #   ports:
+  #     - "${LKMS501_PORT_EXTERNAL}:${LKMS501_PORT_INTERNAL}"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - database
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${LKMS501_POSTGRES_USER}"]
+  #     interval: ${LKMS501_HEALTHCHECK_INTERVAL}
+  #     timeout: ${LKMS501_HEALTHCHECK_TIMEOUT}
+  #     retries: ${LKMS501_HEALTHCHECK_RETRIES}
+
+  # ============================================================
+  # DEVELOPMENT TOOLS (LKMS 900-999)
+  # ============================================================
+
+  # lkms901-adminer:
+  #   image: ${LKMS901_IMAGE}
+  #   container_name: ${LKMS901_CONTAINER_NAME}
+  #   restart: ${LKMS901_RESTART_POLICY}
+  #   environment:
+  #     - ADMINER_DEFAULT_SERVER=${LKMS901_DEFAULT_SERVER}
+  #     - ADMINER_DESIGN=${LKMS901_DESIGN}
+  #   ports:
+  #     - "${LKMS901_PORT_EXTERNAL}:${LKMS901_PORT_INTERNAL}"
+  #   networks:
+  #     - database
+  #   depends_on:
+  #     - lkms501-postgres
+
+# ================================================================
+# USAGE
+# ================================================================
+#
+# 🚀 START:
+#   docker-compose up -d
+#
+# 🔨 REBUILD:
+#   docker-compose up --build -d
+#
+# 📊 LOGS:
+#   docker-compose logs -f lkms201-web-ui
+#
+# 🔄 RESTART:
+#   docker-compose restart lkms201-web-ui
+#
+# 🛑 STOP:
+#   docker-compose down
+#
+# 🗑️ CLEAN:
+#   docker-compose down -v
+#
+# ⚙️ ENABLE/DISABLE SERVICES:
+#   Edit .env file: LKMS{XXX}_ENABLED=true/false
+#   Uncomment service in this file
+#
+# 📋 ACCESS:
+#   Web UI:    http://localhost:4201
+#   Contacts:  http://localhost:4101/docs
+#   Postgres:  localhost:4501
+#   Adminer:   http://localhost:4901
+#
+# ================================================================
