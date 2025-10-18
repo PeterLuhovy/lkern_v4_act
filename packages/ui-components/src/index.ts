@@ -33,3 +33,6 @@ export type { RadioProps, RadioGroupProps, RadioOption } from './components/Radi
 
 export { Badge } from './components/Badge';
 export type { BadgeProps, BadgeVariant, BadgeSize } from './components/Badge';
+
+export { Spinner } from './components/Spinner';
+export type { SpinnerProps, SpinnerSize } from './components/Spinner';

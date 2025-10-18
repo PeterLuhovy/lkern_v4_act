@@ -1,0 +1,76 @@
+/*
+ * ================================================================
+ * FILE: Spinner.module.css
+ * PATH: /packages/ui-components/src/components/Spinner/Spinner.module.css
+ * DESCRIPTION: Spinner component styles with CSS animation
+ * VERSION: v1.0.0
+ * CREATED: 2025-10-18
+ * ================================================================
+ */
+
+/* Base Spinner Container */
+.spinner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm, 8px);
+}
+
+/* Spinning Circle */
+.spinner__circle {
+  border-radius: var(--border-radius-full, 50%);
+  border-style: solid;
+  border-color: var(--color-brand-primary, #9c27b0) transparent transparent transparent;
+  animation: spin var(--animation-duration-slow, 1s) linear infinite;
+}
+
+/* Label Text */
+.spinner__label {
+  font-size: var(--font-size-sm, 12px);
+  color: var(--theme-text-secondary, #666);
+  text-align: center;
+}
+
+/* ================================================
+ * SIZE VARIANTS
+ * ================================================ */
+
+.spinner--small .spinner__circle {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.spinner--medium .spinner__circle {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.spinner--large .spinner__circle {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+/* ================================================
+ * ANIMATION
+ * ================================================ */
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================================================
+ * DARK MODE
+ * ================================================ */
+
+[data-theme='dark'] .spinner__label {
+  color: var(--theme-text-secondary, #999);
+}

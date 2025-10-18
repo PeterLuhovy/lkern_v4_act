@@ -34,6 +34,7 @@ export function setupTheme(): void {
 
       /* Brand colors */
       --color-primary: ${COLORS.brand.primary};
+      --color-brand-primary: ${COLORS.brand.primary};
       --color-secondary: ${COLORS.brand.secondary};
       --color-accent: ${COLORS.brand.accent};
 
@@ -47,6 +48,7 @@ export function setupTheme(): void {
       --theme-input-background: ${COLORS.neutral.white};
       --theme-input-background-disabled: ${COLORS.neutral.gray100};
       --theme-hover-background: ${COLORS.neutral.gray100};
+      --theme-button-text-on-color: ${COLORS.neutral.white};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};
@@ -69,6 +71,7 @@ export function setupTheme(): void {
 
       /* Brand colors (lighter versions for dark mode) */
       --color-primary: ${COLORS.brand.light};
+      --color-brand-primary: ${COLORS.brand.light};
       --color-secondary: #64b5f6;
       --color-accent: #f48fb1;
 
@@ -82,6 +85,7 @@ export function setupTheme(): void {
       --theme-input-background: ${COLORS.neutral.gray800};
       --theme-input-background-disabled: ${COLORS.neutral.gray700};
       --theme-hover-background: ${COLORS.neutral.gray700};
+      --theme-button-text-on-color: ${COLORS.neutral.white};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};

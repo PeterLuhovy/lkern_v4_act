@@ -8,14 +8,18 @@
  * ================================================================
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
-import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Badge } from '@l-kern/ui-components';
+import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Badge, Spinner } from '@l-kern/ui-components';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const TestingPage: React.FC = () => {
   const { t } = useTranslation();
+
+  // Radio state
+  const [selectedPlan, setSelectedPlan] = useState<string>('');
+  const [selectedLayout, setSelectedLayout] = useState<string>('');
 
   // Enable global keyboard shortcuts
   useKeyboardShortcuts();
@@ -70,11 +74,11 @@ export const TestingPage: React.FC = () => {
           <h4 style={{ marginBottom: '12px' }}>{t('components.testing.states')}</h4>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
             <Button loading size="small">{t('common.loading')}</Button>
-            <Button disabled size="small">Disabled</Button>
-            <Button fullWidth variant="primary">Full Width</Button>
+            <Button disabled size="small">{t('components.testing.disabled')}</Button>
+            <Button fullWidth variant="primary">{t('components.testing.fullWidth')}</Button>
           </div>
 
-          <h4 style={{ marginBottom: '12px' }}>Navigation Buttons:</h4>
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.navigationButtons')}</h4>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <Button variant="secondary" size="small" icon={<ArrowLeftIcon />}>
               {t('common.back')}
@@ -118,6 +122,36 @@ export const TestingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* Spinner Component */}
+        <section style={{
+          padding: '24px',
+          border: '1px solid var(--theme-border, #e0e0e0)',
+          borderRadius: '8px',
+          background: 'var(--theme-card-background, #ffffff)'
+        }}>
+          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Spinner</h2>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
+            <Spinner size="small" />
+            <Spinner size="medium" />
+            <Spinner size="large" />
+          </div>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.withLabel')}</h4>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '16px' }}>
+            <Spinner size="medium" label={t('common.loading')} />
+            <Spinner size="large" label={t('components.testing.pleaseWait')} />
+          </div>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.customColor')}</h4>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Spinner size="medium" color="#4CAF50" />
+            <Spinner size="medium" color="#f44336" />
+            <Spinner size="medium" color="#ff9800" />
+          </div>
+        </section>
+
         {/* Input Component */}
         <section style={{
           padding: '24px',
@@ -131,8 +165,8 @@ export const TestingPage: React.FC = () => {
             <Input placeholder={t('forms.placeholders.basicInput')} />
             <Input placeholder={t('forms.placeholders.email')} type="email" />
             <Input placeholder={t('forms.placeholders.password')} type="password" />
-            <Input placeholder="With error" error={t('forms.errors.required')} />
-            <Input placeholder="With helper text" helperText="Enter your name" />
+            <Input placeholder={t('components.testing.withError')} error={t('forms.errors.required')} />
+            <Input placeholder={t('components.testing.withHelperText')} helperText={t('components.testing.enterYourName')} />
           </div>
         </section>
 
@@ -155,7 +189,7 @@ export const TestingPage: React.FC = () => {
               ]}
             />
             <Select
-              placeholder="With error"
+              placeholder={t('components.testing.withError')}
               options={[
                 { value: '1', label: 'Option 1' },
                 { value: '2', label: 'Option 2' }
@@ -175,10 +209,10 @@ export const TestingPage: React.FC = () => {
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Checkbox</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Checkbox label="Basic checkbox" />
+            <Checkbox label={t('components.testing.basicCheckbox')} />
             <Checkbox label={t('forms.checkboxes.subscribeNewsletter')} helperText={t('forms.checkboxes.subscribeHelper')} />
             <Checkbox label={t('forms.checkboxes.requiredField')} error={t('forms.checkboxes.requiredError')} />
-            <Checkbox label="Checked by default" defaultChecked />
+            <Checkbox label={t('components.testing.checkedByDefault')} defaultChecked />
           </div>
         </section>
 
@@ -200,6 +234,8 @@ export const TestingPage: React.FC = () => {
                 { value: 'pro', label: t('forms.plans.pro') },
                 { value: 'enterprise', label: t('forms.plans.enterprise') }
               ]}
+              value={selectedPlan}
+              onChange={setSelectedPlan}
             />
             <RadioGroup
               name="layout"
@@ -209,6 +245,8 @@ export const TestingPage: React.FC = () => {
                 { value: 'yes', label: t('common.yes') },
                 { value: 'no', label: t('common.no') }
               ]}
+              value={selectedLayout}
+              onChange={setSelectedLayout}
             />
           </div>
         </section>
