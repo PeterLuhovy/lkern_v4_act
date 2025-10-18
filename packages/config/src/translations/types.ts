@@ -54,6 +54,9 @@ export interface TranslationKeys {
     confirm: string;
     yes: string;
     no: string;
+    submit: string;
+    back: string;
+    next: string;
   };
   dashboard: {
     title: string;
@@ -68,5 +71,60 @@ export interface TranslationKeys {
     title: string;
     add: string;
     edit: string;
+  };
+  components: {
+    buttons: {
+      primary: string;
+      secondary: string;
+      danger: string;
+      ghost: string;
+      success: string;
+      small: string;
+      medium: string;
+      large: string;
+    };
+  };
+  forms: {
+    username: string;
+    email: string;
+    password: string;
+    country: string;
+    bio: string;
+    placeholders: {
+      username: string;
+      email: string;
+      password: string;
+      country: string;
+      bio: string;
+      basicInput: string;
+    };
+    helperTexts: {
+      emailPrivacy: string;
+      selectCountry: string;
+      bioOptional: string;
+    };
+    errors: {
+      passwordLength: string;
+      required: string;
+    };
+    checkboxes: {
+      agreeTerms: string;
+      subscribeNewsletter: string;
+      subscribeHelper: string;
+      requiredField: string;
+      requiredError: string;
+    };
+    plans: {
+      label: string;
+      free: string;
+      pro: string;
+      enterprise: string;
+      helper: string;
+    };
+    layout: {
+      label: string;
+      vertical: string;
+      horizontal: string;
+    };
   };
 }

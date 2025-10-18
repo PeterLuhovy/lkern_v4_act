@@ -5,7 +5,7 @@
 # Version: 1.0.0
 # Created: 2025-10-15
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:

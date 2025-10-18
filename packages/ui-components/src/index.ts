@@ -13,7 +13,7 @@ export { classNames } from './utils/classNames';
 export type { Size, Variant, StatusVariant, BaseComponentProps } from './types/common';
 
 // Components
-export { Button } from './components/Button';
+export { Button, ArrowLeftIcon, ArrowRightIcon } from './components/Button';
 export type { ButtonProps } from './components/Button';
 
 export { Input } from './components/Input';
@@ -24,3 +24,12 @@ export type { FormFieldProps } from './components/FormField';
 
 export { Select } from './components/Select';
 export type { SelectProps, SelectOption } from './components/Select';
+
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
+
+export { Radio, RadioGroup } from './components/Radio';
+export type { RadioProps, RadioGroupProps, RadioOption } from './components/Radio';
+
+export { Badge } from './components/Badge';
+export type { BadgeProps, BadgeVariant, BadgeSize } from './components/Badge';

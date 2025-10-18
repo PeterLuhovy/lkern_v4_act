@@ -5,7 +5,7 @@
 # Version: 1.1.0
 # Created: 2025-10-15
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -312,6 +312,70 @@ const CONSTANT_GROUP = {
 
 **Translation keys:**
 - ✅ `camelCase` with dot notation: `common.buttons.save`
+
+### Theme CSS Variables
+
+**MANDATORY: ALL colors in CSS MUST use `--theme-*` variables** (NOT hardcoded colors, NOT `--color-*` variables).
+
+**Available theme variables:**
+- ✅ `--theme-text` - Default text color (#212121)
+- ✅ `--theme-text-muted` - Muted/disabled text (#9e9e9e)
+- ✅ `--theme-input-background` - Input background (#ffffff)
+- ✅ `--theme-input-background-disabled` - Disabled input background (#f5f5f5)
+- ✅ `--theme-input-border` - Input border color (#e0e0e0)
+- ✅ `--theme-input-border-hover` - Input border on hover (#bdbdbd)
+- ✅ `--theme-border` - General border color (#e0e0e0)
+- ✅ `--theme-hover-background` - Hover background (#f5f5f5)
+- ✅ `--theme-button-text-on-color` - Text on colored buttons (#ffffff)
+
+**Status colors** (use directly, these are NOT theme-dependent):
+- ✅ `--color-status-success` - Success green (#4CAF50)
+- ✅ `--color-status-error` - Error red (#f44336)
+- ✅ `--color-status-warning` - Warning orange (#FF9800)
+- ✅ `--color-status-info` - Info blue (#2196F3)
+
+**Brand colors** (use directly for branding elements):
+- ✅ `--color-brand-primary` - Primary purple (#9c27b0)
+- ✅ `--color-brand-secondary` - Secondary blue (#3366cc)
+
+**Example - Correct theme variable usage:**
+```css
+.button--primary {
+  background: var(--color-brand-primary, #9c27b0);
+  color: var(--theme-button-text-on-color, #ffffff);
+}
+
+.input {
+  background: var(--theme-input-background, #ffffff);
+  border: 2px solid var(--theme-input-border, #e0e0e0);
+  color: var(--theme-text, #212121);
+}
+
+.input:hover {
+  border-color: var(--theme-input-border-hover, #bdbdbd);
+}
+
+.input:disabled {
+  background: var(--theme-input-background-disabled, #f5f5f5);
+  color: var(--theme-text-muted, #9e9e9e);
+}
+```
+
+**❌ WRONG - Hardcoded colors:**
+```css
+.button {
+  background: #9c27b0;  /* DON'T DO THIS */
+  color: #ffffff;       /* DON'T DO THIS */
+}
+```
+
+**❌ WRONG - Using --color-neutral-* instead of --theme-*:**
+```css
+.input {
+  background: var(--color-neutral-white);  /* DON'T DO THIS */
+  color: var(--color-neutral-gray900);     /* USE --theme-text INSTEAD */
+}
+```
 
 ---
 
@@ -1893,6 +1957,747 @@ export default defineConfig({
   }
 });
 ```
+
+### What to Test - Comprehensive Checklist
+
+**This section defines EXACTLY what to test for each component type.**
+
+---
+
+#### UI Components (Button, Input, Select, Checkbox, etc.)
+
+**Rendering Tests:**
+- [ ] Component renders without crashing
+- [ ] Renders with required props
+- [ ] Renders children correctly
+- [ ] Renders with all optional props
+- [ ] Applies default values when props omitted
+
+**Props Tests:**
+- [ ] All variant props apply correct CSS classes
+- [ ] All size props apply correct CSS classes
+- [ ] Boolean props toggle expected behavior
+- [ ] String props display correctly
+- [ ] Number props apply correctly
+
+**Interaction Tests:**
+- [ ] onClick handler called when clicked
+- [ ] onChange handler called when value changes
+- [ ] onFocus/onBlur handlers called correctly
+- [ ] Keyboard interactions work (Enter, Space, Escape)
+
+**State Tests:**
+- [ ] Disabled state prevents interactions
+- [ ] Disabled state applies correct styling
+- [ ] Loading state prevents interactions
+- [ ] Loading state shows loading indicator
+- [ ] Error state displays error message
+- [ ] Error state applies error styling
+
+**CSS & Styling Tests:**
+- [ ] All CSS classes applied correctly
+- [ ] Uses theme CSS variables (not hardcoded colors)
+- [ ] Custom className prop merged with default classes
+- [ ] fullWidth prop applies correct width
+
+**Translation Tests:**
+- [ ] ALL user-facing text uses t() function (NO hardcoded strings)
+- [ ] Component text changes when language switches (test with both 'sk' and 'en')
+- [ ] Placeholder text uses translations
+- [ ] Error messages use translations
+- [ ] Helper text uses translations
+- [ ] Button labels use translations
+- [ ] ARIA labels use translations where applicable
+
+**Accessibility Tests:**
+- [ ] Has correct ARIA role
+- [ ] aria-label or aria-labelledby present
+- [ ] aria-disabled set when disabled
+- [ ] aria-invalid set when error
+- [ ] aria-describedby links to error/helper text
+- [ ] Keyboard focusable when not disabled
+
+**HTML Attributes Tests:**
+- [ ] Forwards standard HTML attributes (type, name, placeholder)
+- [ ] data-* attributes forwarded correctly
+- [ ] ref forwarding works (for React.forwardRef components)
+
+**Example - Button Component Tests:**
+```typescript
+describe('Button', () => {
+  // === RENDERING ===
+  it('renders without crashing', () => {
+    render(<Button>Click me</Button>);
+  });
+
+  it('renders text correctly', () => {
+    render(<Button>Save</Button>);
+    expect(screen.getByText('Save')).toBeInTheDocument();
+  });
+
+  // === PROPS ===
+  it('applies primary variant class', () => {
+    render(<Button variant="primary">Primary</Button>);
+    expect(screen.getByRole('button')).toHaveClass('button--primary');
+  });
+
+  it('applies danger variant class', () => {
+    render(<Button variant="danger">Delete</Button>);
+    expect(screen.getByRole('button')).toHaveClass('button--danger');
+  });
+
+  it('applies small size class', () => {
+    render(<Button size="small">Small</Button>);
+    expect(screen.getByRole('button')).toHaveClass('button--small');
+  });
+
+  it('applies fullWidth class when fullWidth is true', () => {
+    render(<Button fullWidth>Full</Button>);
+    expect(screen.getByRole('button')).toHaveClass('button--fullWidth');
+  });
+
+  // === INTERACTIONS ===
+  it('calls onClick when clicked', async () => {
+    const onClick = vi.fn();
+    render(<Button onClick={onClick}>Click</Button>);
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClick when disabled', async () => {
+    const onClick = vi.fn();
+    render(<Button onClick={onClick} disabled>Disabled</Button>);
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('does not call onClick when loading', async () => {
+    const onClick = vi.fn();
+    render(<Button onClick={onClick} loading>Loading</Button>);
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  // === STATE ===
+  it('disables button when disabled prop is true', () => {
+    render(<Button disabled>Disabled</Button>);
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+
+  it('disables button when loading', () => {
+    render(<Button loading>Loading</Button>);
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+
+  it('shows loading indicator when loading', () => {
+    render(<Button loading>Save</Button>);
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+
+  // === CSS ===
+  it('uses CSS variables for colors', () => {
+    const { container } = render(<Button variant="primary">Test</Button>);
+    // Verify CSS variables used, not hardcoded values
+    const styles = getComputedStyle(container.querySelector('button')!);
+    // Should use var(--color-brand-primary) not #1976d2
+  });
+
+  // === TRANSLATION ===
+  it('uses translation for button text (NO hardcoded strings)', () => {
+    const { rerender } = render(<Button variant="primary">{t('components.buttons.primary')}</Button>);
+
+    // Should show Slovak text by default
+    expect(screen.getByText('Primárne')).toBeInTheDocument();
+
+    // Change language to English
+    act(() => setLanguage('en'));
+    rerender(<Button variant="primary">{t('components.buttons.primary')}</Button>);
+
+    // Should now show English text
+    expect(screen.queryByText('Primárne')).not.toBeInTheDocument();
+    expect(screen.getByText('Primary')).toBeInTheDocument();
+  });
+
+  it('does NOT contain hardcoded text strings', () => {
+    const { container } = render(<Button variant="primary">{t('components.buttons.primary')}</Button>);
+
+    // WRONG: Don't do this
+    // <Button>Save</Button>  ❌ Hardcoded
+
+    // CORRECT: Use t() function
+    // <Button>{t('common.save')}</Button>  ✅
+
+    // Verify component uses t() function
+    const buttonText = container.querySelector('button')?.textContent;
+    expect(buttonText).not.toBe('Save'); // Should be translated, not hardcoded
+  });
+
+  // === ACCESSIBILITY ===
+  it('has button role', () => {
+    render(<Button>Test</Button>);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('is keyboard accessible', () => {
+    render(<Button>Test</Button>);
+    const button = screen.getByRole('button');
+    button.focus();
+    expect(document.activeElement).toBe(button);
+  });
+
+  // === HTML ATTRIBUTES ===
+  it('forwards type attribute', () => {
+    render(<Button type="submit">Submit</Button>);
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
+  });
+
+  it('forwards data attributes', () => {
+    render(<Button data-testid="my-button">Test</Button>);
+    expect(screen.getByTestId('my-button')).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+#### Page Components (ContactsPage, OrdersPage, Dashboard)
+
+**Rendering Tests:**
+- [ ] Page renders without crashing
+- [ ] Page title displays correctly
+- [ ] Navigation elements visible
+- [ ] Loading state shows on initial render
+
+**Translation Tests:**
+- [ ] Uses t() function for all text (not hardcoded)
+- [ ] Page title translates when language changes
+- [ ] Button labels translate when language changes
+- [ ] Error messages translate when language changes
+- [ ] Placeholder text translates when language changes
+
+**API Integration Tests:**
+- [ ] Fetches data from API on mount
+- [ ] Displays fetched data correctly
+- [ ] Shows loading spinner while fetching
+- [ ] Shows error message when API fails
+- [ ] Retries failed requests with exponential backoff
+
+**CRUD Operation Tests:**
+- [ ] Create: Opens create modal/form
+- [ ] Create: Submits data to API
+- [ ] Create: Shows success notification
+- [ ] Create: Updates list with new item
+- [ ] Read: Displays list of items
+- [ ] Read: Opens detail view when item clicked
+- [ ] Update: Opens edit modal/form with existing data
+- [ ] Update: Submits updated data to API
+- [ ] Update: Shows success notification
+- [ ] Update: Updates list with changed item
+- [ ] Delete: Shows confirmation dialog
+- [ ] Delete: Deletes item from API
+- [ ] Delete: Shows success notification
+- [ ] Delete: Removes item from list
+
+**Form Validation Tests:**
+- [ ] Required fields show error when empty
+- [ ] Email fields validate email format
+- [ ] Phone fields validate phone format
+- [ ] Number fields reject non-numeric input
+- [ ] Min/max length validation works
+- [ ] Custom validation rules apply
+- [ ] Submit button disabled when form invalid
+
+**User Interaction Tests:**
+- [ ] Search input filters results
+- [ ] Pagination buttons work
+- [ ] Sort headers change sort order
+- [ ] Filter checkboxes update results
+- [ ] Modal opens when "Add" clicked
+- [ ] Modal closes when "Cancel" clicked
+- [ ] Modal closes when "Save" successful
+
+**Example - ContactsPage Tests:**
+```typescript
+describe('ContactsPage', () => {
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.clearAllMocks();
+  });
+
+  // === RENDERING ===
+  it('renders page title', () => {
+    render(<ContactsPage />);
+    expect(screen.getByText('Kontakty')).toBeInTheDocument();
+  });
+
+  it('shows loading spinner initially', () => {
+    render(<ContactsPage />);
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+
+  // === TRANSLATION ===
+  it('uses translation for page title', () => {
+    const { rerender } = render(<ContactsPage />);
+    expect(screen.getByText('Kontakty')).toBeInTheDocument();
+
+    // Change language to English
+    changeLanguage('en');
+    rerender(<ContactsPage />);
+    expect(screen.getByText('Contacts')).toBeInTheDocument();
+  });
+
+  // === API INTEGRATION ===
+  it('fetches contacts on mount', async () => {
+    const mockContacts = [
+      { id: 1, name: 'John Doe', email: 'john@example.com' },
+      { id: 2, name: 'Jane Doe', email: 'jane@example.com' }
+    ];
+
+    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => {
+      expect(contactsApi.getAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('displays fetched contacts', async () => {
+    const mockContacts = [
+      { id: 1, name: 'John Doe', email: 'john@example.com' }
+    ];
+
+    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.getByText('john@example.com')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error message when API fails', async () => {
+    vi.mocked(contactsApi.getAll).mockRejectedValue(new Error('API Error'));
+
+    render(<ContactsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/error/i)).toBeInTheDocument();
+    });
+  });
+
+  // === CREATE ===
+  it('opens create modal when Add button clicked', async () => {
+    render(<ContactsPage />);
+
+    await userEvent.click(screen.getByText('Pridať kontakt'));
+
+    expect(screen.getByTestId('contact-modal')).toBeInTheDocument();
+  });
+
+  it('creates new contact', async () => {
+    const mockContact = { id: 3, name: 'New Contact', email: 'new@example.com' };
+    vi.mocked(contactsApi.create).mockResolvedValue(mockContact);
+
+    render(<ContactsPage />);
+
+    // Open modal
+    await userEvent.click(screen.getByText('Pridať kontakt'));
+
+    // Fill form
+    await userEvent.type(screen.getByLabelText('Meno'), 'New Contact');
+    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
+
+    // Submit
+    await userEvent.click(screen.getByText('Uložiť'));
+
+    await waitFor(() => {
+      expect(contactsApi.create).toHaveBeenCalledWith({
+        name: 'New Contact',
+        email: 'new@example.com'
+      });
+    });
+  });
+
+  it('shows success notification after create', async () => {
+    const mockContact = { id: 3, name: 'New Contact', email: 'new@example.com' };
+    vi.mocked(contactsApi.create).mockResolvedValue(mockContact);
+
+    render(<ContactsPage />);
+
+    // Create contact (same steps as above)
+    await userEvent.click(screen.getByText('Pridať kontakt'));
+    await userEvent.type(screen.getByLabelText('Meno'), 'New Contact');
+    await userEvent.click(screen.getByText('Uložiť'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/úspešne vytvorený/i)).toBeInTheDocument();
+    });
+  });
+
+  // === UPDATE ===
+  it('opens edit modal with existing data', async () => {
+    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
+    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => screen.getByText('John Doe'));
+
+    // Click edit button
+    await userEvent.click(screen.getByLabelText('Upraviť John Doe'));
+
+    // Modal should have existing data
+    expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('john@example.com')).toBeInTheDocument();
+  });
+
+  // === DELETE ===
+  it('shows confirmation dialog before delete', async () => {
+    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
+    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => screen.getByText('John Doe'));
+
+    // Click delete button
+    await userEvent.click(screen.getByLabelText('Zmazať John Doe'));
+
+    // Confirmation dialog appears
+    expect(screen.getByText(/naozaj chcete zmazať/i)).toBeInTheDocument();
+  });
+
+  it('deletes contact after confirmation', async () => {
+    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
+    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
+    vi.mocked(contactsApi.delete).mockResolvedValue(undefined);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => screen.getByText('John Doe'));
+
+    // Delete
+    await userEvent.click(screen.getByLabelText('Zmazať John Doe'));
+    await userEvent.click(screen.getByText('Áno, zmazať'));
+
+    await waitFor(() => {
+      expect(contactsApi.delete).toHaveBeenCalledWith(1);
+    });
+  });
+
+  // === SEARCH & FILTER ===
+  it('filters contacts by search term', async () => {
+    const mockContacts = [
+      { id: 1, name: 'John Doe', email: 'john@example.com' },
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
+    ];
+    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
+
+    render(<ContactsPage />);
+
+    await waitFor(() => screen.getByText('John Doe'));
+
+    // Type in search
+    await userEvent.type(screen.getByPlaceholderText('Hľadať...'), 'John');
+
+    // Only John should be visible
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
+  });
+});
+```
+
+---
+
+#### API Endpoints (Backend - FastAPI)
+
+**Success Response Tests:**
+- [ ] GET all returns 200 and array
+- [ ] GET by ID returns 200 and object
+- [ ] POST returns 201 and created object
+- [ ] PUT returns 200 and updated object
+- [ ] DELETE returns 204 No Content
+
+**Error Response Tests:**
+- [ ] GET nonexistent ID returns 404
+- [ ] POST invalid data returns 400 or 422
+- [ ] POST duplicate unique field returns 400
+- [ ] PUT nonexistent ID returns 404
+- [ ] DELETE nonexistent ID returns 404
+
+**Validation Tests:**
+- [ ] Required fields validated (400 if missing)
+- [ ] Email format validated
+- [ ] Min/max length validated
+- [ ] Enum values validated
+- [ ] Type validation (string vs number)
+
+**Business Logic Tests:**
+- [ ] Related records created correctly
+- [ ] Cascading deletes work
+- [ ] Soft delete marks is_active=false
+- [ ] Timestamps set correctly (created_at, updated_at)
+- [ ] Default values applied
+
+**Database Tests:**
+- [ ] Record saved to database
+- [ ] Record updated in database
+- [ ] Record deleted from database
+- [ ] Transactions roll back on error
+- [ ] Foreign key constraints enforced
+
+**Example - Contacts API Tests:**
+```python
+def test_create_contact_success(client):
+    """Test successful contact creation."""
+    response = client.post(
+        "/api/v1/contacts",
+        json={
+            "name": "John Doe",
+            "email": "john@example.com",
+            "phone": "+421900123456"
+        }
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["name"] == "John Doe"
+    assert data["email"] == "john@example.com"
+    assert "id" in data
+    assert "created_at" in data
+
+def test_create_contact_duplicate_email(client, db_session):
+    """Test creating contact with duplicate email fails."""
+    # Create first contact
+    contact = Contact(name="Existing", email="john@example.com")
+    db_session.add(contact)
+    db_session.commit()
+
+    # Try to create duplicate
+    response = client.post(
+        "/api/v1/contacts",
+        json={"name": "Duplicate", "email": "john@example.com"}
+    )
+
+    assert response.status_code == 400
+    assert "already exists" in response.json()["detail"]
+
+def test_create_contact_invalid_email(client):
+    """Test creating contact with invalid email fails."""
+    response = client.post(
+        "/api/v1/contacts",
+        json={"name": "Test", "email": "not-an-email"}
+    )
+
+    assert response.status_code == 422  # Validation error
+
+def test_get_contact_by_id(client, db_session):
+    """Test retrieving contact by ID."""
+    contact = Contact(name="Jane Doe", email="jane@example.com")
+    db_session.add(contact)
+    db_session.commit()
+
+    response = client.get(f"/api/v1/contacts/{contact.id}")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == contact.id
+    assert data["name"] == "Jane Doe"
+
+def test_get_nonexistent_contact(client):
+    """Test retrieving nonexistent contact returns 404."""
+    response = client.get("/api/v1/contacts/99999")
+
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"].lower()
+
+def test_update_contact(client, db_session):
+    """Test updating contact."""
+    contact = Contact(name="Old Name", email="old@example.com")
+    db_session.add(contact)
+    db_session.commit()
+
+    response = client.put(
+        f"/api/v1/contacts/{contact.id}",
+        json={"name": "New Name"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "New Name"
+    assert data["email"] == "old@example.com"  # Unchanged
+
+def test_delete_contact(client, db_session):
+    """Test deleting contact."""
+    contact = Contact(name="Delete Me", email="delete@example.com")
+    db_session.add(contact)
+    db_session.commit()
+
+    response = client.delete(f"/api/v1/contacts/{contact.id}")
+
+    assert response.status_code == 204
+
+    # Verify deleted
+    deleted = db_session.query(Contact).filter(Contact.id == contact.id).first()
+    assert deleted is None
+
+def test_list_contacts_pagination(client, db_session):
+    """Test listing contacts with pagination."""
+    # Create 5 contacts
+    for i in range(5):
+        contact = Contact(name=f"Contact {i}", email=f"contact{i}@example.com")
+        db_session.add(contact)
+    db_session.commit()
+
+    # Get first 2
+    response = client.get("/api/v1/contacts?skip=0&limit=2")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+
+def test_list_contacts_filter(client, db_session):
+    """Test filtering contacts by is_active."""
+    active = Contact(name="Active", email="active@example.com", is_active=True)
+    inactive = Contact(name="Inactive", email="inactive@example.com", is_active=False)
+    db_session.add(active)
+    db_session.add(inactive)
+    db_session.commit()
+
+    response = client.get("/api/v1/contacts?is_active=true")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["name"] == "Active"
+```
+
+---
+
+#### gRPC Services
+
+**Success Tests:**
+- [ ] Service method returns expected response
+- [ ] Response contains correct data
+- [ ] Response fields have correct types
+
+**Error Tests:**
+- [ ] Returns NOT_FOUND for missing resource
+- [ ] Returns INVALID_ARGUMENT for bad input
+- [ ] Returns INTERNAL for server errors
+
+**Data Tests:**
+- [ ] Protobuf serialization works
+- [ ] Repeated fields return arrays
+- [ ] Optional fields handle null
+
+**Connection Tests:**
+- [ ] Client connects to server
+- [ ] Connection timeout handled
+- [ ] Retry logic works
+
+**Example - gRPC Tests:**
+```python
+def test_get_contact_grpc_success():
+    """Test GetContact gRPC method success."""
+    # Setup
+    servicer = ContactsServicer()
+    request = contacts_pb2.GetContactRequest(id=1)
+    context = MockContext()
+
+    # Create test contact in DB
+    db = SessionLocal()
+    contact = Contact(id=1, name="Test", email="test@example.com")
+    db.add(contact)
+    db.commit()
+
+    # Call gRPC method
+    response = servicer.GetContact(request, context)
+
+    assert response.contact.id == 1
+    assert response.contact.name == "Test"
+    assert response.contact.email == "test@example.com"
+
+def test_get_contact_grpc_not_found():
+    """Test GetContact gRPC method with nonexistent ID."""
+    servicer = ContactsServicer()
+    request = contacts_pb2.GetContactRequest(id=99999)
+    context = MockContext()
+
+    response = servicer.GetContact(request, context)
+
+    assert context.code == grpc.StatusCode.NOT_FOUND
+    assert "not found" in context.details.lower()
+```
+
+---
+
+#### Custom Hooks (React)
+
+**Return Value Tests:**
+- [ ] Hook returns expected values
+- [ ] Hook returns expected functions
+- [ ] Return values have correct types
+
+**State Tests:**
+- [ ] Initial state correct
+- [ ] State updates when action called
+- [ ] State persists across re-renders
+
+**Side Effect Tests:**
+- [ ] useEffect runs on mount
+- [ ] useEffect cleanup runs on unmount
+- [ ] Dependencies trigger re-run
+
+**Example - useTranslation Hook Tests:**
+```typescript
+describe('useTranslation', () => {
+  it('returns translation function', () => {
+    const { result } = renderHook(() => useTranslation());
+    expect(typeof result.current.t).toBe('function');
+  });
+
+  it('translates keys correctly', () => {
+    const { result } = renderHook(() => useTranslation());
+    const translated = result.current.t('common.buttons.save');
+    expect(translated).toBe('Uložiť');  // Slovak default
+  });
+
+  it('changes language', () => {
+    const { result } = renderHook(() => useTranslation());
+
+    act(() => {
+      result.current.setLanguage('en');
+    });
+
+    expect(result.current.currentLanguage).toBe('en');
+    expect(result.current.t('common.buttons.save')).toBe('Save');
+  });
+});
+```
+
+---
+
+### Test Coverage Goals
+
+**Minimum coverage requirements:**
+
+| Component Type | Line Coverage | Branch Coverage |
+|----------------|---------------|-----------------|
+| UI Components | 90% | 85% |
+| Page Components | 80% | 75% |
+| API Endpoints | 95% | 90% |
+| Business Logic | 95% | 90% |
+| Utilities | 100% | 100% |
+| Custom Hooks | 90% | 85% |
+
+**Coverage exceptions:**
+- Type definitions (.d.ts files)
+- Configuration files
+- Test files themselves
+- Generated code (protobuf, etc.)
 
 ---
 

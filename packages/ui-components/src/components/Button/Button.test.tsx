@@ -121,4 +121,41 @@ describe('Button', () => {
     const button = screen.getByTestId('submit-button');
     expect(button).toHaveAttribute('type', 'submit');
   });
+
+  describe('Translation Support', () => {
+    it('renders translated text when provided as children', () => {
+      // Simulate translated text being passed from parent component
+      const translatedText = 'Uložiť'; // Slovak for "Save"
+      render(<Button>{translatedText}</Button>);
+
+      expect(screen.getByText('Uložiť')).toBeInTheDocument();
+    });
+
+    it('re-renders with new translated text when children change', () => {
+      const { rerender } = render(<Button>Save</Button>);
+      expect(screen.getByText('Save')).toBeInTheDocument();
+
+      // Simulate language change - parent passes new translated text
+      rerender(<Button>Uložiť</Button>);
+      expect(screen.queryByText('Save')).not.toBeInTheDocument();
+      expect(screen.getByText('Uložiť')).toBeInTheDocument();
+    });
+
+    it('properly displays any text passed as children (translation-agnostic)', () => {
+      // Button should work with ANY text (hardcoded or translated)
+      // Real translation happens in parent component using t() function
+      const testCases = [
+        'Save',           // English
+        'Uložiť',         // Slovak
+        'Speichern',      // German
+        '保存',           // Japanese
+      ];
+
+      testCases.forEach((text) => {
+        const { unmount } = render(<Button>{text}</Button>);
+        expect(screen.getByText(text)).toBeInTheDocument();
+        unmount();
+      });
+    });
+  });
 });

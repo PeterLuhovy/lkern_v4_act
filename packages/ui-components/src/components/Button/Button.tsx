@@ -28,9 +28,15 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   size?: Size;
 
   /**
-   * Icon element to display before button text
+   * Icon element to display before or after button text
    */
   icon?: React.ReactNode;
+
+  /**
+   * Position of the icon relative to text
+   * @default 'left'
+   */
+  iconPosition?: 'left' | 'right';
 
   /**
    * Loading state - disables button and shows loading spinner
@@ -75,6 +81,7 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'secondary',
   size = 'medium',
   icon,
+  iconPosition = 'left',
   loading = false,
   fullWidth = false,
   onClick,
@@ -112,8 +119,9 @@ export const Button: React.FC<ButtonProps> = ({
         </>
       ) : (
         <>
-          {icon && <span className={styles.icon}>{icon}</span>}
+          {icon && iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
           {children}
+          {icon && iconPosition === 'right' && <span className={styles.icon}>{icon}</span>}
         </>
       )}
     </button>

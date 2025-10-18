@@ -5,7 +5,7 @@
 # Version: 2.0.0
 # Created: 2025-10-13
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -148,7 +148,7 @@ Work-in-progress documentation, planning notes, TODO files.
 # Version: X.Y.Z
 # Created: YYYY-MM-DD
 # Updated: YYYY-MM-DD
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:

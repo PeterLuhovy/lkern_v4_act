@@ -5,7 +5,7 @@
 # Version: 1.0.0
 # Created: 2025-10-18
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -114,7 +114,7 @@ yarn nx test ui-components -- --verbose
 
 ### Test File Structure
 
-**Example: Button Component Tests**
+**Component Structure Example:**
 
 ```
 packages/ui-components/src/components/Button/
@@ -124,7 +124,16 @@ packages/ui-components/src/components/Button/
 └── index.ts             # Export
 ```
 
-**Test File Example:**
+**Available Test Suites (115 tests total):**
+- Button.test.tsx - 16 tests (variants, sizes, loading, icons)
+- Input.test.tsx - 15 tests (types, error states, accessibility)
+- FormField.test.tsx - 11 tests (label, required, error display)
+- Select.test.tsx - 21 tests (options, placeholder, error handling)
+- Checkbox.test.tsx - 19 tests (label, indeterminate state, accessibility)
+- Radio.test.tsx - 13 tests (states, disabled, forward ref)
+- RadioGroup.test.tsx - 20 tests (selection, layout, accessibility)
+
+**Test File Example (Button):**
 ```typescript
 // packages/ui-components/src/components/Button/Button.test.tsx
 import { describe, it, expect, vi } from 'vitest';
@@ -149,7 +158,71 @@ describe('Button', () => {
   it('shows loading state', () => {
     render(<Button loading>Submit</Button>);
     expect(screen.getByRole('button')).toHaveAttribute('disabled');
-    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+  });
+});
+```
+
+**Test File Example (Checkbox):**
+```typescript
+// packages/ui-components/src/components/Checkbox/Checkbox.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Checkbox } from './Checkbox';
+
+describe('Checkbox', () => {
+  it('renders with label', () => {
+    render(<Checkbox label="Accept terms" />);
+    expect(screen.getByLabelText('Accept terms')).toBeInTheDocument();
+  });
+
+  it('sets indeterminate state', () => {
+    render(<Checkbox label="Select all" indeterminate />);
+    const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
+    expect(checkbox.indeterminate).toBe(true);
+  });
+
+  it('toggles checked state on click', async () => {
+    const user = userEvent.setup();
+    render(<Checkbox label="Toggle me" />);
+    const checkbox = screen.getByRole('checkbox');
+
+    expect(checkbox).not.toBeChecked();
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
+  });
+});
+```
+
+**Test File Example (RadioGroup):**
+```typescript
+// packages/ui-components/src/components/Radio/RadioGroup.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { RadioGroup } from './RadioGroup';
+
+const options = [
+  { value: 'small', label: 'Small' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+];
+
+describe('RadioGroup', () => {
+  it('renders all radio options', () => {
+    render(<RadioGroup name="size" options={options} />);
+    expect(screen.getByLabelText('Small')).toBeInTheDocument();
+    expect(screen.getByLabelText('Medium')).toBeInTheDocument();
+    expect(screen.getByLabelText('Large')).toBeInTheDocument();
+  });
+
+  it('calls onChange with selected value', async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    render(<RadioGroup name="size" options={options} onChange={handleChange} />);
+
+    await user.click(screen.getByLabelText('Large'));
+    expect(handleChange).toHaveBeenCalledWith('large');
   });
 });
 ```
@@ -633,5 +706,5 @@ docker exec lkms201-web-ui ls -la packages/ui-components/coverage/
 
 ---
 
-**Last Updated**: 2025-10-18
+**Last Updated**: 2025-10-18 13:45:00
 **Maintainer**: BOSSystems s.r.o.

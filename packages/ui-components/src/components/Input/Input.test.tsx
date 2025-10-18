@@ -112,4 +112,48 @@ describe('Input', () => {
     expect(input).toHaveAttribute('maxLength', '20');
     expect(input).toBeRequired();
   });
+
+  describe('Translation Support', () => {
+    it('renders translated placeholder text', () => {
+      const translatedPlaceholder = 'Zadajte email'; // Slovak for "Enter email"
+      render(<Input placeholder={translatedPlaceholder} />);
+
+      expect(screen.getByPlaceholderText('Zadajte email')).toBeInTheDocument();
+    });
+
+    it('renders translated error message', () => {
+      const translatedError = 'Toto pole je povinné'; // Slovak for "This field is required"
+      render(<Input error={translatedError} />);
+
+      expect(screen.getByText('Toto pole je povinné')).toBeInTheDocument();
+    });
+
+    it('renders translated helper text', () => {
+      const translatedHelper = 'Zadajte aspoň 8 znakov'; // Slovak for "Enter at least 8 characters"
+      render(<Input helperText={translatedHelper} />);
+
+      expect(screen.getByText('Zadajte aspoň 8 znakov')).toBeInTheDocument();
+    });
+
+    it('updates placeholder when translation changes', () => {
+      const { rerender } = render(<Input placeholder="Enter email" data-testid="input" />);
+      expect(screen.getByPlaceholderText('Enter email')).toBeInTheDocument();
+
+      // Simulate language change - parent passes new translated placeholder
+      rerender(<Input placeholder="Zadajte email" data-testid="input" />);
+      const input = screen.getByTestId('input');
+      expect(input).toHaveAttribute('placeholder', 'Zadajte email');
+      expect(input).not.toHaveAttribute('placeholder', 'Enter email');
+    });
+
+    it('updates error message when translation changes', () => {
+      const { rerender } = render(<Input error="Required" />);
+      expect(screen.getByText('Required')).toBeInTheDocument();
+
+      // Simulate language change
+      rerender(<Input error="Povinné" />);
+      expect(screen.queryByText('Required')).not.toBeInTheDocument();
+      expect(screen.getByText('Povinné')).toBeInTheDocument();
+    });
+  });
 });

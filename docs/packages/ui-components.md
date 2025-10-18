@@ -5,7 +5,7 @@
 # Version: 0.0.1
 # Created: 2025-10-18
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -400,4 +400,4 @@ expect(button.className).toContain('primary');
 ---
 
 **Maintainer**: BOSSystems s.r.o.
-**Project**: L-KERN v4 - Business Operating System Software
+**Project**: L-KERN v4 - Business Operating System Service

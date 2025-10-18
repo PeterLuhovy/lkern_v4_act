@@ -16,7 +16,12 @@ root.render(
   <StrictMode>
     <ThemeProvider defaultTheme="light">
       <TranslationProvider defaultLanguage="sk">
-        <BrowserRouter>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <App />
         </BrowserRouter>
       </TranslationProvider>

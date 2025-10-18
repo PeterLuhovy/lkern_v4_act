@@ -45,7 +45,7 @@
 /* Primary - Brand color */
 .button--primary {
   background: var(--color-brand-primary, #9c27b0);
-  color: var(--color-neutral-white, #ffffff);
+  color: var(--theme-button-text-on-color, #ffffff);
   box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
 }
 
@@ -82,7 +82,7 @@
 /* Danger - Error/destructive actions */
 .button--danger {
   background: var(--color-status-error, #f44336);
-  color: var(--color-neutral-white, #ffffff);
+  color: var(--theme-button-text-on-color, #ffffff);
   box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
 }
 
@@ -116,7 +116,7 @@
 /* Success - Positive actions */
 .button--success {
   background: var(--color-status-success, #4CAF50);
-  color: var(--color-neutral-white, #ffffff);
+  color: var(--theme-button-text-on-color, #ffffff);
   box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
 }
 

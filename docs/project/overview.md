@@ -5,7 +5,7 @@
 # Version: 4.0.0
 # Created: 2025-10-13
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -41,9 +41,9 @@ L-KERN v4 principles:
 **Completed**:
 - Task 0.0 (Infrastructure Setup) ✅
 - Task 0.1 (Coding Standards) ✅
-- Task 0.2 (Phase 1 - Core form components) ⏳ 67% (4/6 done)
+- Task 0.2 (Phase 1 - Core form components) ✅ 100% (6/6 done)
 
-**Next**: Task 0.2 Phase 1 completion (Checkbox, Radio)
+**Next**: Task 0.3 (Backend Infrastructure - PostgreSQL, gRPC)
 
 **Full Roadmap**: [ROADMAP.md](ROADMAP.md)
 
@@ -172,12 +172,13 @@ L-KERN v4/
 
 ---
 
-### **Task 0.2: @l-kern/ui-components** ⏳
+### **Task 0.2: @l-kern/ui-components** ✅
 
-**Status**: In Progress (67% - Phase 1)
+**Status**: Phase 1 COMPLETED
 **Started**: 2025-10-18
+**Completed**: 2025-10-18
 
-**Completed Components (Phase 1 - 4/6):**
+**Completed Components (Phase 1 - 6/6):**
 - ✅ **Button** (v1.0.0) - 16 tests, 100% coverage
   - 5 variants, 3 sizes, loading state, icon support
   - 121 lines TS + 184 lines CSS
@@ -190,6 +191,17 @@ L-KERN v4/
 - ✅ **Select** (v1.0.0) - 21 tests, 100% coverage
   - Native select, options array, placeholder, error handling
   - 134 lines TS + 144 lines CSS
+- ✅ **Checkbox** (v1.0.0) - 19 tests, 100% coverage
+  - Label, error/helper text, indeterminate state
+  - 113 lines TS + 143 lines CSS
+- ✅ **Radio/RadioGroup** (v1.0.0) - 33 tests, 100% coverage
+  - Single selection, vertical/horizontal layout, error states
+  - 177 lines TS (2 files) + 169 lines CSS (2 files)
+
+**Test Results:**
+- ✅ **115 tests total** - 100% passing
+- ✅ 7 test suites - all green
+- ✅ 100% code coverage on all components
 
 **Test Infrastructure Setup:**
 - ✅ Vitest + React Testing Library
@@ -197,16 +209,13 @@ L-KERN v4/
 - ✅ @testing-library/user-event
 - ✅ vitest.setup.ts configuration
 - ✅ CSS Modules test patterns
+- ✅ Docker container testing workflow
 
 **Testing Documentation:**
-- ✅ [testing.md](testing.md) - Complete testing guide
+- ✅ [testing.md](setup/testing.md) - Complete testing guide
 - ✅ Docker volume troubleshooting
 - ✅ Test dependency setup instructions
 - ✅ Common issues & solutions
-
-**Remaining (Phase 1 - 2/6):**
-- ⏳ Checkbox component
-- ⏳ Radio/RadioGroup component
 
 **Future Phases:**
 - Phase 2: Card, Badge, Spinner, EmptyState
@@ -239,13 +248,13 @@ L-KERN v4/
 
 ## 📊 Progress Tracker
 
-**Phase 0 Progress**: 2.67/21 tasks completed (13%)
+**Phase 0 Progress**: 3/21 tasks completed (14%)
 
 | Task | Status | Description |
 |------|--------|-------------|
 | 0.0 | ✅ Done | Infrastructure Setup |
 | 0.1 | ✅ Done | Coding Standards |
-| 0.2 | ⏳ In Progress (67%) | @l-kern/ui-components (4/6 Phase 1 done) |
+| 0.2 | ✅ Done | @l-kern/ui-components (Phase 1: 6/6 components, 115 tests) |
 | 0.3 | ⏳ Planned | Backend Infrastructure |
 | 0.4-0.17 | ⏳ Planned | Microservices Development |
 | 0.18 | ⏳ Planned | Authentication Service |
@@ -255,4 +264,4 @@ L-KERN v4/
 
 ---
 
-**Last Updated**: 2025-10-18 11:10:00
+**Last Updated**: 2025-10-18 13:40:00

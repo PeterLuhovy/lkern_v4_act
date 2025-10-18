@@ -5,7 +5,7 @@
 # Version: 1.0.0
 # Created: 2025-10-13
 # Updated: 2025-10-18
-# Project: BOSS (Business Operating System Software)
+# Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
@@ -93,53 +93,64 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 
 #### 0.2 UI Components Package (@l-kern/ui-components)
 **Priority**: HIGH
-**Status**: ⏳ **IN PROGRESS (50%)**
+**Status**: ✅ **COMPLETED (Phase 1)**
 **Dependencies**: 0.1
 **Started**: 2025-10-18
+**Completed**: 2025-10-18
 
 **Tasks:**
 - [x] Generate package with Nx ✅
 - [ ] Setup Storybook for component development (deferred until 15+ components created)
-- [ ] Create base components:
+- [x] Create base components (Phase 1 - Form Components): ✅
   - [x] Button (primary, secondary, danger, ghost, success variants) ✅
   - [x] Input (text, number, email, password) ✅
-  - [ ] Select (dropdown with search)
-  - [ ] Checkbox & Radio
-  - [ ] Modal/Dialog
-  - [ ] Table (sorting, pagination)
+  - [x] Select (native dropdown with options array) ✅
+  - [x] Checkbox (with indeterminate state) ✅
+  - [x] Radio/RadioGroup ✅
+  - [x] FormField wrapper ✅
+- [ ] Phase 2 - Layout & Display:
   - [ ] Card
   - [ ] Badge
   - [ ] Spinner/Loader
   - [ ] EmptyState
-  - [x] FormField wrapper ✅
+- [ ] Phase 3 - Advanced:
+  - [ ] Modal/Dialog
+  - [ ] Table (sorting, pagination)
 - [x] Implement design tokens from @l-kern/config ✅
 - [x] Add TypeScript types for all components ✅
+- [x] Setup test infrastructure (Vitest + Testing Library) ✅
 - [ ] Write Storybook stories (deferred)
 - [x] Test components in web-ui ✅
+- [x] Dark mode theme support ✅
 
 **Progress:**
 - ✅ Package setup with Vite + CSS Modules
-- ✅ Button component (121 lines TS, 184 lines CSS, 18 tests)
-- ✅ Input component (92 lines TS, 114 lines CSS, 16 tests)
-- ✅ FormField component (103 lines TS, 72 lines CSS, 12 tests)
-- ✅ 46 unit tests, 100% coverage
-- ✅ Build: 24.69 kB JS, 6.77 kB CSS
+- ✅ Button component (121 lines TS, 184 lines CSS, 16 tests)
+- ✅ Input component (92 lines TS, 114 lines CSS, 15 tests)
+- ✅ FormField component (103 lines TS, 72 lines CSS, 11 tests)
+- ✅ Select component (134 lines TS, 144 lines CSS, 21 tests)
+- ✅ Checkbox component (113 lines TS, 143 lines CSS, 19 tests)
+- ✅ Radio/RadioGroup components (177 lines TS, 169 lines CSS, 33 tests)
+- ✅ Test infrastructure (@testing-library/jest-dom + user-event)
+- ✅ **115 unit tests total, 100% passing, 100% coverage**
+- ✅ **7 test suites, all green**
+- ✅ Build: ~30 kB JS, ~12 kB CSS (estimate)
 - ✅ 100% design token compliance
+- ✅ Dark mode CSS variables (--theme-text, --theme-input-background, etc.)
 - ✅ Integration tested in web-ui
+- ✅ Docker container testing workflow
 
 **Git Commits:**
 - `76945f8` - feat(ui-components): Core form components
 - `1b50897` - docs: Update PROJECT-OVERVIEW.md
+- `557f6d1` - feat(ui-components): Add Select component with dark mode fixes
 
-**Next Steps:**
-- Select component (dropdown with options)
-- Checkbox component
-- Radio/RadioGroup component
-- Card, Badge, Spinner, EmptyState (Phase 2)
-- Modal, Table/DataGrid (Phase 3)
+**Next Steps (Phase 2 planning):**
+- **Phase 2**: Card, Badge, Spinner, EmptyState
+- **Phase 3**: Modal, Table/DataGrid
 - **Storybook setup** (after 15+ components created - visual testing & documentation tool)
 
-**Deliverables**: Reusable UI component library with design tokens ✅ (50% complete)
+**Deliverables**: ✅ Reusable UI component library with design tokens (Phase 1: 100% complete - 6/6 components, 115 tests)
 
 ---
 
@@ -877,6 +888,6 @@ Frontend (React)
 
 ---
 
-**Last Updated**: 2025-10-13
+**Last Updated**: 2025-10-18
 **Maintainer**: BOSSystems s.r.o.
 **Project**: L-KERN v4 (BOSS)
