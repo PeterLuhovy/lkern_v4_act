@@ -1,0 +1,18 @@
+{
+  "name": "@l-kern/ui-components",
+  "version": "0.0.1",
+  "description": "L-KERN v4 UI Component Library",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@l-kern/config": "workspace:*"
+  }
+}

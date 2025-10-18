@@ -1,5 +1,6 @@
 import { Route, Routes, Link } from 'react-router-dom';
 import { useTranslation, useTheme, PORTS, API_ENDPOINTS, COLORS } from '@l-kern/config';
+import { Button, Input, FormField } from '@l-kern/ui-components';
 
 export function App() {
   const { t, language, setLanguage } = useTranslation();
@@ -7,13 +8,87 @@ export function App() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>🚀 L-KERN v4 - @l-kern/config Test</h1>
+      <h1>🚀 L-KERN v4 - Component Test</h1>
 
       {/* Theme Test */}
       <section style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
         <h2>🎨 Theme Test</h2>
         <p>Current theme: <strong>{theme}</strong></p>
         <button onClick={toggleTheme}>Toggle Theme (Light/Dark)</button>
+      </section>
+
+      {/* UI Components Test */}
+      <section style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
+        <h2>🎨 UI Components Test (@l-kern/ui-components)</h2>
+
+        <h3>Button Variants:</h3>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <Button variant="primary">Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="danger">Danger</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="success">Success</Button>
+        </div>
+
+        <h3>Button Sizes:</h3>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '24px' }}>
+          <Button variant="primary" size="small">Small</Button>
+          <Button variant="primary" size="medium">Medium</Button>
+          <Button variant="primary" size="large">Large</Button>
+        </div>
+
+        <h3>Input - Standalone:</h3>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <Input placeholder="Basic input..." />
+          <Input placeholder="Email" type="email" />
+          <Input placeholder="Password" type="password" />
+        </div>
+
+        <h3>FormField - Complete Form Structure:</h3>
+        <div style={{ maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+
+          <FormField label="Username" required htmlFor="username" fullWidth>
+            <Input id="username" placeholder="Enter username" fullWidth />
+          </FormField>
+
+          <FormField
+            label="Email"
+            required
+            htmlFor="email"
+            helperText="We'll never share your email"
+            fullWidth
+          >
+            <Input id="email" type="email" placeholder="Enter email" fullWidth />
+          </FormField>
+
+          <FormField
+            label="Password"
+            required
+            htmlFor="password"
+            error="Password must be at least 8 characters"
+            fullWidth
+          >
+            <Input id="password" type="password" placeholder="Enter password" fullWidth />
+          </FormField>
+
+          <FormField label="Bio" htmlFor="bio" helperText="Optional" fullWidth>
+            <textarea
+              id="bio"
+              placeholder="Tell us about yourself..."
+              style={{
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '2px solid #e0e0e0',
+                fontFamily: 'inherit',
+                fontSize: '12px',
+                resize: 'vertical',
+                minHeight: '80px'
+              }}
+            />
+          </FormField>
+
+          <Button variant="primary" fullWidth>Submit Form</Button>
+        </div>
       </section>
 
       {/* Translation Test */}
@@ -30,9 +105,6 @@ export function App() {
             English
           </button>
         </div>
-        <div style={{ marginTop: '10px' }}>
-          <p>{t('common.save')} | {t('common.cancel')} | {t('common.delete')}</p>
-        </div>
       </section>
 
       {/* Constants Test */}
@@ -42,12 +114,6 @@ export function App() {
         <ul>
           <li>WEB_UI: {PORTS.WEB_UI}</li>
           <li>CONTACTS: {PORTS.CONTACTS}</li>
-          <li>ORDERS: {PORTS.ORDERS}</li>
-        </ul>
-        <h3>API Endpoints:</h3>
-        <ul>
-          <li>CONTACTS: {API_ENDPOINTS.CONTACTS}</li>
-          <li>ORDERS: {API_ENDPOINTS.ORDERS}</li>
         </ul>
         <h3>Design Tokens:</h3>
         <ul>

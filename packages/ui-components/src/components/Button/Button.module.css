@@ -1,0 +1,196 @@
+/**
+ * @file Button.module.css
+ * @package @l-kern/ui-components
+ * @description Button component styles using CSS Modules and design tokens
+ * @version 1.0.0
+ * @date 2025-10-18
+ */
+
+/* ================================================================
+ * BASE BUTTON
+ * ================================================================ */
+
+.button {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs, 4px);
+
+  /* Typography */
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold, 600);
+
+  /* Appearance */
+  border: none;
+  border-radius: var(--border-radius-md, 6px);
+  cursor: pointer;
+
+  /* Animation */
+  transition: all var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
+
+  /* Position */
+  position: relative;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ================================================================
+ * VARIANTS
+ * ================================================================ */
+
+/* Primary - Brand color */
+.button--primary {
+  background: var(--color-brand-primary, #9c27b0);
+  color: var(--color-neutral-white, #ffffff);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+.button--primary:hover:not(:disabled) {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+}
+
+.button--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+/* Secondary - Neutral with border */
+.button--secondary {
+  background-color: transparent;
+  color: var(--theme-text, #212121);
+  border: 2px solid var(--theme-border, #e0e0e0);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background-color: var(--theme-hover-background, #f5f5f5);
+  border-color: var(--color-brand-primary, #9c27b0);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+}
+
+.button--secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Danger - Error/destructive actions */
+.button--danger {
+  background: var(--color-status-error, #f44336);
+  color: var(--color-neutral-white, #ffffff);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+.button--danger:hover:not(:disabled) {
+  filter: brightness(0.85);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+}
+
+.button--danger:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+/* Ghost - Transparent background */
+.button--ghost {
+  background-color: transparent;
+  color: var(--theme-text, #212121);
+  border: none;
+}
+
+.button--ghost:hover:not(:disabled) {
+  background-color: var(--theme-hover-background, #f5f5f5);
+}
+
+.button--ghost:active:not(:disabled) {
+  background-color: var(--theme-hover-background, #f5f5f5);
+  transform: scale(0.98);
+}
+
+/* Success - Positive actions */
+.button--success {
+  background: var(--color-status-success, #4CAF50);
+  color: var(--color-neutral-white, #ffffff);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+.button--success:hover:not(:disabled) {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+}
+
+.button--success:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+}
+
+/* ================================================================
+ * SIZES
+ * ================================================================ */
+
+.button--small {
+  padding: calc(var(--spacing-xs, 4px) * 0.75) var(--spacing-sm, 8px);
+  font-size: var(--font-size-xs, 10px);
+  height: 28px;
+}
+
+.button--medium {
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 12px);
+  font-size: var(--font-size-sm, 12px);
+  height: 38px;
+}
+
+.button--large {
+  padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+  font-size: var(--font-size-md, 14px);
+  height: 48px;
+}
+
+/* ================================================================
+ * FULL WIDTH
+ * ================================================================ */
+
+.button--fullWidth {
+  width: 100%;
+}
+
+/* ================================================================
+ * LOADING STATE
+ * ================================================================ */
+
+.button--loading {
+  position: relative;
+  cursor: wait;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  animation: button-spin 1s linear infinite;
+  font-size: 16px;
+}
+
+@keyframes button-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================================================================
+ * ICON
+ * ================================================================ */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

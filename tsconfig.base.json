@@ -23,9 +23,7 @@
     "baseUrl": ".",
     "paths": {
       "@l-kern/config": ["packages/config/src/index.ts"],
-      "@l-kern/shared-types": ["packages/shared-types/src/index.ts"],
-      "@l-kern/ui-components": ["packages/ui-components/src/index.ts"],
-      "@l-kern/utils": ["packages/utils/src/index.ts"]
+      "@l-kern/ui-components": ["packages/ui-components/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "dist", "build", ".next"]
