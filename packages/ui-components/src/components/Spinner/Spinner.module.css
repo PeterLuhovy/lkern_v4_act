@@ -2,8 +2,8 @@
  * ================================================================
  * FILE: Spinner.module.css
  * PATH: /packages/ui-components/src/components/Spinner/Spinner.module.css
- * DESCRIPTION: Spinner component styles with CSS animation
- * VERSION: v1.0.0
+ * DESCRIPTION: Minimalist spinner with smooth rotation
+ * VERSION: v2.0.0
  * CREATED: 2025-10-18
  * ================================================================
  */
@@ -17,12 +17,15 @@
   gap: var(--spacing-sm, 8px);
 }
 
-/* Spinning Circle */
-.spinner__circle {
-  border-radius: var(--border-radius-full, 50%);
-  border-style: solid;
-  border-color: var(--color-brand-primary, #9c27b0) transparent transparent transparent;
-  animation: spin var(--animation-duration-slow, 1s) linear infinite;
+/* Rotating Ring - Simple circular gradient */
+.spinner__ring {
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--color-brand-primary, #9c27b0);
+  border-right-color: var(--color-brand-primary, #9c27b0);
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  animation: spin 0.8s linear infinite;
 }
 
 /* Label Text */
@@ -36,21 +39,21 @@
  * SIZE VARIANTS
  * ================================================ */
 
-.spinner--small .spinner__circle {
-  width: 16px;
-  height: 16px;
+.spinner--small .spinner__ring {
+  width: 20px;
+  height: 20px;
   border-width: 2px;
 }
 
-.spinner--medium .spinner__circle {
-  width: 24px;
-  height: 24px;
+.spinner--medium .spinner__ring {
+  width: 32px;
+  height: 32px;
   border-width: 3px;
 }
 
-.spinner--large .spinner__circle {
-  width: 40px;
-  height: 40px;
+.spinner--large .spinner__ring {
+  width: 48px;
+  height: 48px;
   border-width: 4px;
 }
 
@@ -73,4 +76,10 @@
 
 [data-theme='dark'] .spinner__label {
   color: var(--theme-text-secondary, #999);
+}
+
+[data-theme='dark'] .spinner__ring {
+  border-top-color: var(--color-brand-primary, #9c27b0);
+  border-right-color: var(--color-brand-primary, #9c27b0);
+  filter: brightness(1.2);
 }

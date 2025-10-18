@@ -1,0 +1,214 @@
+/*
+ * ================================================================
+ * FILE: UtilityTestPage.css
+ * PATH: /apps/web-ui/src/pages/UtilityTestPage.css
+ * DESCRIPTION: Styles for utility testing page
+ * VERSION: v1.0.0
+ * CREATED: 2025-10-18
+ * ================================================================
+ */
+
+.utility-test-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.utility-test-page h1 {
+  color: var(--theme-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.utility-test-page .subtitle {
+  color: var(--theme-text-muted);
+  margin-bottom: var(--spacing-xl);
+}
+
+.test-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.test-section h2 {
+  color: var(--theme-text);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--theme-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.input-group {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.input-group label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 200px;
+  color: var(--theme-text);
+  font-weight: 500;
+}
+
+.input-group select {
+  padding: var(--spacing-sm);
+  border: 2px solid var(--theme-input-border);
+  border-radius: 6px;
+  background: var(--theme-input-background);
+  color: var(--theme-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.input-group select:hover {
+  border-color: var(--color-brand-primary);
+}
+
+.input-group select:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+}
+
+.results {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--theme-hover-background);
+  border-radius: 8px;
+}
+
+.results h3 {
+  color: var(--theme-text);
+  margin-bottom: var(--spacing-md);
+  font-size: 16px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-item strong {
+  color: var(--theme-text);
+  min-width: 150px;
+}
+
+.result-item code {
+  background: var(--theme-input-background);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--color-brand-primary);
+  border: 1px solid var(--theme-border);
+}
+
+.examples {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--theme-input-background);
+  border-radius: 8px;
+  border: 2px dashed var(--theme-border);
+}
+
+.examples h4 {
+  color: var(--theme-text);
+  margin-bottom: var(--spacing-sm);
+  font-size: 14px;
+}
+
+.examples ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.examples li {
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  background: var(--theme-hover-background);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--theme-text);
+}
+
+.examples li:hover {
+  background: var(--color-brand-primary);
+  color: var(--color-neutral-white);
+  transform: translateX(4px);
+}
+
+.examples li:active {
+  transform: translateX(2px);
+}
+
+.info-box {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
+  border-radius: 12px;
+  border: 2px solid var(--color-brand-primary);
+}
+
+.info-box h3 {
+  color: var(--theme-text);
+  margin-bottom: var(--spacing-md);
+}
+
+.info-box p {
+  color: var(--theme-text-muted);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+.info-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-box li {
+  padding: var(--spacing-sm) 0;
+  color: var(--theme-text);
+  border-bottom: 1px solid rgba(156, 39, 176, 0.1);
+}
+
+.info-box li:last-child {
+  border-bottom: none;
+}
+
+.info-box li strong {
+  color: var(--color-brand-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .utility-test-page {
+    padding: var(--spacing-md);
+  }
+
+  .input-group {
+    flex-direction: column;
+  }
+
+  .result-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .result-item strong {
+    min-width: auto;
+  }
+}

@@ -1,0 +1,142 @@
+/*
+ * ================================================================
+ * FILE: EmptyState.module.css
+ * PATH: /packages/ui-components/src/components/EmptyState/EmptyState.module.css
+ * DESCRIPTION: EmptyState component styles with theme support
+ * VERSION: v1.0.0
+ * CREATED: 2025-10-18
+ * ================================================================
+ */
+
+/* Base Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-xxxl, 32px);
+  color: var(--theme-text, #212121);
+}
+
+/* ================================================
+ * ICON
+ * ================================================ */
+
+.emptyState__icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: var(--spacing-lg, 16px);
+  opacity: 0.7;
+}
+
+/* ================================================
+ * TITLE
+ * ================================================ */
+
+.emptyState__title {
+  margin: 0;
+  margin-bottom: var(--spacing-md, 12px);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--theme-text, #212121);
+}
+
+/* ================================================
+ * DESCRIPTION
+ * ================================================ */
+
+.emptyState__description {
+  margin: 0;
+  margin-bottom: var(--spacing-xl, 20px);
+  font-size: 14px;
+  color: var(--theme-text-muted, #9e9e9e);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* ================================================
+ * ACTION
+ * ================================================ */
+
+.emptyState__action {
+  margin-top: var(--spacing-md, 12px);
+}
+
+/* ================================================
+ * SIZE VARIANTS
+ * ================================================ */
+
+/* Small size */
+.emptyState--small {
+  padding: var(--spacing-xl, 20px);
+}
+
+.emptyState--small .emptyState__icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md, 12px);
+}
+
+.emptyState--small .emptyState__title {
+  font-size: 16px;
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+.emptyState--small .emptyState__description {
+  font-size: 13px;
+  margin-bottom: var(--spacing-md, 12px);
+}
+
+/* Medium size (default) */
+.emptyState--medium {
+  padding: var(--spacing-xxxl, 32px);
+}
+
+.emptyState--medium .emptyState__icon {
+  font-size: 64px;
+}
+
+.emptyState--medium .emptyState__title {
+  font-size: 20px;
+}
+
+.emptyState--medium .emptyState__description {
+  font-size: 14px;
+}
+
+/* Large size */
+.emptyState--large {
+  padding: var(--spacing-huge, 40px);
+}
+
+.emptyState--large .emptyState__icon {
+  font-size: 80px;
+  margin-bottom: var(--spacing-xl, 20px);
+}
+
+.emptyState--large .emptyState__title {
+  font-size: 24px;
+  margin-bottom: var(--spacing-lg, 16px);
+}
+
+.emptyState--large .emptyState__description {
+  font-size: 16px;
+  margin-bottom: var(--spacing-xxl, 24px);
+  max-width: 500px;
+}
+
+/* ================================================
+ * DARK MODE
+ * ================================================ */
+
+[data-theme='dark'] .emptyState__title {
+  color: var(--theme-text, #ffffff);
+}
+
+[data-theme='dark'] .emptyState__description {
+  color: var(--theme-text-muted, #b0b0b0);
+}
+
+[data-theme='dark'] .emptyState__icon {
+  opacity: 0.8;
+}

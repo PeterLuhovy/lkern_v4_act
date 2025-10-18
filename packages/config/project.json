@@ -10,6 +10,14 @@
       "options": {
         "command": "tsc --noEmit --project packages/config/tsconfig.lib.json"
       }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/packages/config"],
+      "options": {
+        "passWithNoTests": false,
+        "reportsDirectory": "../../coverage/packages/config"
+      }
     }
   }
 }

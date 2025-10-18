@@ -1,30 +1,37 @@
 # ================================================================
-# L-KERN v4 - Coding Standards
+# L-KERN v4 - Coding Standards (Core Rules)
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\coding-standards.md
-# Version: 1.1.0
+# Version: 2.0.0
 # Created: 2025-10-15
 # Updated: 2025-10-18
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
-#   Mandatory coding standards, conventions and best practices for
-#   L-KERN v4 including TypeScript, Python, React, FastAPI, gRPC patterns.
+#   Core coding standards for L-KERN v4. This file contains ONLY
+#   the fundamental rules. Detailed standards are in separate files.
 # ================================================================
 
 ---
 
 ## 📋 Overview
 
-Tento dokument definuje kódovacie štandardy, konvencie a best practices pre L-KERN v4 projekt. Všetky pravidlá sú **POVINNÉ** a musia byť dodržané v celom codebase.
+This document defines **core coding standards** for L-KERN v4 project. All rules are **MANDATORY**.
 
 **Key Principles:**
-- ✅ **Simplicity First** - Čitateľný kód pred clever riešeniami
+- ✅ **Simplicity First** - Readable code over clever solutions
 - ✅ **DRY Compliance** - Don't Repeat Yourself (Single Source of Truth)
 - ✅ **Type Safety** - TypeScript strict mode + Python type hints
-- ✅ **Documentation** - Každý súbor musí mať header a komentáre
-- ✅ **Testability** - Kód musí byť testovateľný (unit + integration)
+- ✅ **Documentation** - Every file must have header and comments
+- ✅ **Testability** - Code must be testable (unit + integration)
+
+**For detailed standards, see:**
+- [frontend-standards.md](frontend-standards.md) - React, TypeScript, Vite
+- [backend-standards.md](backend-standards.md) - Python, FastAPI, gRPC, Kafka
+- [testing-guide.md](testing-guide.md) - pytest, Vitest, testing checklists
+- [docker-standards.md](docker-standards.md) - Docker, docker-compose
+- [code-examples.md](code-examples.md) - Practical code examples
 
 ---
 
@@ -33,18 +40,18 @@ Tento dokument definuje kódovacie štandardy, konvencie a best practices pre L-
 ### Language Requirements
 
 **Communication:**
-- ✅ **ALWAYS respond in Slovak** - Všetka komunikácia s AI asistentom v slovenčine
-- ✅ **Documentation in English** - Všetky `.md` súbory v angličtine
-- ✅ **Code in English** - Premenné, funkcie, classes v angličtine
-- ✅ **Comments in Slovak** - Komentáre v kóde v slovenčine pre lepšie porozumenie
+- ✅ **ALWAYS respond in Slovak** - All AI assistant communication in Slovak
+- ✅ **Documentation in English** - All `.md` files in English
+- ✅ **Code in English** - Variables, functions, classes use English naming
+- ✅ **Comments in Slovak** - Code comments in Slovak for better understanding
 
 **Multilingual Support:**
-- ✅ **NO hardcoded text** - Všetok používateľský text cez translation systém
-- ✅ **Translation package** - Centralizované preklady v `@l-kern/config`
-- ✅ **Primary languages** - Slovenčina (default) + Angličtina
-- ✅ **Fallback system** - Ak chýba preklad, zobraz slovenčinu + SK: pred textom + console warning
+- ✅ **NO hardcoded text** - All user-facing text via translation system
+- ✅ **Translation package** - Centralized translations in `@l-kern/config`
+- ✅ **Primary languages** - Slovak (default) + English
+- ✅ **Fallback system** - If translation missing, show Slovak + SK: prefix + console warning
 
-### Translation System Architecture
+### Translation System
 
 **Structure:**
 ```
@@ -65,18 +72,16 @@ const MyComponent = () => {
   return (
     <div>
       <h1>{t('dashboard.title')}</h1>
-      <button onClick={() => setLanguage('en')}>
-        {t('common.buttons.save')}
-      </button>
+      <button>{t('common.buttons.save')}</button>
     </div>
   );
 };
 ```
 
 **Rules:**
-- ✅ Import ONLY `useTranslation` hook, nie jednotlivé jazykové súbory
+- ✅ Import ONLY `useTranslation` hook
 - ✅ All translations loaded at startup (no lazy loading)
-- ✅ TypeScript autocomplete for translation keys (strict typing)
+- ✅ TypeScript autocomplete for translation keys
 - ✅ Missing translation → show Slovak + SK: + console warning
 
 ---
@@ -85,42 +90,41 @@ const MyComponent = () => {
 
 ### Educational Development Process
 
-**L-KERN v4 je vzdelávací projekt** - kód sa píše s dôrazom na učenie a pochopenie.
+**L-KERN v4 is an educational project** - code is written with emphasis on learning and understanding.
 
 **Mandatory steps:**
 
-1. **Documentation-first** - VŽDY si najprv prečítaj dokumentáciu pred vytváraním súborov
-   - 📋 [PROJECT-OVERVIEW.md](../PROJECT-OVERVIEW.md) - Aktuálny stav projektu
-   - 📋 [ROADMAP.md](../ROADMAP.md) - Plánované úlohy
-   - 🎨 [design-standards.md](../design/design-standards.md) - Dizajnové požiadavky
-   - 💻 [coding-standards.md](coding-standards.md) - Tento súbor
-   - 🏗️ [main-architecture.md](../architecture/main-architecture.md) - Architektúra systému
+1. **Documentation-first** - ALWAYS read documentation before creating files
+   - 📋 [project/overview.md](../project/overview.md) - Current project state
+   - 📋 [project/roadmap.md](../project/roadmap.md) - Planned tasks
+   - 💻 [programming/coding-standards.md](coding-standards.md) - This file
+   - 🎨 [design/component-design-system.md](../design/component-design-system.md) - Design requirements
 
-2. **Check roadmap** - Pozri sa do ROADMAP.md či úloha existuje, ak nie pridaj ju
+2. **Check roadmap** - See if task exists in ROADMAP.md, if not add it
 
-3. **Propose workflow** - Pre zložité úlohy vytvor detailný TODO workflow
+3. **Propose workflow** - For complex tasks create detailed TODO workflow
 
-4. **Think thoroughly** - Zváž všetky implikácie, závislosti a potenciálne problémy
+4. **Think thoroughly** - Consider all implications, dependencies, and potential problems
 
-5. **Update docs** - Po schválení workflow aktualizuj PROJECT-OVERVIEW.md
+5. **Update docs** - After workflow approval update PROJECT-OVERVIEW.md
 
-6. **Educational approach** - Generuj kód → vysvetli čo, prečo a na čo → počkaj na schválenie → ďalší chunk
+6. **Educational approach** - Generate code → explain what, why, and purpose → wait for approval → next chunk
 
-7. **Incremental development** - Malé kroky, časté commity, časté vysvetlenia
+7. **Incremental development** - Small steps, frequent commits, frequent explanations
 
-8. **Wait for approval** - Vždy čakaj na "dobre" od používateľa pred pokračovaním
+8. **Wait for approval** - Always wait for "dobre" from user before proceeding
 
-9. **Update roadmap** - Po dokončení označ task ako ✅ DONE v ROADMAP.md
+9. **Update roadmap** - After completion mark task as ✅ DONE in ROADMAP.md
 
 ### Workflow Rules
 
-**MANDATORY checks pred vytváraním súborov:**
-- ✅ Check documentation map - relevantné dokumenty
-- ✅ Check design standards - dizajnové požiadavky
-- ✅ Check coding standards - programovacie patterns
-- ✅ Check architecture - štruktúra projektu
-- ✅ NEVER create custom solutions ak dokumentácia definuje štandard
-- ✅ Warn user ak vytváraš súbor proti dokumentácii
+**MANDATORY checks before creating files:**
+- ✅ Check documentation map - relevant documents
+- ✅ Check design standards - design requirements
+- ✅ Check coding standards - programming patterns
+- ✅ Check architecture - project structure
+- ✅ NEVER create custom solutions if documentation defines standard
+- ✅ Warn user if creating file against documentation
 
 **Complex task workflow:**
 - ✅ Create detailed TODO (atomic operations)
@@ -132,7 +136,7 @@ const MyComponent = () => {
 
 ---
 
-## 3. File Headers & Code Structure
+## 3. File Headers
 
 ### Mandatory File Headers
 
@@ -146,7 +150,7 @@ const MyComponent = () => {
  * PATH: /apps/web-ui/src/pages/filename.ts
  * DESCRIPTION: Brief description of file purpose
  * VERSION: v1.0.0
- * UPDATED: 2025-10-15 14:30:00
+ * UPDATED: 2025-10-18 15:30:00
  * ================================================================
  */
 ```
@@ -159,92 +163,22 @@ FILE: filename.py
 PATH: /services/lkms101-contacts/app/main.py
 DESCRIPTION: Brief description of file purpose
 VERSION: v1.0.0
-UPDATED: 2025-10-15 14:30:00
+UPDATED: 2025-10-18 15:30:00
 ================================================================
 """
 ```
 
 **Header rules:**
-- ✅ **Automatic updates** - Pri každej úprave zvýš verziu a aktualizuj timestamp
+- ✅ **Automatic updates** - On every edit increment version and update timestamp
 - ✅ **Semantic versioning** - v1.0.1 (patch), v1.1.0 (feature), v2.0.0 (breaking)
 - ✅ **Timestamp format** - YYYY-MM-DD HH:MM:SS
-- ✅ **Description in English** - Stručný a jasný popis
-
-### Code Sectioning
-
-**TypeScript/JavaScript structure:**
-```typescript
-// === IMPORTS ===
-import React from 'react';
-import { useState } from 'react';
-
-// === CONSTANTS ===
-const API_ENDPOINTS = {
-  CONTACTS: '/api/v1/contacts',
-  CUSTOMERS: '/api/v1/customers'
-};
-
-// === TYPES ===
-interface Contact {
-  id: string;
-  name: string;
-}
-
-// === COMPONENTS ===
-const ContactList: React.FC = () => {
-  // Component implementation
-};
-
-// === UTILITIES ===
-const formatDate = (date: Date): string => {
-  // Utility function
-};
-
-// === EXPORTS ===
-export default ContactList;
-export { formatDate };
-```
-
-**Python structure:**
-```python
-# === IMPORTS ===
-from fastapi import FastAPI, HTTPException
-from sqlalchemy.orm import Session
-import logging
-
-# === CONSTANTS ===
-API_VERSION = "v1"
-DATABASE_URL = "postgresql://localhost/lkms101_contacts"
-
-# === LOGGING ===
-logger = logging.getLogger(__name__)
-
-# === MODELS ===
-class Contact(Base):
-    __tablename__ = "contacts"
-    id = Column(Integer, primary_key=True)
-
-# === SCHEMAS ===
-class ContactCreate(BaseModel):
-    name: str
-    email: str
-
-# === ROUTES ===
-@app.get("/api/v1/contacts")
-async def get_contacts():
-    return {"contacts": []}
-
-# === UTILITIES ===
-def validate_email(email: str) -> bool:
-    # Validation logic
-    pass
-```
+- ✅ **Description in English** - Brief and clear description
 
 ---
 
-## 4. Constants Management
+## 4. DRY Principle & Constants
 
-### Automatic Extraction Rule
+### Don't Repeat Yourself
 
 **MANDATORY: Extract ALL hardcoded values to CONSTANTS section.**
 
@@ -257,7 +191,7 @@ def validate_email(email: str) -> bool:
 - ✅ Default values
 - ❌ Small numbers (0, 1, 2) and booleans can stay inline
 
-### Documentation Requirements
+### Constants Documentation
 
 **Every constant MUST have documentation:**
 
@@ -294,28 +228,13 @@ const CONSTANT_GROUP = {
 };
 ```
 
-### Naming Conventions
+---
 
-**TypeScript/JavaScript:**
-- ✅ `UPPER_SNAKE_CASE` for primitive constants
-- ✅ `camelCase` for config objects
-- ✅ `PascalCase` for components and classes
+## 5. Theme CSS Variables
 
-**Python:**
-- ✅ `UPPER_SNAKE_CASE` for all constants
-- ✅ `snake_case` for functions and variables
-- ✅ `PascalCase` for classes
+### MANDATORY CSS Variable Usage
 
-**CSS:**
-- ✅ `--variable-name` for CSS custom properties
-- ✅ `kebab-case` for class names
-
-**Translation keys:**
-- ✅ `camelCase` with dot notation: `common.buttons.save`
-
-### Theme CSS Variables
-
-**MANDATORY: ALL colors in CSS MUST use `--theme-*` variables** (NOT hardcoded colors, NOT `--color-*` variables).
+**ALL colors in CSS MUST use `--theme-*` variables** (NOT hardcoded colors, NOT `--color-*` variables).
 
 **Available theme variables:**
 - ✅ `--theme-text` - Default text color (#212121)
@@ -338,7 +257,9 @@ const CONSTANT_GROUP = {
 - ✅ `--color-brand-primary` - Primary purple (#9c27b0)
 - ✅ `--color-brand-secondary` - Secondary blue (#3366cc)
 
-**Example - Correct theme variable usage:**
+### Correct vs Wrong Usage
+
+**✅ CORRECT - Using theme variables:**
 ```css
 .button--primary {
   background: var(--color-brand-primary, #9c27b0);
@@ -379,2615 +300,110 @@ const CONSTANT_GROUP = {
 
 ---
 
-## 5. Frontend Standards
+## 6. Naming Conventions
 
-### TypeScript/React 19 Conventions
+### TypeScript/JavaScript
 
-**File naming:**
-- ✅ `PascalCase.tsx` for components: `ContactList.tsx`
+- ✅ `UPPER_SNAKE_CASE` for primitive constants
+- ✅ `camelCase` for config objects, variables, functions
+- ✅ `PascalCase` for components and classes
+- ✅ `PascalCase.tsx` for component files: `ContactList.tsx`
 - ✅ `camelCase.ts` for utilities: `formatDate.ts`
-- ✅ `camelCase.test.tsx` for tests: `ContactList.test.tsx`
 
-**Component structure:**
+### Python
+
+- ✅ `UPPER_SNAKE_CASE` for all constants
+- ✅ `snake_case` for functions and variables
+- ✅ `PascalCase` for classes
+- ✅ `snake_case.py` for all files: `contacts_service.py`
+
+### CSS
+
+- ✅ `--variable-name` for CSS custom properties
+- ✅ `kebab-case` for class names
+- ✅ `ComponentName.module.css` for CSS Modules
+
+### Translation Keys
+
+- ✅ `camelCase` with dot notation: `common.buttons.save`
+
+---
+
+## 7. Code Sectioning
+
+### TypeScript/JavaScript Structure
+
 ```typescript
+// === IMPORTS ===
 import React from 'react';
-import { useTranslation } from '@l-kern/config';
-
-// === TYPES ===
-interface ContactListProps {
-  contacts: Contact[];
-  onSelect: (contact: Contact) => void;
-}
-
-// === COMPONENT ===
-export const ContactList: React.FC<ContactListProps> = ({
-  contacts,
-  onSelect
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <div>
-      <h2>{t('contacts.title')}</h2>
-      {contacts.map(contact => (
-        <div key={contact.id} onClick={() => onSelect(contact)}>
-          {contact.name}
-        </div>
-      ))}
-    </div>
-  );
-};
-```
-
-**Rules:**
-- ✅ Use functional components (no class components)
-- ✅ Always define PropTypes interface
-- ✅ Use destructuring for props
-- ✅ Use hooks (useState, useEffect, custom hooks)
-- ✅ Export named components (not default)
-
-### Vite 6 Configuration
-
-**Hot Module Replacement (HMR):**
-```typescript
-// vite.config.ts
-export default defineConfig({
-  server: {
-    host: '0.0.0.0',
-    port: 4201,
-    watch: {
-      usePolling: true  // Required for Docker hot-reload
-    }
-  }
-});
-```
-
-**Build optimization:**
-```typescript
-export default defineConfig({
-  build: {
-    target: 'esnext',
-    minify: 'esbuild',
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom']
-        }
-      }
-    }
-  }
-});
-```
-
-### REST API Client Patterns
-
-**Axios instance setup:**
-```typescript
-// src/api/client.ts
-import axios from 'axios';
-import { API_BASE_URL } from '@l-kern/config';
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-// Request interceptor (auth token)
-apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Response interceptor (error handling)
-apiClient.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      // Redirect to login
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-export default apiClient;
-```
-
-**API service pattern:**
-```typescript
-// src/api/contacts.ts
-import apiClient from './client';
-
-export const contactsApi = {
-  getAll: async () => {
-    const response = await apiClient.get('/api/v1/contacts');
-    return response.data;
-  },
-
-  getById: async (id: string) => {
-    const response = await apiClient.get(`/api/v1/contacts/${id}`);
-    return response.data;
-  },
-
-  create: async (data: ContactCreate) => {
-    const response = await apiClient.post('/api/v1/contacts', data);
-    return response.data;
-  },
-
-  update: async (id: string, data: ContactUpdate) => {
-    const response = await apiClient.put(`/api/v1/contacts/${id}`, data);
-    return response.data;
-  },
-
-  delete: async (id: string) => {
-    await apiClient.delete(`/api/v1/contacts/${id}`);
-  }
-};
-```
-
----
-
-## 6. Backend Standards
-
-### Python/FastAPI Conventions
-
-**File naming:**
-- ✅ `snake_case.py` for all Python files: `contacts_service.py`
-- ✅ `test_*.py` for tests: `test_contacts_service.py`
-
-**FastAPI service structure:**
-```
-services/lkms101-contacts/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # FastAPI app instance
-│   ├── models/              # SQLAlchemy models
-│   │   └── contact.py
-│   ├── schemas/             # Pydantic schemas
-│   │   └── contact.py
-│   ├── routers/             # API routes
-│   │   └── contacts.py
-│   ├── services/            # Business logic
-│   │   └── contacts_service.py
-│   ├── grpc/                # gRPC server
-│   │   ├── server.py
-│   │   └── contacts_pb2.py
-│   └── database.py          # DB connection
-├── alembic/                 # Migrations
-│   └── versions/
-├── proto/                   # .proto files
-│   └── contacts.proto
-├── tests/
-│   ├── test_api.py
-│   └── test_grpc.py
-├── Dockerfile
-└── requirements.txt
-```
-
-**main.py structure:**
-```python
-"""
-================================================================
-FILE: main.py
-PATH: /services/lkms101-contacts/app/main.py
-DESCRIPTION: FastAPI application entry point for contacts service
-VERSION: v1.0.0
-UPDATED: 2025-10-15 14:30:00
-================================================================
-"""
-
-# === IMPORTS ===
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import logging
-
-# === LOGGING ===
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# === APP INSTANCE ===
-app = FastAPI(
-    title="L-KERN Contacts Service",
-    version="1.0.0",
-    description="Contact management microservice"
-)
-
-# === MIDDLEWARE ===
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# === ROUTES ===
-from app.routers import contacts
-app.include_router(contacts.router, prefix="/api/v1")
-
-# === HEALTH CHECK ===
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-
-# === STARTUP/SHUTDOWN ===
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Contacts service starting...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    logger.info("Contacts service shutting down...")
-```
-
-**Logging rules:**
-- ✅ **NEVER use `print()`** - Docker logs nezobrazia print output
-- ✅ **ALWAYS use `logging`** module
-- ✅ **DEBUG outputs** - use `logger.warning()` (zobrazí sa v Docker logs)
-- ✅ **Errors** - use `logger.error()`
-- ✅ **Info** - use `logger.info()` (nezobrazí sa v production logs)
-
-**Logging setup:**
-```python
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-# Usage
-logger.warning("User authentication attempted")  # Visible in Docker
-logger.error("Database connection failed")       # Visible in Docker
-logger.info("Request processed successfully")    # Not visible in Docker
-```
-
-### SQLAlchemy + Alembic Patterns
-
-**Model definition:**
-```python
-# app/models/contact.py
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.sql import func
-from app.database import Base
-
-class Contact(Base):
-    __tablename__ = "contacts"
-
-    # Primary key
-    id = Column(Integer, primary_key=True, index=True)
-
-    # Fields
-    name = Column(String(255), nullable=False, index=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    phone = Column(String(50), nullable=True)
-    is_active = Column(Boolean, default=True)
-
-    # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-```
-
-**Database connection:**
-```python
-# app/database.py
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import os
-
-# === CONSTANTS ===
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@lkms501-postgres:5432/lkms101_contacts"
-)
-
-# === ENGINE ===
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True  # Verify connection before using
-)
-
-# === SESSION ===
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# === BASE ===
-Base = declarative_base()
-
-# === DEPENDENCY ===
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-```
-
-**Pydantic schemas:**
-```python
-# app/schemas/contact.py
-from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
-from typing import Optional
-
-class ContactBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255)
-    email: EmailStr
-    phone: Optional[str] = Field(None, max_length=50)
-
-class ContactCreate(ContactBase):
-    pass
-
-class ContactUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = Field(None, max_length=50)
-    is_active: Optional[bool] = None
-
-class ContactResponse(ContactBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-    updated_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True  # Pydantic v2 (was orm_mode in v1)
-```
-
-**Alembic migration:**
-```python
-# alembic/versions/001_create_contacts_table.py
-"""create contacts table
-
-Revision ID: 001
-Revises:
-Create Date: 2025-10-15 14:30:00
-"""
-from alembic import op
-import sqlalchemy as sa
-
-# revision identifiers
-revision = '001'
-down_revision = None
-branch_labels = None
-depends_on = None
-
-def upgrade():
-    op.create_table(
-        'contacts',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('name', sa.String(255), nullable=False),
-        sa.Column('email', sa.String(255), nullable=False),
-        sa.Column('phone', sa.String(50), nullable=True),
-        sa.Column('is_active', sa.Boolean(), default=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
-        sa.Column('updated_at', sa.DateTime(timezone=True), onupdate=sa.func.now()),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index('ix_contacts_name', 'contacts', ['name'])
-    op.create_index('ix_contacts_email', 'contacts', ['email'], unique=True)
-
-def downgrade():
-    op.drop_index('ix_contacts_email', 'contacts')
-    op.drop_index('ix_contacts_name', 'contacts')
-    op.drop_table('contacts')
-```
-
-### Database Patterns
-
-**One database per service:**
-```
-lkms101_contacts    → lkms101-contacts service
-lkms102_orders      → lkms102-orders service
-lkms103_customers   → lkms103-customers service
-```
-
-**Rules:**
-- ✅ Each microservice has its OWN database
-- ✅ NO direct database access between services
-- ✅ Inter-service communication via gRPC only
-- ✅ Database connection pooling (pool_size=10, max_overflow=20)
-- ✅ Use migrations (Alembic) for schema changes
-
----
-
-## 7. gRPC Standards
-
-### .proto File Structure
-
-**Location:** `services/{service}/proto/{service}.proto`
-
-**Example - contacts.proto:**
-```protobuf
-syntax = "proto3";
-
-package contacts;
-
-// Contact message
-message Contact {
-  int32 id = 1;
-  string name = 2;
-  string email = 3;
-  string phone = 4;
-  bool is_active = 5;
-}
-
-// Request messages
-message GetContactRequest {
-  int32 id = 1;
-}
-
-message GetContactsByIdsRequest {
-  repeated int32 ids = 1;
-}
-
-message ValidateContactRequest {
-  int32 id = 1;
-}
-
-// Response messages
-message GetContactResponse {
-  Contact contact = 1;
-}
-
-message GetContactsByIdsResponse {
-  repeated Contact contacts = 1;
-}
-
-message ValidateContactResponse {
-  bool is_valid = 1;
-  string error_message = 2;
-}
-
-// Service definition
-service ContactsService {
-  rpc GetContact (GetContactRequest) returns (GetContactResponse);
-  rpc GetContactsByIds (GetContactsByIdsRequest) returns (GetContactsByIdsResponse);
-  rpc ValidateContact (ValidateContactRequest) returns (ValidateContactResponse);
-}
-```
-
-**Naming conventions:**
-- ✅ Service name: `{Resource}Service` (ContactsService)
-- ✅ Message name: `{Action}{Resource}{Request/Response}` (GetContactRequest)
-- ✅ Field names: `snake_case` (error_message)
-
-### gRPC Server Implementation
-
-**gRPC server setup:**
-```python
-# app/grpc/server.py
-import grpc
-from concurrent import futures
-import logging
-from app.grpc import contacts_pb2_grpc
-from app.grpc.contacts_service import ContactsServicer
-
-logger = logging.getLogger(__name__)
-
-def serve():
-    # === SERVER SETUP ===
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-
-    # === REGISTER SERVICERS ===
-    contacts_pb2_grpc.add_ContactsServiceServicer_to_server(
-        ContactsServicer(),
-        server
-    )
-
-    # === LISTEN ON PORT ===
-    port = "0.0.0.0:5101"
-    server.add_insecure_port(port)
-
-    logger.info(f"gRPC server starting on {port}")
-    server.start()
-    server.wait_for_termination()
-
-if __name__ == '__main__':
-    serve()
-```
-
-**Servicer implementation:**
-```python
-# app/grpc/contacts_service.py
-import grpc
-from app.grpc import contacts_pb2, contacts_pb2_grpc
-from app.database import SessionLocal
-from app.models.contact import Contact
-import logging
-
-logger = logging.getLogger(__name__)
-
-class ContactsServicer(contacts_pb2_grpc.ContactsServiceServicer):
-
-    def GetContact(self, request, context):
-        db = SessionLocal()
-        try:
-            contact = db.query(Contact).filter(Contact.id == request.id).first()
-
-            if not contact:
-                context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details(f'Contact with id {request.id} not found')
-                return contacts_pb2.GetContactResponse()
-
-            return contacts_pb2.GetContactResponse(
-                contact=contacts_pb2.Contact(
-                    id=contact.id,
-                    name=contact.name,
-                    email=contact.email,
-                    phone=contact.phone or "",
-                    is_active=contact.is_active
-                )
-            )
-        except Exception as e:
-            logger.error(f"Error in GetContact: {str(e)}")
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Internal server error')
-            return contacts_pb2.GetContactResponse()
-        finally:
-            db.close()
-```
-
-### gRPC Client Usage
-
-**Client setup:**
-```python
-# app/grpc/clients/contacts_client.py
-import grpc
-from app.grpc import contacts_pb2, contacts_pb2_grpc
-
-class ContactsClient:
-    def __init__(self, host='lkms101-contacts:5101'):
-        self.channel = grpc.insecure_channel(host)
-        self.stub = contacts_pb2_grpc.ContactsServiceStub(self.channel)
-
-    def get_contact(self, contact_id: int):
-        request = contacts_pb2.GetContactRequest(id=contact_id)
-        try:
-            response = self.stub.GetContact(request)
-            return response.contact
-        except grpc.RpcError as e:
-            print(f"gRPC error: {e.code()} - {e.details()}")
-            return None
-
-    def close(self):
-        self.channel.close()
-```
-
-**Usage in another service:**
-```python
-# Example: lkms102-orders calling lkms101-contacts via gRPC
-from app.grpc.clients.contacts_client import ContactsClient
-
-def validate_order(order_data):
-    contacts_client = ContactsClient()
-
-    # Get contact details via gRPC
-    contact = contacts_client.get_contact(order_data.contact_id)
-
-    if not contact:
-        raise ValueError("Contact not found")
-
-    if not contact.is_active:
-        raise ValueError("Contact is inactive")
-
-    contacts_client.close()
-    return True
-```
-
----
-
-## 8. REST API Standards
-
-### Endpoint Naming
-
-**URL structure:** `/api/v{version}/{resource}`
-
-**Examples:**
-```
-GET    /api/v1/contacts          # List all contacts
-GET    /api/v1/contacts/{id}     # Get contact by ID
-POST   /api/v1/contacts          # Create new contact
-PUT    /api/v1/contacts/{id}     # Update contact
-DELETE /api/v1/contacts/{id}     # Delete contact
-GET    /api/v1/contacts/search   # Search contacts
-```
-
-**Rules:**
-- ✅ Use plural nouns: `/contacts` not `/contact`
-- ✅ Use HTTP methods: GET, POST, PUT, DELETE
-- ✅ Version in URL: `/api/v1/`
-- ✅ Use kebab-case: `/delivery-notes` not `/deliveryNotes`
-- ✅ Use query params for filters: `/contacts?is_active=true`
-
-### Router Implementation
-
-**FastAPI router:**
-```python
-# app/routers/contacts.py
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List
-
-from app.database import get_db
-from app.models.contact import Contact
-from app.schemas.contact import ContactCreate, ContactUpdate, ContactResponse
-
-router = APIRouter(
-    prefix="/contacts",
-    tags=["contacts"]
-)
-
-@router.get("/", response_model=List[ContactResponse])
-async def get_contacts(
-    skip: int = 0,
-    limit: int = 100,
-    is_active: bool = None,
-    db: Session = Depends(get_db)
-):
-    """Get list of contacts with optional filtering."""
-    query = db.query(Contact)
-
-    if is_active is not None:
-        query = query.filter(Contact.is_active == is_active)
-
-    contacts = query.offset(skip).limit(limit).all()
-    return contacts
-
-@router.get("/{contact_id}", response_model=ContactResponse)
-async def get_contact(
-    contact_id: int,
-    db: Session = Depends(get_db)
-):
-    """Get contact by ID."""
-    contact = db.query(Contact).filter(Contact.id == contact_id).first()
-
-    if not contact:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contact with id {contact_id} not found"
-        )
-
-    return contact
-
-@router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
-async def create_contact(
-    contact: ContactCreate,
-    db: Session = Depends(get_db)
-):
-    """Create new contact."""
-    # Check if email already exists
-    existing = db.query(Contact).filter(Contact.email == contact.email).first()
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Contact with this email already exists"
-        )
-
-    db_contact = Contact(**contact.dict())
-    db.add(db_contact)
-    db.commit()
-    db.refresh(db_contact)
-
-    return db_contact
-
-@router.put("/{contact_id}", response_model=ContactResponse)
-async def update_contact(
-    contact_id: int,
-    contact: ContactUpdate,
-    db: Session = Depends(get_db)
-):
-    """Update contact."""
-    db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
-
-    if not db_contact:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contact with id {contact_id} not found"
-        )
-
-    # Update only provided fields
-    update_data = contact.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_contact, field, value)
-
-    db.commit()
-    db.refresh(db_contact)
-
-    return db_contact
-
-@router.delete("/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_contact(
-    contact_id: int,
-    db: Session = Depends(get_db)
-):
-    """Delete contact."""
-    db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
-
-    if not db_contact:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Contact with id {contact_id} not found"
-        )
-
-    db.delete(db_contact)
-    db.commit()
-```
-
-### Error Responses
-
-**Standard error format:**
-```json
-{
-  "detail": "Error message describing what went wrong"
-}
-```
-
-**HTTP status codes:**
-- ✅ `200 OK` - Successful GET/PUT
-- ✅ `201 Created` - Successful POST
-- ✅ `204 No Content` - Successful DELETE
-- ✅ `400 Bad Request` - Invalid input data
-- ✅ `401 Unauthorized` - Missing/invalid auth token
-- ✅ `403 Forbidden` - No permission for resource
-- ✅ `404 Not Found` - Resource doesn't exist
-- ✅ `422 Unprocessable Entity` - Validation error
-- ✅ `500 Internal Server Error` - Server error
-
-**Custom exception handler:**
-```python
-# app/main.py
-from fastapi import Request
-from fastapi.responses import JSONResponse
-
-@app.exception_handler(ValueError)
-async def value_error_handler(request: Request, exc: ValueError):
-    return JSONResponse(
-        status_code=400,
-        content={"detail": str(exc)}
-    )
-```
-
-### Retry Logic with Exponential Backoff
-
-**MANDATORY for 500 errors and service unavailability:**
-
-When calling external services (REST API, gRPC), implement retry logic with exponential backoff.
-
-**Retry strategy:**
-- ✅ **Retry on errors**: 500, 502, 503, 504 (server errors)
-- ✅ **Retry on exceptions**: Connection timeout, connection refused
-- ✅ **Exponential backoff**: 1s, 2s, 4s, 8s
-- ✅ **Max retries**: 4 attempts (total 5 tries including initial)
-- ✅ **Log each retry**: Warning level with attempt number
-
-**Python implementation (REST API):**
-```python
-# app/utils/retry.py
-import asyncio
-import logging
-from typing import Callable, Any
-from functools import wraps
-
-logger = logging.getLogger(__name__)
-
-# === CONSTANTS ===
-# Retry delays in seconds (exponential backoff)
-# Why: Progressive delays give service time to recover
-# When to change: Performance tuning or SLA requirements
-RETRY_DELAYS = [1, 2, 4, 8]  # 1s, 2s, 4s, 8s
-
-# HTTP status codes that should trigger retry
-# Why: Server errors are often temporary
-# When to change: When adding new retry-able error codes
-RETRYABLE_STATUS_CODES = [500, 502, 503, 504]
-
-async def retry_on_failure(
-    func: Callable,
-    *args,
-    retries: int = 4,
-    delays: list = RETRY_DELAYS,
-    **kwargs
-) -> Any:
-    """
-    Retry function call with exponential backoff.
-
-    Args:
-        func: Async function to retry
-        retries: Number of retry attempts (default: 4)
-        delays: List of delays in seconds (default: [1, 2, 4, 8])
-
-    Returns:
-        Function result if successful
-
-    Raises:
-        Last exception if all retries fail
-    """
-    last_exception = None
-
-    for attempt in range(retries + 1):  # +1 for initial attempt
-        try:
-            return await func(*args, **kwargs)
-        except Exception as e:
-            last_exception = e
-
-            # Check if we should retry
-            should_retry = False
-
-            # HTTP error with retryable status code
-            if hasattr(e, 'response') and hasattr(e.response, 'status_code'):
-                if e.response.status_code in RETRYABLE_STATUS_CODES:
-                    should_retry = True
-
-            # Connection errors
-            if 'ConnectionError' in str(type(e)) or 'Timeout' in str(type(e)):
-                should_retry = True
-
-            # gRPC errors
-            if 'grpc' in str(type(e)).lower():
-                should_retry = True
-
-            # Don't retry on last attempt
-            if not should_retry or attempt == retries:
-                logger.error(f"Request failed after {attempt + 1} attempts: {str(e)}")
-                raise last_exception
-
-            # Log retry attempt
-            delay = delays[attempt] if attempt < len(delays) else delays[-1]
-            logger.warning(
-                f"Request failed (attempt {attempt + 1}/{retries + 1}), "
-                f"retrying in {delay}s: {str(e)}"
-            )
-
-            # Wait before retry
-            await asyncio.sleep(delay)
-
-    # Should never reach here, but safety fallback
-    raise last_exception
-
-# === DECORATOR VERSION ===
-def with_retry(retries: int = 4, delays: list = RETRY_DELAYS):
-    """
-    Decorator for automatic retry with exponential backoff.
-
-    Usage:
-        @with_retry(retries=4, delays=[1, 2, 4, 8])
-        async def call_external_service():
-            # Service call implementation
-            pass
-    """
-    def decorator(func: Callable):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            return await retry_on_failure(func, *args, retries=retries, delays=delays, **kwargs)
-        return wrapper
-    return decorator
-```
-
-**Usage example:**
-```python
-# app/api/external_service.py
-from app.utils.retry import with_retry
-import httpx
-
-# === DECORATOR USAGE ===
-@with_retry(retries=4, delays=[1, 2, 4, 8])
-async def call_external_api(endpoint: str):
-    """Call external service with automatic retry."""
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://external-service.com{endpoint}")
-        response.raise_for_status()
-        return response.json()
-
-# === MANUAL USAGE ===
-from app.utils.retry import retry_on_failure
-
-async def get_user_data(user_id: int):
-    async def _fetch():
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"https://api.example.com/users/{user_id}")
-            response.raise_for_status()
-            return response.json()
-
-    # Retry with custom parameters
-    return await retry_on_failure(_fetch, retries=3, delays=[1, 2, 4])
-```
-
-**TypeScript implementation (Frontend):**
-```typescript
-// src/utils/retry.ts
+import { useState } from 'react';
 
 // === CONSTANTS ===
-// Retry delays in milliseconds (exponential backoff)
-const RETRY_DELAYS = [1000, 2000, 4000, 8000]; // 1s, 2s, 4s, 8s
-
-// HTTP status codes that should trigger retry
-const RETRYABLE_STATUS_CODES = [500, 502, 503, 504];
+const API_ENDPOINTS = {
+  CONTACTS: '/api/v1/contacts',
+  CUSTOMERS: '/api/v1/customers'
+};
 
 // === TYPES ===
-interface RetryOptions {
-  retries?: number;
-  delays?: number[];
-  onRetry?: (attempt: number, error: Error) => void;
+interface Contact {
+  id: string;
+  name: string;
 }
 
-// === RETRY FUNCTION ===
-export async function retryOnFailure<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
-  const {
-    retries = 4,
-    delays = RETRY_DELAYS,
-    onRetry
-  } = options;
-
-  let lastError: Error | undefined;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      lastError = error;
-
-      // Check if we should retry
-      let shouldRetry = false;
-
-      // HTTP error with retryable status code
-      if (error.response?.status && RETRYABLE_STATUS_CODES.includes(error.response.status)) {
-        shouldRetry = true;
-      }
-
-      // Network errors
-      if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
-        shouldRetry = true;
-      }
-
-      // Don't retry on last attempt
-      if (!shouldRetry || attempt === retries) {
-        console.error(`Request failed after ${attempt + 1} attempts:`, error.message);
-        throw lastError;
-      }
-
-      // Calculate delay
-      const delay = delays[attempt] || delays[delays.length - 1];
-
-      console.warn(
-        `Request failed (attempt ${attempt + 1}/${retries + 1}), retrying in ${delay}ms:`,
-        error.message
-      );
-
-      // Call onRetry callback
-      if (onRetry) {
-        onRetry(attempt + 1, error);
-      }
-
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-
-  throw lastError;
-}
-
-// === AXIOS INTERCEPTOR ===
-import axios from 'axios';
-
-export const setupRetryInterceptor = () => {
-  axios.interceptors.response.use(
-    response => response,
-    async error => {
-      const config = error.config;
-
-      // Check if already retried max times
-      if (!config || config.__retryCount >= 4) {
-        return Promise.reject(error);
-      }
-
-      // Initialize retry count
-      config.__retryCount = config.__retryCount || 0;
-
-      // Check if error is retryable
-      const isRetryable =
-        error.response?.status && RETRYABLE_STATUS_CODES.includes(error.response.status) ||
-        error.code === 'ECONNREFUSED' ||
-        error.message?.includes('Network Error');
-
-      if (!isRetryable) {
-        return Promise.reject(error);
-      }
-
-      // Increment retry count
-      config.__retryCount++;
-
-      // Calculate delay
-      const delay = RETRY_DELAYS[config.__retryCount - 1] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
-
-      console.warn(
-        `Request failed (attempt ${config.__retryCount}/5), retrying in ${delay}ms:`,
-        error.message
-      );
-
-      // Wait and retry
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return axios(config);
-    }
-  );
+// === COMPONENTS ===
+const ContactList: React.FC = () => {
+  // Component implementation
 };
+
+// === UTILITIES ===
+const formatDate = (date: Date): string => {
+  // Utility function
+};
+
+// === EXPORTS ===
+export default ContactList;
+export { formatDate };
 ```
 
-**Usage in API client:**
-```typescript
-// src/api/client.ts
-import axios from 'axios';
-import { setupRetryInterceptor } from '../utils/retry';
+### Python Structure
 
-const apiClient = axios.create({
-  baseURL: 'http://localhost:4101',
-  timeout: 5000
-});
-
-// Setup automatic retry on failures
-setupRetryInterceptor();
-
-export default apiClient;
-```
-
----
-
-## 8.5. Message Broker - Apache Kafka
-
-### Kafka Architecture
-
-**Purpose:** Asynchronous communication between microservices for event-driven architecture.
-
-**Use cases:**
-- ✅ **Event publishing** - Service publishes events (e.g., "ContactCreated", "OrderCompleted")
-- ✅ **Event consumption** - Other services subscribe to events and react
-- ✅ **Data streaming** - Real-time data processing
-- ✅ **Audit logs** - Immutable event log for compliance
-- ✅ **Cache invalidation** - Notify other services to refresh cached data
-
-**Kafka vs gRPC:**
-- **gRPC** - Synchronous request/response (immediate answer needed)
-- **Kafka** - Asynchronous events (no immediate answer needed)
-
-**Example scenarios:**
-
-| Scenario | Technology | Why |
-|----------|-----------|-----|
-| Orders service calls Customers to get customer data | gRPC | Needs immediate response |
-| Orders service notifies "OrderCreated" event | Kafka | Other services react asynchronously |
-| Warehouse checks stock availability | gRPC | Needs immediate yes/no |
-| Warehouse publishes "StockLevelLow" event | Kafka | Notifications sent asynchronously |
-
-### Kafka Service Setup
-
-**Docker Compose:**
-```yaml
-# infrastructure/docker/docker-compose.yml
-services:
-  # === KAFKA ===
-  lkms502-zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: lkms502-zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - lkern-network
-
-  lkms503-kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: lkms503-kafka
-    ports:
-      - "4503:9092"  # External access
-      - "9093:9093"  # Internal access
-    depends_on:
-      - lkms502-zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: lkms502-zookeeper:2181
-      KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092,INTERNAL://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:4503,INTERNAL://lkms503-kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    networks:
-      - lkern-network
-
-  # === KAFKA UI (Optional) ===
-  lkms903-kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: lkms903-kafka-ui
-    ports:
-      - "4903:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: lkern-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: lkms503-kafka:9093
-      KAFKA_CLUSTERS_0_ZOOKEEPER: lkms502-zookeeper:2181
-    depends_on:
-      - lkms503-kafka
-    networks:
-      - lkern-network
-```
-
-### Kafka Producer (Python)
-
-**Producer setup:**
 ```python
-# app/kafka/producer.py
-from kafka import KafkaProducer
-import json
+# === IMPORTS ===
+from fastapi import FastAPI, HTTPException
+from sqlalchemy.orm import Session
 import logging
-
-logger = logging.getLogger(__name__)
 
 # === CONSTANTS ===
-KAFKA_BOOTSTRAP_SERVERS = ['lkms503-kafka:9093']
-KAFKA_TOPICS = {
-    'CONTACT_CREATED': 'lkern.contacts.created',
-    'CONTACT_UPDATED': 'lkern.contacts.updated',
-    'CONTACT_DELETED': 'lkern.contacts.deleted',
-}
+API_VERSION = "v1"
+DATABASE_URL = "postgresql://localhost/lkms101_contacts"
 
-class EventProducer:
-    """Kafka event producer for publishing events."""
-
-    def __init__(self):
-        self.producer = KafkaProducer(
-            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-            value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-            acks='all',  # Wait for all replicas
-            retries=3,   # Retry failed sends
-            max_in_flight_requests_per_connection=1  # Guarantee order
-        )
-
-    def publish_event(self, topic: str, event_data: dict):
-        """Publish event to Kafka topic."""
-        try:
-            future = self.producer.send(topic, value=event_data)
-
-            # Block until message is sent (optional - for critical events)
-            record_metadata = future.get(timeout=10)
-
-            logger.info(
-                f"Event published to {topic}: "
-                f"partition={record_metadata.partition}, "
-                f"offset={record_metadata.offset}"
-            )
-        except Exception as e:
-            logger.error(f"Failed to publish event to {topic}: {str(e)}")
-            raise
-
-    def close(self):
-        """Close producer connection."""
-        self.producer.close()
-
-# === SINGLETON INSTANCE ===
-event_producer = EventProducer()
-```
-
-**Usage in API endpoints:**
-```python
-# app/routers/contacts.py
-from app.kafka.producer import event_producer, KAFKA_TOPICS
-
-@router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
-async def create_contact(contact: ContactCreate, db: Session = Depends(get_db)):
-    """Create new contact and publish event."""
-
-    # Create contact in database
-    db_contact = Contact(**contact.dict())
-    db.add(db_contact)
-    db.commit()
-    db.refresh(db_contact)
-
-    # Publish event to Kafka (async notification)
-    event_data = {
-        'event_type': 'ContactCreated',
-        'contact_id': db_contact.id,
-        'contact_name': db_contact.name,
-        'contact_email': db_contact.email,
-        'timestamp': db_contact.created_at.isoformat()
-    }
-
-    try:
-        event_producer.publish_event(KAFKA_TOPICS['CONTACT_CREATED'], event_data)
-    except Exception as e:
-        # Log error but don't fail request (event publishing is not critical)
-        logger.error(f"Failed to publish ContactCreated event: {str(e)}")
-
-    return db_contact
-```
-
-### Kafka Consumer (Python)
-
-**Consumer setup:**
-```python
-# app/kafka/consumer.py
-from kafka import KafkaConsumer
-import json
-import logging
-
+# === LOGGING ===
 logger = logging.getLogger(__name__)
 
-# === CONSTANTS ===
-KAFKA_BOOTSTRAP_SERVERS = ['lkms503-kafka:9093']
-
-class EventConsumer:
-    """Kafka event consumer for subscribing to events."""
-
-    def __init__(self, topics: list, group_id: str):
-        self.consumer = KafkaConsumer(
-            *topics,
-            bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-            group_id=group_id,
-            value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-            auto_offset_reset='earliest',  # Start from beginning if no offset
-            enable_auto_commit=True
-        )
-
-    def consume_events(self, handler_func):
-        """
-        Consume events and process with handler function.
-
-        Args:
-            handler_func: Function to process each event (receives event_data dict)
-        """
-        logger.info("Starting event consumer...")
-
-        try:
-            for message in self.consumer:
-                try:
-                    event_data = message.value
-                    logger.info(
-                        f"Received event from {message.topic}: "
-                        f"partition={message.partition}, offset={message.offset}"
-                    )
-
-                    # Process event with handler
-                    handler_func(event_data)
-
-                except Exception as e:
-                    logger.error(f"Error processing event: {str(e)}")
-                    # Continue processing other events
-
-        except KeyboardInterrupt:
-            logger.info("Consumer stopped by user")
-        finally:
-            self.consumer.close()
-```
-
-**Consumer example - Orders service subscribing to ContactCreated:**
-```python
-# services/lkms102-orders/app/kafka/handlers.py
-import logging
-
-logger = logging.getLogger(__name__)
-
-def handle_contact_created(event_data: dict):
-    """
-    Handle ContactCreated event.
-
-    This could:
-    - Update local cache
-    - Send welcome email
-    - Create default settings
-    """
-    contact_id = event_data['contact_id']
-    contact_name = event_data['contact_name']
-
-    logger.info(f"Processing ContactCreated event for: {contact_name} (ID: {contact_id})")
-
-    # Example: Update local cache or send notification
-    # send_welcome_email(contact_email)
-    # invalidate_cache(contact_id)
-
-# === CONSUMER STARTUP ===
-# services/lkms102-orders/app/kafka/consumer_service.py
-from app.kafka.consumer import EventConsumer
-from app.kafka.handlers import handle_contact_created
-
-def start_consumer():
-    """Start Kafka consumer in background thread."""
-    topics = ['lkern.contacts.created']
-    consumer = EventConsumer(topics=topics, group_id='lkms102-orders-group')
-    consumer.consume_events(handle_contact_created)
-
-# Start consumer in main.py
-# @app.on_event("startup")
-# async def startup_event():
-#     import threading
-#     consumer_thread = threading.Thread(target=start_consumer, daemon=True)
-#     consumer_thread.start()
-```
-
-### Kafka Topic Naming Convention
-
-**Format:** `lkern.{service}.{event_type}`
-
-**Examples:**
-- `lkern.contacts.created` - Contact created
-- `lkern.contacts.updated` - Contact updated
-- `lkern.contacts.deleted` - Contact deleted
-- `lkern.orders.created` - Order created
-- `lkern.orders.status_changed` - Order status changed
-- `lkern.warehouse.stock_low` - Stock level below threshold
-- `lkern.invoices.generated` - Invoice generated
-
-**Rules:**
-- ✅ Use lowercase with dots: `lkern.service.event`
-- ✅ Use past tense for events: `created` not `create`
-- ✅ Be specific: `stock_low` not `stock_event`
-- ✅ Group by service: `lkern.{service}.*`
-
-### Event Schema
-
-**Standard event structure:**
-```json
-{
-  "event_type": "ContactCreated",
-  "event_id": "uuid-v4",
-  "timestamp": "2025-10-15T14:30:00Z",
-  "service": "lkms101-contacts",
-  "version": "1.0",
-  "data": {
-    "contact_id": 123,
-    "contact_name": "John Doe",
-    "contact_email": "john@example.com"
-  }
-}
-```
-
-**Rules:**
-- ✅ Include `event_type` for easy filtering
-- ✅ Include `event_id` (UUID) for deduplication
-- ✅ Include `timestamp` (ISO 8601) for ordering
-- ✅ Include `service` for tracking event source
-- ✅ Include `version` for schema evolution
-- ✅ Put business data in `data` field
-
----
-
-## 9. Testing Standards
-
-### pytest (Backend)
-
-**Test file structure:**
-```
-services/lkms101-contacts/
-└── tests/
-    ├── __init__.py
-    ├── conftest.py           # Fixtures
-    ├── test_api.py           # REST API tests
-    ├── test_grpc.py          # gRPC tests
-    ├── test_models.py        # Model tests
-    └── test_services.py      # Business logic tests
-```
-
-**conftest.py - fixtures:**
-```python
-# tests/conftest.py
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.database import Base
-from app.main import app
-from fastapi.testclient import TestClient
-
-# === TEST DATABASE ===
-TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/test_lkms101_contacts"
-
-@pytest.fixture(scope="function")
-def db_session():
-    # Create test database
-    engine = create_engine(TEST_DATABASE_URL)
-    Base.metadata.create_all(bind=engine)
-
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = TestingSessionLocal()
-
-    yield session
-
-    session.close()
-    Base.metadata.drop_all(bind=engine)
-
-@pytest.fixture(scope="function")
-def client(db_session):
-    def override_get_db():
-        yield db_session
-
-    app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-```
-
-**test_api.py - REST API tests:**
-```python
-# tests/test_api.py
-import pytest
-from app.schemas.contact import ContactCreate
-
-def test_create_contact(client):
-    response = client.post(
-        "/api/v1/contacts/",
-        json={
-            "name": "John Doe",
-            "email": "john@example.com",
-            "phone": "0901234567"
-        }
-    )
-
-    assert response.status_code == 201
-    data = response.json()
-    assert data["name"] == "John Doe"
-    assert data["email"] == "john@example.com"
-    assert "id" in data
-
-def test_get_contact(client, db_session):
-    # Create contact
-    from app.models.contact import Contact
-    contact = Contact(name="Jane Doe", email="jane@example.com")
-    db_session.add(contact)
-    db_session.commit()
-
-    # Get contact
-    response = client.get(f"/api/v1/contacts/{contact.id}")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["name"] == "Jane Doe"
-    assert data["email"] == "jane@example.com"
-
-def test_get_nonexistent_contact(client):
-    response = client.get("/api/v1/contacts/99999")
-
-    assert response.status_code == 404
-    assert "not found" in response.json()["detail"]
-```
-
-### Vitest (Frontend)
-
-**Test file structure:**
-```
-apps/web-ui/src/
-└── pages/
-    └── contacts/
-        ├── ContactsPage.tsx
-        └── ContactsPage.test.tsx
-```
-
-**ContactsPage.test.tsx:**
-```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { ContactsPage } from './ContactsPage';
-import { contactsApi } from '../../api/contacts';
-
-// Mock API
-vi.mock('../../api/contacts', () => ({
-  contactsApi: {
-    getAll: vi.fn(),
-    create: vi.fn()
-  }
-}));
-
-describe('ContactsPage', () => {
-  it('renders contacts list', async () => {
-    const mockContacts = [
-      { id: 1, name: 'John Doe', email: 'john@example.com' },
-      { id: 2, name: 'Jane Doe', email: 'jane@example.com' }
-    ];
-
-    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('Jane Doe')).toBeInTheDocument();
-    });
-  });
-
-  it('creates new contact', async () => {
-    const user = userEvent.setup();
-
-    vi.mocked(contactsApi.create).mockResolvedValue({
-      id: 3,
-      name: 'New Contact',
-      email: 'new@example.com'
-    });
-
-    render(<ContactsPage />);
-
-    // Click "Add Contact" button
-    await user.click(screen.getByText('Add Contact'));
-
-    // Fill form
-    await user.type(screen.getByLabelText('Name'), 'New Contact');
-    await user.type(screen.getByLabelText('Email'), 'new@example.com');
-
-    // Submit
-    await user.click(screen.getByText('Save'));
-
-    await waitFor(() => {
-      expect(contactsApi.create).toHaveBeenCalledWith({
-        name: 'New Contact',
-        email: 'new@example.com'
-      });
-    });
-  });
-});
-```
-
-**vitest.config.ts:**
-```typescript
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: './src/test/setup.ts',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-      ]
-    }
-  }
-});
-```
-
-### What to Test - Comprehensive Checklist
-
-**This section defines EXACTLY what to test for each component type.**
-
----
-
-#### UI Components (Button, Input, Select, Checkbox, etc.)
-
-**Rendering Tests:**
-- [ ] Component renders without crashing
-- [ ] Renders with required props
-- [ ] Renders children correctly
-- [ ] Renders with all optional props
-- [ ] Applies default values when props omitted
-
-**Props Tests:**
-- [ ] All variant props apply correct CSS classes
-- [ ] All size props apply correct CSS classes
-- [ ] Boolean props toggle expected behavior
-- [ ] String props display correctly
-- [ ] Number props apply correctly
-
-**Interaction Tests:**
-- [ ] onClick handler called when clicked
-- [ ] onChange handler called when value changes
-- [ ] onFocus/onBlur handlers called correctly
-- [ ] Keyboard interactions work (Enter, Space, Escape)
-
-**State Tests:**
-- [ ] Disabled state prevents interactions
-- [ ] Disabled state applies correct styling
-- [ ] Loading state prevents interactions
-- [ ] Loading state shows loading indicator
-- [ ] Error state displays error message
-- [ ] Error state applies error styling
-
-**CSS & Styling Tests:**
-- [ ] All CSS classes applied correctly
-- [ ] Uses theme CSS variables (not hardcoded colors)
-- [ ] Custom className prop merged with default classes
-- [ ] fullWidth prop applies correct width
-
-**Translation Tests:**
-- [ ] ALL user-facing text uses t() function (NO hardcoded strings)
-- [ ] Component text changes when language switches (test with both 'sk' and 'en')
-- [ ] Placeholder text uses translations
-- [ ] Error messages use translations
-- [ ] Helper text uses translations
-- [ ] Button labels use translations
-- [ ] ARIA labels use translations where applicable
-
-**Accessibility Tests:**
-- [ ] Has correct ARIA role
-- [ ] aria-label or aria-labelledby present
-- [ ] aria-disabled set when disabled
-- [ ] aria-invalid set when error
-- [ ] aria-describedby links to error/helper text
-- [ ] Keyboard focusable when not disabled
-
-**HTML Attributes Tests:**
-- [ ] Forwards standard HTML attributes (type, name, placeholder)
-- [ ] data-* attributes forwarded correctly
-- [ ] ref forwarding works (for React.forwardRef components)
-
-**Example - Button Component Tests:**
-```typescript
-describe('Button', () => {
-  // === RENDERING ===
-  it('renders without crashing', () => {
-    render(<Button>Click me</Button>);
-  });
-
-  it('renders text correctly', () => {
-    render(<Button>Save</Button>);
-    expect(screen.getByText('Save')).toBeInTheDocument();
-  });
-
-  // === PROPS ===
-  it('applies primary variant class', () => {
-    render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('button--primary');
-  });
-
-  it('applies danger variant class', () => {
-    render(<Button variant="danger">Delete</Button>);
-    expect(screen.getByRole('button')).toHaveClass('button--danger');
-  });
-
-  it('applies small size class', () => {
-    render(<Button size="small">Small</Button>);
-    expect(screen.getByRole('button')).toHaveClass('button--small');
-  });
-
-  it('applies fullWidth class when fullWidth is true', () => {
-    render(<Button fullWidth>Full</Button>);
-    expect(screen.getByRole('button')).toHaveClass('button--fullWidth');
-  });
-
-  // === INTERACTIONS ===
-  it('calls onClick when clicked', async () => {
-    const onClick = vi.fn();
-    render(<Button onClick={onClick}>Click</Button>);
-    await userEvent.click(screen.getByRole('button'));
-    expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not call onClick when disabled', async () => {
-    const onClick = vi.fn();
-    render(<Button onClick={onClick} disabled>Disabled</Button>);
-    await userEvent.click(screen.getByRole('button'));
-    expect(onClick).not.toHaveBeenCalled();
-  });
-
-  it('does not call onClick when loading', async () => {
-    const onClick = vi.fn();
-    render(<Button onClick={onClick} loading>Loading</Button>);
-    await userEvent.click(screen.getByRole('button'));
-    expect(onClick).not.toHaveBeenCalled();
-  });
-
-  // === STATE ===
-  it('disables button when disabled prop is true', () => {
-    render(<Button disabled>Disabled</Button>);
-    expect(screen.getByRole('button')).toBeDisabled();
-  });
-
-  it('disables button when loading', () => {
-    render(<Button loading>Loading</Button>);
-    expect(screen.getByRole('button')).toBeDisabled();
-  });
-
-  it('shows loading indicator when loading', () => {
-    render(<Button loading>Save</Button>);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-  });
-
-  // === CSS ===
-  it('uses CSS variables for colors', () => {
-    const { container } = render(<Button variant="primary">Test</Button>);
-    // Verify CSS variables used, not hardcoded values
-    const styles = getComputedStyle(container.querySelector('button')!);
-    // Should use var(--color-brand-primary) not #1976d2
-  });
-
-  // === TRANSLATION ===
-  it('uses translation for button text (NO hardcoded strings)', () => {
-    const { rerender } = render(<Button variant="primary">{t('components.buttons.primary')}</Button>);
-
-    // Should show Slovak text by default
-    expect(screen.getByText('Primárne')).toBeInTheDocument();
-
-    // Change language to English
-    act(() => setLanguage('en'));
-    rerender(<Button variant="primary">{t('components.buttons.primary')}</Button>);
-
-    // Should now show English text
-    expect(screen.queryByText('Primárne')).not.toBeInTheDocument();
-    expect(screen.getByText('Primary')).toBeInTheDocument();
-  });
-
-  it('does NOT contain hardcoded text strings', () => {
-    const { container } = render(<Button variant="primary">{t('components.buttons.primary')}</Button>);
-
-    // WRONG: Don't do this
-    // <Button>Save</Button>  ❌ Hardcoded
-
-    // CORRECT: Use t() function
-    // <Button>{t('common.save')}</Button>  ✅
-
-    // Verify component uses t() function
-    const buttonText = container.querySelector('button')?.textContent;
-    expect(buttonText).not.toBe('Save'); // Should be translated, not hardcoded
-  });
-
-  // === ACCESSIBILITY ===
-  it('has button role', () => {
-    render(<Button>Test</Button>);
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-
-  it('is keyboard accessible', () => {
-    render(<Button>Test</Button>);
-    const button = screen.getByRole('button');
-    button.focus();
-    expect(document.activeElement).toBe(button);
-  });
-
-  // === HTML ATTRIBUTES ===
-  it('forwards type attribute', () => {
-    render(<Button type="submit">Submit</Button>);
-    expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
-  });
-
-  it('forwards data attributes', () => {
-    render(<Button data-testid="my-button">Test</Button>);
-    expect(screen.getByTestId('my-button')).toBeInTheDocument();
-  });
-});
+# === MODELS ===
+class Contact(Base):
+    __tablename__ = "contacts"
+    id = Column(Integer, primary_key=True)
+
+# === SCHEMAS ===
+class ContactCreate(BaseModel):
+    name: str
+    email: str
+
+# === ROUTES ===
+@app.get("/api/v1/contacts")
+async def get_contacts():
+    return {"contacts": []}
+
+# === UTILITIES ===
+def validate_email(email: str) -> bool:
+    # Validation logic
+    pass
 ```
 
 ---
 
-#### Page Components (ContactsPage, OrdersPage, Dashboard)
-
-**Rendering Tests:**
-- [ ] Page renders without crashing
-- [ ] Page title displays correctly
-- [ ] Navigation elements visible
-- [ ] Loading state shows on initial render
-
-**Translation Tests:**
-- [ ] Uses t() function for all text (not hardcoded)
-- [ ] Page title translates when language changes
-- [ ] Button labels translate when language changes
-- [ ] Error messages translate when language changes
-- [ ] Placeholder text translates when language changes
-
-**API Integration Tests:**
-- [ ] Fetches data from API on mount
-- [ ] Displays fetched data correctly
-- [ ] Shows loading spinner while fetching
-- [ ] Shows error message when API fails
-- [ ] Retries failed requests with exponential backoff
-
-**CRUD Operation Tests:**
-- [ ] Create: Opens create modal/form
-- [ ] Create: Submits data to API
-- [ ] Create: Shows success notification
-- [ ] Create: Updates list with new item
-- [ ] Read: Displays list of items
-- [ ] Read: Opens detail view when item clicked
-- [ ] Update: Opens edit modal/form with existing data
-- [ ] Update: Submits updated data to API
-- [ ] Update: Shows success notification
-- [ ] Update: Updates list with changed item
-- [ ] Delete: Shows confirmation dialog
-- [ ] Delete: Deletes item from API
-- [ ] Delete: Shows success notification
-- [ ] Delete: Removes item from list
-
-**Form Validation Tests:**
-- [ ] Required fields show error when empty
-- [ ] Email fields validate email format
-- [ ] Phone fields validate phone format
-- [ ] Number fields reject non-numeric input
-- [ ] Min/max length validation works
-- [ ] Custom validation rules apply
-- [ ] Submit button disabled when form invalid
-
-**User Interaction Tests:**
-- [ ] Search input filters results
-- [ ] Pagination buttons work
-- [ ] Sort headers change sort order
-- [ ] Filter checkboxes update results
-- [ ] Modal opens when "Add" clicked
-- [ ] Modal closes when "Cancel" clicked
-- [ ] Modal closes when "Save" successful
-
-**Example - ContactsPage Tests:**
-```typescript
-describe('ContactsPage', () => {
-  beforeEach(() => {
-    // Reset mocks before each test
-    vi.clearAllMocks();
-  });
-
-  // === RENDERING ===
-  it('renders page title', () => {
-    render(<ContactsPage />);
-    expect(screen.getByText('Kontakty')).toBeInTheDocument();
-  });
-
-  it('shows loading spinner initially', () => {
-    render(<ContactsPage />);
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-  });
-
-  // === TRANSLATION ===
-  it('uses translation for page title', () => {
-    const { rerender } = render(<ContactsPage />);
-    expect(screen.getByText('Kontakty')).toBeInTheDocument();
-
-    // Change language to English
-    changeLanguage('en');
-    rerender(<ContactsPage />);
-    expect(screen.getByText('Contacts')).toBeInTheDocument();
-  });
-
-  // === API INTEGRATION ===
-  it('fetches contacts on mount', async () => {
-    const mockContacts = [
-      { id: 1, name: 'John Doe', email: 'john@example.com' },
-      { id: 2, name: 'Jane Doe', email: 'jane@example.com' }
-    ];
-
-    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => {
-      expect(contactsApi.getAll).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  it('displays fetched contacts', async () => {
-    const mockContacts = [
-      { id: 1, name: 'John Doe', email: 'john@example.com' }
-    ];
-
-    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('john@example.com')).toBeInTheDocument();
-    });
-  });
-
-  it('shows error message when API fails', async () => {
-    vi.mocked(contactsApi.getAll).mockRejectedValue(new Error('API Error'));
-
-    render(<ContactsPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/error/i)).toBeInTheDocument();
-    });
-  });
-
-  // === CREATE ===
-  it('opens create modal when Add button clicked', async () => {
-    render(<ContactsPage />);
-
-    await userEvent.click(screen.getByText('Pridať kontakt'));
-
-    expect(screen.getByTestId('contact-modal')).toBeInTheDocument();
-  });
-
-  it('creates new contact', async () => {
-    const mockContact = { id: 3, name: 'New Contact', email: 'new@example.com' };
-    vi.mocked(contactsApi.create).mockResolvedValue(mockContact);
-
-    render(<ContactsPage />);
-
-    // Open modal
-    await userEvent.click(screen.getByText('Pridať kontakt'));
-
-    // Fill form
-    await userEvent.type(screen.getByLabelText('Meno'), 'New Contact');
-    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
-
-    // Submit
-    await userEvent.click(screen.getByText('Uložiť'));
-
-    await waitFor(() => {
-      expect(contactsApi.create).toHaveBeenCalledWith({
-        name: 'New Contact',
-        email: 'new@example.com'
-      });
-    });
-  });
-
-  it('shows success notification after create', async () => {
-    const mockContact = { id: 3, name: 'New Contact', email: 'new@example.com' };
-    vi.mocked(contactsApi.create).mockResolvedValue(mockContact);
-
-    render(<ContactsPage />);
-
-    // Create contact (same steps as above)
-    await userEvent.click(screen.getByText('Pridať kontakt'));
-    await userEvent.type(screen.getByLabelText('Meno'), 'New Contact');
-    await userEvent.click(screen.getByText('Uložiť'));
-
-    await waitFor(() => {
-      expect(screen.getByText(/úspešne vytvorený/i)).toBeInTheDocument();
-    });
-  });
-
-  // === UPDATE ===
-  it('opens edit modal with existing data', async () => {
-    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
-    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => screen.getByText('John Doe'));
-
-    // Click edit button
-    await userEvent.click(screen.getByLabelText('Upraviť John Doe'));
-
-    // Modal should have existing data
-    expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('john@example.com')).toBeInTheDocument();
-  });
-
-  // === DELETE ===
-  it('shows confirmation dialog before delete', async () => {
-    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
-    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => screen.getByText('John Doe'));
-
-    // Click delete button
-    await userEvent.click(screen.getByLabelText('Zmazať John Doe'));
-
-    // Confirmation dialog appears
-    expect(screen.getByText(/naozaj chcete zmazať/i)).toBeInTheDocument();
-  });
-
-  it('deletes contact after confirmation', async () => {
-    const mockContact = { id: 1, name: 'John Doe', email: 'john@example.com' };
-    vi.mocked(contactsApi.getAll).mockResolvedValue([mockContact]);
-    vi.mocked(contactsApi.delete).mockResolvedValue(undefined);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => screen.getByText('John Doe'));
-
-    // Delete
-    await userEvent.click(screen.getByLabelText('Zmazať John Doe'));
-    await userEvent.click(screen.getByText('Áno, zmazať'));
-
-    await waitFor(() => {
-      expect(contactsApi.delete).toHaveBeenCalledWith(1);
-    });
-  });
-
-  // === SEARCH & FILTER ===
-  it('filters contacts by search term', async () => {
-    const mockContacts = [
-      { id: 1, name: 'John Doe', email: 'john@example.com' },
-      { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
-    ];
-    vi.mocked(contactsApi.getAll).mockResolvedValue(mockContacts);
-
-    render(<ContactsPage />);
-
-    await waitFor(() => screen.getByText('John Doe'));
-
-    // Type in search
-    await userEvent.type(screen.getByPlaceholderText('Hľadať...'), 'John');
-
-    // Only John should be visible
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
-  });
-});
-```
-
----
-
-#### API Endpoints (Backend - FastAPI)
-
-**Success Response Tests:**
-- [ ] GET all returns 200 and array
-- [ ] GET by ID returns 200 and object
-- [ ] POST returns 201 and created object
-- [ ] PUT returns 200 and updated object
-- [ ] DELETE returns 204 No Content
-
-**Error Response Tests:**
-- [ ] GET nonexistent ID returns 404
-- [ ] POST invalid data returns 400 or 422
-- [ ] POST duplicate unique field returns 400
-- [ ] PUT nonexistent ID returns 404
-- [ ] DELETE nonexistent ID returns 404
-
-**Validation Tests:**
-- [ ] Required fields validated (400 if missing)
-- [ ] Email format validated
-- [ ] Min/max length validated
-- [ ] Enum values validated
-- [ ] Type validation (string vs number)
-
-**Business Logic Tests:**
-- [ ] Related records created correctly
-- [ ] Cascading deletes work
-- [ ] Soft delete marks is_active=false
-- [ ] Timestamps set correctly (created_at, updated_at)
-- [ ] Default values applied
-
-**Database Tests:**
-- [ ] Record saved to database
-- [ ] Record updated in database
-- [ ] Record deleted from database
-- [ ] Transactions roll back on error
-- [ ] Foreign key constraints enforced
-
-**Example - Contacts API Tests:**
-```python
-def test_create_contact_success(client):
-    """Test successful contact creation."""
-    response = client.post(
-        "/api/v1/contacts",
-        json={
-            "name": "John Doe",
-            "email": "john@example.com",
-            "phone": "+421900123456"
-        }
-    )
-
-    assert response.status_code == 201
-    data = response.json()
-    assert data["name"] == "John Doe"
-    assert data["email"] == "john@example.com"
-    assert "id" in data
-    assert "created_at" in data
-
-def test_create_contact_duplicate_email(client, db_session):
-    """Test creating contact with duplicate email fails."""
-    # Create first contact
-    contact = Contact(name="Existing", email="john@example.com")
-    db_session.add(contact)
-    db_session.commit()
-
-    # Try to create duplicate
-    response = client.post(
-        "/api/v1/contacts",
-        json={"name": "Duplicate", "email": "john@example.com"}
-    )
-
-    assert response.status_code == 400
-    assert "already exists" in response.json()["detail"]
-
-def test_create_contact_invalid_email(client):
-    """Test creating contact with invalid email fails."""
-    response = client.post(
-        "/api/v1/contacts",
-        json={"name": "Test", "email": "not-an-email"}
-    )
-
-    assert response.status_code == 422  # Validation error
-
-def test_get_contact_by_id(client, db_session):
-    """Test retrieving contact by ID."""
-    contact = Contact(name="Jane Doe", email="jane@example.com")
-    db_session.add(contact)
-    db_session.commit()
-
-    response = client.get(f"/api/v1/contacts/{contact.id}")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["id"] == contact.id
-    assert data["name"] == "Jane Doe"
-
-def test_get_nonexistent_contact(client):
-    """Test retrieving nonexistent contact returns 404."""
-    response = client.get("/api/v1/contacts/99999")
-
-    assert response.status_code == 404
-    assert "not found" in response.json()["detail"].lower()
-
-def test_update_contact(client, db_session):
-    """Test updating contact."""
-    contact = Contact(name="Old Name", email="old@example.com")
-    db_session.add(contact)
-    db_session.commit()
-
-    response = client.put(
-        f"/api/v1/contacts/{contact.id}",
-        json={"name": "New Name"}
-    )
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["name"] == "New Name"
-    assert data["email"] == "old@example.com"  # Unchanged
-
-def test_delete_contact(client, db_session):
-    """Test deleting contact."""
-    contact = Contact(name="Delete Me", email="delete@example.com")
-    db_session.add(contact)
-    db_session.commit()
-
-    response = client.delete(f"/api/v1/contacts/{contact.id}")
-
-    assert response.status_code == 204
-
-    # Verify deleted
-    deleted = db_session.query(Contact).filter(Contact.id == contact.id).first()
-    assert deleted is None
-
-def test_list_contacts_pagination(client, db_session):
-    """Test listing contacts with pagination."""
-    # Create 5 contacts
-    for i in range(5):
-        contact = Contact(name=f"Contact {i}", email=f"contact{i}@example.com")
-        db_session.add(contact)
-    db_session.commit()
-
-    # Get first 2
-    response = client.get("/api/v1/contacts?skip=0&limit=2")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 2
-
-def test_list_contacts_filter(client, db_session):
-    """Test filtering contacts by is_active."""
-    active = Contact(name="Active", email="active@example.com", is_active=True)
-    inactive = Contact(name="Inactive", email="inactive@example.com", is_active=False)
-    db_session.add(active)
-    db_session.add(inactive)
-    db_session.commit()
-
-    response = client.get("/api/v1/contacts?is_active=true")
-
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 1
-    assert data[0]["name"] == "Active"
-```
-
----
-
-#### gRPC Services
-
-**Success Tests:**
-- [ ] Service method returns expected response
-- [ ] Response contains correct data
-- [ ] Response fields have correct types
-
-**Error Tests:**
-- [ ] Returns NOT_FOUND for missing resource
-- [ ] Returns INVALID_ARGUMENT for bad input
-- [ ] Returns INTERNAL for server errors
-
-**Data Tests:**
-- [ ] Protobuf serialization works
-- [ ] Repeated fields return arrays
-- [ ] Optional fields handle null
-
-**Connection Tests:**
-- [ ] Client connects to server
-- [ ] Connection timeout handled
-- [ ] Retry logic works
-
-**Example - gRPC Tests:**
-```python
-def test_get_contact_grpc_success():
-    """Test GetContact gRPC method success."""
-    # Setup
-    servicer = ContactsServicer()
-    request = contacts_pb2.GetContactRequest(id=1)
-    context = MockContext()
-
-    # Create test contact in DB
-    db = SessionLocal()
-    contact = Contact(id=1, name="Test", email="test@example.com")
-    db.add(contact)
-    db.commit()
-
-    # Call gRPC method
-    response = servicer.GetContact(request, context)
-
-    assert response.contact.id == 1
-    assert response.contact.name == "Test"
-    assert response.contact.email == "test@example.com"
-
-def test_get_contact_grpc_not_found():
-    """Test GetContact gRPC method with nonexistent ID."""
-    servicer = ContactsServicer()
-    request = contacts_pb2.GetContactRequest(id=99999)
-    context = MockContext()
-
-    response = servicer.GetContact(request, context)
-
-    assert context.code == grpc.StatusCode.NOT_FOUND
-    assert "not found" in context.details.lower()
-```
-
----
-
-#### Custom Hooks (React)
-
-**Return Value Tests:**
-- [ ] Hook returns expected values
-- [ ] Hook returns expected functions
-- [ ] Return values have correct types
-
-**State Tests:**
-- [ ] Initial state correct
-- [ ] State updates when action called
-- [ ] State persists across re-renders
-
-**Side Effect Tests:**
-- [ ] useEffect runs on mount
-- [ ] useEffect cleanup runs on unmount
-- [ ] Dependencies trigger re-run
-
-**Example - useTranslation Hook Tests:**
-```typescript
-describe('useTranslation', () => {
-  it('returns translation function', () => {
-    const { result } = renderHook(() => useTranslation());
-    expect(typeof result.current.t).toBe('function');
-  });
-
-  it('translates keys correctly', () => {
-    const { result } = renderHook(() => useTranslation());
-    const translated = result.current.t('common.buttons.save');
-    expect(translated).toBe('Uložiť');  // Slovak default
-  });
-
-  it('changes language', () => {
-    const { result } = renderHook(() => useTranslation());
-
-    act(() => {
-      result.current.setLanguage('en');
-    });
-
-    expect(result.current.currentLanguage).toBe('en');
-    expect(result.current.t('common.buttons.save')).toBe('Save');
-  });
-});
-```
-
----
-
-### Test Coverage Goals
-
-**Minimum coverage requirements:**
-
-| Component Type | Line Coverage | Branch Coverage |
-|----------------|---------------|-----------------|
-| UI Components | 90% | 85% |
-| Page Components | 80% | 75% |
-| API Endpoints | 95% | 90% |
-| Business Logic | 95% | 90% |
-| Utilities | 100% | 100% |
-| Custom Hooks | 90% | 85% |
-
-**Coverage exceptions:**
-- Type definitions (.d.ts files)
-- Configuration files
-- Test files themselves
-- Generated code (protobuf, etc.)
-
----
-
-## 10. Docker & DevOps
-
-### Dockerfile Best Practices
-
-**Multi-stage build for Python:**
-```dockerfile
-# === BUILDER STAGE ===
-FROM python:3.11-slim as builder
-
-WORKDIR /app
-
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
-
-# === RUNTIME STAGE ===
-FROM python:3.11-slim
-
-WORKDIR /app
-
-# Copy dependencies from builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-# Copy application
-COPY . .
-
-# Expose ports (REST + gRPC)
-EXPOSE 4101 5101
-
-# Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4101", "--reload"]
-```
-
-**Multi-stage build for React:**
-```dockerfile
-# === BUILDER STAGE ===
-FROM node:20-alpine as builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
-# Copy source and build
-COPY . .
-RUN yarn build
-
-# === RUNTIME STAGE ===
-FROM nginx:alpine
-
-# Copy built assets
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### docker-compose Patterns
-
-**Development docker-compose.yml:**
-```yaml
-version: '3.8'
-
-services:
-  # === WEB UI ===
-  lkms201-web-ui:
-    build:
-      context: ./apps/web-ui
-      dockerfile: Dockerfile.dev
-    ports:
-      - "4201:4201"
-    volumes:
-      - ./apps/web-ui:/app
-      - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true  # Hot-reload for Docker
-    networks:
-      - lkern-network
-
-  # === CONTACTS SERVICE ===
-  lkms101-contacts:
-    build:
-      context: ./services/lkms101-contacts
-      dockerfile: Dockerfile.dev
-    ports:
-      - "4101:4101"  # REST API
-      - "5101:5101"  # gRPC
-    volumes:
-      - ./services/lkms101-contacts:/app
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@lkms501-postgres:5432/lkms101_contacts
-    depends_on:
-      - lkms501-postgres
-    networks:
-      - lkern-network
-
-  # === POSTGRESQL ===
-  lkms501-postgres:
-    image: postgres:15
-    ports:
-      - "4501:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_MULTIPLE_DATABASES=lkms101_contacts,lkms102_orders,lkms103_customers
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./infrastructure/docker/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
-    networks:
-      - lkern-network
-
-  # === ADMINER ===
-  lkms901-adminer:
-    image: adminer:latest
-    ports:
-      - "4901:8080"
-    environment:
-      - ADMINER_DEFAULT_SERVER=lkms501-postgres
-    networks:
-      - lkern-network
-
-volumes:
-  postgres-data:
-
-networks:
-  lkern-network:
-    driver: bridge
-```
-
-### Hot-reload Setup
-
-**Vite (React) hot-reload:**
-```typescript
-// vite.config.ts
-export default defineConfig({
-  server: {
-    host: '0.0.0.0',
-    port: 4201,
-    watch: {
-      usePolling: true  // REQUIRED for Docker hot-reload
-    }
-  }
-});
-```
-
-**Environment variable:**
-```yaml
-# docker-compose.yml
-environment:
-  - CHOKIDAR_USEPOLLING=true  # Enable polling for file changes
-```
-
-**FastAPI hot-reload:**
-```dockerfile
-# Dockerfile.dev
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4101", "--reload"]
-```
-
----
-
-## 11. DRY Principle & Code Reuse
-
-### Componentization Rules
-
-**MANDATORY for repeated code:**
-- ✅ **Never copy-paste code** - If adding same/similar code in multiple places
-- ✅ **Create shared package** - In monorepo create in `packages/` for shared components
-- ✅ **Multiple apps = Shared package** - If component used in multiple `apps/`, must be in `packages/`
-- ✅ **Function for logic** - Shared logic → `@l-kern/utils` package
-- ✅ **Component for UI** - Shared UI elements → `@l-kern/ui-components` package
-
-**Example - Creating shared utility:**
-```typescript
-// ❌ WRONG - Duplicated in multiple files
-// apps/web-ui/src/pages/contacts/ContactsPage.tsx
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('sk-SK');
-};
-
-// apps/web-ui/src/pages/orders/OrdersPage.tsx
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('sk-SK');
-};
-
-// ✅ CORRECT - Shared utility
-// packages/utils/src/formatDate.ts
-export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('sk-SK');
-};
-
-// Usage in both pages
-import { formatDate } from '@l-kern/utils';
-```
-
-**Monorepo package location:**
-```
-packages/
-├── ui-components/    # Shared React components
-├── utils/            # Shared utilities
-├── config/           # Configuration, constants, translations
-└── shared-types/     # TypeScript types
-```
-
-### Anti-Duplication Audit
-
-**MANDATORY before every code change:**
-1. ✅ **Search for similar functionality** - Check if similar code exists
-2. ✅ **Reuse over create** - If suitable function/component exists, use it
-3. ✅ **Balance complexity** - If reuse complicates existing code too much, create new
-4. ✅ **Component-first fixes** - Modify components instead of inline solutions
-5. ✅ **Consistency** - If fonts/paddings were variables, keep them as variables
-
----
-
-## 12. UI Standards
-
-### Notifications
-
-**NEVER use `alert()`:**
-```typescript
-// ❌ WRONG - Primitive and disruptive
-alert("Success!");
-confirm("Are you sure?");
-
-// ✅ CORRECT - Use NotificationModal
-import { useNotification } from '@l-kern/ui-components';
-
-const MyComponent = () => {
-  const { showSuccess, showError, showWarning } = useNotification();
-
-  const handleSuccess = () => {
-    showSuccess("Success", "Operation completed successfully");
-  };
-
-  const handleError = () => {
-    showError("Error", "Something went wrong");
-  };
-};
-```
-
-**Features:**
-- ✅ Auto-close after 3 seconds
-- ✅ Click to close manually
-- ✅ Type-based styling (success, error, warning, info)
-- ✅ Non-blocking UX
-
----
-
-## 13. Backup Workflow
-
-### Automatic Backup Before Edits
-
-**MANDATORY for all file modifications:**
-- ✅ Create `.backup/` folder in directory where file is being modified
-- ✅ Copy original file to `.backup/` with timestamp: `original_file_YYYYMMDD_HHMMSS.ext`
-- ✅ Safety net for quick rollback if changes fail
-- ✅ `.backup/` directory added to `.gitignore` and `.dockerignore`
-
-**Backup script example:**
-```bash
-#!/bin/bash
-# Create backup before editing
-
-create_backup() {
-    local file_path=$1
-    local backup_dir=$(dirname "$file_path")/.backup/
-    local filename=$(basename "$file_path")
-    local timestamp=$(date +"%Y%m%d_%H%M%S")
-
-    mkdir -p "$backup_dir"
-    cp "$file_path" "$backup_dir/${filename%.*}_${timestamp}.${filename##*.}"
-
-    echo "Backup created: $backup_dir/${filename%.*}_${timestamp}.${filename##*.}"
-}
-
-create_backup "ContactsPage.tsx"
-```
-
----
-
-## 14. Git Standards
+## 8. Git Standards
 
 ### Commit Message Format
 
@@ -3001,49 +417,388 @@ DOCS: Update ROADMAP.md with Phase 0 tasks
 ```
 
 **Claude Code signature:**
-```bash
-git commit -m "$(cat <<'EOF'
-FEATURE: Add comprehensive order management validation
-
-- Implement real-time sequence number loading
-- Add post-creation validation for database and file system
-- Fix Docker path mapping for Windows L:\ drive integration
-- Enhanced UI with ValidationResultModal component
-
+```
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
-EOF
-)"
 ```
+
+### Branching Strategy
+
+- ✅ `main` - Production-ready code
+- ✅ `develop` - Development branch
+- ✅ `feature/{task-name}` - Feature branches
+- ✅ `fix/{bug-name}` - Bug fix branches
+
+---
+
+## 9. Componentization & Code Reuse
+
+### DRY Rules
+
+**MANDATORY for repeated code:**
+- ✅ **Never copy-paste code** - If adding same/similar code in multiple places
+- ✅ **Create shared package** - In monorepo create in `packages/` for shared components
+- ✅ **Multiple apps = Shared package** - If component used in multiple `apps/`, must be in `packages/`
+- ✅ **Function for logic** - Shared logic → `@l-kern/utils` package
+- ✅ **Component for UI** - Shared UI elements → `@l-kern/ui-components` package
+
+**Monorepo package location:**
+```
+packages/
+├── ui-components/    # Shared React components
+├── utils/            # Shared utilities
+├── config/           # Configuration, constants, translations
+└── shared-types/     # TypeScript types
+```
+
+---
+
+## 10. Utility Functions (@l-kern/config)
+
+### Available Utilities
+
+**L-KERN v4 provides utility functions in `@l-kern/config` package for common operations.**
+
+**Categories:**
+- ✅ **Phone utilities** (6 functions) - Multi-country phone validation and formatting (SK, CZ, PL)
+- ✅ **Email utilities** (5 functions) - RFC 5322 compliant email validation
+- ✅ **Date utilities** (9 functions) - Locale-aware date formatting (SK, EN)
+
+**Complete reference:** See [utilities-reference.md](../packages/utilities-reference.md)
+
+### Phone Utilities
+
+**Import:**
+```typescript
+import {
+  validateMobile,
+  validateLandlineOrFax,
+  formatPhoneNumber,
+  detectPhoneType,
+  cleanPhoneNumber,
+  type PhoneCountryCode
+} from '@l-kern/config';
+```
+
+**Usage:**
+```typescript
+// Validate mobile phone (default: Slovakia)
+const isValid = validateMobile('+421 902 123 456');  // true
+const isValidCZ = validateMobile('+420 601 234 567', 'CZ');  // true
+
+// Validate landline or fax
+const isLandline = validateLandlineOrFax('02 1234 5678');  // true (Bratislava)
+const isCzLandline = validateLandlineOrFax('+420 2 1234 5678', 'CZ');  // true
+
+// Format phone number
+const formatted = formatPhoneNumber('0902123456', 'mobile');  // '+421 902 123 456'
+const formattedCZ = formatPhoneNumber('601234567', 'mobile', 'CZ');  // '+420 601 234 567'
+
+// Auto-detect phone type
+const type = detectPhoneType('+421 902 123 456');  // 'mobile'
+const type2 = detectPhoneType('02 1234 5678');     // 'landline'
+
+// Clean phone number (remove formatting)
+const cleaned = cleanPhoneNumber('+421 902 123 456');  // '421902123456'
+```
+
+**Supported countries:**
+- ✅ **SK** - Slovakia (default)
+- ✅ **CZ** - Czech Republic
+- ✅ **PL** - Poland
+
+**Common use cases:**
+```typescript
+// Registration form - validate mobile
+const handleSubmit = () => {
+  if (!validateMobile(phone)) {
+    setError(t('forms.errors.invalidPhone'));
+    return;
+  }
+  // Continue with submission
+};
+
+// Contact form - auto-detect type
+const phoneType = detectPhoneType(phoneInput);
+if (phoneType === 'mobile') {
+  // Save as mobile
+} else if (phoneType === 'landline') {
+  // Save as landline/fax
+} else {
+  // Invalid phone number
+}
+
+// Display formatted phone
+const displayPhone = formatPhoneNumber(contact.phone, 'mobile');
+```
+
+### Email Utilities
+
+**Import:**
+```typescript
+import {
+  validateEmail,
+  normalizeEmail,
+  getEmailDomain,
+  getEmailLocal,
+  isEmailFromDomain
+} from '@l-kern/config';
+```
+
+**Usage:**
+```typescript
+// Validate email (RFC 5322 compliant)
+const isValid = validateEmail('user@example.com');  // true
+const isInvalid = validateEmail('invalid@');        // false
+
+// Normalize email (lowercase + trim)
+const normalized = normalizeEmail('  User@Example.COM  ');  // 'user@example.com'
+
+// Extract domain
+const domain = getEmailDomain('user@example.com');  // 'example.com'
+
+// Extract local part (username)
+const local = getEmailLocal('user@example.com');  // 'user'
+
+// Check if email is from specific domain
+const isCompanyEmail = isEmailFromDomain('user@company.com', 'company.com');  // true
+```
+
+**Common use cases:**
+```typescript
+// Registration form - validate email
+const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const email = e.target.value;
+  setEmail(email);
+
+  if (!validateEmail(email)) {
+    setEmailError(t('forms.errors.invalidEmail'));
+  } else {
+    setEmailError(null);
+  }
+};
+
+// Normalize before saving
+const saveUser = async (email: string) => {
+  const normalized = normalizeEmail(email);
+  await api.createUser({ email: normalized });
+};
+
+// Check domain for business rules
+const checkCorporateEmail = (email: string) => {
+  if (!isEmailFromDomain(email, 'company.com')) {
+    alert(t('forms.errors.requireCorporateEmail'));
+    return false;
+  }
+  return true;
+};
+```
+
+### Date Utilities
+
+**Import:**
+```typescript
+import {
+  formatDate,
+  formatDateTime,
+  parseDate,
+  validateDate,
+  convertDateLocale,
+  getToday,
+  isToday,
+  addDays,
+  getDaysDifference,
+  type DateLocale
+} from '@l-kern/config';
+```
+
+**Usage:**
+```typescript
+// Format date for display
+const date = new Date('2025-10-18');
+const formatted = formatDate(date, 'sk');  // '18.10.2025'
+const formattedEN = formatDate(date, 'en');  // '2025-10-18'
+
+// Format with time
+const dateTime = formatDateTime(date, 'sk');  // '18.10.2025 14:30:00'
+
+// Parse date from string
+const parsed = parseDate('18.10.2025', 'sk');  // Date object
+const parsedEN = parseDate('2025-10-18', 'en');  // Date object
+
+// Validate date format
+const isValid = validateDate('18.10.2025', 'sk');  // true
+const isInvalid = validateDate('2025-10-18', 'sk');  // false (wrong format for SK)
+
+// Convert between locales
+const converted = convertDateLocale('18.10.2025', 'sk', 'en');  // '2025-10-18'
+
+// Get today's date
+const today = getToday('sk');  // '18.10.2025'
+
+// Check if date is today
+const isTodayCheck = isToday('18.10.2025', 'sk');  // true/false
+
+// Add/subtract days
+const tomorrow = addDays(today, 1, 'sk');  // '19.10.2025'
+const yesterday = addDays(today, -1, 'sk');  // '17.10.2025'
+
+// Calculate difference in days
+const diff = getDaysDifference('18.10.2025', '25.10.2025', 'sk');  // 7
+```
+
+**Common use cases:**
+```typescript
+// Display date in user's locale
+const { currentLanguage } = useTranslation();
+const locale: DateLocale = currentLanguage === 'sk' ? 'sk' : 'en';
+const displayDate = formatDate(order.createdAt, locale);
+
+// Date input validation
+const handleDateChange = (value: string) => {
+  if (!validateDate(value, locale)) {
+    setError(t('forms.errors.invalidDate'));
+    return;
+  }
+  setDate(value);
+};
+
+// Date range calculation
+const startDate = getToday('sk');
+const endDate = addDays(startDate, 30, 'sk');  // 30 days from now
+
+// API communication (always use EN format)
+const saveOrder = async () => {
+  const apiDate = convertDateLocale(userInputDate, 'sk', 'en');
+  await api.createOrder({ deliveryDate: apiDate });
+};
+
+// Display relative dates
+const daysSinceOrder = getDaysDifference(order.date, getToday('sk'), 'sk');
+if (daysSinceOrder > 7) {
+  showWarning(t('orders.warnings.delayed'));
+}
+```
+
+### Utility Best Practices
+
+**1. Always use utilities instead of custom validation:**
+```typescript
+// ❌ WRONG - Custom validation
+const isEmailValid = (email: string) => {
+  return email.includes('@') && email.includes('.');
+};
+
+// ✅ CORRECT - Use utility
+import { validateEmail } from '@l-kern/config';
+const isEmailValid = validateEmail(email);
+```
+
+**2. Handle locale properly:**
+```typescript
+// ❌ WRONG - Hardcoded locale
+const date = formatDate(new Date(), 'sk');
+
+// ✅ CORRECT - Use current language
+const { currentLanguage } = useTranslation();
+const locale: DateLocale = currentLanguage === 'sk' ? 'sk' : 'en';
+const date = formatDate(new Date(), locale);
+```
+
+**3. Normalize user input:**
+```typescript
+// ❌ WRONG - Save raw input
+await api.createUser({ email: emailInput });
+
+// ✅ CORRECT - Normalize first
+import { normalizeEmail } from '@l-kern/config';
+const normalized = normalizeEmail(emailInput);
+await api.createUser({ email: normalized });
+```
+
+**4. Use country parameter for international apps:**
+```typescript
+// ✅ CORRECT - Multi-country support
+const selectedCountry = userProfile.country;  // 'SK', 'CZ', 'PL'
+const isValid = validateMobile(phone, selectedCountry);
+const formatted = formatPhoneNumber(phone, 'mobile', selectedCountry);
+```
+
+**5. Convert dates for API communication:**
+```typescript
+// ✅ CORRECT - SK format for users, EN format for API
+const userDate = '18.10.2025';  // User input in SK format
+const apiDate = convertDateLocale(userDate, 'sk', 'en');  // '2025-10-18' for API
+await api.createOrder({ deliveryDate: apiDate });
+
+// Display API response in user's locale
+const responseDate = '2025-10-18';  // From API
+const displayDate = convertDateLocale(responseDate, 'en', 'sk');  // '18.10.2025'
+```
+
+---
+
+## 11. Logging Standards
+
+### Backend Logging (Python)
+
+**⚠️ CRITICAL: NEVER use `print()` in backend code!**
+
+**Why?**
+- Docker logs don't capture `print()` output properly
+- No log levels (INFO, WARNING, ERROR)
+- No timestamps or source information
+
+**✅ ALWAYS use `logging` module:**
+
+```python
+import logging
+
+# === LOGGING SETUP ===
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# === USAGE ===
+logger.info("User logged in")           # General info
+logger.warning("Authentication failed") # Important events (visible in Docker)
+logger.error("Database connection lost") # Errors (visible in Docker)
+logger.debug("Processing request...")    # Debug info (development only)
+```
+
+**Docker logs visibility:**
+- ✅ `WARNING` and above → Visible in `docker logs`
+- ❌ `INFO` and below → Filtered out in production
 
 ---
 
 ## Summary
 
-Tento dokument definuje **POVINNÉ** kódovacie štandardy pre L-KERN v4 projekt. Všetky pravidlá musia byť dodržané bez výnimky.
+**Core standards covered:**
+- ✅ Language & Translation System
+- ✅ Development Workflow (documentation-first)
+- ✅ File Headers (mandatory)
+- ✅ DRY Principle & Constants
+- ✅ Theme CSS Variables (--theme-*)
+- ✅ Naming Conventions
+- ✅ Code Sectioning
+- ✅ Git Standards
+- ✅ Componentization & Code Reuse
+- ✅ Utility Functions (@l-kern/config)
+- ✅ Logging Standards
 
-**Key takeaways:**
-- ✅ Documentation-first approach
-- ✅ File headers + code sectioning
-- ✅ Constants extraction + documentation
-- ✅ Python logging (not print)
-- ✅ UI notifications (not alert)
-- ✅ DRY principle (componentization)
-- ✅ TypeScript strict mode
-- ✅ FastAPI + SQLAlchemy + Alembic patterns
-- ✅ gRPC for inter-service communication
-- ✅ REST API for frontend-backend
-- ✅ Testing (pytest + Vitest)
-- ✅ Docker best practices
-
-**Next steps:**
-1. Read [code-examples.md](code-examples.md) for practical code templates
-2. Check [ROADMAP.md](../ROADMAP.md) for current task priorities
-3. Follow educational workflow for all development
+**For detailed standards, see:**
+- 🎨 [frontend-standards.md](frontend-standards.md) - React 19, TypeScript 5.7, Vite 6, CSS Modules, REST API client
+- 🐍 [backend-standards.md](backend-standards.md) - Python 3.11, FastAPI, SQLAlchemy, Alembic, gRPC, Kafka
+- ✅ [testing-guide.md](testing-guide.md) - pytest (backend), Vitest (frontend), testing checklists, coverage requirements
+- 🐳 [docker-standards.md](docker-standards.md) - Dockerfile patterns, docker-compose, hot-reload configuration
+- 💡 [code-examples.md](code-examples.md) - Practical code examples for React, API, gRPC, Database, Testing
 
 ---
 
-**Last Updated**: 2025-10-15
-**Maintainer**: BOSSystems s.r.o.
-**Project**: L-KERN v4 (BOSS)
+**Last Updated:** 2025-10-18
+**Maintainer:** BOSSystems s.r.o.
+**Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\programming\`

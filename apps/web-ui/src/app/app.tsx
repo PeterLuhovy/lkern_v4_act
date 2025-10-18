@@ -13,6 +13,7 @@ import { Route, Routes } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { TestingPage } from '../pages/TestingPage';
 import { BadgeDemo } from '../pages/BadgeDemo';
+import { UtilityTestPage } from '../pages/UtilityTestPage';
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/testing" element={<TestingPage />} />
       <Route path="/badge-demo" element={<BadgeDemo />} />
+      <Route path="/utility-test" element={<UtilityTestPage />} />
     </Routes>
   );
 }

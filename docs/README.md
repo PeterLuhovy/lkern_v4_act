@@ -79,10 +79,27 @@ Coding standards, conventions, and practical examples.
 
 | File | Description | Path |
 |------|-------------|------|
-| **Coding Standards** | Code conventions, file structure, DRY principles | [programming/coding-standards.md](programming/coding-standards.md) |
+| **Coding Standards** | Core rules (DRY, translations, theme, headers) | [programming/coding-standards.md](programming/coding-standards.md) |
+| **Frontend Standards** | React 19, TypeScript 5.7, Vite 6, CSS patterns | [programming/frontend-standards.md](programming/frontend-standards.md) |
+| **Backend Standards** | Python 3.11, FastAPI, gRPC, Kafka, SQLAlchemy | [programming/backend-standards.md](programming/backend-standards.md) |
+| **Testing Guide** | pytest + Vitest testing checklists | [programming/testing-guide.md](programming/testing-guide.md) |
+| **Docker Standards** | Docker & DevOps best practices | [programming/docker-standards.md](programming/docker-standards.md) |
 | **Code Examples** | Practical examples (React, API, gRPC, DB, Testing) | [programming/code-examples.md](programming/code-examples.md) |
 
-**⭐ Important:** All code must follow [coding-standards.md](programming/coding-standards.md). Read before writing code!
+**⭐ Important:** All code must follow [coding-standards.md](programming/coding-standards.md). For detailed patterns, see frontend/backend/testing/docker standards!
+
+---
+
+### 📁 Design
+**Location:** `docs/design/`
+
+Visual design system, UI component standards, and design tokens.
+
+| File | Description | Path |
+|------|-------------|------|
+| **Component Design System** | Modern gradient-based design language for UI components | [design/component-design-system.md](design/component-design-system.md) |
+
+**⭐ Important:** All UI components must follow the design system standards for visual consistency.
 
 ---
 
@@ -128,6 +145,7 @@ Work-in-progress documentation, planning notes, TODO files.
 | See development roadmap | [project/roadmap.md](project/roadmap.md) |
 | Learn coding standards | [programming/coding-standards.md](programming/coding-standards.md) |
 | See code examples | [programming/code-examples.md](programming/code-examples.md) |
+| Understand design system | [design/component-design-system.md](design/component-design-system.md) |
 | Use @l-kern/config package | [packages/config.md](packages/config.md) |
 | Use UI components | [packages/ui-components.md](packages/ui-components.md) |
 | Check service ports | [architecture/port-mapping.md](architecture/port-mapping.md) |

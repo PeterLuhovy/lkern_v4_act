@@ -91,66 +91,143 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 
 ### ⏳ Planned Tasks
 
-#### 0.2 UI Components Package (@l-kern/ui-components)
+#### 0.2 UI Infrastructure (Components + Utilities)
 **Priority**: HIGH
-**Status**: ✅ **COMPLETED (Phase 1)**
+**Status**: ⏳ **IN PROGRESS (Phase 1 & 2 ✅, Phase 3 & 4 ⏳)**
 **Dependencies**: 0.1
 **Started**: 2025-10-18
-**Completed**: 2025-10-18
+**Updated**: 2025-10-18
 
-**Tasks:**
-- [x] Generate package with Nx ✅
-- [ ] Setup Storybook for component development (deferred until 15+ components created)
-- [x] Create base components (Phase 1 - Form Components): ✅
-  - [x] Button (primary, secondary, danger, ghost, success variants) ✅
-  - [x] Input (text, number, email, password) ✅
-  - [x] Select (native dropdown with options array) ✅
-  - [x] Checkbox (with indeterminate state) ✅
-  - [x] Radio/RadioGroup ✅
-  - [x] FormField wrapper ✅
-- [ ] Phase 2 - Layout & Display:
-  - [ ] Card
-  - [ ] Badge
-  - [ ] Spinner/Loader
-  - [ ] EmptyState
-- [ ] Phase 3 - Advanced:
-  - [ ] Modal/Dialog
-  - [ ] Table (sorting, pagination)
-- [x] Implement design tokens from @l-kern/config ✅
-- [x] Add TypeScript types for all components ✅
-- [x] Setup test infrastructure (Vitest + Testing Library) ✅
-- [ ] Write Storybook stories (deferred)
-- [x] Test components in web-ui ✅
-- [x] Dark mode theme support ✅
+**Overview:**
+Complete UI infrastructure including form components, utilities, advanced components, and page templates.
 
-**Progress:**
-- ✅ Package setup with Vite + CSS Modules
-- ✅ Button component (121 lines TS, 184 lines CSS, 16 tests)
-- ✅ Input component (92 lines TS, 114 lines CSS, 15 tests)
-- ✅ FormField component (103 lines TS, 72 lines CSS, 11 tests)
-- ✅ Select component (134 lines TS, 144 lines CSS, 21 tests)
-- ✅ Checkbox component (113 lines TS, 143 lines CSS, 19 tests)
-- ✅ Radio/RadioGroup components (177 lines TS, 169 lines CSS, 33 tests)
-- ✅ Test infrastructure (@testing-library/jest-dom + user-event)
-- ✅ **115 unit tests total, 100% passing, 100% coverage**
-- ✅ **7 test suites, all green**
-- ✅ Build: ~30 kB JS, ~12 kB CSS (estimate)
-- ✅ 100% design token compliance
-- ✅ Dark mode CSS variables (--theme-text, --theme-input-background, etc.)
-- ✅ Integration tested in web-ui
-- ✅ Docker container testing workflow
+---
+
+### **Phase 1: Form Components** ✅ COMPLETED
+**Status**: ✅ Done (2025-10-18)
+
+**Components (6):**
+- [x] Button (primary, secondary, danger, ghost, success variants) ✅
+- [x] Input (text, number, email, password) ✅
+- [x] Select (native dropdown with options array) ✅
+- [x] Checkbox (with indeterminate state) ✅
+- [x] Radio/RadioGroup ✅
+- [x] FormField wrapper ✅
+
+**Stats:**
+- TypeScript: ~740 lines
+- CSS: ~840 lines
+- Tests: 115 (100% passing)
+
+---
+
+### **Phase 2: Layout & Display** ✅ COMPLETED
+**Status**: ✅ Done (2025-10-18)
+
+**Components (4):**
+- [x] Card ✅
+- [x] Badge ✅
+- [x] Spinner/Loader ✅
+- [x] EmptyState ✅
+
+**Stats:**
+- TypeScript: ~340 lines
+- CSS: ~560 lines
+- Tests: 67 (100% passing)
+
+---
+
+### **Phase 3: Utility Functions & Validators** ⏳ NEXT
+**Status**: ⏳ Planned
+**Location**: `packages/config/src/utils/`
+
+**Utilities (3 modules):**
+- [ ] **phoneUtils.ts** - Phone formatting & validation
+  - [ ] `formatPhoneNumber(phone, type: 'mobile' | 'landline' | 'fax')` - SK formats
+  - [ ] `validateMobile(phone)` - SK mobile validation (+421 9XX)
+  - [ ] `validateLandlineOrFax(phone)` - SK landline/fax validation
+  - [ ] `cleanPhoneNumber(phone)` - Remove formatting characters
+  - [ ] Tests: 20 tests
+
+- [ ] **emailUtils.ts** - Email validation & normalization
+  - [ ] `validateEmail(email)` - RFC 5322 compliant
+  - [ ] `normalizeEmail(email)` - Lowercase, trim
+  - [ ] Tests: 15 tests
+
+- [ ] **dateUtils.ts** - Date formatting & parsing
+  - [ ] `formatDate(date, locale)` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
+  - [ ] `parseDate(dateString, locale)` - Parse to Date object
+  - [ ] `validateDate(dateString, locale)` - Format validation
+  - [ ] Tests: 25 tests
+
+**Stats:**
+- TypeScript: ~280 lines
+- Tests: 60 (estimated)
+
+---
+
+### **Phase 4: Advanced Components & Templates** ⏳ PLANNED
+**Status**: ⏳ Planned
+**Location**: `packages/ui-components/src/components/`
+
+**4.1 Core Advanced (4 components):**
+- [ ] **Modal** - Base modal with focus trap, portal rendering
+- [ ] **Table/DataGrid** - Sortable table with pagination
+- [ ] **DataGridDetail** - Expanded row detail view
+- [ ] **FilterAndSearch** - Filter toolbar for tables
+
+**4.2 Utility Components (4 components):**
+- [ ] **ThemeCustomizer** - Theme switcher panel (light/dark/auto)
+- [ ] **KeyboardShortcuts** - Keyboard shortcuts display panel
+- [ ] **DebugList** - Developer debug panel (state/props viewer)
+- [ ] **Analytics** - Analytics dashboard widget
+
+**4.3 Composite Components (3 components):**
+- [ ] **Report** - Report container (header + filters + content + export)
+- [ ] **HeaderCard** - Page header with breadcrumbs + actions
+- [ ] **CustomPalette** - Color palette picker/viewer
+
+**4.4 Layout Templates (3 templates):**
+- [ ] **BasePageLayout** - Master layout (sidebar + header + content)
+- [ ] **DashboardTemplate** - Dashboard page with widget grid
+- [ ] **TableTemplate** - Table page template (header + filters + grid)
+
+**Stats (estimated):**
+- Components: 14
+- TypeScript: ~1920 lines
+- CSS: ~2070 lines
+- Tests: ~238
+
+---
+
+### **Task 0.2 Summary**
+
+**Current Progress (Phase 1 & 2):**
+- ✅ Package setup with Nx + Vite + CSS Modules
+- ✅ 10 components (6 form + 4 layout)
+- ✅ 164 tests, 100% passing, 100% coverage
+- ✅ 11 test suites, all green
+- ✅ Design token compliance
+- ✅ Dark mode support
+- ✅ Docker testing workflow
+
+**Final Stats (after all phases):**
+- **Components**: 27 total (10 ✅ + 17 ⏳)
+- **Utilities**: 3 modules
+- **TypeScript**: ~3280 lines
+- **CSS**: ~3470 lines
+- **Tests**: ~480 total
 
 **Git Commits:**
 - `76945f8` - feat(ui-components): Core form components
 - `1b50897` - docs: Update PROJECT-OVERVIEW.md
 - `557f6d1` - feat(ui-components): Add Select component with dark mode fixes
 
-**Next Steps (Phase 2 planning):**
-- **Phase 2**: Card, Badge, Spinner, EmptyState
-- **Phase 3**: Modal, Table/DataGrid
-- **Storybook setup** (after 15+ components created - visual testing & documentation tool)
-
-**Deliverables**: ✅ Reusable UI component library with design tokens (Phase 1: 100% complete - 6/6 components, 115 tests)
+**Deliverables**: Complete UI infrastructure
+- ✅ Phase 1: 6 form components
+- ✅ Phase 2: 4 layout components
+- ⏳ Phase 3: Utility functions (phone, email, date)
+- ⏳ Phase 4: 14 advanced components + 3 templates
 
 ---
 

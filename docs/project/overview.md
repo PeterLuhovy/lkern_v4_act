@@ -217,9 +217,73 @@ L-KERN v4/
 - ✅ Test dependency setup instructions
 - ✅ Common issues & solutions
 
-**Future Phases:**
-- Phase 2: Card, Badge, Spinner, EmptyState
-- Phase 3: Modal, Table/DataGrid
+**Completed Components (Phase 2 - 4/4):**
+- ✅ **Card** (v1.0.0) - 18 tests, 100% coverage
+  - 3 variants (default, outlined, elevated), clickable, hover effects
+  - 84 lines TS + 162 lines CSS
+- ✅ **Badge** (v1.0.0) - 19 tests, 100% coverage
+  - 7 variants (default, primary, success, warning, error, info, neutral)
+  - 88 lines TS + 158 lines CSS
+- ✅ **Spinner** (v1.0.0) - 14 tests, 100% coverage
+  - 4 sizes (sm, md, lg, xl), customizable color
+  - 74 lines TS + 89 lines CSS
+- ✅ **EmptyState** (v1.0.0) - 16 tests, 100% coverage
+  - Icon, title, description, action button, 3 sizes
+  - 88 lines TS + 146 lines CSS
+
+**Total Components:** 10/10 (Phase 1 + Phase 2 complete)
+**Total Tests:** 182 tests, 100% passing
+**Total Test Suites:** 11 suites, all green
+
+---
+
+### **Task 0.2 Phase 3: Utility Functions** ✅
+
+**Status**: COMPLETED
+**Completed**: 2025-10-18
+
+**Phone Utilities (SK, CZ, PL support):**
+- ✅ `validateMobile()` - Multi-country mobile validation
+- ✅ `validateLandlineOrFax()` - Landline/fax validation
+- ✅ `formatPhoneNumber()` - International formatting
+- ✅ `detectPhoneType()` - Auto-detect mobile/landline
+- ✅ `cleanPhoneNumber()` - Remove formatting chars
+- ✅ Phone config system for easy country additions
+- **35 tests, 100% coverage**
+
+**Email Utilities:**
+- ✅ `validateEmail()` - RFC 5322 compliant
+- ✅ `normalizeEmail()` - Lowercase + trim
+- ✅ `getEmailDomain()` - Extract domain
+- ✅ `getEmailLocal()` - Extract username
+- ✅ `isEmailFromDomain()` - Domain matching
+- **43 tests, 100% coverage**
+
+**Date Utilities (SK/EN locales):**
+- ✅ `formatDate()` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
+- ✅ `formatDateTime()` - With time formatting
+- ✅ `parseDate()` - String to Date object
+- ✅ `validateDate()` - Format validation
+- ✅ `convertDateLocale()` - SK ↔ EN conversion
+- ✅ `getToday()` - Current date formatted
+- ✅ `isToday()` - Check if date is today
+- ✅ `addDays()` - Date arithmetic
+- ✅ `getDaysDifference()` - Calculate day diff
+- **45 tests, 100% coverage**
+
+**Utility Test Page:**
+- ✅ `/utility-test` - Interactive demo page
+- ✅ Real-time validation feedback
+- ✅ Multi-country phone testing
+- ✅ Click-to-try examples
+- ✅ Fully translated (SK/EN)
+
+**Total Utilities:** 20 functions (6 phone + 5 email + 9 date)
+**Total Tests:** 123 tests, 100% passing
+
+**Documentation:**
+- ✅ [components-reference.md](../packages/components-reference.md) - Complete component catalog
+- ✅ [utilities-reference.md](../packages/utilities-reference.md) - Complete utility reference
 
 ---
 

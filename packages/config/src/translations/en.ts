@@ -115,6 +115,28 @@ export const en: TranslationKeys = {
       basicCheckbox: 'Basic checkbox',
       checkedByDefault: 'Checked by default',
     },
+    card: {
+      defaultVariant: 'Default Variant',
+      defaultDescription: 'Standard card with subtle shadow',
+      outlinedVariant: 'Outlined Variant',
+      outlinedDescription: 'Card with visible border',
+      elevatedVariant: 'Elevated Variant',
+      elevatedDescription: 'Card with prominent shadow for emphasis',
+      clickableTitle: 'Interactive:',
+      clickableCard: 'Clickable Card',
+      clickableDescription: 'Click this card to trigger an action',
+      clickedMessage: 'Card was clicked!',
+    },
+    emptyState: {
+      noContacts: 'No contacts yet',
+      noContactsDescription: 'Start by adding your first contact to the system',
+      noOrders: 'No orders yet',
+      noOrdersDescription: 'When you create an order, it will appear here',
+      noResults: 'No results found',
+      noResultsDescription: 'Try adjusting your search query or filters',
+      noData: 'No data',
+      noDataDescription: 'There is currently no data available',
+    },
   },
   forms: {
     username: 'Username',
@@ -157,6 +179,59 @@ export const en: TranslationKeys = {
       label: 'Layout direction',
       vertical: 'Vertical',
       horizontal: 'Horizontal',
+    },
+  },
+  pages: {
+    utilityTest: {
+      title: 'Utility Functions Test Page',
+      subtitle: 'Interactive testing of validation and formatting functions',
+      phone: {
+        title: 'Phone Numbers',
+        country: 'Country',
+        type: 'Number type',
+        placeholder: 'Enter phone number...',
+        types: {
+          mobile: 'Mobile',
+          landline: 'Landline',
+          fax: 'Fax',
+        },
+        results: {
+          isMobile: 'Is mobile',
+          isLandline: 'Is landline',
+          formatted: 'Formatted',
+          detectedType: 'Detected type',
+        },
+      },
+      email: {
+        title: 'Email Addresses',
+        placeholder: 'Enter email...',
+        results: {
+          isValid: 'Is valid',
+          normalized: 'Normalized',
+          domain: 'Domain',
+        },
+      },
+      date: {
+        title: 'Dates',
+        locale: 'Format',
+        results: {
+          formatted: 'Formatted',
+          parsed: 'Parsed',
+          converted: 'Converted',
+        },
+      },
+      results: {
+        title: 'Results',
+        empty: '(empty)',
+        invalid: '(invalid)',
+      },
+      examples: {
+        title: 'Examples (click to try)',
+      },
+      info: {
+        title: 'Information',
+        description: 'This page demonstrates utility functions for validation and formatting. All functions support multiple countries and localizations.',
+      },
     },
   },
 };

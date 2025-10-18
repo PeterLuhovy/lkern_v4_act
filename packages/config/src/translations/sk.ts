@@ -115,6 +115,28 @@ export const sk: TranslationKeys = {
       basicCheckbox: 'Základný checkbox',
       checkedByDefault: 'Označený ako predvolený',
     },
+    card: {
+      defaultVariant: 'Predvolený variant',
+      defaultDescription: 'Štandardný card s jemným tieňom',
+      outlinedVariant: 'Obrysový variant',
+      outlinedDescription: 'Card s viditeľným orámovaním',
+      elevatedVariant: 'Vyvýšený variant',
+      elevatedDescription: 'Card s výrazným tieňom pre zvýraznenie',
+      clickableTitle: 'Interaktívne:',
+      clickableCard: 'Klikateľný Card',
+      clickableDescription: 'Kliknite na tento card pre zobrazenie akcie',
+      clickedMessage: 'Card bol kliknutý!',
+    },
+    emptyState: {
+      noContacts: 'Zatiaľ nemáte žiadne kontakty',
+      noContactsDescription: 'Začnite pridaním prvého kontaktu do vášho systému',
+      noOrders: 'Zatiaľ nemáte žiadne objednávky',
+      noOrdersDescription: 'Keď vytvoríte objednávku, zobrazí sa tu',
+      noResults: 'Nenašli sa žiadne výsledky',
+      noResultsDescription: 'Skúste upraviť vyhľadávací dotaz alebo filter',
+      noData: 'Žiadne dáta',
+      noDataDescription: 'Momentálne nie sú k dispozícii žiadne dáta',
+    },
   },
   forms: {
     username: 'Používateľské meno',
@@ -157,6 +179,59 @@ export const sk: TranslationKeys = {
       label: 'Smer rozloženia',
       vertical: 'Vertikálne',
       horizontal: 'Horizontálne',
+    },
+  },
+  pages: {
+    utilityTest: {
+      title: 'Testovacia stránka - Utility funkcie',
+      subtitle: 'Interaktívne testovanie validačných a formátovacích funkcií',
+      phone: {
+        title: 'Telefónne čísla',
+        country: 'Krajina',
+        type: 'Typ čísla',
+        placeholder: 'Zadajte telefónne číslo...',
+        types: {
+          mobile: 'Mobil',
+          landline: 'Pevná linka',
+          fax: 'Fax',
+        },
+        results: {
+          isMobile: 'Je mobil',
+          isLandline: 'Je pevná linka',
+          formatted: 'Formátované',
+          detectedType: 'Detekovaný typ',
+        },
+      },
+      email: {
+        title: 'Emailové adresy',
+        placeholder: 'Zadajte email...',
+        results: {
+          isValid: 'Je platný',
+          normalized: 'Normalizovaný',
+          domain: 'Doména',
+        },
+      },
+      date: {
+        title: 'Dátumy',
+        locale: 'Formát',
+        results: {
+          formatted: 'Formátovaný',
+          parsed: 'Parsovaný',
+          converted: 'Konvertovaný',
+        },
+      },
+      results: {
+        title: 'Výsledky',
+        empty: '(prázdne)',
+        invalid: '(neplatný)',
+      },
+      examples: {
+        title: 'Príklady (kliknite pre vyskúšanie)',
+      },
+      info: {
+        title: 'Informácie',
+        description: 'Táto stránka demonštruje utility funkcie pre validáciu a formátovanie. Všetky funkcie podporujú viacero krajín a lokalizácií.',
+      },
     },
   },
 };

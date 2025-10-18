@@ -83,6 +83,85 @@ export interface TranslationKeys {
       medium: string;
       large: string;
     };
+    badge: {
+      neutral: string;
+      success: string;
+      warning: string;
+      error: string;
+      info: string;
+      small: string;
+      medium: string;
+      large: string;
+      withDot: string;
+      active: string;
+      pending: string;
+      failed: string;
+      processing: string;
+      demo: {
+        title: string;
+        variants: string;
+        sizes: string;
+        dotIndicator: string;
+        allCombinations: string;
+        useCases: string;
+        orderStatuses: string;
+        userRoles: string;
+        stockLevels: string;
+        newOrder: string;
+        inProgress: string;
+        completed: string;
+        cancelled: string;
+        admin: string;
+        manager: string;
+        user: string;
+        inStock: string;
+        lowStock: string;
+        outOfStock: string;
+      };
+    };
+    testing: {
+      title: string;
+      subtitle: string;
+      backToHome: string;
+      variants: string;
+      sizes: string;
+      states: string;
+      withDot: string;
+      formExample: string;
+      withLabel: string;
+      customColor: string;
+      navigationButtons: string;
+      disabled: string;
+      fullWidth: string;
+      withError: string;
+      withHelperText: string;
+      enterYourName: string;
+      pleaseWait: string;
+      basicCheckbox: string;
+      checkedByDefault: string;
+    };
+    card: {
+      defaultVariant: string;
+      defaultDescription: string;
+      outlinedVariant: string;
+      outlinedDescription: string;
+      elevatedVariant: string;
+      elevatedDescription: string;
+      clickableTitle: string;
+      clickableCard: string;
+      clickableDescription: string;
+      clickedMessage: string;
+    };
+    emptyState: {
+      noContacts: string;
+      noContactsDescription: string;
+      noOrders: string;
+      noOrdersDescription: string;
+      noResults: string;
+      noResultsDescription: string;
+      noData: string;
+      noDataDescription: string;
+    };
   };
   forms: {
     username: string;
@@ -125,6 +204,59 @@ export interface TranslationKeys {
       label: string;
       vertical: string;
       horizontal: string;
+    };
+  };
+  pages: {
+    utilityTest: {
+      title: string;
+      subtitle: string;
+      phone: {
+        title: string;
+        country: string;
+        type: string;
+        placeholder: string;
+        types: {
+          mobile: string;
+          landline: string;
+          fax: string;
+        };
+        results: {
+          isMobile: string;
+          isLandline: string;
+          formatted: string;
+          detectedType: string;
+        };
+      };
+      email: {
+        title: string;
+        placeholder: string;
+        results: {
+          isValid: string;
+          normalized: string;
+          domain: string;
+        };
+      };
+      date: {
+        title: string;
+        locale: string;
+        results: {
+          formatted: string;
+          parsed: string;
+          converted: string;
+        };
+      };
+      results: {
+        title: string;
+        empty: string;
+        invalid: string;
+      };
+      examples: {
+        title: string;
+      };
+      info: {
+        title: string;
+        description: string;
+      };
     };
   };
 }

@@ -11,6 +11,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation, useTheme } from '@l-kern/config';
+import { Card } from '@l-kern/ui-components';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const HomePage: React.FC = () => {
@@ -44,12 +45,7 @@ export const HomePage: React.FC = () => {
         gap: '16px',
         marginBottom: '48px'
       }}>
-        <div style={{
-          padding: '20px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h3 style={{ marginTop: 0 }}>🎨 Theme</h3>
           <p style={{ color: 'var(--theme-text-secondary, #666)' }}>
             Current: <strong>{theme}</strong>
@@ -68,14 +64,9 @@ export const HomePage: React.FC = () => {
           >
             Toggle Theme
           </button>
-        </div>
+        </Card>
 
-        <div style={{
-          padding: '20px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h3 style={{ marginTop: 0 }}>🌍 Language</h3>
           <p style={{ color: 'var(--theme-text-secondary, #666)' }}>
             Current: <strong>{language.toUpperCase()}</strong>
@@ -112,76 +103,65 @@ export const HomePage: React.FC = () => {
               EN
             </button>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Navigation Links */}
       <div style={{ marginBottom: '48px' }}>
         <h2 style={{ marginBottom: '24px' }}>📋 Pages</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <Link
-            to="/testing"
-            style={{
-              display: 'block',
-              padding: '20px',
-              border: '2px solid var(--theme-border, #e0e0e0)',
-              borderRadius: '8px',
-              background: 'var(--theme-card-background, #ffffff)',
-              textDecoration: 'none',
-              color: 'var(--theme-text, #000)',
-              transition: 'all 0.2s',
-              fontSize: '18px',
-              fontWeight: 600
-            }}
-          >
-            🧪 Component Testing Page
-            <p style={{
-              margin: '8px 0 0 0',
-              fontSize: '14px',
-              fontWeight: 'normal',
-              color: 'var(--theme-text-secondary, #666)'
-            }}>
-              Test all UI components (Button, Input, FormField, Select, Checkbox, Radio)
-            </p>
+          <Link to="/testing" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Card variant="elevated">
+              <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                🧪 Component Testing Page
+              </div>
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: 'var(--theme-text-secondary, #666)'
+              }}>
+                Test all UI components (Button, Input, FormField, Select, Checkbox, Radio)
+              </p>
+            </Card>
           </Link>
 
-          <Link
-            to="/badge-demo"
-            style={{
-              display: 'block',
-              padding: '20px',
-              border: '2px solid var(--theme-border, #e0e0e0)',
-              borderRadius: '8px',
-              background: 'var(--theme-card-background, #ffffff)',
-              textDecoration: 'none',
-              color: 'var(--theme-text, #000)',
-              transition: 'all 0.2s',
-              fontSize: '18px',
-              fontWeight: 600
-            }}
-          >
-            🏷️ Badge Component Demo
-            <p style={{
-              margin: '8px 0 0 0',
-              fontSize: '14px',
-              fontWeight: 'normal',
-              color: 'var(--theme-text-secondary, #666)'
-            }}>
-              Badge variants, sizes, and real-world examples
-            </p>
+          <Link to="/badge-demo" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Card variant="elevated">
+              <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                🏷️ Badge Component Demo
+              </div>
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: 'var(--theme-text-secondary, #666)'
+              }}>
+                Badge variants, sizes, and real-world examples
+              </p>
+            </Card>
+          </Link>
+
+          <Link to="/utility-test" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Card variant="elevated">
+              <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                🔧 Utility Functions Test
+              </div>
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: 'var(--theme-text-secondary, #666)'
+              }}>
+                Test phone, email, and date utilities (SK/CZ/PL support)
+              </p>
+            </Card>
           </Link>
         </div>
       </div>
 
       {/* Keyboard Shortcuts Hint */}
-      <div style={{
-        marginTop: '48px',
-        padding: '20px',
-        border: '1px dashed var(--theme-border, #e0e0e0)',
-        borderRadius: '8px',
-        background: 'var(--theme-card-background, #fafafa)',
-        textAlign: 'center'
-      }}>
+      <Card variant="default" style={{ marginTop: '48px', textAlign: 'center' }}>
         <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px' }}>⌨️ Keyboard Shortcuts</h3>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -207,7 +187,7 @@ export const HomePage: React.FC = () => {
             <span style={{ fontSize: '14px', color: 'var(--theme-text-secondary, #666)' }}>Toggle Language</span>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

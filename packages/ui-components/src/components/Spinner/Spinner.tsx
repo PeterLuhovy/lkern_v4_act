@@ -21,12 +21,6 @@ export interface SpinnerProps {
   size?: SpinnerSize;
 
   /**
-   * Custom color (CSS color value)
-   * @default 'var(--color-brand-primary)'
-   */
-  color?: string;
-
-  /**
    * Optional label text below spinner
    */
   label?: string;
@@ -38,16 +32,14 @@ export interface SpinnerProps {
 }
 
 export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
-  ({ size = 'medium', color, label, className }, ref) => {
+  ({ size = 'medium', label, className }, ref) => {
     const classes = [styles.spinner, styles[`spinner--${size}`], className]
       .filter(Boolean)
       .join(' ');
 
-    const spinnerStyle = color ? { borderColor: `${color} transparent transparent transparent` } : undefined;
-
     return (
       <div ref={ref} className={classes}>
-        <div className={styles.spinner__circle} style={spinnerStyle} />
+        <div className={styles.spinner__ring} />
         {label && <div className={styles.spinner__label}>{label}</div>}
       </div>
     );

@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
-import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Badge, Spinner } from '@l-kern/ui-components';
+import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Badge, Spinner, Card, EmptyState } from '@l-kern/ui-components';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const TestingPage: React.FC = () => {
@@ -47,12 +47,7 @@ export const TestingPage: React.FC = () => {
       }}>
 
         {/* Button Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Button</h2>
 
           <h4 style={{ marginBottom: '12px' }}>{t('components.testing.variants')}</h4>
@@ -87,15 +82,10 @@ export const TestingPage: React.FC = () => {
               {t('common.next')}
             </Button>
           </div>
-        </section>
+        </Card>
 
         {/* Badge Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Badge</h2>
 
           <h4 style={{ marginBottom: '12px' }}>{t('components.testing.variants')}</h4>
@@ -120,15 +110,10 @@ export const TestingPage: React.FC = () => {
             <Badge variant="warning" dot>{t('components.badge.pending')}</Badge>
             <Badge variant="error" dot>{t('components.badge.failed')}</Badge>
           </div>
-        </section>
+        </Card>
 
         {/* Spinner Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Spinner</h2>
 
           <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
@@ -139,26 +124,93 @@ export const TestingPage: React.FC = () => {
           </div>
 
           <h4 style={{ marginBottom: '12px' }}>{t('components.testing.withLabel')}</h4>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
             <Spinner size="medium" label={t('common.loading')} />
             <Spinner size="large" label={t('components.testing.pleaseWait')} />
           </div>
+        </Card>
 
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.customColor')}</h4>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <Spinner size="medium" color="#4CAF50" />
-            <Spinner size="medium" color="#f44336" />
-            <Spinner size="medium" color="#ff9800" />
+        {/* Card Component */}
+        <Card variant="outlined">
+          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Card</h2>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.variants')}</h4>
+          <div style={{ display: 'flex', gap: '12px', flexDirection: 'column', marginBottom: '16px' }}>
+            <Card variant="default">
+              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.defaultVariant')}</h3>
+              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
+                {t('components.card.defaultDescription')}
+              </p>
+            </Card>
+
+            <Card variant="outlined">
+              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.outlinedVariant')}</h3>
+              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
+                {t('components.card.outlinedDescription')}
+              </p>
+            </Card>
+
+            <Card variant="elevated">
+              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.elevatedVariant')}</h3>
+              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
+                {t('components.card.elevatedDescription')}
+              </p>
+            </Card>
           </div>
-        </section>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.card.clickableTitle')}</h4>
+          <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+            <Card variant="outlined" onClick={() => alert(t('components.card.clickedMessage'))}>
+              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.clickableCard')}</h3>
+              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
+                {t('components.card.clickableDescription')}
+              </p>
+            </Card>
+          </div>
+        </Card>
+
+        {/* EmptyState Component */}
+        <Card variant="outlined">
+          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>EmptyState</h2>
+
+          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
+          <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', marginBottom: '16px' }}>
+            <Card variant="outlined">
+              <EmptyState
+                size="small"
+                icon="📭"
+                title={t('components.emptyState.noData')}
+                description={t('components.emptyState.noDataDescription')}
+              />
+            </Card>
+
+            <Card variant="outlined">
+              <EmptyState
+                size="medium"
+                icon="🔍"
+                title={t('components.emptyState.noResults')}
+                description={t('components.emptyState.noResultsDescription')}
+              />
+            </Card>
+
+            <Card variant="outlined">
+              <EmptyState
+                size="large"
+                icon="📦"
+                title={t('components.emptyState.noOrders')}
+                description={t('components.emptyState.noOrdersDescription')}
+                action={
+                  <Button variant="primary" size="small">
+                    {t('orders.add')}
+                  </Button>
+                }
+              />
+            </Card>
+          </div>
+        </Card>
 
         {/* Input Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Input</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -168,15 +220,10 @@ export const TestingPage: React.FC = () => {
             <Input placeholder={t('components.testing.withError')} error={t('forms.errors.required')} />
             <Input placeholder={t('components.testing.withHelperText')} helperText={t('components.testing.enterYourName')} />
           </div>
-        </section>
+        </Card>
 
         {/* Select Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Select</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -197,15 +244,10 @@ export const TestingPage: React.FC = () => {
               error={t('forms.errors.required')}
             />
           </div>
-        </section>
+        </Card>
 
         {/* Checkbox Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Checkbox</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -214,15 +256,10 @@ export const TestingPage: React.FC = () => {
             <Checkbox label={t('forms.checkboxes.requiredField')} error={t('forms.checkboxes.requiredError')} />
             <Checkbox label={t('components.testing.checkedByDefault')} defaultChecked />
           </div>
-        </section>
+        </Card>
 
         {/* Radio Component */}
-        <section style={{
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined">
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>RadioGroup</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -249,16 +286,10 @@ export const TestingPage: React.FC = () => {
               onChange={setSelectedLayout}
             />
           </div>
-        </section>
+        </Card>
 
         {/* FormField Component - Full Width */}
-        <section style={{
-          gridColumn: '1 / -1',
-          padding: '24px',
-          border: '1px solid var(--theme-border, #e0e0e0)',
-          borderRadius: '8px',
-          background: 'var(--theme-card-background, #ffffff)'
-        }}>
+        <Card variant="outlined" style={{ gridColumn: '1 / -1' }}>
           <h2 style={{ marginTop: 0, marginBottom: '16px' }}>{t('components.testing.formExample')}</h2>
 
           <div style={{
@@ -290,7 +321,7 @@ export const TestingPage: React.FC = () => {
           <div style={{ marginTop: '16px' }}>
             <Button variant="primary">{t('common.submit')}</Button>
           </div>
-        </section>
+        </Card>
 
       </div>
     </div>

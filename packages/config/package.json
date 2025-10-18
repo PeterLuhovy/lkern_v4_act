@@ -11,6 +11,8 @@
     "./theme": "./src/theme/ThemeContext.tsx"
   },
   "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
