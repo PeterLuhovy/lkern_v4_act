@@ -1,8 +1,8 @@
 /*
  * ================================================================
- * FILE: TestingPage.tsx
- * PATH: /apps/web-ui/src/pages/TestingPage.tsx
- * DESCRIPTION: Component testing page with horizontal layout
+ * FILE: FormsTestPage.tsx
+ * PATH: /apps/web-ui/src/pages/testing/FormsTestPage.tsx
+ * DESCRIPTION: Test page for form components (Button, Input, Select, Checkbox, Radio, FormField)
  * VERSION: v1.0.0
  * CREATED: 2025-10-18
  * ================================================================
@@ -11,10 +11,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
-import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Badge, Spinner, Card, EmptyState } from '@l-kern/ui-components';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card } from '@l-kern/ui-components';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export const TestingPage: React.FC = () => {
+export const FormsTestPage: React.FC = () => {
   const { t } = useTranslation();
 
   // Radio state
@@ -27,16 +27,21 @@ export const TestingPage: React.FC = () => {
   return (
     <div style={{ padding: '40px', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
-      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ margin: 0, marginBottom: '8px' }}>🧪 {t('components.testing.title')}</h1>
-          <p style={{ margin: 0, color: 'var(--theme-text-secondary, #666)' }}>
-            {t('components.testing.subtitle')}
-          </p>
-        </div>
-        <Link to="/" style={{ textDecoration: 'none', color: 'var(--color-brand-primary, #9c27b0)' }}>
-          {t('components.testing.backToHome')}
+      <div style={{ marginBottom: '32px' }}>
+        <Link to="/testing" style={{
+          textDecoration: 'none',
+          color: 'var(--color-brand-primary, #9c27b0)',
+          fontSize: '14px',
+          fontWeight: 600,
+          display: 'inline-block',
+          marginBottom: '16px'
+        }}>
+          ← {t('components.testing.backToDashboard')}
         </Link>
+        <h1 style={{ margin: 0, marginBottom: '8px' }}>{t('components.testing.formComponents')}</h1>
+        <p style={{ margin: 0, color: 'var(--theme-text-secondary, #666)' }}>
+          {t('components.testing.formComponentsDescription')}
+        </p>
       </div>
 
       {/* Grid Layout - 2 columns */}
@@ -81,131 +86,6 @@ export const TestingPage: React.FC = () => {
             <Button variant="primary" size="small" icon={<ArrowRightIcon />} iconPosition="right">
               {t('common.next')}
             </Button>
-          </div>
-        </Card>
-
-        {/* Badge Component */}
-        <Card variant="outlined">
-          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Badge</h2>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.variants')}</h4>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-            <Badge variant="neutral">{t('components.badge.neutral')}</Badge>
-            <Badge variant="success">{t('components.badge.success')}</Badge>
-            <Badge variant="warning">{t('components.badge.warning')}</Badge>
-            <Badge variant="error">{t('components.badge.error')}</Badge>
-            <Badge variant="info">{t('components.badge.info')}</Badge>
-          </div>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' }}>
-            <Badge size="small">{t('components.badge.small')}</Badge>
-            <Badge size="medium">{t('components.badge.medium')}</Badge>
-            <Badge size="large">{t('components.badge.large')}</Badge>
-          </div>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.withDot')}</h4>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <Badge variant="success" dot>{t('components.badge.active')}</Badge>
-            <Badge variant="warning" dot>{t('components.badge.pending')}</Badge>
-            <Badge variant="error" dot>{t('components.badge.failed')}</Badge>
-          </div>
-        </Card>
-
-        {/* Spinner Component */}
-        <Card variant="outlined">
-          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Spinner</h2>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
-            <Spinner size="small" />
-            <Spinner size="medium" />
-            <Spinner size="large" />
-          </div>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.withLabel')}</h4>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-            <Spinner size="medium" label={t('common.loading')} />
-            <Spinner size="large" label={t('components.testing.pleaseWait')} />
-          </div>
-        </Card>
-
-        {/* Card Component */}
-        <Card variant="outlined">
-          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>Card</h2>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.variants')}</h4>
-          <div style={{ display: 'flex', gap: '12px', flexDirection: 'column', marginBottom: '16px' }}>
-            <Card variant="default">
-              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.defaultVariant')}</h3>
-              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
-                {t('components.card.defaultDescription')}
-              </p>
-            </Card>
-
-            <Card variant="outlined">
-              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.outlinedVariant')}</h3>
-              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
-                {t('components.card.outlinedDescription')}
-              </p>
-            </Card>
-
-            <Card variant="elevated">
-              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.elevatedVariant')}</h3>
-              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
-                {t('components.card.elevatedDescription')}
-              </p>
-            </Card>
-          </div>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.card.clickableTitle')}</h4>
-          <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
-            <Card variant="outlined" onClick={() => alert(t('components.card.clickedMessage'))}>
-              <h3 style={{ margin: '0 0 8px 0' }}>{t('components.card.clickableCard')}</h3>
-              <p style={{ margin: 0, color: 'var(--theme-text-muted, #666)' }}>
-                {t('components.card.clickableDescription')}
-              </p>
-            </Card>
-          </div>
-        </Card>
-
-        {/* EmptyState Component */}
-        <Card variant="outlined">
-          <h2 style={{ marginTop: 0, marginBottom: '16px' }}>EmptyState</h2>
-
-          <h4 style={{ marginBottom: '12px' }}>{t('components.testing.sizes')}</h4>
-          <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', marginBottom: '16px' }}>
-            <Card variant="outlined">
-              <EmptyState
-                size="small"
-                icon="📭"
-                title={t('components.emptyState.noData')}
-                description={t('components.emptyState.noDataDescription')}
-              />
-            </Card>
-
-            <Card variant="outlined">
-              <EmptyState
-                size="medium"
-                icon="🔍"
-                title={t('components.emptyState.noResults')}
-                description={t('components.emptyState.noResultsDescription')}
-              />
-            </Card>
-
-            <Card variant="outlined">
-              <EmptyState
-                size="large"
-                icon="📦"
-                title={t('components.emptyState.noOrders')}
-                description={t('components.emptyState.noOrdersDescription')}
-                action={
-                  <Button variant="primary" size="small">
-                    {t('orders.add')}
-                  </Button>
-                }
-              />
-            </Card>
           </div>
         </Card>
 
@@ -328,4 +208,4 @@ export const TestingPage: React.FC = () => {
   );
 };
 
-export default TestingPage;
+export default FormsTestPage;

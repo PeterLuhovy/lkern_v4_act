@@ -46,9 +46,9 @@ export const HomePage: React.FC = () => {
         marginBottom: '48px'
       }}>
         <Card variant="outlined">
-          <h3 style={{ marginTop: 0 }}>🎨 Theme</h3>
+          <h3 style={{ marginTop: 0 }}>🎨 {t('dashboard.theme')}</h3>
           <p style={{ color: 'var(--theme-text-secondary, #666)' }}>
-            Current: <strong>{theme}</strong>
+            {t('dashboard.current')}: <strong>{theme}</strong>
           </p>
           <button
             onClick={toggleTheme}
@@ -62,14 +62,14 @@ export const HomePage: React.FC = () => {
               fontWeight: 600
             }}
           >
-            Toggle Theme
+            {t('dashboard.toggleTheme')}
           </button>
         </Card>
 
         <Card variant="outlined">
-          <h3 style={{ marginTop: 0 }}>🌍 Language</h3>
+          <h3 style={{ marginTop: 0 }}>🌍 {t('dashboard.language')}</h3>
           <p style={{ color: 'var(--theme-text-secondary, #666)' }}>
-            Current: <strong>{language.toUpperCase()}</strong>
+            {t('dashboard.current')}: <strong>{language.toUpperCase()}</strong>
           </p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
@@ -108,12 +108,12 @@ export const HomePage: React.FC = () => {
 
       {/* Navigation Links */}
       <div style={{ marginBottom: '48px' }}>
-        <h2 style={{ marginBottom: '24px' }}>📋 Pages</h2>
+        <h2 style={{ marginBottom: '24px' }}>{t('dashboard.pages')}</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <Link to="/testing" style={{ textDecoration: 'none', color: 'inherit' }}>
             <Card variant="elevated">
               <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                🧪 Component Testing Page
+                🧪 {t('components.testing.dashboard')}
               </div>
               <p style={{
                 margin: '8px 0 0 0',
@@ -121,55 +121,7 @@ export const HomePage: React.FC = () => {
                 fontWeight: 'normal',
                 color: 'var(--theme-text-secondary, #666)'
               }}>
-                Test all UI components (Button, Input, FormField, Select, Checkbox, Radio)
-              </p>
-            </Card>
-          </Link>
-
-          <Link to="/badge-demo" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Card variant="elevated">
-              <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                🏷️ Badge Component Demo
-              </div>
-              <p style={{
-                margin: '8px 0 0 0',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                color: 'var(--theme-text-secondary, #666)'
-              }}>
-                Badge variants, sizes, and real-world examples
-              </p>
-            </Card>
-          </Link>
-
-          <Link to="/utility-test" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Card variant="elevated">
-              <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                🔧 Utility Functions Test
-              </div>
-              <p style={{
-                margin: '8px 0 0 0',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                color: 'var(--theme-text-secondary, #666)'
-              }}>
-                Test phone, email, and date utilities (SK/CZ/PL support)
-              </p>
-            </Card>
-          </Link>
-
-          <Link to="/testing/wizard-demo" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Card variant="elevated">
-              <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                🧙 Wizard Modal Demo [TEST]
-              </div>
-              <p style={{
-                margin: '8px 0 0 0',
-                fontSize: '14px',
-                fontWeight: 'normal',
-                color: 'var(--theme-text-secondary, #666)'
-              }}>
-                [Test Only] Compare 3 modal variants (Centered, Drawer, Fullscreen)
+                {t('dashboard.testingDescription')}
               </p>
             </Card>
           </Link>
@@ -178,7 +130,7 @@ export const HomePage: React.FC = () => {
 
       {/* Keyboard Shortcuts Hint */}
       <Card variant="default" style={{ marginTop: '48px', textAlign: 'center' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px' }}>⌨️ Keyboard Shortcuts</h3>
+        <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px' }}>⌨️ {t('dashboard.keyboardShortcuts')}</h3>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <kbd style={{
@@ -189,7 +141,7 @@ export const HomePage: React.FC = () => {
               fontFamily: 'monospace',
               fontSize: '12px'
             }}>Ctrl+D</kbd>
-            <span style={{ fontSize: '14px', color: 'var(--theme-text-secondary, #666)' }}>Toggle Theme</span>
+            <span style={{ fontSize: '14px', color: 'var(--theme-text-secondary, #666)' }}>{t('dashboard.toggleTheme')}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <kbd style={{
@@ -200,7 +152,7 @@ export const HomePage: React.FC = () => {
               fontFamily: 'monospace',
               fontSize: '12px'
             }}>Ctrl+L</kbd>
-            <span style={{ fontSize: '14px', color: 'var(--theme-text-secondary, #666)' }}>Toggle Language</span>
+            <span style={{ fontSize: '14px', color: 'var(--theme-text-secondary, #666)' }}>{t('dashboard.toggleLanguage')}</span>
           </div>
         </div>
       </Card>

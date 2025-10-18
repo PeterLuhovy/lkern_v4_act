@@ -61,6 +61,14 @@ export interface TranslationKeys {
   dashboard: {
     title: string;
     welcome: string;
+    theme: string;
+    language: string;
+    current: string;
+    toggleTheme: string;
+    toggleLanguage: string;
+    pages: string;
+    testingDescription: string;
+    keyboardShortcuts: string;
   };
   contacts: {
     title: string;
@@ -123,6 +131,19 @@ export interface TranslationKeys {
       title: string;
       subtitle: string;
       backToHome: string;
+      backToDashboard: string;
+      dashboard: string;
+      dashboardSubtitle: string;
+      dashboardHint: string;
+      formComponents: string;
+      formComponentsDescription: string;
+      badgeDescription: string;
+      cardDescription: string;
+      emptyStateDescription: string;
+      spinnerDescription: string;
+      utilityFunctions: string;
+      utilityDescription: string;
+      wizardDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -139,6 +160,18 @@ export interface TranslationKeys {
       pleaseWait: string;
       basicCheckbox: string;
       checkedByDefault: string;
+      spinnerTitle: string;
+      xlarge: string;
+      processingRequest: string;
+      customColors: string;
+      primary: string;
+      useCases: string;
+      loadingData: string;
+      loadingContacts: string;
+      centeredContainer: string;
+      inlineText: string;
+      fullPageLoader: string;
+      loadingPage: string;
     };
     card: {
       defaultVariant: string;

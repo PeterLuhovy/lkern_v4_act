@@ -13,11 +13,18 @@
 
 import React, { useState } from 'react';
 import { Button, Card, Badge } from '@l-kern/ui-components';
+import { useTranslation } from '@l-kern/config';
 import { ContactFormWizard } from '../demos/ContactFormWizard';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 // === COMPONENT ===
 
 export const WizardVariantsDemo: React.FC = () => {
+  const { t } = useTranslation();
+
+  // Enable global keyboard shortcuts
+  useKeyboardShortcuts();
+
   const [isOpen, setIsOpen] = useState(false);
   const [variant, setVariant] = useState<'centered' | 'drawer' | 'fullscreen'>('centered');
   const [completedData, setCompletedData] = useState<any>(null);
@@ -38,9 +45,9 @@ export const WizardVariantsDemo: React.FC = () => {
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ marginBottom: '8px' }}>Modal Wizard - Variant Testing</h1>
+        <h1 style={{ marginBottom: '8px' }}>{t('components.testing.wizardTitle')}</h1>
         <p style={{ color: 'var(--theme-text-muted, #9e9e9e)' }}>
-          Testovacia stránka pre 3 varianty wizard modalov: Centered, Drawer a Fullscreen.
+          {t('components.wizard.testPageDescription')}
         </p>
       </div>
 
@@ -50,19 +57,19 @@ export const WizardVariantsDemo: React.FC = () => {
         <Card>
           <div style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <h3 style={{ margin: 0 }}>Centered Modal</h3>
+              <h3 style={{ margin: 0 }}>{t('components.wizard.centeredModal')}</h3>
               <Badge variant="neutral" size="small">600px</Badge>
             </div>
             <p style={{ color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '16px', fontSize: '14px' }}>
-              Klasický modal uprostred obrazovky s tmavým pozadím. Vhodný pre krátke formuláre.
+              {t('components.wizard.centeredDescription')}
             </p>
             <ul style={{ fontSize: '14px', color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '20px', paddingLeft: '20px' }}>
-              <li>Šírka: 600px (md)</li>
-              <li>Pozícia: Center</li>
-              <li>Animácia: Scale in</li>
+              <li>{t('components.wizard.width')}: 600px (md)</li>
+              <li>{t('components.wizard.position')}: {t('components.wizard.center')}</li>
+              <li>{t('components.wizard.animation')}: {t('components.wizard.scaleIn')}</li>
             </ul>
             <Button variant="primary" onClick={() => handleOpen('centered')} fullWidth>
-              Otvoriť Centered Modal
+              {t('components.wizard.openCentered')}
             </Button>
           </div>
         </Card>
@@ -71,19 +78,19 @@ export const WizardVariantsDemo: React.FC = () => {
         <Card>
           <div style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <h3 style={{ margin: 0 }}>Drawer Modal</h3>
-              <Badge variant="success" size="small">⭐ ODPORÚČANÝ</Badge>
+              <h3 style={{ margin: 0 }}>{t('components.wizard.drawerModal')}</h3>
+              <Badge variant="success" size="small">⭐ {t('components.wizard.recommended')}</Badge>
             </div>
             <p style={{ color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '16px', fontSize: '14px' }}>
-              Bočný panel vyjazdujúci sprava. Zachováva kontext pôvodnej stránky. Ideálny pre kontakt forms.
+              {t('components.wizard.drawerDescription')}
             </p>
             <ul style={{ fontSize: '14px', color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '20px', paddingLeft: '20px' }}>
-              <li>Šírka: 500px</li>
-              <li>Pozícia: Right side</li>
-              <li>Animácia: Slide in</li>
+              <li>{t('components.wizard.width')}: 500px</li>
+              <li>{t('components.wizard.position')}: {t('components.wizard.rightSide')}</li>
+              <li>{t('components.wizard.animation')}: {t('components.wizard.slideIn')}</li>
             </ul>
             <Button variant="primary" onClick={() => handleOpen('drawer')} fullWidth>
-              Otvoriť Drawer Modal
+              {t('components.wizard.openDrawer')}
             </Button>
           </div>
         </Card>
@@ -92,19 +99,19 @@ export const WizardVariantsDemo: React.FC = () => {
         <Card>
           <div style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <h3 style={{ margin: 0 }}>Fullscreen Modal</h3>
+              <h3 style={{ margin: 0 }}>{t('components.wizard.fullscreenModal')}</h3>
               <Badge variant="info" size="small">100%</Badge>
             </div>
             <p style={{ color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '16px', fontSize: '14px' }}>
-              Celá obrazovka bez distrakcií. Vhodný pre veľmi dlhé formuláre alebo mobilné zariadenia.
+              {t('components.wizard.fullscreenDescription')}
             </p>
             <ul style={{ fontSize: '14px', color: 'var(--theme-text-muted, #9e9e9e)', marginBottom: '20px', paddingLeft: '20px' }}>
-              <li>Šírka: 100%</li>
-              <li>Pozícia: Full viewport</li>
-              <li>Animácia: Fade in</li>
+              <li>{t('components.wizard.width')}: 100%</li>
+              <li>{t('components.wizard.position')}: {t('components.wizard.fullViewport')}</li>
+              <li>{t('components.wizard.animation')}: {t('components.wizard.fadeIn')}</li>
             </ul>
             <Button variant="primary" onClick={() => handleOpen('fullscreen')} fullWidth>
-              Otvoriť Fullscreen Modal
+              {t('components.wizard.openFullscreen')}
             </Button>
           </div>
         </Card>
@@ -115,7 +122,7 @@ export const WizardVariantsDemo: React.FC = () => {
         <Card>
           <div style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              Údaje z wizard <Badge variant="success">Dokončené</Badge>
+              {t('components.wizard.wizardData')} <Badge variant="success">{t('components.wizard.completed')}</Badge>
             </h3>
             <pre style={{
               backgroundColor: 'var(--theme-input-background, #f5f5f5)',
@@ -134,27 +141,27 @@ export const WizardVariantsDemo: React.FC = () => {
       {/* Info Section */}
       <Card style={{ marginTop: '32px' }}>
         <div style={{ padding: '24px' }}>
-          <h3 style={{ marginBottom: '16px' }}>Informácie o wizard systéme</h3>
+          <h3 style={{ marginBottom: '16px' }}>{t('components.wizard.systemInfo')}</h3>
           <div style={{ fontSize: '14px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
             <p style={{ marginBottom: '12px' }}>
-              <strong>Wizard komponent</strong> pozostáva z 6 krokov:
+              <strong>{t('components.wizard.wizardComponent')}</strong> {t('components.wizard.consists6Steps')}
             </p>
             <ol style={{ paddingLeft: '20px', marginBottom: '16px' }}>
-              <li>Typ kontaktu (Firma / Fyzická osoba)</li>
-              <li>Základné údaje (Názov, IČO, DIČ / Meno, Priezvisko)</li>
-              <li>Kontaktné údaje (Email, Telefón, Web)</li>
-              <li>Adresa (Ulica, Mesto, PSČ, Krajina)</li>
-              <li>Bankové údaje (IBAN, SWIFT, Názov banky)</li>
-              <li>Zhrnutie (Prehľad všetkých údajov + poznámky)</li>
+              <li>{t('components.wizard.step1')}</li>
+              <li>{t('components.wizard.step2')}</li>
+              <li>{t('components.wizard.step3')}</li>
+              <li>{t('components.wizard.step4')}</li>
+              <li>{t('components.wizard.step5')}</li>
+              <li>{t('components.wizard.step6')}</li>
             </ol>
             <p style={{ marginBottom: '12px' }}>
-              <strong>Technológie:</strong>
+              <strong>{t('components.wizard.technologies')}:</strong>
             </p>
             <ul style={{ paddingLeft: '20px' }}>
-              <li><code>useModalWizard</code> hook - Centralizovaná správa wizard stavu</li>
-              <li><code>Modal</code> komponent - 3 varianty (centered, drawer, fullscreen)</li>
-              <li><code>WizardProgress</code> - Dots/Bar/Numbers progress indicator</li>
-              <li><code>WizardNavigation</code> - Späť/Ďalej/Uložiť tlačidlá</li>
+              <li><code>useModalWizard</code> hook - {t('components.wizard.tech1')}</li>
+              <li><code>Modal</code> {t('components.wizard.component')} - {t('components.wizard.tech2')}</li>
+              <li><code>WizardProgress</code> - {t('components.wizard.tech3')}</li>
+              <li><code>WizardNavigation</code> - {t('components.wizard.tech4')}</li>
             </ul>
           </div>
         </div>

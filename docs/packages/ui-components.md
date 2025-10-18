@@ -89,7 +89,7 @@ function MyForm() {
 
 ## 📚 Available Components
 
-### **Phase 1: Core Form Components** (67% complete)
+### **Phase 1: Core Form Components** ✅ 100% Complete
 
 | Component | Status | Version | Tests | Description |
 |-----------|--------|---------|-------|-------------|
@@ -97,22 +97,50 @@ function MyForm() {
 | **Input** | ✅ Done | 1.0.0 | 15/15 | Error/helper text, all HTML types |
 | **FormField** | ✅ Done | 1.0.0 | 11/11 | Label wrapper with required indicator |
 | **Select** | ✅ Done | 1.0.0 | 21/21 | Native select with options array |
-| **Checkbox** | ⏳ TODO | - | - | Checkbox with indeterminate state |
-| **Radio** | ⏳ TODO | - | - | Radio button group |
+| **Checkbox** | ✅ Done | 1.0.0 | 19/19 | Checkbox with indeterminate state |
+| **Radio** | ✅ Done | 1.0.0 | 33/33 | Radio button group (vertical/horizontal) |
 
-### **Phase 2: Layout & Display** (Planned)
+**Total: 6 components, 115 tests, 100% coverage**
 
-- Card
-- Badge
-- Spinner
-- EmptyState
+---
 
-### **Phase 3: Advanced Components** (Planned)
+### **Phase 2: Layout & Display** ✅ 100% Complete
 
-- Modal/Dialog
-- Table/DataGrid
-- Tabs
-- Accordion
+| Component | Status | Version | Tests | Description |
+|-----------|--------|---------|-------|-------------|
+| **Card** | ✅ Done | 1.0.0 | 18/18 | 3 variants (default, outlined, elevated) |
+| **Badge** | ✅ Done | 1.0.0 | 19/19 | 7 variants (status indicators) |
+| **Spinner** | ✅ Done | 1.0.0 | 14/14 | 4 sizes, loading indicator |
+| **EmptyState** | ✅ Done | 1.0.0 | 16/16 | Empty state placeholder |
+
+**Total: 4 components, 67 tests, 100% coverage**
+
+---
+
+### **Phase 3: Modal & Wizard System** ⏳ IN PROGRESS
+
+| Component | Status | Version | Tests | Description |
+|-----------|--------|---------|-------|-------------|
+| **Modal** | ⚠️ Partial | 2.0.0 | 26/26 | Centered variant only (drawer/fullscreen planned) |
+| **WizardProgress** | ✅ Done | 1.0.0 | 15/15 | Wizard progress indicator (3 variants) |
+| **WizardNavigation** | ✅ Done | 1.0.0 | - | Previous/Next/Complete buttons |
+
+**Total: 3 components, 41+ tests**
+
+**Supporting Infrastructure (@l-kern/config):**
+- ✅ `useModal` hook - Basic modal state management
+- ✅ `useModalWizard` hook - Multi-step wizard workflow (19 tests)
+- ✅ `ModalContext` - Centralized modal registry & z-index management
+
+---
+
+### **Phase 4: Advanced Components** ⏳ PLANNED
+
+- Table/DataGrid (CRITICAL - needed for contacts page)
+- FilterAndSearch
+- ThemeCustomizer
+- DebugBar
+- Page Layout Templates
 
 ---
 
@@ -217,6 +245,294 @@ interface FormFieldProps {
 
 ---
 
+### **Modal (Base Modal Component)**
+
+```typescript
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  size?: 'sm' | 'md' | 'lg';
+  title?: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  closeOnBackdropClick?: boolean;
+  closeOnEscape?: boolean;
+  showCloseButton?: boolean;
+  loading?: boolean;
+  className?: string;
+}
+```
+
+**Current Status:** Centered variant only (v2.0.0)
+
+**Example:**
+```tsx
+import { Modal } from '@l-kern/ui-components';
+import { useModal } from '@l-kern/config';
+
+function MyComponent() {
+  const modal = useModal();
+
+  return (
+    <>
+      <Button onClick={modal.open}>Open Modal</Button>
+
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={modal.close}
+        title="Add Contact"
+        size="md"
+        footer={
+          <>
+            <Button variant="secondary" onClick={modal.close}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={modal.confirm}>
+              Save
+            </Button>
+          </>
+        }
+      >
+        <p>Modal content here</p>
+      </Modal>
+    </>
+  );
+}
+```
+
+**Features:**
+- ✅ Portal rendering (outside DOM hierarchy)
+- ✅ Focus trap (keyboard navigation locked)
+- ✅ ESC key handler
+- ✅ Backdrop overlay with click-to-close
+- ✅ Loading state
+- ✅ 3 sizes (sm=400px, md=600px, lg=800px)
+- ⏳ Drag & drop (planned from v3)
+- ⏳ Nested modals support (ModalContext ready)
+- ⏳ Drawer variant (planned)
+- ⏳ Fullscreen variant (planned)
+
+---
+
+### **WizardProgress**
+
+```typescript
+interface WizardProgressProps {
+  currentStep: number;
+  totalSteps: number;
+  variant?: 'dots' | 'bar' | 'numbers';
+  currentStepTitle?: string;
+}
+```
+
+**Example:**
+```tsx
+<WizardProgress
+  currentStep={wizard.currentStep}
+  totalSteps={wizard.totalSteps}
+  variant="dots"
+  currentStepTitle={wizard.currentStepTitle}
+/>
+```
+
+**Variants:**
+- `dots` - Visual dots showing progress
+- `bar` - Linear progress bar with percentage
+- `numbers` - Step counter (e.g., "Step 2/5")
+
+---
+
+### **WizardNavigation**
+
+```typescript
+interface WizardNavigationProps {
+  onPrevious: () => void;
+  onNext: () => void;
+  onComplete?: () => void;
+  canGoPrevious: boolean;
+  canGoNext: boolean;
+  isLastStep: boolean;
+  isSubmitting?: boolean;
+}
+```
+
+**Example:**
+```tsx
+<WizardNavigation
+  onPrevious={wizard.previous}
+  onNext={() => wizard.next(stepData)}
+  onComplete={() => wizard.complete(stepData)}
+  canGoPrevious={wizard.canGoPrevious}
+  canGoNext={wizard.canGoNext}
+  isLastStep={wizard.isLastStep}
+  isSubmitting={wizard.isSubmitting}
+/>
+```
+
+---
+
+## 🪝 Modal Hooks & Context (@l-kern/config)
+
+### **useModal Hook**
+
+Basic modal state management hook.
+
+```typescript
+interface UseModalReturn {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  confirm: () => void;
+  isSubmitting: boolean;
+  setIsSubmitting: (submitting: boolean) => void;
+}
+
+const modal = useModal({
+  onClose?: () => void;
+  onConfirm?: () => void | Promise<void>;
+  initialOpen?: boolean;
+});
+```
+
+**Example:**
+```tsx
+const modal = useModal({
+  onConfirm: async () => {
+    modal.setIsSubmitting(true);
+    try {
+      await saveData();
+      modal.close();
+    } finally {
+      modal.setIsSubmitting(false);
+    }
+  }
+});
+```
+
+---
+
+### **useModalWizard Hook**
+
+Multi-step wizard workflow management.
+
+```typescript
+interface WizardStep {
+  id: string;
+  title: string;
+  validate?: (data: any) => boolean;
+  component?: React.ComponentType<any>;
+}
+
+const wizard = useModalWizard({
+  id: string;
+  steps: WizardStep[];
+  initialStep?: number;
+  onComplete?: (data: Record<string, any>) => void | Promise<void>;
+  onCancel?: () => void;
+  persistData?: boolean;
+});
+```
+
+**Example:**
+```tsx
+const wizard = useModalWizard({
+  id: 'add-contact',
+  steps: [
+    { id: 'type', title: 'Contact Type' },
+    { id: 'basic', title: 'Basic Info' },
+    { id: 'contact', title: 'Contact Details' },
+    { id: 'address', title: 'Address' },
+    { id: 'summary', title: 'Review' }
+  ],
+  onComplete: async (data) => {
+    await createContact(data);
+  }
+});
+
+// Usage
+<Button onClick={wizard.start}>Add Contact</Button>
+
+<Modal isOpen={wizard.isOpen} onClose={wizard.cancel} title={wizard.currentStepTitle}>
+  <WizardProgress {...wizard} variant="dots" />
+
+  {wizard.currentStepId === 'type' && <TypeStep onNext={(data) => wizard.next(data)} />}
+  {wizard.currentStepId === 'basic' && <BasicStep onNext={(data) => wizard.next(data)} />}
+  {/* ... other steps ... */}
+
+  <WizardNavigation {...wizard} />
+</Modal>
+```
+
+**Returns:**
+```typescript
+{
+  // State
+  isOpen: boolean;
+  currentStep: number;
+  totalSteps: number;
+  currentStepId: string;
+  data: Record<string, any>;
+  isSubmitting: boolean;
+
+  // Navigation
+  start: () => void;
+  next: (stepData?: any) => void;
+  previous: () => void;
+  jumpTo: (stepIndex: number) => void;
+  cancel: () => void;
+  complete: (finalStepData?: any) => void;
+
+  // Validation
+  canGoNext: boolean;
+  canGoPrevious: boolean;
+  isFirstStep: boolean;
+  isLastStep: boolean;
+
+  // Progress
+  progress: number; // 0-100
+  currentStepTitle: string;
+}
+```
+
+---
+
+### **ModalContext**
+
+Centralized modal registry for z-index management and nested modals.
+
+```typescript
+import { ModalProvider, useModalContext } from '@l-kern/config';
+
+// Wrap your app
+<ModalProvider baseZIndex={1000}>
+  <App />
+</ModalProvider>
+
+// Use in components
+const { openModal, closeModal, getZIndex } = useModalContext();
+```
+
+**API:**
+```typescript
+{
+  openModals: string[];
+  registerModal: (id: string) => void;
+  unregisterModal: (id: string) => void;
+  openModal: (id: string) => void;
+  closeModal: (id: string) => void;
+  closeAll: () => void;
+  getZIndex: (id: string) => number;
+  isModalOpen: (id: string) => boolean;
+}
+```
+
+**Z-Index Calculation:**
+- Base z-index: 1000 (configurable)
+- Each modal: `baseZIndex + (stackPosition * 10)`
+- Example: First modal = 1000, second modal = 1010, third modal = 1020
+
+---
+
 ## 🎨 Design Tokens Integration
 
 All components use design tokens from `@l-kern/config`:
@@ -258,9 +574,16 @@ docker exec lkms201-web-ui npx nx test ui-components --coverage
 
 ### **Test Coverage** (2025-10-18)
 
-- **Total Tests**: 63
-- **Passing**: 63 (100%)
-- **Coverage**: ~95%
+- **Total Tests**: 224 (182 UI components + 42 Modal/Wizard)
+- **Passing**: 224 (100%)
+- **Coverage**: 100%
+
+**Breakdown:**
+- Form Components: 115 tests
+- Layout Components: 67 tests
+- Modal System: 26 tests (Modal)
+- Wizard Components: 15 tests (WizardProgress)
+- useModalWizard hook: 19 tests
 
 ### **Test Structure**
 

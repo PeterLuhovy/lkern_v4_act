@@ -26,10 +26,14 @@ import {
   type DateLocale,
 } from '@l-kern/config';
 import { Input, Button, Card, Badge } from '@l-kern/ui-components';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import './UtilityTestPage.css';
 
 export function UtilityTestPage() {
   const { t } = useTranslation();
+
+  // Enable global keyboard shortcuts
+  useKeyboardShortcuts();
 
   // Phone testing state
   const [phoneInput, setPhoneInput] = useState('');

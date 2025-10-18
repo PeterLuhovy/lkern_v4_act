@@ -137,128 +137,138 @@ Complete UI infrastructure including form components, utilities, advanced compon
 
 ---
 
-### **Phase 3: Utility Functions & Validators** ⏳ NEXT
-**Status**: ⏳ Planned
+### **Phase 3: Utility Functions & Validators** ✅ COMPLETED
+**Status**: ✅ Completed (2025-10-18)
 **Location**: `packages/config/src/utils/`
 
 **Utilities (3 modules):**
-- [ ] **phoneUtils.ts** - Phone formatting & validation
-  - [ ] `formatPhoneNumber(phone, type: 'mobile' | 'landline' | 'fax')` - SK formats
-  - [ ] `validateMobile(phone)` - SK mobile validation (+421 9XX)
-  - [ ] `validateLandlineOrFax(phone)` - SK landline/fax validation
-  - [ ] `cleanPhoneNumber(phone)` - Remove formatting characters
-  - [ ] Tests: 20 tests
+- [x] **phoneUtils.ts** - Phone formatting & validation ✅
+  - [x] `formatPhoneNumber(phone, type: 'mobile' | 'landline' | 'fax')` - Multi-country (SK, CZ, PL)
+  - [x] `validateMobile(phone)` - Mobile validation with country detection
+  - [x] `validateLandlineOrFax(phone)` - Landline/fax validation
+  - [x] `detectPhoneType(phone)` - Auto-detect mobile/landline
+  - [x] `cleanPhoneNumber(phone)` - Remove formatting characters
+  - [x] Phone config system for easy country additions
+  - [x] Tests: 35 tests (100% coverage)
 
-- [ ] **emailUtils.ts** - Email validation & normalization
-  - [ ] `validateEmail(email)` - RFC 5322 compliant
-  - [ ] `normalizeEmail(email)` - Lowercase, trim
-  - [ ] Tests: 15 tests
+- [x] **emailUtils.ts** - Email validation & normalization ✅
+  - [x] `validateEmail(email)` - RFC 5322 compliant
+  - [x] `normalizeEmail(email)` - Lowercase, trim
+  - [x] `getEmailDomain(email)` - Extract domain
+  - [x] `getEmailLocal(email)` - Extract username
+  - [x] `isEmailFromDomain(email, domain)` - Domain matching
+  - [x] Tests: 43 tests (100% coverage)
 
-- [ ] **dateUtils.ts** - Date formatting & parsing
-  - [ ] `formatDate(date, locale)` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
-  - [ ] `parseDate(dateString, locale)` - Parse to Date object
-  - [ ] `validateDate(dateString, locale)` - Format validation
-  - [ ] Tests: 25 tests
+- [x] **dateUtils.ts** - Date formatting & parsing ✅
+  - [x] `formatDate(date, locale)` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
+  - [x] `formatDateTime(date, locale)` - With time formatting
+  - [x] `parseDate(dateString, locale)` - Parse to Date object
+  - [x] `validateDate(dateString, locale)` - Format validation
+  - [x] `convertDateLocale(dateString, from, to)` - SK ↔ EN conversion
+  - [x] `getToday(locale)` - Current date formatted
+  - [x] `isToday(date)` - Check if date is today
+  - [x] `addDays(date, days)` - Date arithmetic
+  - [x] `getDaysDifference(date1, date2)` - Calculate day diff
+  - [x] Tests: 45 tests (100% coverage)
 
 **Stats:**
-- TypeScript: ~280 lines
-- Tests: 60 (estimated)
+- **Total Functions**: 20 (6 phone + 5 email + 9 date)
+- **TypeScript**: ~400 lines
+- **Tests**: 123 (100% passing, 100% coverage)
+- **Multi-language**: SK, CZ, PL phone support + SK/EN date formats
 
 ---
 
-### **Phase 4: Advanced Components & Templates** ⏳ IN PROGRESS
-**Status**: ⏳ In Progress (Modal Wizard ✅)
+### **Phase 4: Advanced Components & Templates** ⚠️ PARTIAL
+**Status**: ⚠️ **PARTIAL** - Modal wizard completed, but drawer/fullscreen NOT in production
 **Location**: `packages/ui-components/src/components/`
 **Updated**: 2025-10-18
 
-**4.1 Core Advanced (4 components):**
-- [x] **Modal** - ✅ **COMPLETED** (centered variant, portal, focus trap, ESC key)
-  - Production: `packages/ui-components/src/components/Modal/Modal.tsx` (centered only)
-  - Testing: `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` (all 3 variants)
-  - Components: 26 tests passing
+**⚠️ IMPORTANT NOTE:**
+Modal component simplified - only **centered variant** exported to production.
+Drawer and fullscreen variants exist in test files but NOT in production package.
+
+**4.1 Core Advanced (5 components):**
+- [x] **Modal** - ⚠️ **PARTIAL** (centered variant only in production)
+  - ✅ Production: `packages/ui-components/src/components/Modal/Modal.tsx` (centered only)
+  - ⚠️ Testing only: `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` (drawer, fullscreen)
+  - 26 tests passing (centered variant)
+  - **Missing**: Drawer variant, Fullscreen variant (NOT exported to @l-kern/ui-components)
 - [x] **WizardProgress** - ✅ **COMPLETED** (3 variants: dots, bar, numbers)
   - Location: `packages/ui-components/src/components/Modal/WizardProgress.tsx`
-  - Components: 15 tests passing
+  - 15 tests passing
 - [x] **WizardNavigation** - ✅ **COMPLETED** (Previous/Next/Complete buttons)
   - Location: `packages/ui-components/src/components/Modal/WizardNavigation.tsx`
 - [x] **useModalWizard hook** - ✅ **COMPLETED** (multi-step workflow management)
   - Location: `packages/config/src/hooks/useModalWizard.ts`
-  - Components: 19 tests passing
+  - 19 tests passing
 - [x] **ModalContext** - ✅ **COMPLETED** (centralized modal registry, z-index management)
   - Location: `packages/config/src/contexts/ModalContext.tsx`
-- [ ] **Table/DataGrid** - Sortable table with pagination
-- [ ] **DataGridDetail** - Expanded row detail view
-- [ ] **FilterAndSearch** - Filter toolbar for tables
+- [ ] **Table/DataGrid** - ❌ **NOT STARTED** - Sortable table with pagination
+- [ ] **DataGridDetail** - ❌ **NOT STARTED** - Expanded row detail view
+- [ ] **FilterAndSearch** - ❌ **NOT STARTED** - Filter toolbar for tables
 
 **4.2 Utility Components (4 components):**
-- [ ] **ThemeCustomizer** - Theme switcher panel (light/dark/auto)
-- [ ] **KeyboardShortcuts** - Keyboard shortcuts display panel
-- [ ] **DebugBar** - Developer debug panel (state/props viewer)
-- [ ] **Analytics** - Analytics dashboard widget
+- [ ] **ThemeCustomizer** - ❌ **NOT STARTED** - Theme switcher panel (light/dark/auto)
+- [ ] **KeyboardShortcuts** - ❌ **NOT STARTED** - Keyboard shortcuts display panel
+- [ ] **DebugBar** - ❌ **NOT STARTED** - Developer debug panel (state/props viewer)
+- [ ] **Analytics** - ❌ **NOT STARTED** - Analytics dashboard widget
 
 **4.3 Composite Components (3 components):**
-- [ ] **Report** - Report container (header + filters + content + export)
-- [ ] **HeaderCard** - Page header with breadcrumbs + actions
-- [ ] **CustomPalette** - Color palette picker/viewer
+- [ ] **Report** - ❌ **NOT STARTED** - Report container (header + filters + content + export)
+- [ ] **HeaderCard** - ❌ **NOT STARTED** - Page header with breadcrumbs + actions
+- [ ] **CustomPalette** - ❌ **NOT STARTED** - Color palette picker/viewer
 
 **4.4 Layout Templates (3 templates):**
-- [ ] **BasePageLayout** - Master layout (sidebar + header + content)
-- [ ] **DashboardTemplate** - Dashboard page with widget grid
-- [ ] **TableTemplate** - Table page template (header + filters + grid)
+- [ ] **BasePageLayout** - ❌ **NOT STARTED** - Master layout (sidebar + header + content)
+- [ ] **DashboardTemplate** - ❌ **NOT STARTED** - Dashboard page with widget grid
+- [ ] **TableTemplate** - ❌ **NOT STARTED** - Table page template (header + filters + grid)
 
 **Stats:**
-- **Completed**: 5 components (Modal + WizardProgress + WizardNavigation + useModalWizard + ModalContext)
-- **Planned**: 9 components (Table/DataGrid, FilterAndSearch, ThemeCustomizer, etc.)
+- **Completed**: 3 components (Modal centered, WizardProgress, WizardNavigation) + 2 hooks/context
+- **Partial**: Modal (drawer/fullscreen variants NOT in production)
+- **Missing**: 14 components (Table/DataGrid, FilterAndSearch, ThemeCustomizer, Templates, etc.)
 - **TypeScript**: ~580 lines (completed)
 - **CSS**: ~420 lines (completed)
 - **Tests**: 60 passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
+- **Progress**: 3/17 components (18%)
 
 ---
 
 ### **Task 0.2 Summary**
 
 **Current Progress:**
-- ✅ **Phase 1**: 6 form components (Button, Input, Select, Checkbox, Radio, FormField)
-- ✅ **Phase 2**: 4 layout components (Card, Badge, Spinner, EmptyState)
-- ✅ **Phase 4** (Partial): Modal wizard system (5 components)
-- ⏳ **Phase 3**: Utility functions (pending)
-- ⏳ **Phase 4** (Remaining): 9 components (Table, DataGrid, ThemeCustomizer, etc.)
+- ✅ **Phase 1**: 6 form components (Button, Input, Select, Checkbox, Radio, FormField) - 100%
+- ✅ **Phase 2**: 4 layout components (Card, Badge, Spinner, EmptyState) - 100%
+- ✅ **Phase 3**: 20 utility functions (phone, email, date) - 100%
+- ⚠️ **Phase 4**: 3/17 advanced components (Modal, WizardProgress, WizardNavigation) - 18%
 
 **Stats:**
-- **Components**: 15 total ✅ (6 form + 4 layout + 5 modal/wizard)
-- **Tests**: 224 passing ✅ (115 form + 67 layout + 42 modal/wizard)
-- **TypeScript**: ~1900 lines
-- **CSS**: ~1820 lines
+- **Components**: 13 production ✅ (6 form + 4 layout + 3 modal/wizard)
+- **Utilities**: 20 functions ✅ (6 phone + 5 email + 9 date)
+- **Hooks**: 2 ✅ (useModalWizard, useModal)
+- **Context**: 1 ✅ (ModalContext)
+- **Tests**: 305 passing ✅ (115 form + 67 layout + 123 utilities + 60 modal/wizard = 365 tests)
+- **TypeScript**: ~2500 lines
+- **CSS**: ~2200 lines
 - **Test coverage**: 100%
 - **Design tokens**: Full compliance
 - **Dark mode**: Full support
 
-**Git Commits:**
-- `76945f8` - feat(ui-components): Core form components
-- `1b50897` - docs: Update PROJECT-OVERVIEW.md
-- `557f6d1` - feat(ui-components): Add Select component with dark mode fixes
-- **Pending**: Modal wizard system refactor commit
-
-**Modal Wizard System (NEW):**
-- ✅ Production Modal (centered variant only, simplified API)
-- ✅ Test Modal3Variants (all 3 variants: centered, drawer, fullscreen)
-- ✅ WizardProgress (dots, bar, numbers indicators)
-- ✅ WizardNavigation (Previous/Next/Complete buttons)
-- ✅ useModalWizard hook (multi-step workflow logic)
-- ✅ ModalContext (centralized registry + z-index management)
-- ✅ 60 tests passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
-- ✅ Demo: 6-step ContactFormWizard in `__tests__/demos/`
-- ✅ Test page: `/testing/wizard-demo` (compares all 3 variants)
+**⚠️ Modal Status:**
+- ✅ Production: Centered variant only (`packages/ui-components/src/components/Modal/Modal.tsx`)
+- ⚠️ Test only: Drawer + Fullscreen variants (`apps/web-ui/src/__tests__/components/Modal3Variants.tsx`)
+- ❌ NOT exported to @l-kern/ui-components package
 
 **File Organization:**
 ```
-packages/ui-components/src/components/Modal/   ← Production
-  ├── Modal.tsx (centered only)
-  ├── WizardProgress.tsx
-  └── WizardNavigation.tsx
+packages/ui-components/src/components/Modal/   ← Production (exported)
+  ├── Modal.tsx (centered only) ✅
+  ├── WizardProgress.tsx ✅
+  └── WizardNavigation.tsx ✅
 
-apps/web-ui/src/__tests__/                     ← Testing
-  ├── components/Modal3Variants.tsx (all variants)
+apps/web-ui/src/__tests__/                     ← Testing only (NOT exported)
+  ├── components/Modal3Variants.tsx (drawer, fullscreen) ⚠️
   ├── demos/ContactFormWizard/ (6-step demo)
   └── pages/WizardVariantsDemo.tsx (comparison page)
 ```
@@ -266,10 +276,12 @@ apps/web-ui/src/__tests__/                     ← Testing
 **Deliverables**:
 - ✅ Phase 1: 6 form components (100%)
 - ✅ Phase 2: 4 layout components (100%)
-- ⏳ Phase 3: Utility functions (0%)
-- ⏳ Phase 4: Modal wizard (36%) - 5/14 components done
-  - ✅ Modal, WizardProgress, WizardNavigation, useModalWizard, ModalContext
-  - ⏳ Table, DataGrid, ThemeCustomizer, KeyboardShortcuts, etc.
+- ✅ Phase 3: 20 utility functions (100%)
+- ⚠️ Phase 4: 3/17 advanced components (18%)
+  - ✅ Modal (centered), WizardProgress, WizardNavigation, useModalWizard, ModalContext
+  - ❌ Table, DataGrid, FilterAndSearch, ThemeCustomizer, Layouts (NOT STARTED)
+
+**Next Priority:** Table/DataGrid component (CRITICAL for contacts page)
 
 ---
 
@@ -1007,6 +1019,6 @@ Frontend (React)
 
 ---
 
-**Last Updated**: 2025-10-18
+**Last Updated**: 2025-10-18 19:50:00
 **Maintainer**: BOSSystems s.r.o.
 **Project**: L-KERN v4 (BOSS)

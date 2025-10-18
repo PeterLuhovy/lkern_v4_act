@@ -271,19 +271,66 @@ L-KERN v4/
 - ✅ `getDaysDifference()` - Calculate day diff
 - **45 tests, 100% coverage**
 
-**Utility Test Page:**
-- ✅ `/utility-test` - Interactive demo page
-- ✅ Real-time validation feedback
-- ✅ Multi-country phone testing
-- ✅ Click-to-try examples
-- ✅ Fully translated (SK/EN)
-
 **Total Utilities:** 20 functions (6 phone + 5 email + 9 date)
 **Total Tests:** 123 tests, 100% passing
 
-**Documentation:**
-- ✅ [components-reference.md](../packages/components-reference.md) - Complete component catalog
-- ✅ [utilities-reference.md](../packages/utilities-reference.md) - Complete utility reference
+---
+
+### **Task 0.2 Phase 4: Modal & Wizard System** ⚠️
+
+**Status**: ⚠️ **PARTIAL** - Basic Modal completed, but drawer/fullscreen variants NOT in production
+**Started**: 2025-10-18
+**Note**: Modal simplified - only centered variant in production package
+
+**✅ Completed Components (3/3 basic):**
+- ✅ **Modal** (v2.0.0) - Centered variant only
+  - Portal rendering, focus trap, ESC key, backdrop
+  - 3 sizes: sm (400px), md (600px), lg (800px)
+  - Loading state, custom footer
+  - 26 tests passing
+  - **Location**: `packages/ui-components/src/components/Modal/Modal.tsx`
+- ✅ **WizardProgress** (v1.0.0) - Progress indicators
+  - 3 variants: dots, bar, numbers
+  - Current step highlighting
+  - 15 tests passing
+- ✅ **WizardNavigation** (v1.0.0) - Navigation buttons
+  - Previous/Next/Complete buttons
+  - Disabled state logic
+
+**✅ Completed Hooks & Context:**
+- ✅ **useModalWizard** - Multi-step workflow logic
+  - Step management, validation, navigation
+  - 19 tests passing
+  - **Location**: `packages/config/src/hooks/useModalWizard.ts`
+- ✅ **ModalContext** - Centralized modal registry
+  - z-index management, multiple modals
+  - **Location**: `packages/config/src/contexts/ModalContext.tsx`
+
+**⚠️ MISSING from Production:**
+- ❌ **Modal drawer variant** - Side panel modal (right/left)
+- ❌ **Modal fullscreen variant** - Full viewport takeover
+- ❌ **Table/DataGrid** - Sortable table with pagination
+- ❌ **DataGridDetail** - Expanded row detail
+- ❌ **FilterAndSearch** - Filter toolbar
+- ❌ **ThemeCustomizer** - Theme switcher
+- ❌ **KeyboardShortcuts** - Shortcuts panel
+- ❌ **DebugBar** - Developer debug panel
+- ❌ **Analytics** - Analytics widget
+- ❌ **Report** - Report container
+- ❌ **HeaderCard** - Page header
+- ❌ **CustomPalette** - Color picker
+- ❌ **BasePageLayout** - Master layout
+- ❌ **DashboardTemplate** - Dashboard page
+- ❌ **TableTemplate** - Table page template
+
+**Note**: Test variants exist in `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` but not exported to production package.
+
+**Stats (Phase 4 Completed):**
+- TypeScript: ~580 lines
+- CSS: ~420 lines
+- Tests: 60 passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
+- Production components: 3/17 (18%)
+- Test-only variants: 2 (drawer, fullscreen)
 
 ---
 
@@ -291,12 +338,13 @@ L-KERN v4/
 
 **Immediate Priorities (from ROADMAP.md):**
 
-1. **Task 0.2**: Build @l-kern/ui-components package ⏳ **NEXT**
-   - Base components (Button, Input, Table, Modal, etc.)
-   - Storybook setup
-   - Integration with @l-kern/config (design tokens)
+1. **Task 0.2 (Phase 4)**: Complete UI Components ⏳ **CURRENT**
+   - ⚠️ Modal drawer/fullscreen variants (if needed for production)
+   - ❌ Table/DataGrid (CRITICAL - needed for contacts page)
+   - ❌ FilterAndSearch component
+   - ❌ Page layout templates (BasePageLayout, TableTemplate)
 
-2. **Task 0.3**: Backend infrastructure
+2. **Task 0.3**: Backend infrastructure ⏳ **NEXT**
    - PostgreSQL setup
    - gRPC infrastructure
    - Alembic migrations
@@ -312,13 +360,13 @@ L-KERN v4/
 
 ## 📊 Progress Tracker
 
-**Phase 0 Progress**: 3/21 tasks completed (14%)
+**Phase 0 Progress**: 2.5/21 tasks completed (12%)
 
 | Task | Status | Description |
 |------|--------|-------------|
 | 0.0 | ✅ Done | Infrastructure Setup |
 | 0.1 | ✅ Done | Coding Standards |
-| 0.2 | ✅ Done | @l-kern/ui-components (Phase 1: 6/6 components, 115 tests) |
+| 0.2 | ⚠️ Partial | @l-kern/ui-components (13 components done, Table/DataGrid/Templates missing) |
 | 0.3 | ⏳ Planned | Backend Infrastructure |
 | 0.4-0.17 | ⏳ Planned | Microservices Development |
 | 0.18 | ⏳ Planned | Authentication Service |
@@ -326,6 +374,14 @@ L-KERN v4/
 | 0.20 | ⏳ Planned | Production Prep (Nginx + Envoy) |
 | 0.21 | ⏳ Planned | Deploy to Test Environment |
 
+**Task 0.2 Breakdown:**
+- ✅ Phase 1: Form Components (6/6) - 100%
+- ✅ Phase 2: Layout Components (4/4) - 100%
+- ✅ Phase 3: Utility Functions (20/20) - 100%
+- ⚠️ Phase 4: Advanced Components (3/17) - 18%
+  - ✅ Modal (centered only), WizardProgress, WizardNavigation
+  - ❌ Table, DataGrid, ThemeCustomizer, Layouts, etc.
+
 ---
 
-**Last Updated**: 2025-10-18 13:40:00
+**Last Updated**: 2025-10-18 19:50:00
