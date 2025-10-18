@@ -195,10 +195,10 @@ Drawer and fullscreen variants exist in test files but NOT in production package
   - 26 tests passing (centered variant)
   - **Missing**: Drawer variant, Fullscreen variant (NOT exported to @l-kern/ui-components)
 - [x] **WizardProgress** - ✅ **COMPLETED** (3 variants: dots, bar, numbers)
-  - Location: `packages/ui-components/src/components/Modal/WizardProgress.tsx`
+  - Location: `packages/ui-components/src/components/WizardProgress/WizardProgress.tsx`
   - 15 tests passing
 - [x] **WizardNavigation** - ✅ **COMPLETED** (Previous/Next/Complete buttons)
-  - Location: `packages/ui-components/src/components/Modal/WizardNavigation.tsx`
+  - Location: `packages/ui-components/src/components/WizardNavigation/WizardNavigation.tsx`
 - [x] **useModalWizard hook** - ✅ **COMPLETED** (multi-step workflow management)
   - Location: `packages/config/src/hooks/useModalWizard.ts`
   - 19 tests passing
@@ -233,6 +233,22 @@ Drawer and fullscreen variants exist in test files but NOT in production package
 - **Tests**: 60 passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
 - **Progress**: 3/17 components (18%)
 
+**📋 Modal Enhancement Plan (v3 Features):**
+- [ ] **Drag & Drop** - Modal movable by header dragging
+- [ ] **Enhanced Keyboard** - ESC (topmost only), Enter (with textarea exception)
+- [ ] **Nested Modals** - Full ModalContext integration with z-index management
+- [ ] **Footer Layout** - Delete button (left), Cancel/Confirm (right), error messages
+- [ ] **Alignment Options** - Top/Center/Bottom positioning
+- [ ] **Padding Override** - Custom overlay padding for nested modals
+
+**📚 Documentation Updates:**
+- [x] ✅ Updated `docs/packages/ui-components.md` with complete Modal + Wizard system documentation
+- [x] ✅ Created `docs/temp/modal-enhancement-plan.md` - Detailed implementation plan (8 hours estimated)
+- [x] ✅ Updated `docs/packages/components-reference.md` with Modal, WizardProgress, WizardNavigation + hooks
+- [ ] Create Modal demo page showcasing all features (after enhancements implemented)
+
+**Estimated Effort:** ~8 hours (4h core + 2h UI + 2h docs/tests)
+
 ---
 
 ### **Task 0.2 Summary**
@@ -260,18 +276,38 @@ Drawer and fullscreen variants exist in test files but NOT in production package
 - ⚠️ Test only: Drawer + Fullscreen variants (`apps/web-ui/src/__tests__/components/Modal3Variants.tsx`)
 - ❌ NOT exported to @l-kern/ui-components package
 
-**File Organization:**
+**File Organization (Updated 2025-10-18 20:45):**
 ```
-packages/ui-components/src/components/Modal/   ← Production (exported)
-  ├── Modal.tsx (centered only) ✅
-  ├── WizardProgress.tsx ✅
-  └── WizardNavigation.tsx ✅
+packages/ui-components/src/components/         ← Production (exported)
+  ├── Modal/
+  │   ├── Modal.tsx (centered only) ✅
+  │   ├── Modal.module.css ✅
+  │   ├── Modal.test.tsx ✅
+  │   └── index.ts ✅
+  ├── WizardProgress/                          🆕 Reorganized (own folder)
+  │   ├── WizardProgress.tsx ✅
+  │   ├── WizardProgress.module.css ✅
+  │   ├── WizardProgress.test.tsx ✅
+  │   └── index.ts ✅
+  └── WizardNavigation/                        🆕 Reorganized (own folder)
+      ├── WizardNavigation.tsx ✅
+      ├── WizardNavigation.module.css ✅
+      ├── WizardNavigation.test.tsx ⚠️ MISSING
+      └── index.ts ✅
 
 apps/web-ui/src/__tests__/                     ← Testing only (NOT exported)
   ├── components/Modal3Variants.tsx (drawer, fullscreen) ⚠️
   ├── demos/ContactFormWizard/ (6-step demo)
   └── pages/WizardVariantsDemo.tsx (comparison page)
 ```
+
+**✅ Component Organization Verified (2025-10-18):**
+- **Total Components**: 13
+- **With Unit Tests**: 12/13 (92%)
+- **Missing Test**: WizardNavigation.test.tsx
+- **All Have barrel exports**: ✅ Yes (index.ts in every folder)
+- **Reorganization Complete**: Wizard components moved to own folders
+- **Verified Inventory**: `docs/temp/component-inventory-2025-10-18.md`
 
 **Deliverables**:
 - ✅ Phase 1: 6 form components (100%)

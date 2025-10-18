@@ -43,5 +43,11 @@ export type { CardProps, CardVariant } from './components/Card';
 export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 
-export { Modal, WizardProgress, WizardNavigation } from './components/Modal';
-export type { ModalProps, WizardProgressProps, WizardNavigationProps } from './components/Modal';
+export { Modal } from './components/Modal';
+export type { ModalProps } from './components/Modal';
+
+export { WizardProgress } from './components/WizardProgress';
+export type { WizardProgressProps } from './components/WizardProgress';
+
+export { WizardNavigation } from './components/WizardNavigation';
+export type { WizardNavigationProps } from './components/WizardNavigation';
