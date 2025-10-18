@@ -29,6 +29,8 @@ export function setupTheme(): void {
       /* Text colors */
       --color-text: ${COLORS.neutral.gray900};
       --color-text-secondary: ${COLORS.neutral.gray600};
+      --theme-text: ${COLORS.neutral.gray900};
+      --theme-text-muted: ${COLORS.neutral.gray500};
 
       /* Brand colors */
       --color-primary: ${COLORS.brand.primary};
@@ -37,6 +39,14 @@ export function setupTheme(): void {
 
       /* Border colors */
       --color-border: ${COLORS.neutral.gray300};
+      --theme-border: ${COLORS.neutral.gray300};
+      --theme-input-border: ${COLORS.neutral.gray300};
+      --theme-input-border-hover: ${COLORS.neutral.gray400};
+
+      /* Input/Form colors */
+      --theme-input-background: ${COLORS.neutral.white};
+      --theme-input-background-disabled: ${COLORS.neutral.gray100};
+      --theme-hover-background: ${COLORS.neutral.gray100};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};
@@ -52,8 +62,10 @@ export function setupTheme(): void {
       --color-background-alt: ${COLORS.neutral.gray800};
 
       /* Text colors */
-      --color-text: ${COLORS.neutral.white};
+      --color-text: ${COLORS.neutral.gray100};
       --color-text-secondary: ${COLORS.neutral.gray400};
+      --theme-text: ${COLORS.neutral.gray100};
+      --theme-text-muted: ${COLORS.neutral.gray500};
 
       /* Brand colors (lighter versions for dark mode) */
       --color-primary: ${COLORS.brand.light};
@@ -61,7 +73,15 @@ export function setupTheme(): void {
       --color-accent: #f48fb1;
 
       /* Border colors */
-      --color-border: ${COLORS.neutral.gray700};
+      --color-border: ${COLORS.neutral.gray600};
+      --theme-border: ${COLORS.neutral.gray600};
+      --theme-input-border: ${COLORS.neutral.gray600};
+      --theme-input-border-hover: ${COLORS.neutral.gray500};
+
+      /* Input/Form colors - darker background, not bright */
+      --theme-input-background: ${COLORS.neutral.gray800};
+      --theme-input-background-disabled: ${COLORS.neutral.gray700};
+      --theme-hover-background: ${COLORS.neutral.gray700};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};
@@ -110,6 +130,42 @@ export function setupTheme(): void {
 
     a:hover {
       text-decoration: underline;
+    }
+
+    /* Textarea - same styling as inputs */
+    textarea {
+      padding: 8px 12px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--theme-text);
+      background: var(--theme-input-background);
+      border: 2px solid var(--theme-input-border);
+      border-radius: 6px;
+      transition: border-color 0.15s ease;
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    textarea:focus {
+      border-color: var(--color-brand-primary);
+    }
+
+    textarea:hover:not(:focus):not(:disabled) {
+      border-color: var(--theme-input-border-hover);
+    }
+
+    textarea:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      background: var(--theme-input-background-disabled);
+    }
+
+    textarea::placeholder {
+      color: var(--theme-text-muted);
+      opacity: 0.7;
     }
 
     h1 {

@@ -1,7 +1,18 @@
+# ================================================================
 # Port Mapping Strategy - L-KERN v4
+# ================================================================
+# File: L:\system\lkern_codebase_v4_act\docs\architecture\port-mapping.md
+# Version: 1.0.0
+# Created: 2025-10-13
+# Updated: 2025-10-18
+# Project: BOSS (Business Operating System Software)
+# Developer: BOSSystems s.r.o.
+#
+# Description:
+#   Complete port mapping strategy using 1:1 mapping pattern
+#   (LKMS{XXX} → Port 4{XXX}) for all services and infrastructure.
+# ================================================================
 
-**Version**: 1.0.0
-**Created**: 2025-10-13
 **Pattern**: 1:1 Mapping (LKMS number = Port number)
 
 ---

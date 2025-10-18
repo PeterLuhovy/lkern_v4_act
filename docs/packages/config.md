@@ -1,6 +1,18 @@
+# ================================================================
 # @l-kern/config Package Documentation
+# ================================================================
+# File: L:\system\lkern_codebase_v4_act\docs\packages\config.md
+# Version: 1.0.0
+# Created: 2025-10-13
+# Updated: 2025-10-18
+# Project: BOSS (Business Operating System Software)
+# Developer: BOSSystems s.r.o.
+#
+# Description:
+#   Complete documentation for @l-kern/config package including
+#   constants, API config, design tokens, translations, and theme system.
+# ================================================================
 
-**Version**: 1.0.0
 **Status**: 🚧 In Development
 **Package Path**: `packages/config/`
 **Import Name**: `@l-kern/config`
@@ -316,19 +328,61 @@ function MyComponent() {
 
 ## Theme System
 
-Light/Dark mode support s React Context API.
+Light/Dark mode support s React Context API a dynamickými CSS premennými.
+
+### Architecture
+
+Theme systém má **2 časti**:
+
+1. **@l-kern/config** - React Context pre prepínanie témy (`useTheme` hook)
+2. **theme-setup.ts** - Generuje CSS premenné z design tokens (v `apps/web-ui/src/`)
 
 ### Setup
 
+**1. Inicializuj theme CSS (v main.tsx):**
+
 ```tsx
 import { ThemeProvider } from '@l-kern/config';
+import { setupTheme } from './theme-setup';
 
-function App() {
-  return (
-    <ThemeProvider defaultTheme="light">
-      <YourApp />
-    </ThemeProvider>
-  );
+// IMPORTANT: Generate CSS variables from design tokens
+setupTheme();
+
+root.render(
+  <ThemeProvider defaultTheme="light">
+    <YourApp />
+  </ThemeProvider>
+);
+```
+
+**2. theme-setup.ts generuje CSS premenné:**
+
+```typescript
+// apps/web-ui/src/theme-setup.ts
+import { COLORS } from '@l-kern/config';
+
+export function setupTheme(): void {
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Light Theme */
+    [data-theme="light"] {
+      --theme-text: ${COLORS.neutral.gray900};
+      --theme-input-background: ${COLORS.neutral.white};
+      --theme-input-border: ${COLORS.neutral.gray300};
+      --theme-hover-background: ${COLORS.neutral.gray100};
+      /* ... */
+    }
+
+    /* Dark Theme */
+    [data-theme="dark"] {
+      --theme-text: ${COLORS.neutral.gray100};
+      --theme-input-background: ${COLORS.neutral.gray800};
+      --theme-input-border: ${COLORS.neutral.gray600};
+      --theme-hover-background: ${COLORS.neutral.gray700};
+      /* ... */
+    }
+  `;
+  document.head.appendChild(style);
 }
 ```
 
@@ -341,7 +395,7 @@ function MyComponent() {
   const { theme, setTheme, toggleTheme } = useTheme();
 
   return (
-    <div className={`theme-${theme}`}>
+    <div>
       <h1>Current theme: {theme}</h1>
 
       {/* Toggle button */}
@@ -357,23 +411,66 @@ function MyComponent() {
 }
 ```
 
-### CSS Integration
+### CSS Variables Reference
+
+**Available theme variables** (defined in `theme-setup.ts`):
 
 ```css
-/* Light theme */
-[data-theme="light"] {
-  --color-primary: #007bff;
-  --color-background: #ffffff;
-  --color-text: #000000;
+/* Text colors */
+--theme-text                      /* Main text color */
+--theme-text-muted                /* Secondary/muted text */
+
+/* Input/Form colors */
+--theme-input-background          /* Input background */
+--theme-input-background-disabled /* Disabled input background */
+--theme-input-border              /* Input border */
+--theme-input-border-hover        /* Input border on hover */
+
+/* UI colors */
+--theme-border                    /* General border color */
+--theme-hover-background          /* Hover background (buttons, rows) */
+```
+
+**Example usage in CSS Modules:**
+
+```css
+/* Component.module.css */
+.input {
+  color: var(--theme-text);
+  background: var(--theme-input-background);
+  border: 2px solid var(--theme-input-border);
 }
 
-/* Dark theme */
-[data-theme="dark"] {
-  --color-primary: #4d9fff;
-  --color-background: #1a1a1a;
-  --color-text: #ffffff;
+.input:hover {
+  border-color: var(--theme-input-border-hover);
+}
+
+.button--ghost:hover {
+  background-color: var(--theme-hover-background);
 }
 ```
+
+### Theme Values
+
+**Light Theme:**
+- Text: `#212121` (dark gray - čitateľné na bielom pozadí)
+- Input background: `#ffffff` (white)
+- Input border: `#e0e0e0` (light gray)
+- Hover background: `#f5f5f5` (very light gray)
+
+**Dark Theme:**
+- Text: `#f5f5f5` (light gray - čitateľné na tmavom pozadí)
+- Input background: `#424242` (dark gray - nie príliš svetlé)
+- Input border: `#757575` (medium gray)
+- Hover background: `#616161` (darker gray)
+
+### How Theme Switching Works
+
+1. **User clicks toggle** → `toggleTheme()` called
+2. **ThemeProvider updates** `data-theme` attribute on `<html>` element
+3. **CSS switches** automatically via `[data-theme="dark"]` selector
+4. **All components** using `var(--theme-*)` update instantly
+5. **Theme persisted** in localStorage for next visit
 
 ---
 

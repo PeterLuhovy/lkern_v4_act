@@ -1,112 +1,265 @@
-# L-KERN v4 Documentation
-
-**Version**: 4.0.0
-**Status**: 🚧 In Development
-**Last Updated**: 2025-10-13
-
----
-
-## 📚 Documentation Structure
-
-### **Core Documentation**
-- [Project Overview](PROJECT-OVERVIEW.md) - Project goals, status, architecture
-- [Roadmap](ROADMAP.md) - Development phases and milestones (planned)
-
-### **Architecture**
-- [Main Architecture](architecture/main-architecture.md) - System architecture overview (planned)
-- [Port Mapping Strategy](architecture/port-mapping.md) - LKMS service port mapping
-
-### **Packages**
-- [@l-kern/config](packages/config.md) - Shared configuration, constants, translations, theme
-
-### **Programming**
-- [Coding Standards](programming/coding-standards.md) - Code style and conventions (planned)
-- [Code Examples](programming/code-examples.md) - Practical code examples (planned)
-
-### **Design**
-- [Design Standards](design/design-standards.md) - UI/UX guidelines (planned)
-- [Component Library](design/component-library.md) - Reusable React components (planned)
+# ================================================================
+# L-KERN v4 - Documentation Map
+# ================================================================
+# File: L:\system\lkern_codebase_v4_act\docs\README.md
+# Version: 2.0.0
+# Created: 2025-10-13
+# Updated: 2025-10-18
+# Project: BOSS (Business Operating System Software)
+# Developer: BOSSystems s.r.o.
+#
+# Description:
+#   Central documentation map for L-KERN v4 project.
+#   This file is the SINGLE ENTRY POINT to all documentation.
+#   Lists all documentation sections and their locations.
+# ================================================================
 
 ---
 
-## 🎯 Quick Start
+## 📋 About This File
 
-1. **Read** [Project Overview](PROJECT-OVERVIEW.md) - Understand project goals
-2. **Check** [Port Mapping](architecture/port-mapping.md) - Service port strategy
-3. **Review** [@l-kern/config](packages/config.md) - Shared package usage
-4. **Follow** Coding Standards (coming soon) - Write consistent code
+This is the **central documentation map** for L-KERN v4 project. All documentation is organized into subdirectories by topic. Use this file to find what you need.
+
+**Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\`
+
+**Quick Links:**
+- Need to start project? → [setup/getting-started.md](#setup--configuration)
+- Need to run tests? → [setup/testing.md](#setup--configuration)
+- Have a problem? → [setup/troubleshooting.md](#setup--configuration)
+- Need code standards? → [programming/coding-standards.md](#programming)
+- Want project overview? → [project/overview.md](#project-information)
 
 ---
 
-## 📖 Documentation Guidelines
+## 🗂️ Documentation Structure
 
-### **Structure Principles**
-- ✅ **Single entry point** - All docs accessible from this README
-- ✅ **Clear hierarchy** - Logical folder structure
-- ✅ **Cross-references** - Links between related documents
-- ✅ **Up-to-date** - Regular updates with code changes
+### 📁 Project Information
+**Location:** `docs/project/`
 
-### **File Organization**
-```
-docs/
-├── README.md                    # This file - main documentation index
-├── PROJECT-OVERVIEW.md          # Project goals and current status
-├── ROADMAP.md                   # Development roadmap (planned)
-├── architecture/                # System architecture docs
-│   ├── main-architecture.md     # Overall architecture
-│   └── port-mapping.md          # Port mapping strategy
-├── packages/                    # Package-specific documentation
-│   ├── config.md                # @l-kern/config package
-│   └── [other-packages].md      # Future packages
-├── programming/                 # Coding guidelines
-│   ├── coding-standards.md      # Code conventions
-│   └── code-examples.md         # Practical examples
-└── design/                      # Design and UI docs
-    ├── design-standards.md      # Design system
-    └── component-library.md     # React components
-```
+Contains high-level project information, goals, and roadmap.
 
-### **Package README Guidelines**
-Each package should have minimal `README.md` that:
-- States package name and version
-- Links to detailed documentation in `docs/packages/[package-name].md`
-- Provides quick usage example
+| File | Description | Path |
+|------|-------------|------|
+| **Project Overview** | Project goals, status, architecture summary | [project/overview.md](project/overview.md) |
+| **Roadmap** | Development phases, milestones, task list | [project/roadmap.md](project/roadmap.md) |
 
-**Example:**
+---
+
+### 📁 Setup & Configuration
+**Location:** `docs/setup/`
+
+Everything you need to set up and run the project.
+
+| File | Description | Path |
+|------|-------------|------|
+| **Getting Started** | Docker setup, installation, running the project | [setup/getting-started.md](setup/getting-started.md) |
+| **Testing Guide** | How to run tests (Vitest + pytest) in Docker and locally | [setup/testing.md](setup/testing.md) |
+| **Troubleshooting** | Known issues and solutions (ADD NEW PROBLEMS HERE!) | [setup/troubleshooting.md](setup/troubleshooting.md) |
+
+**⭐ Important:** When you solve a new problem, **add it to troubleshooting.md** so others can find the solution.
+
+---
+
+### 📁 Architecture
+**Location:** `docs/architecture/`
+
+System architecture, design decisions, infrastructure.
+
+| File | Description | Path |
+|------|-------------|------|
+| **Port Mapping** | LKMS port mapping strategy (service ports) | [architecture/port-mapping.md](architecture/port-mapping.md) |
+| **Main Architecture** | Overall system architecture (planned) | [architecture/main-architecture.md](architecture/main-architecture.md) |
+
+---
+
+### 📁 Programming
+**Location:** `docs/programming/`
+
+Coding standards, conventions, and practical examples.
+
+| File | Description | Path |
+|------|-------------|------|
+| **Coding Standards** | Code conventions, file structure, DRY principles | [programming/coding-standards.md](programming/coding-standards.md) |
+| **Code Examples** | Practical examples (React, API, gRPC, DB, Testing) | [programming/code-examples.md](programming/code-examples.md) |
+
+**⭐ Important:** All code must follow [coding-standards.md](programming/coding-standards.md). Read before writing code!
+
+---
+
+### 📁 Packages
+**Location:** `docs/packages/`
+
+Documentation for shared packages (@l-kern/*).
+
+| Package | Description | Path |
+|---------|-------------|------|
+| **@l-kern/config** | Constants, translations, theme, design tokens | [packages/config.md](packages/config.md) |
+| **@l-kern/ui-components** | Shared React components (Button, Input, etc.) | [packages/ui-components.md](packages/ui-components.md) |
+
+---
+
+### 📁 Temporary Files
+**Location:** `docs/temp/`
+
+Work-in-progress documentation, planning notes, TODO files.
+
+**Contents:**
+- Task planning documents
+- Implementation drafts
+- Development notes
+- Temporary TODO lists
+
+**⚠️ Note:** Files in `temp/` are not permanent and may be deleted after task completion.
+
+---
+
+## 🎯 Quick Reference
+
+### Common Tasks
+
+**I want to...**
+
+| Task | Documentation |
+|------|---------------|
+| Start the project with Docker | [setup/getting-started.md](setup/getting-started.md) |
+| Run tests | [setup/testing.md](setup/testing.md) |
+| Fix a problem | [setup/troubleshooting.md](setup/troubleshooting.md) |
+| Understand project architecture | [project/overview.md](project/overview.md) |
+| See development roadmap | [project/roadmap.md](project/roadmap.md) |
+| Learn coding standards | [programming/coding-standards.md](programming/coding-standards.md) |
+| See code examples | [programming/code-examples.md](programming/code-examples.md) |
+| Use @l-kern/config package | [packages/config.md](packages/config.md) |
+| Use UI components | [packages/ui-components.md](packages/ui-components.md) |
+| Check service ports | [architecture/port-mapping.md](architecture/port-mapping.md) |
+
+---
+
+## 📝 Documentation Requirements
+
+### File Header Standard
+
+**Every documentation file MUST have this header:**
+
 ```markdown
-# @l-kern/config
-
-**Documentation**: [docs/packages/config.md](../../docs/packages/config.md)
-
-Quick usage:
-\`\`\`typescript
-import { PORTS, useTranslation } from '@l-kern/config';
-\`\`\`
+# ================================================================
+# <Document Title>
+# ================================================================
+# File: L:\system\lkern_codebase_v4_act\docs\<path>\<filename>.md
+# Version: X.Y.Z
+# Created: YYYY-MM-DD
+# Updated: YYYY-MM-DD
+# Project: BOSS (Business Operating System Software)
+# Developer: BOSSystems s.r.o.
+#
+# Description:
+#   Brief description of what this document contains.
+# ================================================================
 ```
+
+### Documentation Principles
+
+1. **✅ Single entry point** - This README.md is the only file in `docs/` root
+2. **✅ Clear organization** - All other files in subdirectories by topic
+3. **✅ Full file paths** - Every file header contains absolute path
+4. **✅ Cross-references** - Link related documents together
+5. **✅ Keep updated** - Update documentation when code changes
+6. **✅ English language** - All documentation in English
+7. **✅ Clear structure** - Use headers, tables, code blocks consistently
+
+### Where to Add New Documentation
+
+| Type of Documentation | Location |
+|----------------------|----------|
+| Project roadmap updates | `project/roadmap.md` |
+| Setup/installation changes | `setup/getting-started.md` |
+| New problem solved | `setup/troubleshooting.md` |
+| New coding standard | `programming/coding-standards.md` |
+| New code example | `programming/code-examples.md` |
+| New package documentation | `packages/<package-name>.md` |
+| Architecture decisions | `architecture/<topic>.md` |
+| Temporary planning | `temp/<task-name>.md` |
 
 ---
 
-## 🔍 Finding Documentation
+## 🔍 Finding Information
 
 ### By Topic
-- **Configuration** → [packages/config.md](packages/config.md)
-- **Port mapping** → [architecture/port-mapping.md](architecture/port-mapping.md)
-- **Project status** → [PROJECT-OVERVIEW.md](PROJECT-OVERVIEW.md)
+
+- **Docker** → [setup/getting-started.md](setup/getting-started.md)
+- **Testing** → [setup/testing.md](setup/testing.md)
+- **Problems** → [setup/troubleshooting.md](setup/troubleshooting.md)
+- **Code Style** → [programming/coding-standards.md](programming/coding-standards.md)
+- **Examples** → [programming/code-examples.md](programming/code-examples.md)
+- **Roadmap** → [project/roadmap.md](project/roadmap.md)
+- **Ports** → [architecture/port-mapping.md](architecture/port-mapping.md)
 
 ### By Package
-- `@l-kern/config` → [packages/config.md](packages/config.md)
+
+- **@l-kern/config** → [packages/config.md](packages/config.md)
+- **@l-kern/ui-components** → [packages/ui-components.md](packages/ui-components.md)
+
+### By Problem Type
+
+- **Docker issues** → [setup/troubleshooting.md#docker-issues](setup/troubleshooting.md#docker-issues)
+- **Test failures** → [setup/troubleshooting.md#testing-issues](setup/troubleshooting.md#testing-issues)
+- **Build errors** → [setup/troubleshooting.md#build--compilation](setup/troubleshooting.md#build--compilation)
+- **Network problems** → [setup/troubleshooting.md#network--api](setup/troubleshooting.md#network--api)
 
 ---
 
-## 📝 Contributing to Documentation
+## 📖 Documentation Tree (Full Hierarchy)
 
-When adding new features:
-1. ✅ **Update relevant docs** in `docs/` folder
-2. ✅ **Add links** to this README if new section
-3. ✅ **Keep package READMEs minimal** with links to full docs
-4. ✅ **Cross-reference** related documents
+```
+L:\system\lkern_codebase_v4_act\docs\
+│
+├── README.md                              # ⭐ THIS FILE - Documentation map
+│
+├── project/                               # Project information
+│   ├── overview.md                        # Project goals, status, architecture
+│   └── roadmap.md                         # Development phases and milestones
+│
+├── setup/                                 # Setup and configuration
+│   ├── getting-started.md                 # Docker setup and installation
+│   ├── testing.md                         # Testing guide (Vitest + pytest)
+│   └── troubleshooting.md                 # Known issues and solutions ⭐
+│
+├── architecture/                          # System architecture
+│   ├── port-mapping.md                    # Port mapping strategy
+│   └── main-architecture.md               # Overall architecture (planned)
+│
+├── programming/                           # Programming guidelines
+│   ├── coding-standards.md                # Code conventions ⭐ MUST READ
+│   └── code-examples.md                   # Practical code examples
+│
+├── packages/                              # Package documentation
+│   ├── config.md                          # @l-kern/config
+│   └── ui-components.md                   # @l-kern/ui-components
+│
+└── temp/                                  # Temporary files
+    ├── task-0.2-ui-components-plan.md     # UI components planning
+    ├── task-0.2-progress.md               # Task progress tracker
+    └── *.md                               # Other temporary docs
+```
 
 ---
 
-**Maintainer**: BOSSystems s.r.o.
-**Project**: L-KERN v4 - Business Operating System Software
+## 🆘 Need Help?
+
+**Can't find what you need?**
+
+1. **Check this README.md** - All documentation is mapped here
+2. **Use Ctrl+F** in your browser to search this page
+3. **Check [setup/troubleshooting.md](setup/troubleshooting.md)** - Common problems
+4. **Ask on team chat** - Someone may have encountered it before
+
+**Found outdated documentation?**
+
+- Update the relevant file
+- Update version number in file header
+- Update "Updated" date in file header
+
+---
+
+**Last Updated:** 2025-10-18
+**Maintainer:** BOSSystems s.r.o.
+**Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\`

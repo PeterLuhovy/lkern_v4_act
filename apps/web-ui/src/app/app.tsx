@@ -1,6 +1,6 @@
 import { Route, Routes, Link } from 'react-router-dom';
 import { useTranslation, useTheme, PORTS, API_ENDPOINTS, COLORS } from '@l-kern/config';
-import { Button, Input, FormField } from '@l-kern/ui-components';
+import { Button, Input, FormField, Select } from '@l-kern/ui-components';
 
 export function App() {
   const { t, language, setLanguage } = useTranslation();
@@ -71,19 +71,25 @@ export function App() {
             <Input id="password" type="password" placeholder="Enter password" fullWidth />
           </FormField>
 
+          <FormField label="Country" required htmlFor="country" helperText="Select your country" fullWidth>
+            <Select
+              id="country"
+              placeholder="Choose a country"
+              options={[
+                { value: 'sk', label: 'Slovakia' },
+                { value: 'cz', label: 'Czech Republic' },
+                { value: 'pl', label: 'Poland' },
+                { value: 'hu', label: 'Hungary' },
+                { value: 'at', label: 'Austria' }
+              ]}
+              fullWidth
+            />
+          </FormField>
+
           <FormField label="Bio" htmlFor="bio" helperText="Optional" fullWidth>
             <textarea
               id="bio"
               placeholder="Tell us about yourself..."
-              style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '2px solid #e0e0e0',
-                fontFamily: 'inherit',
-                fontSize: '12px',
-                resize: 'vertical',
-                minHeight: '80px'
-              }}
             />
           </FormField>
 

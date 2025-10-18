@@ -1,10 +1,17 @@
+# ================================================================
 # L-KERN v4 - Project Overview
-
-**Version**: 4.0.0
-**Created**: 2025-10-13
-**Status**: 🚀 Initial Setup
-**Commercial Name**: BOSS (Business Operating System Software)
-**Developer**: BOSSystems s.r.o.
+# ================================================================
+# File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
+# Version: 4.0.0
+# Created: 2025-10-13
+# Updated: 2025-10-18
+# Project: BOSS (Business Operating System Software)
+# Developer: BOSSystems s.r.o.
+#
+# Description:
+#   High-level project overview, goals, architecture summary,
+#   current status, and progress tracker for L-KERN v4.
+# ================================================================
 
 ---
 
@@ -34,8 +41,9 @@ L-KERN v4 principles:
 **Completed**:
 - Task 0.0 (Infrastructure Setup) ✅
 - Task 0.1 (Coding Standards) ✅
+- Task 0.2 (Phase 1 - Core form components) ⏳ 67% (4/6 done)
 
-**Next**: Task 0.2 (@l-kern/ui-components)
+**Next**: Task 0.2 Phase 1 completion (Checkbox, Radio)
 
 **Full Roadmap**: [ROADMAP.md](ROADMAP.md)
 
@@ -164,6 +172,48 @@ L-KERN v4/
 
 ---
 
+### **Task 0.2: @l-kern/ui-components** ⏳
+
+**Status**: In Progress (67% - Phase 1)
+**Started**: 2025-10-18
+
+**Completed Components (Phase 1 - 4/6):**
+- ✅ **Button** (v1.0.0) - 16 tests, 100% coverage
+  - 5 variants, 3 sizes, loading state, icon support
+  - 121 lines TS + 184 lines CSS
+- ✅ **Input** (v1.0.0) - 15 tests, 100% coverage
+  - Error/helper text, fullWidth, all HTML input types
+  - 92 lines TS + 114 lines CSS
+- ✅ **FormField** (v1.0.0) - 11 tests, 100% coverage
+  - Label wrapper, required indicator, error display
+  - 103 lines TS + 72 lines CSS
+- ✅ **Select** (v1.0.0) - 21 tests, 100% coverage
+  - Native select, options array, placeholder, error handling
+  - 134 lines TS + 144 lines CSS
+
+**Test Infrastructure Setup:**
+- ✅ Vitest + React Testing Library
+- ✅ @testing-library/jest-dom matchers
+- ✅ @testing-library/user-event
+- ✅ vitest.setup.ts configuration
+- ✅ CSS Modules test patterns
+
+**Testing Documentation:**
+- ✅ [testing.md](testing.md) - Complete testing guide
+- ✅ Docker volume troubleshooting
+- ✅ Test dependency setup instructions
+- ✅ Common issues & solutions
+
+**Remaining (Phase 1 - 2/6):**
+- ⏳ Checkbox component
+- ⏳ Radio/RadioGroup component
+
+**Future Phases:**
+- Phase 2: Card, Badge, Spinner, EmptyState
+- Phase 3: Modal, Table/DataGrid
+
+---
+
 ## ⏳ Next Steps
 
 **Immediate Priorities (from ROADMAP.md):**
@@ -189,13 +239,13 @@ L-KERN v4/
 
 ## 📊 Progress Tracker
 
-**Phase 0 Progress**: 2.5/21 tasks completed (12%)
+**Phase 0 Progress**: 2.67/21 tasks completed (13%)
 
 | Task | Status | Description |
 |------|--------|-------------|
 | 0.0 | ✅ Done | Infrastructure Setup |
 | 0.1 | ✅ Done | Coding Standards |
-| 0.2 | ⏳ In Progress (50%) | @l-kern/ui-components |
+| 0.2 | ⏳ In Progress (67%) | @l-kern/ui-components (4/6 Phase 1 done) |
 | 0.3 | ⏳ Planned | Backend Infrastructure |
 | 0.4-0.17 | ⏳ Planned | Microservices Development |
 | 0.18 | ⏳ Planned | Authentication Service |
@@ -205,4 +255,4 @@ L-KERN v4/
 
 ---
 
-**Last Updated**: 2025-10-15 17:00:00
+**Last Updated**: 2025-10-18 11:10:00

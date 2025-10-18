@@ -21,3 +21,6 @@ export type { InputProps } from './components/Input';
 
 export { FormField } from './components/FormField';
 export type { FormFieldProps } from './components/FormField';
+
+export { Select } from './components/Select';
+export type { SelectProps, SelectOption } from './components/Select';
