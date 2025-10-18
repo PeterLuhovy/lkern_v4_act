@@ -1,0 +1,160 @@
+/*
+ * ================================================================
+ * FILE: HomePage.module.css
+ * PATH: /apps/web-ui/src/pages/HomePage/HomePage.module.css
+ * DESCRIPTION: Styles for HomePage component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18
+ * ================================================================
+ */
+
+/* === MAIN CONTAINER === */
+.container {
+  padding: 60px 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+/* === HEADER SECTION === */
+.header {
+  margin-bottom: 48px;
+}
+
+.title {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: var(--theme-text-secondary, #666);
+}
+
+/* === QUICK CONTROLS GRID === */
+.quickControls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.cardTitle {
+  margin-top: 0;
+}
+
+.cardText {
+  color: var(--theme-text-secondary, #666);
+}
+
+.themeButton {
+  padding: 8px 16px;
+  border: 1px solid var(--color-brand-primary, #9c27b0);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-brand-primary, #9c27b0);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.themeButton:hover {
+  background: var(--color-brand-primary, #9c27b0);
+  color: var(--theme-button-text-on-color, #ffffff);
+}
+
+.languageButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.languageButton {
+  padding: 8px 16px;
+  border: 1px solid var(--color-brand-primary, #9c27b0);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-brand-primary, #9c27b0);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.languageButton:disabled {
+  cursor: default;
+}
+
+.languageButtonActive {
+  background: var(--color-brand-primary, #9c27b0);
+  color: var(--theme-button-text-on-color, #ffffff);
+}
+
+/* === NAVIGATION SECTION === */
+.navigationSection {
+  margin-bottom: 48px;
+}
+
+.navigationTitle {
+  margin-bottom: 24px;
+}
+
+.navigationList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navigationLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navigationCard {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.navigationCardText {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  font-weight: normal;
+  color: var(--theme-text-secondary, #666);
+}
+
+/* === KEYBOARD SHORTCUTS === */
+.shortcutsCard {
+  margin-top: 48px;
+  text-align: center;
+}
+
+.shortcutsTitle {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.shortcutsList {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.shortcutItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kbd {
+  padding: 4px 8px;
+  border: 1px solid var(--theme-border, #ccc);
+  border-radius: 4px;
+  background: var(--theme-input-background, #fff);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.shortcutText {
+  font-size: 14px;
+  color: var(--theme-text-secondary, #666);
+}

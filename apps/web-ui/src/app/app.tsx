@@ -11,25 +11,23 @@
 
 import { Route, Routes } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
-import { UtilityTestPage } from '../pages/UtilityTestPage';
 
-// Testing pages
-import { TestingDashboard } from '../pages/testing/TestingDashboard';
-import { FormsTestPage } from '../pages/testing/FormsTestPage';
-import { BadgeTestPage } from '../pages/testing/BadgeTestPage';
-import { CardTestPage } from '../pages/testing/CardTestPage';
-import { EmptyStateTestPage } from '../pages/testing/EmptyStateTestPage';
-import { SpinnerTestPage } from '../pages/testing/SpinnerTestPage';
-
-// Test-only pages (development)
+// Test-only pages (development) - ALL testing pages in __tests__/pages/
+import { TestingDashboard } from '../__tests__/pages/TestingDashboard';
+import { FormsTestPage } from '../__tests__/pages/FormsTestPage';
+import { BadgeTestPage } from '../__tests__/pages/BadgeTestPage';
+import { CardTestPage } from '../__tests__/pages/CardTestPage';
+import { EmptyStateTestPage } from '../__tests__/pages/EmptyStateTestPage';
+import { SpinnerTestPage } from '../__tests__/pages/SpinnerTestPage';
+import { UtilityTestPage } from '../__tests__/pages/UtilityTestPage';
 import { WizardVariantsDemo } from '../__tests__/pages/WizardVariantsDemo';
+import { TestModalV3Page } from '../__tests__/pages/TestModalV3Page';
 
 export function App() {
   return (
     <Routes>
       {/* Production routes */}
       <Route path="/" element={<HomePage />} />
-      <Route path="/utility-test" element={<UtilityTestPage />} />
 
       {/* Testing routes */}
       <Route path="/testing" element={<TestingDashboard />} />
@@ -38,9 +36,11 @@ export function App() {
       <Route path="/testing/card" element={<CardTestPage />} />
       <Route path="/testing/empty-state" element={<EmptyStateTestPage />} />
       <Route path="/testing/spinner" element={<SpinnerTestPage />} />
+      <Route path="/testing/utility" element={<UtilityTestPage />} />
 
       {/* Test-only routes (modal variants testing) */}
       <Route path="/testing/wizard-demo" element={<WizardVariantsDemo />} />
+      <Route path="/testing/modal-v3" element={<TestModalV3Page />} />
     </Routes>
   );
 }

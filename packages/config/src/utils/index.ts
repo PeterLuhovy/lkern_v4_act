@@ -41,3 +41,6 @@ export {
   getDaysDifference,
   type DateLocale,
 } from './dateUtils';
+
+// Modal stack utility
+export { modalStack } from './modalStack';

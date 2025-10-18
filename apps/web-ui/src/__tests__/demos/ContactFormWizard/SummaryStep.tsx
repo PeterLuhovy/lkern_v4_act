@@ -47,10 +47,12 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ data, onChange, allDat
       </p>
 
       {/* Summary Card */}
-      <Card style={{ marginBottom: '24px', padding: '16px' }}>
-        <h4 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600 }}>
-          {isCompany ? 'Firma' : 'Fyzická osoba'}
-        </h4>
+      <div style={{ marginBottom: '24px' }}>
+        <Card>
+          <div style={{ padding: '16px' }}>
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600 }}>
+              {isCompany ? 'Firma' : 'Fyzická osoba'}
+            </h4>
 
         {/* Basic Info */}
         {isCompany ? (
@@ -97,7 +99,9 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ data, onChange, allDat
             {allData.banking.bankName && <div><strong>Banka:</strong> {allData.banking.bankName}</div>}
           </div>
         )}
-      </Card>
+          </div>
+        </Card>
+      </div>
 
       {/* Notes */}
       <FormField label="Poznámky" helperText="Ďalšie informácie o kontakte">

@@ -1,0 +1,106 @@
+/*
+ * ================================================================
+ * FILE: FormsTestPage.module.css
+ * PATH: /apps/web-ui/src/pages/testing/FormsTestPage/FormsTestPage.module.css
+ * DESCRIPTION: Styles for FormsTestPage component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 21:15:00
+ * ================================================================
+ */
+
+/* Container */
+.container {
+  padding: var(--spacing-xl, 40px);
+  font-family: Arial, sans-serif;
+}
+
+/* Header section */
+.header {
+  margin-bottom: var(--spacing-lg, 32px);
+}
+
+.backLink {
+  text-decoration: none;
+  color: var(--color-brand-primary, #9c27b0);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.title {
+  margin: 0;
+  margin-bottom: var(--spacing-xs, 8px);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--theme-text-secondary, #666);
+}
+
+/* Grid Layout - 2 columns */
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg, 24px);
+}
+
+/* Card titles and sections */
+.cardTitle {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-sm, 12px);
+}
+
+/* Button layouts */
+.buttonRow {
+  display: flex;
+  gap: var(--spacing-xs, 8px);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.buttonRowAligned {
+  display: flex;
+  gap: var(--spacing-xs, 8px);
+  align-items: center;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.buttonRowLast {
+  display: flex;
+  gap: var(--spacing-xs, 8px);
+  flex-wrap: wrap;
+}
+
+/* Form field stack */
+.formFieldStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm, 12px);
+}
+
+.formFieldStackLarge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 20px);
+}
+
+/* Form example - Full width card */
+.fullWidthCard {
+  grid-column: 1 / -1;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md, 16px);
+  max-width: 1200px;
+}
+
+.submitSection {
+  margin-top: var(--spacing-md, 16px);
+}

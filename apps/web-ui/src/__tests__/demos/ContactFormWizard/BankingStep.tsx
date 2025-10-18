@@ -49,21 +49,25 @@ export const BankingStep: React.FC<BankingStepProps> = ({ data, onChange }) => {
         />
       </FormField>
 
-      <FormField label="SWIFT/BIC" helperText="Identifikačný kód banky" style={{ marginTop: '16px' }}>
-        <Input
-          value={data?.swift || ''}
-          onChange={(e) => handleChange('swift', e.target.value)}
-          placeholder="GIBASKBX"
-        />
-      </FormField>
+      <div style={{ marginTop: '16px' }}>
+        <FormField label="SWIFT/BIC" helperText="Identifikačný kód banky">
+          <Input
+            value={data?.swift || ''}
+            onChange={(e) => handleChange('swift', e.target.value)}
+            placeholder="GIBASKBX"
+          />
+        </FormField>
+      </div>
 
-      <FormField label="Názov banky" style={{ marginTop: '16px' }}>
-        <Input
-          value={data?.bankName || ''}
-          onChange={(e) => handleChange('bankName', e.target.value)}
-          placeholder="Slovenská sporiteľňa"
-        />
-      </FormField>
+      <div style={{ marginTop: '16px' }}>
+        <FormField label="Názov banky">
+          <Input
+            value={data?.bankName || ''}
+            onChange={(e) => handleChange('bankName', e.target.value)}
+            placeholder="Slovenská sporiteľňa"
+          />
+        </FormField>
+      </div>
     </div>
   );
 };

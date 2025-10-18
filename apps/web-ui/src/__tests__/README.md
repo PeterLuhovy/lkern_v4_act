@@ -2,9 +2,9 @@
 # Testing & Demo Components
 # ================================================================
 # File: apps/web-ui/src/__tests__/README.md
-# Version: 1.0.0
+# Version: 2.0.0
 # Created: 2025-10-18
-# Updated: 2025-10-18
+# Updated: 2025-10-18 22:30:00
 #
 # Description:
 #   Test-only components, demos, and pages for development purposes.
@@ -25,14 +25,20 @@ This `__tests__/` folder contains **test-only code** that is separated from prod
 
 ## 📁 Folder Structure
 
+**✨ UNIFIED STRUCTURE - All components use folder pattern:**
+
 ```
 __tests__/
-├── components/          ← Test-only components (advanced variants)
-│   ├── Modal3Variants.tsx         (Modal with all 3 variants)
-│   └── Modal3Variants.module.css
+├── README.md                       ← This documentation
 │
-├── demos/               ← Complete demo implementations
-│   └── ContactFormWizard/         (6-step wizard demo)
+├── components/                     ← Test-only components (advanced variants)
+│   └── Modal3Variants/
+│       ├── Modal3Variants.tsx
+│       ├── Modal3Variants.module.css
+│       └── index.ts
+│
+├── demos/                          ← Complete demo implementations
+│   └── ContactFormWizard/          (6-step wizard demo)
 │       ├── ContactFormWizard.tsx
 │       ├── ContactTypeStep.tsx
 │       ├── BasicInfoStep.tsx
@@ -42,9 +48,51 @@ __tests__/
 │       ├── SummaryStep.tsx
 │       └── index.ts
 │
-└── pages/               ← Test-only pages
-    └── WizardVariantsDemo.tsx     (Variant comparison page)
+└── pages/                          ← Test-only pages (9 pages)
+    ├── BadgeTestPage/
+    │   ├── BadgeTestPage.tsx
+    │   ├── BadgeTestPage.module.css
+    │   └── index.ts
+    ├── CardTestPage/
+    │   ├── CardTestPage.tsx
+    │   ├── CardTestPage.module.css
+    │   └── index.ts
+    ├── EmptyStateTestPage/
+    │   ├── EmptyStateTestPage.tsx
+    │   ├── EmptyStateTestPage.module.css
+    │   └── index.ts
+    ├── FormsTestPage/
+    │   ├── FormsTestPage.tsx
+    │   ├── FormsTestPage.module.css
+    │   └── index.ts
+    ├── SpinnerTestPage/
+    │   ├── SpinnerTestPage.tsx
+    │   ├── SpinnerTestPage.module.css
+    │   └── index.ts
+    ├── UtilityTestPage/
+    │   ├── UtilityTestPage.tsx
+    │   ├── UtilityTestPage.module.css
+    │   └── index.ts
+    ├── TestingDashboard/           (Central testing hub)
+    │   ├── TestingDashboard.tsx
+    │   ├── TestingDashboard.module.css
+    │   └── index.ts
+    ├── TestModalV3Page/            (Modal v3 enhanced testing)
+    │   ├── TestModalV3Page.tsx
+    │   ├── TestModalV3Page.module.css
+    │   └── index.ts
+    └── WizardVariantsDemo/         (Variant comparison page)
+        ├── WizardVariantsDemo.tsx
+        ├── WizardVariantsDemo.module.css
+        └── index.ts
 ```
+
+**🎯 Pattern Consistency:**
+- ✅ Every component/page in its own folder
+- ✅ `.tsx` + `.module.css` + `index.ts` (barrel export)
+- ✅ CSS Modules for all styling (NO inline styles)
+- ✅ BasePage wrapper for global keyboard shortcuts
+- ✅ All text via translations (useTranslation hook)
 
 ---
 
@@ -226,12 +274,20 @@ import { Modal3Variants } from '../__tests__/components/Modal3Variants';
 
 ### **Development Mode:**
 
-Test pages are available at:
+All test pages are available at:
 
-- **Wizard Demo:** `http://localhost:4201/testing/wizard-demo`
+- **Testing Dashboard:** `http://localhost:4200/testing` (Central hub)
+- **Forms Testing:** `http://localhost:4200/testing/forms`
+- **Badge Testing:** `http://localhost:4200/testing/badge`
+- **Card Testing:** `http://localhost:4200/testing/card`
+- **Empty State Testing:** `http://localhost:4200/testing/empty-state`
+- **Spinner Testing:** `http://localhost:4200/testing/spinner`
+- **Utility Testing:** `http://localhost:4200/testing/utility`
+- **Wizard Demo:** `http://localhost:4200/testing/wizard-demo`
+- **Modal v3 Enhanced:** `http://localhost:4200/testing/modal-v3`
 
 **From HomePage:**
-Click on "🧙 Wizard Modal Demo [TEST]" card
+Click on "🧪 Component Testing" card to access TestingDashboard
 
 ---
 

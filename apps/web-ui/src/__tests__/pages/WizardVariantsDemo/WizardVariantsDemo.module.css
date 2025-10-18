@@ -1,0 +1,114 @@
+/*
+ * ================================================================
+ * FILE: WizardVariantsDemo.module.css
+ * PATH: /apps/web-ui/src/__tests__/pages/WizardVariantsDemo/WizardVariantsDemo.module.css
+ * DESCRIPTION: Styles for WizardVariantsDemo test page
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 21:30:00
+ * ================================================================
+ */
+
+/* === PAGE CONTAINER === */
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* === HEADER SECTION === */
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  margin-bottom: 8px;
+}
+
+.description {
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+/* === VARIANT GRID === */
+.variantGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* === CARD CONTENT === */
+.cardContent {
+  padding: 24px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  margin: 0;
+}
+
+.cardDescription {
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.featureList {
+  font-size: 14px;
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+/* === COMPLETED DATA SECTION === */
+.completedDataCard {
+  padding: 24px;
+}
+
+.completedDataHeader {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dataDisplay {
+  background-color: var(--theme-input-background, #f5f5f5);
+  padding: 16px;
+  border-radius: 8px;
+  overflow: auto;
+  font-size: 13px;
+  max-height: 400px;
+}
+
+/* === INFO SECTION === */
+.infoCard {
+  margin-top: 32px;
+}
+
+.infoContent {
+  padding: 24px;
+}
+
+.infoTitle {
+  margin-bottom: 16px;
+}
+
+.infoText {
+  font-size: 14px;
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+.infoParagraph {
+  margin-bottom: 12px;
+}
+
+.infoList {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}

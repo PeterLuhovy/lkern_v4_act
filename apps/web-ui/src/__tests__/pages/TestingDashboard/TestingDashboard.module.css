@@ -1,0 +1,121 @@
+/*
+ * ================================================================
+ * FILE: TestingDashboard.module.css
+ * PATH: /apps/web-ui/src/pages/testing/TestingDashboard/TestingDashboard.module.css
+ * DESCRIPTION: Styles for TestingDashboard component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 21:30:00
+ * ================================================================
+ */
+
+.container {
+  padding: 60px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+/* Header section */
+.header {
+  margin-bottom: var(--spacing-xl, 48px);
+}
+
+.backLink {
+  text-decoration: none;
+  color: var(--color-brand-primary, #9c27b0);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: var(--spacing-md, 16px);
+  transition: opacity 0.2s ease;
+}
+
+.backLink:hover {
+  opacity: 0.8;
+}
+
+.title {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md, 16px);
+  color: var(--theme-text, #212121);
+}
+
+.subtitle {
+  font-size: 20px;
+  color: var(--theme-text-muted, #666);
+}
+
+/* Test pages grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg, 24px);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.cardContent {
+  height: 100%;
+  transition: all 0.2s ease;
+}
+
+.cardContent:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.cardTitle {
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm, 12px);
+  font-size: 20px;
+  color: var(--theme-text, #212121);
+  font-weight: 600;
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: 14px;
+  color: var(--theme-text-muted, #666);
+  line-height: 1.5;
+}
+
+/* Info footer */
+.infoFooter {
+  margin-top: var(--spacing-xl, 48px);
+  text-align: center;
+}
+
+.infoText {
+  margin: 0;
+  color: var(--theme-text-muted, #666);
+  font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 40px 20px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,7 +1,7 @@
 /*
  * ================================================================
  * FILE: Modal3Variants.tsx
- * PATH: /apps/web-ui/src/__tests__/components/Modal3Variants.tsx
+ * PATH: /apps/web-ui/src/__tests__/components/Modal3Variants/Modal3Variants.tsx
  * DESCRIPTION: TESTING ONLY - Modal with all 3 variants (centered, drawer, fullscreen)
  * VERSION: v1.0.0
  * UPDATED: 2025-10-18 19:00:00
@@ -41,7 +41,7 @@ export interface Modal3VariantsProps {
  * This component is preserved for testing purposes only.
  * Production code should use the simplified Modal from @l-kern/ui-components.
  */
-export const Modal3Variants: React.FC<Modal3VariantsProps> = ({
+export const Modal3Variants = ({
   isOpen,
   onClose,
   variant = 'centered',
@@ -54,7 +54,7 @@ export const Modal3Variants: React.FC<Modal3VariantsProps> = ({
   showCloseButton = true,
   loading = false,
   className = '',
-}) => {
+}: Modal3VariantsProps) => {
   const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);

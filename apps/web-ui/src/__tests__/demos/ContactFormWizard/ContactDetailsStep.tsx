@@ -50,23 +50,27 @@ export const ContactDetailsStep: React.FC<ContactDetailsStepProps> = ({ data, on
         />
       </FormField>
 
-      <FormField label="Telefón" helperText="Napr. +421 900 123 456" style={{ marginTop: '16px' }}>
-        <Input
-          type="tel"
-          value={data?.phone || ''}
-          onChange={(e) => handleChange('phone', e.target.value)}
-          placeholder="+421 900 123 456"
-        />
-      </FormField>
+      <div style={{ marginTop: '16px' }}>
+        <FormField label="Telefón" helperText="Napr. +421 900 123 456">
+          <Input
+            type="tel"
+            value={data?.phone || ''}
+            onChange={(e) => handleChange('phone', e.target.value)}
+            placeholder="+421 900 123 456"
+          />
+        </FormField>
+      </div>
 
-      <FormField label="Web" helperText="Napr. www.example.com" style={{ marginTop: '16px' }}>
-        <Input
-          type="url"
-          value={data?.web || ''}
-          onChange={(e) => handleChange('web', e.target.value)}
-          placeholder="www.example.com"
-        />
-      </FormField>
+      <div style={{ marginTop: '16px' }}>
+        <FormField label="Web" helperText="Napr. www.example.com">
+          <Input
+            type="url"
+            value={data?.web || ''}
+            onChange={(e) => handleChange('web', e.target.value)}
+            placeholder="www.example.com"
+          />
+        </FormField>
+      </div>
     </div>
   );
 };

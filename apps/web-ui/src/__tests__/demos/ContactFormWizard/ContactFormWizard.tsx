@@ -58,6 +58,7 @@ export const ContactFormWizard: React.FC<ContactFormWizardProps> = ({
   });
 
   const wizard = useModalWizard({
+    id: 'contact-form-wizard',
     steps: [
       { id: 'type', title: 'Typ kontaktu' },
       { id: 'basic', title: 'Základné údaje' },

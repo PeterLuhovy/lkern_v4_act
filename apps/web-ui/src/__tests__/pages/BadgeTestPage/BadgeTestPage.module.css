@@ -1,0 +1,64 @@
+/*
+ * ================================================================
+ * FILE: BadgeTestPage.module.css
+ * PATH: /apps/web-ui/src/pages/testing/BadgeTestPage/BadgeTestPage.module.css
+ * DESCRIPTION: Styles for BadgeTestPage component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 21:15:00
+ * ================================================================
+ */
+
+/* Container */
+.container {
+  padding: var(--spacing-xl, 40px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header section */
+.header {
+  margin-bottom: var(--spacing-lg, 32px);
+}
+
+.backLink {
+  text-decoration: none;
+  color: var(--color-brand-primary, #9c27b0);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.title {
+  margin: 0;
+}
+
+/* Card sections */
+.card {
+  margin-bottom: var(--spacing-lg, 24px);
+}
+
+.cardTitle {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+/* Badge grids */
+.badgeGrid {
+  display: flex;
+  gap: var(--spacing-sm, 12px);
+  flex-wrap: wrap;
+}
+
+.badgeGridAligned {
+  display: flex;
+  gap: var(--spacing-sm, 12px);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Section headings inside cards */
+.sectionHeading {
+  margin-top: var(--spacing-lg, 24px);
+  margin-bottom: var(--spacing-sm, 12px);
+}

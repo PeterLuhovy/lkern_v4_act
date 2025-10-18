@@ -36,9 +36,10 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 }) => {
   const handleChange = (field: keyof BasicInfoStepData, value: string) => {
     onChange({
+      name: data?.name || '',
       ...data,
       [field]: value,
-    });
+    } as BasicInfoStepData);
   };
 
   if (contactType === 'company') {
@@ -57,21 +58,25 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           />
         </FormField>
 
-        <FormField label="IČO" style={{ marginTop: '16px' }}>
-          <Input
-            value={data?.ico || ''}
-            onChange={(e) => handleChange('ico', e.target.value)}
-            placeholder="12345678"
-          />
-        </FormField>
+        <div style={{ marginTop: '16px' }}>
+          <FormField label="IČO">
+            <Input
+              value={data?.ico || ''}
+              onChange={(e) => handleChange('ico', e.target.value)}
+              placeholder="12345678"
+            />
+          </FormField>
+        </div>
 
-        <FormField label="DIČ" style={{ marginTop: '16px' }}>
-          <Input
-            value={data?.dic || ''}
-            onChange={(e) => handleChange('dic', e.target.value)}
-            placeholder="SK1234567890"
-          />
-        </FormField>
+        <div style={{ marginTop: '16px' }}>
+          <FormField label="DIČ">
+            <Input
+              value={data?.dic || ''}
+              onChange={(e) => handleChange('dic', e.target.value)}
+              placeholder="SK1234567890"
+            />
+          </FormField>
+        </div>
       </div>
     );
   }
@@ -91,13 +96,15 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         />
       </FormField>
 
-      <FormField label="Priezvisko" required style={{ marginTop: '16px' }}>
-        <Input
-          value={data?.lastName || ''}
-          onChange={(e) => handleChange('lastName', e.target.value)}
-          placeholder="Novák"
-        />
-      </FormField>
+      <div style={{ marginTop: '16px' }}>
+        <FormField label="Priezvisko" required>
+          <Input
+            value={data?.lastName || ''}
+            onChange={(e) => handleChange('lastName', e.target.value)}
+            placeholder="Novák"
+          />
+        </FormField>
+      </div>
     </div>
   );
 };

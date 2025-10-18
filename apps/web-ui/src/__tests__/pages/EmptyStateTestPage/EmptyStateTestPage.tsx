@@ -1,18 +1,20 @@
 /*
  * ================================================================
  * FILE: EmptyStateTestPage.tsx
- * PATH: /apps/web-ui/src/pages/testing/EmptyStateTestPage.tsx
+ * PATH: /apps/web-ui/src/pages/testing/EmptyStateTestPage/EmptyStateTestPage.tsx
  * DESCRIPTION: Test page for EmptyState component
  * VERSION: v1.0.0
  * CREATED: 2025-10-18
+ * UPDATED: 2025-10-18 21:15:00
  * ================================================================
  */
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, EmptyState, Button } from '@l-kern/ui-components';
+import { Card, EmptyState, Button, BasePage } from '@l-kern/ui-components';
 import { useTranslation } from '@l-kern/config';
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from '../../../hooks/useKeyboardShortcuts';
+import styles from './EmptyStateTestPage.module.css';
 
 export const EmptyStateTestPage: React.FC = () => {
   const { t } = useTranslation();
@@ -21,28 +23,22 @@ export const EmptyStateTestPage: React.FC = () => {
   useKeyboardShortcuts();
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Header with back link */}
-      <div style={{ marginBottom: '32px' }}>
-        <Link to="/testing" style={{
-          textDecoration: 'none',
-          color: 'var(--color-brand-primary, #9c27b0)',
-          fontSize: '14px',
-          fontWeight: 600,
-          display: 'inline-block',
-          marginBottom: '16px'
-        }}>
-          ← {t('components.testing.backToDashboard')}
-        </Link>
-        <h1 style={{ margin: 0 }}>{t('components.testing.emptyStateTitle')}</h1>
-      </div>
+    <BasePage>
+      <div className={styles.container}>
+        {/* Header with back link */}
+        <div className={styles.header}>
+          <Link to="/testing" className={styles.backLink}>
+            ← {t('components.testing.backToDashboard')}
+          </Link>
+          <h1 className={styles.title}>{t('components.testing.emptyStateTitle')}</h1>
+        </div>
 
       {/* Sizes */}
-      <section style={{ marginBottom: '48px' }}>
-        <h2 style={{ marginBottom: '16px' }}>{t('components.testing.sizes')}</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('components.testing.sizes')}</h2>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.buttons.small')} {t('components.testing.size')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.buttons.small')} {t('components.testing.size')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="small"
             icon="📭"
@@ -51,8 +47,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.buttons.medium')} {t('components.testing.size')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.buttons.medium')} {t('components.testing.size')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="🔍"
@@ -61,8 +57,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.buttons.large')} {t('components.testing.size')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.buttons.large')} {t('components.testing.size')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="large"
             icon="📦"
@@ -78,11 +74,11 @@ export const EmptyStateTestPage: React.FC = () => {
       </section>
 
       {/* Use Cases */}
-      <section style={{ marginBottom: '48px' }}>
-        <h2 style={{ marginBottom: '16px' }}>{t('components.testing.useCases')}</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('components.testing.useCases')}</h2>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.noSearchResults')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.noSearchResults')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="🔍"
@@ -96,8 +92,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.emptyList')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.emptyList')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="📋"
@@ -111,8 +107,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.noContacts')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.noContacts')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="👥"
@@ -126,8 +122,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.noOrders')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.noOrders')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="📦"
@@ -141,8 +137,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.errorState')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.errorState')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="⚠️"
@@ -156,8 +152,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
 
-        <h3 style={{ marginBottom: '12px' }}>{t('components.emptyState.noPermission')}</h3>
-        <Card variant="outlined" style={{ marginBottom: '24px' }}>
+        <h3 className={styles.subsectionTitle}>{t('components.emptyState.noPermission')}</h3>
+        <Card variant="outlined" className={styles.card}>
           <EmptyState
             size="medium"
             icon="🔒"
@@ -168,8 +164,8 @@ export const EmptyStateTestPage: React.FC = () => {
       </section>
 
       {/* Without Action Button */}
-      <section style={{ marginBottom: '48px' }}>
-        <h2 style={{ marginBottom: '16px' }}>{t('components.emptyState.withoutActionButton')}</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('components.emptyState.withoutActionButton')}</h2>
         <Card variant="outlined">
           <EmptyState
             size="medium"
@@ -179,7 +175,8 @@ export const EmptyStateTestPage: React.FC = () => {
           />
         </Card>
       </section>
-    </div>
+      </div>
+    </BasePage>
   );
 };
 

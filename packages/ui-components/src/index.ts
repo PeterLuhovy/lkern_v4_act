@@ -13,6 +13,9 @@ export { classNames } from './utils/classNames';
 export type { Size, Variant, StatusVariant, BaseComponentProps } from './types/common';
 
 // Components
+export { BasePage } from './components/BasePage';
+export type { BasePageProps } from './components/BasePage';
+
 export { Button, ArrowLeftIcon, ArrowRightIcon } from './components/Button';
 export type { ButtonProps } from './components/Button';
 
@@ -44,7 +47,7 @@ export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 
 export { Modal } from './components/Modal';
-export type { ModalProps } from './components/Modal';
+export type { ModalProps, ModalFooterConfig } from './components/Modal';
 
 export { WizardProgress } from './components/WizardProgress';
 export type { WizardProgressProps } from './components/WizardProgress';
