@@ -10,22 +10,11 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { Modal, ModalFooterConfig } from './Modal';
-
-// Mock modalStack
-const mockModalStack = {
-  push: vi.fn((modalId: string, parentModalId?: string, onClose?: () => void) => {
-    // Return z-index based on stack depth
-    return parentModalId ? 1010 : 1000;
-  }),
-  pop: vi.fn(),
-  getTopmostModalId: vi.fn(() => null),
-  closeTopmost: vi.fn(),
-  closeModal: vi.fn(),
-};
+import { modalStack } from '@l-kern/config';
 
 // Mock useTranslation hook and modalStack
+// NOTE: Mock functions created inside factory to avoid hoisting issues
 vi.mock('@l-kern/config', () => ({
   useTranslation: () => ({
     t: (key: string) => {
@@ -36,7 +25,17 @@ vi.mock('@l-kern/config', () => ({
       return translations[key] || key;
     },
   }),
-  modalStack: mockModalStack,
+  modalStack: {
+    push: vi.fn((modalId: string, parentModalId?: string, onClose?: () => void, onConfirm?: () => void) => {
+      // Return z-index based on stack depth
+      return parentModalId ? 1010 : 1000;
+    }),
+    pop: vi.fn(),
+    getTopmostModalId: vi.fn(() => null),
+    closeTopmost: vi.fn(),
+    closeModal: vi.fn(),
+    confirmModal: vi.fn(),
+  },
 }));
 
 describe('Modal v3.0.0', () => {
@@ -48,9 +47,7 @@ describe('Modal v3.0.0', () => {
     portalRoot.setAttribute('id', 'modal-root');
     document.body.appendChild(portalRoot);
 
-    // Reset mock calls
-    mockModalStack.push.mockClear();
-    mockModalStack.pop.mockClear();
+    // Reset mocks are handled internally by vi.mock()
   });
 
   afterEach(() => {
@@ -326,7 +323,7 @@ describe('Modal v3.0.0', () => {
       </Modal>
     );
 
-    expect(mockModalStack.push).toHaveBeenCalledWith('test-modal', undefined, expect.any(Function));
+    expect(modalStack.push).toHaveBeenCalledWith('test-modal', undefined, expect.any(Function), undefined);
   });
 
   it('unregisters from modalStack when closed', () => {
@@ -336,7 +333,7 @@ describe('Modal v3.0.0', () => {
       </Modal>
     );
 
-    mockModalStack.pop.mockClear();
+    vi.mocked(modalStack.pop).mockClear();
 
     rerender(
       <Modal isOpen={false} onClose={vi.fn()} modalId="test-modal">
@@ -344,7 +341,7 @@ describe('Modal v3.0.0', () => {
       </Modal>
     );
 
-    expect(mockModalStack.pop).toHaveBeenCalledWith('test-modal');
+    expect(modalStack.pop).toHaveBeenCalledWith('test-modal');
   });
 
   it('registers nested modal with parentModalId', () => {
@@ -354,15 +351,16 @@ describe('Modal v3.0.0', () => {
       </Modal>
     );
 
-    expect(mockModalStack.push).toHaveBeenCalledWith(
+    expect(modalStack.push).toHaveBeenCalledWith(
       'child-modal',
       'parent-modal',
-      expect.any(Function)
+      expect.any(Function),
+      undefined
     );
   });
 
   it('applies higher z-index for nested modal', () => {
-    mockModalStack.push.mockReturnValueOnce(1010);
+    vi.mocked(modalStack.push).mockReturnValueOnce(1010);
 
     render(
       <Modal isOpen={true} onClose={vi.fn()} modalId="child-modal" parentModalId="parent-modal">

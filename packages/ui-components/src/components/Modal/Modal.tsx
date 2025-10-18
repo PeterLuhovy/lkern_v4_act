@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.0.0
- * UPDATED: 2025-10-18 22:00:00
+ * VERSION: v3.1.0
+ * UPDATED: 2025-10-18 23:00:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -14,9 +14,9 @@
  *   - Padding Override: Custom overlay padding for nested modals
  *
  * KEYBOARD SHORTCUTS:
- *   - Handled by BasePage component (global ESC key closes topmost modal)
- *   - Modal registers onClose callback via modalStack
- *   - BasePage calls modalStack.closeModal() on ESC press
+ *   - Handled by BasePage component
+ *   - ESC: Closes topmost modal (calls onClose via modalStack)
+ *   - Enter: Confirms topmost modal (calls onConfirm via modalStack, if provided)
  *
  * MIGRATED FROM: L-KERN v3 ModalBaseTemplate.tsx (lines 1-681)
  * ================================================================
@@ -24,7 +24,8 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, modalStack } from '@l-kern/config';
+import { useTranslation, modalStack, usePageAnalytics } from '@l-kern/config';
+import { DebugBar } from '../DebugBar';
 import styles from './Modal.module.css';
 
 // === TYPES ===
@@ -60,6 +61,13 @@ export interface ModalProps {
    * Callback when modal should close
    */
   onClose: () => void;
+
+  /**
+   * Callback when modal should confirm/submit (triggered by Enter key in BasePage)
+   * @optional If provided, pressing Enter will call this function
+   * @example () => handleSaveContact()
+   */
+  onConfirm?: () => void;
 
   /**
    * Unique modal identifier (required for nested modals and keyboard handling)
@@ -141,6 +149,24 @@ export interface ModalProps {
    * Custom className for modal content
    */
   className?: string;
+
+  /**
+   * Show debug bar with analytics
+   * @default true
+   */
+  showDebugBar?: boolean;
+
+  /**
+   * Page/modal name for debug bar
+   * @default Uses modalId if not provided
+   */
+  debugPageName?: string;
+
+  /**
+   * File path for debug bar
+   * @default '/unknown'
+   */
+  debugPagePath?: string;
 }
 
 // === HELPER FUNCTIONS ===
@@ -196,6 +222,7 @@ function getAlignmentValue(alignment?: 'top' | 'center' | 'bottom'): string {
  * <Modal
  *   isOpen={isOpen}
  *   onClose={handleClose}
+ *   onConfirm={handleSave}  // Enter key will trigger this
  *   modalId="add-contact"
  *   title="Add Contact"
  *   size="md"
@@ -237,6 +264,7 @@ function getAlignmentValue(alignment?: 'top' | 'center' | 'bottom'): string {
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
+  onConfirm,
   modalId,
   parentModalId,
   size = 'md',
@@ -251,6 +279,9 @@ export const Modal: React.FC<ModalProps> = ({
   overlayPadding = '64px',
   zIndexOverride,
   className = '',
+  showDebugBar = true,
+  debugPageName,
+  debugPagePath = '/unknown',
 }) => {
   const { t } = useTranslation();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -264,6 +295,27 @@ export const Modal: React.FC<ModalProps> = ({
   // Auto z-index from modalStack
   const [calculatedZIndex, setCalculatedZIndex] = useState<number>(1000);
 
+  // Analytics for DebugBar
+  const analytics = usePageAnalytics(debugPageName || modalId);
+
+  // ================================================================
+  // DEBUG BAR ANALYTICS SESSION
+  // ================================================================
+
+  useEffect(() => {
+    if (isOpen && showDebugBar) {
+      analytics.startSession();
+      console.log('[Modal] DebugBar session started:', debugPageName || modalId);
+    }
+
+    return () => {
+      if (showDebugBar && analytics.session) {
+        analytics.endSession('dismissed');
+        console.log('[Modal] DebugBar session ended');
+      }
+    };
+  }, [isOpen, showDebugBar, analytics, debugPageName, modalId]);
+
   // ================================================================
   // MODAL STACK REGISTRATION
   // ================================================================
@@ -271,10 +323,10 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       // Register in modalStack and get z-index
-      const zIndex = modalStack.push(modalId, parentModalId, onClose);
+      const zIndex = modalStack.push(modalId, parentModalId, onClose, onConfirm);
       setCalculatedZIndex(zIndex);
 
-      console.log('[Modal] Registered:', modalId, 'z-index:', zIndex);
+      console.log('[Modal] Registered:', modalId, 'z-index:', zIndex, 'hasConfirm:', !!onConfirm);
     }
 
     return () => {
@@ -284,7 +336,7 @@ export const Modal: React.FC<ModalProps> = ({
         console.log('[Modal] Unregistered:', modalId);
       }
     };
-  }, [isOpen, modalId, parentModalId, onClose]);
+  }, [isOpen, modalId, parentModalId, onClose, onConfirm]);
 
   // ================================================================
   // DRAG AND DROP HANDLERS
@@ -415,6 +467,8 @@ export const Modal: React.FC<ModalProps> = ({
   const footerNode = !footerConfig ? (footer as React.ReactNode) : null;
 
   // Calculate modal position styles
+  // If position is set (after drag), use absolute positioning
+  // Otherwise, let flexbox overlay handle alignment (top/center/bottom)
   const modalPositionStyle: React.CSSProperties = position
     ? {
         // Absolute positioning after drag started
@@ -424,11 +478,8 @@ export const Modal: React.FC<ModalProps> = ({
         transform: 'none',
       }
     : {
-        // Centered positioning (default)
-        position: 'fixed',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
+        // Flexbox positioning - let overlay alignment control vertical position
+        // No fixed position needed - flexbox does the work
       };
 
   const modalContent = (
@@ -456,6 +507,15 @@ export const Modal: React.FC<ModalProps> = ({
           zIndex: finalZIndex + 1,
         }}
       >
+        {/* Debug Bar - Top of modal */}
+        {showDebugBar && (
+          <DebugBar
+            pageName={debugPageName || title || modalId}
+            pagePath={debugPagePath}
+            analytics={analytics}
+          />
+        )}
+
         {/* Header */}
         {(title || showCloseButton) && (
           <div
@@ -528,8 +588,8 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 
-  // Portal render
-  return createPortal(modalContent, document.body);
+  // Portal render - wrap in fragment to satisfy React.FC return type
+  return <>{createPortal(modalContent, document.body)}</>;
 };
 
 export default Modal;

@@ -37,6 +37,11 @@ interface ModalStackItem {
   onClose?: () => void;
 
   /**
+   * Callback to confirm/submit this modal (triggered by Enter key)
+   */
+  onConfirm?: () => void;
+
+  /**
    * Z-index for this modal
    */
   zIndex: number;
@@ -56,29 +61,30 @@ class ModalStackManager {
    * @param modalId - Unique modal identifier
    * @param parentId - Parent modal ID (optional)
    * @param onClose - Callback to close modal (optional)
+   * @param onConfirm - Callback to confirm/submit modal (optional, triggered by Enter key)
    * @returns Calculated z-index for this modal
    *
    * @example
    * ```tsx
    * useEffect(() => {
    *   if (isOpen) {
-   *     const zIndex = modalStack.push('edit-contact');
+   *     const zIndex = modalStack.push('edit-contact', undefined, handleClose, handleSave);
    *     setModalZIndex(zIndex);
    *   }
    *   return () => modalStack.pop('edit-contact');
    * }, [isOpen]);
    * ```
    */
-  push(modalId: string, parentId?: string, onClose?: () => void): number {
+  push(modalId: string, parentId?: string, onClose?: () => void, onConfirm?: () => void): number {
     // Remove existing entry if already in stack (prevent duplicates)
     this.stack = this.stack.filter((item) => item.id !== modalId);
 
     // Calculate z-index (base + stack position * 10)
     const zIndex = this.baseZIndex + this.stack.length * 10;
 
-    this.stack.push({ id: modalId, parentId, onClose, zIndex });
+    this.stack.push({ id: modalId, parentId, onClose, onConfirm, zIndex });
 
-    console.log('[ModalStack] PUSH:', modalId, 'parent:', parentId, 'zIndex:', zIndex, 'stack:', this.stack.map(m => m.id));
+    console.log('[ModalStack] PUSH:', modalId, 'parent:', parentId, 'zIndex:', zIndex, 'hasConfirm:', !!onConfirm, 'stack:', this.stack.map(m => m.id));
 
     return zIndex;
   }
@@ -167,6 +173,43 @@ class ModalStackManager {
 
     console.log('[ModalStack] closeModal - calling onClose:', modalId);
     item.onClose();
+    return true;
+  }
+
+  /**
+   * Confirm/submit a modal by calling its onConfirm callback
+   *
+   * This is used for global keyboard shortcuts (e.g., Enter in BasePage)
+   *
+   * @param modalId - ID of modal to confirm
+   * @returns true if modal was confirmed, false if not found or no onConfirm callback
+   *
+   * @example
+   * ```tsx
+   * // In BasePage keyboard handler
+   * if (e.key === 'Enter') {
+   *   const topmostModalId = modalStack.getTopmostModalId();
+   *   if (topmostModalId) {
+   *     modalStack.confirmModal(topmostModalId);
+   *   }
+   * }
+   * ```
+   */
+  confirmModal(modalId: string): boolean {
+    const item = this.stack.find((m) => m.id === modalId);
+
+    if (!item) {
+      console.log('[ModalStack] confirmModal - modal not found:', modalId);
+      return false;
+    }
+
+    if (!item.onConfirm) {
+      console.log('[ModalStack] confirmModal - no onConfirm callback:', modalId);
+      return false;
+    }
+
+    console.log('[ModalStack] confirmModal - calling onConfirm:', modalId);
+    item.onConfirm();
     return true;
   }
 

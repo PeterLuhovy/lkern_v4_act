@@ -43,6 +43,9 @@ export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 export { Card } from './components/Card';
 export type { CardProps, CardVariant } from './components/Card';
 
+export { DashboardCard } from './components/DashboardCard';
+export type { DashboardCardProps } from './components/DashboardCard';
+
 export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 
@@ -54,3 +57,6 @@ export type { WizardProgressProps } from './components/WizardProgress';
 
 export { WizardNavigation } from './components/WizardNavigation';
 export type { WizardNavigationProps } from './components/WizardNavigation';
+
+export { DebugBar } from './components/DebugBar';
+export type { DebugBarProps } from './components/DebugBar';

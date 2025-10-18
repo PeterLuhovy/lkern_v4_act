@@ -76,17 +76,21 @@ describe('Spinner Component', () => {
 
   it('applies custom color to spinner circle', () => {
     const { container } = render(<Spinner color="#ff0000" />);
-    // Spinner has nested div: spinner container > spinner__circle
+    // Spinner has nested div: spinner container > spinner__ring
     const spinner = container.firstChild as HTMLElement;
-    const circle = spinner.firstChild as HTMLElement;
-    expect(circle.style.borderColor).toContain('#ff0000');
+    const ring = spinner.firstChild as HTMLElement;
+    // Custom color is applied to borderTopColor and borderRightColor (preserves hex format)
+    expect(ring.style.borderTopColor).toBe('#ff0000');
+    expect(ring.style.borderRightColor).toBe('#ff0000');
   });
 
   it('uses default color when color prop not provided', () => {
     const { container } = render(<Spinner />);
     const spinner = container.firstChild as HTMLElement;
-    const circle = spinner.firstChild as HTMLElement;
-    expect(circle.style.borderColor).toBe('');
+    const ring = spinner.firstChild as HTMLElement;
+    // No inline style when using default CSS variable
+    expect(ring.style.borderTopColor).toBe('');
+    expect(ring.style.borderRightColor).toBe('');
   });
 
   // ================================================
@@ -121,10 +125,11 @@ describe('Spinner Component', () => {
       <Spinner size="large" color="#00ff00" label="Please wait..." />
     );
     const spinner = container.firstChild as HTMLElement;
-    const circle = spinner.firstChild as HTMLElement;
+    const ring = spinner.firstChild as HTMLElement;
 
     expect(spinner.className).toContain('spinner--large');
-    expect(circle.style.borderColor).toContain('#00ff00');
+    expect(ring.style.borderTopColor).toBe('#00ff00');
+    expect(ring.style.borderRightColor).toBe('#00ff00');
     expect(screen.getByText('Please wait...')).toBeInTheDocument();
   });
 });

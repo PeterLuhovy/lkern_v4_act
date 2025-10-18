@@ -11,7 +11,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
-import { BasePage, Card } from '@l-kern/ui-components';
+import { BasePage, Card, DashboardCard } from '@l-kern/ui-components';
 import styles from './TestingDashboard.module.css';
 
 export const TestingDashboard: React.FC = () => {
@@ -87,23 +87,13 @@ export const TestingDashboard: React.FC = () => {
         {/* Test Pages Grid */}
         <div className={styles.grid}>
           {testPages.map((page) => (
-            <Link
+            <DashboardCard
               key={page.path}
-              to={page.path}
-              className={styles.cardLink}
-            >
-              <Card variant="elevated" className={styles.cardContent}>
-                <div className={styles.icon}>
-                  {page.icon}
-                </div>
-                <h3 className={styles.cardTitle}>
-                  {page.title}
-                </h3>
-                <p className={styles.cardDescription}>
-                  {page.description}
-                </p>
-              </Card>
-            </Link>
+              path={page.path}
+              icon={page.icon}
+              title={page.title}
+              description={page.description}
+            />
           ))}
         </div>
 
