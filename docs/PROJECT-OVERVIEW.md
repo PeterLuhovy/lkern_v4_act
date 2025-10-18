@@ -27,67 +27,182 @@ L-KERN v4 principles:
 
 ---
 
-## 📋 Current TODO - Phase 0: Foundation
+## 📋 Current Phase
 
-**Status**: ⏳ IN PROGRESS
+**Phase 0: Foundation & Core System** - ⏳ IN PROGRESS
 
-### **Tasks:**
+**Completed**:
+- Task 0.0 (Infrastructure Setup) ✅
+- Task 0.1 (Coding Standards) ✅
 
-1. ✅ **Nx Workspace**
-   - ✅ Folder structure
-   - ✅ package.json
-   - ✅ nx.json
-   - ✅ tsconfig.base.json
-   - ✅ .gitignore
+**Next**: Task 0.2 (@l-kern/ui-components)
 
-2. ⏳ **Documentation**
-   - ✅ PROJECT-OVERVIEW.md
-   - ⏳ ROADMAP.md
-   - ⏳ Coding standards
-   - ⏳ Architecture overview
-
-3. ⏳ **First Package (@l-kern/config)**
-   - ⏳ Package structure
-   - ⏳ Constants
-   - ⏳ Translations
-   - ⏳ API config
+**Full Roadmap**: [ROADMAP.md](ROADMAP.md)
 
 ---
 
 ## 🏗️ Architecture
 
+### **Folder Structure:**
+
 ```
 L-KERN v4/
-├── apps/              # Frontend apps
-├── packages/          # Shared libs (@l-kern/*)
-├── services/          # Backend (lkms###)
-├── tools/             # Dev tools
-├── infrastructure/    # Docker, K8s
-└── docs/              # Documentation
+├── apps/
+│   └── web-ui/                    # React 19 frontend (lkms201, port 4201)
+├── packages/
+│   └── config/                    # @l-kern/config (constants, translations, theme)
+├── services/                      # Backend microservices (lkms10X)
+├── infrastructure/
+│   └── docker/                    # Dockerfiles, docker-compose.yml
+├── tools/                         # Dev tools
+└── docs/
+    ├── README.md                  # Documentation hub
+    ├── PROJECT-OVERVIEW.md        # This file
+    ├── ROADMAP.md                 # Development roadmap
+    ├── architecture/              # Architecture docs
+    ├── packages/                  # Package-specific docs
+    └── programming/               # Coding standards (planned)
 ```
 
 ### **Tech Stack:**
 
-- **Frontend**: React 19 + TypeScript + Vite
-- **Backend**: FastAPI + PostgreSQL
-- **Monorepo**: Nx + Yarn Workspaces
+**Frontend:**
+- React 19 + TypeScript 5.7 + Vite 6
+- REST API communication
+
+**Backend:**
+- Python 3.11 + FastAPI
+- PostgreSQL 15 (one DB per service)
+- REST API (external) + gRPC (inter-service)
+
+**Monorepo:**
+- Nx + Yarn 4
+
+**DevOps:**
+- Docker + Docker Compose (development)
+- Nginx (REST proxy) + Envoy (gRPC proxy) (production)
 
 ---
 
-## ✅ Completed
+## 🚀 Communication Architecture
 
-- ✅ Nx workspace initialized
-- ✅ Folder structure created
-- ✅ Basic config files
+### **REST API (External)**
+- **Purpose**: Frontend → Backend
+- **Protocol**: HTTP/JSON
+- **Ports**: 41XX (e.g., 4101, 4102, ...)
+- **Usage**: All user-facing operations
+
+### **gRPC API (Internal)**
+- **Purpose**: Backend ↔ Backend
+- **Protocol**: gRPC/Protobuf
+- **Ports**: 51XX (e.g., 5101, 5102, ...)
+- **Usage**: Inter-service communication
+
+---
+
+## ✅ Completed Tasks
+
+### **Task 0.0: Infrastructure Setup** ✅
+
+**Development Environment:**
+- ✅ Nx workspace (Yarn 4 + TypeScript 5.7)
+- ✅ Docker Compose with hot-reload (CHOKIDAR_USEPOLLING)
+- ✅ React 19 app (lkms201-web-ui on port 4201)
+- ✅ Vite 6 with HMR working
+
+**@l-kern/config Package:**
+- ✅ Constants (PORTS, API_ENDPOINTS, COLORS, SPACING)
+- ✅ Translations (SK/EN with useTranslation hook)
+- ✅ Theme system (light/dark with useTheme hook)
+- ✅ Dynamic CSS generation from design tokens
+- ✅ Tested and verified in web-ui
+
+**Documentation:**
+- ✅ PROJECT-OVERVIEW.md
+- ✅ ROADMAP.md (Phase 0 with 21 tasks)
+- ✅ docs/README.md (documentation hub)
+- ✅ docs/packages/config.md
+- ✅ docs/architecture/port-mapping.md
+
+**Git:**
+- ✅ Initial commit (60 files, 42,456 insertions)
+- ✅ Pushed to repository
+
+---
+
+### **Task 0.1: Coding Standards** ✅
+
+**Completed**: 2025-10-15
+
+**Coding Standards (2235 lines):**
+- ✅ Language & communication guidelines
+- ✅ Development workflow (educational approach)
+- ✅ File headers & code structure
+- ✅ Constants management with documentation
+- ✅ TypeScript/React 19 conventions
+- ✅ Python/FastAPI conventions
+- ✅ SQLAlchemy + Alembic patterns
+- ✅ gRPC service patterns (.proto, server, client)
+- ✅ REST API standards (endpoints, error handling)
+- ✅ Retry logic with exponential backoff
+- ✅ Kafka/message broker patterns
+- ✅ Testing standards (pytest + Vitest)
+- ✅ Docker & DevOps best practices
+- ✅ DRY principle & code reuse
+- ✅ UI standards (notifications)
+- ✅ Backup workflow
+- ✅ Git standards
+
+**Code Examples (1700 lines):**
+- ✅ React components (basic, with API, custom hooks)
+- ✅ REST API client (Axios setup, interceptors, API services)
+- ✅ gRPC server & client (Python implementation)
+- ✅ FastAPI routers (complete CRUD operations)
+- ✅ Database operations (SQLAlchemy models, Pydantic schemas, Alembic migrations)
+- ✅ Form handling (validation, error handling, submission)
+- ✅ Testing (pytest backend tests + Vitest frontend tests)
 
 ---
 
 ## ⏳ Next Steps
 
-- Documentation structure
-- Coding standards
-- First shared package
+**Immediate Priorities (from ROADMAP.md):**
+
+1. **Task 0.2**: Build @l-kern/ui-components package ⏳ **NEXT**
+   - Base components (Button, Input, Table, Modal, etc.)
+   - Storybook setup
+   - Integration with @l-kern/config (design tokens)
+
+2. **Task 0.3**: Backend infrastructure
+   - PostgreSQL setup
+   - gRPC infrastructure
+   - Alembic migrations
+
+3. **Task 0.4**: First microservice (lkms101-contacts)
+   - REST + gRPC APIs
+   - Database setup
+   - Frontend integration
+
+**See [ROADMAP.md](ROADMAP.md) for complete Phase 0 plan (21 tasks).**
 
 ---
 
-**Last Updated**: 2025-10-13
+## 📊 Progress Tracker
+
+**Phase 0 Progress**: 2.5/21 tasks completed (12%)
+
+| Task | Status | Description |
+|------|--------|-------------|
+| 0.0 | ✅ Done | Infrastructure Setup |
+| 0.1 | ✅ Done | Coding Standards |
+| 0.2 | ⏳ In Progress (50%) | @l-kern/ui-components |
+| 0.3 | ⏳ Planned | Backend Infrastructure |
+| 0.4-0.17 | ⏳ Planned | Microservices Development |
+| 0.18 | ⏳ Planned | Authentication Service |
+| 0.19 | ⏳ Planned | Testing & QA |
+| 0.20 | ⏳ Planned | Production Prep (Nginx + Envoy) |
+| 0.21 | ⏳ Planned | Deploy to Test Environment |
+
+---
+
+**Last Updated**: 2025-10-15 17:00:00
