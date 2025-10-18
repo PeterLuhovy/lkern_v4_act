@@ -259,4 +259,10 @@ export interface TranslationKeys {
       };
     };
   };
+  wizard: {
+    step: string;
+    previous: string;
+    next: string;
+    complete: string;
+  };
 }

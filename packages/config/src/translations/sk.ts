@@ -234,4 +234,10 @@ export const sk: TranslationKeys = {
       },
     },
   },
+  wizard: {
+    step: 'Krok',
+    previous: '← Späť',
+    next: 'Ďalej →',
+    complete: 'Uložiť',
+  },
 };

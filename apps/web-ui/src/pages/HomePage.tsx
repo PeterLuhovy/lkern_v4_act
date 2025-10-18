@@ -157,6 +157,22 @@ export const HomePage: React.FC = () => {
               </p>
             </Card>
           </Link>
+
+          <Link to="/testing/wizard-demo" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Card variant="elevated">
+              <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                🧙 Wizard Modal Demo [TEST]
+              </div>
+              <p style={{
+                margin: '8px 0 0 0',
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: 'var(--theme-text-secondary, #666)'
+              }}>
+                [Test Only] Compare 3 modal variants (Centered, Drawer, Fullscreen)
+              </p>
+            </Card>
+          </Link>
         </div>
       </div>
 

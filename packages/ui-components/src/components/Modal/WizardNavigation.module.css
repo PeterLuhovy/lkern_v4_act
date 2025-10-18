@@ -1,0 +1,28 @@
+/*
+ * ================================================================
+ * FILE: WizardNavigation.module.css
+ * PATH: /packages/ui-components/src/components/Modal/WizardNavigation.module.css
+ * DESCRIPTION: Styles for WizardNavigation component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 17:45:00
+ * ================================================================
+ */
+
+.wizardNavigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid var(--theme-border, #e0e0e0);
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* === DARK MODE === */
+
+[data-theme='dark'] .wizardNavigation {
+  border-color: var(--theme-border, #333333);
+}

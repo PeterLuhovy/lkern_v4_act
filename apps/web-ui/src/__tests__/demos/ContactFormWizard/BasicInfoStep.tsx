@@ -1,0 +1,103 @@
+/*
+ * ================================================================
+ * FILE: BasicInfoStep.tsx
+ * PATH: /apps/web-ui/src/demos/ContactFormWizard/BasicInfoStep.tsx
+ * DESCRIPTION: Step 2 - Basic company/person information
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-18 18:15:00
+ * ================================================================
+ */
+
+import React from 'react';
+import { FormField, Input } from '@l-kern/ui-components';
+
+// === TYPES ===
+
+export interface BasicInfoStepData {
+  name: string;
+  ico?: string;
+  dic?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface BasicInfoStepProps {
+  data?: BasicInfoStepData;
+  contactType: 'company' | 'person';
+  onChange: (data: BasicInfoStepData) => void;
+}
+
+// === COMPONENT ===
+
+export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
+  data,
+  contactType,
+  onChange,
+}) => {
+  const handleChange = (field: keyof BasicInfoStepData, value: string) => {
+    onChange({
+      ...data,
+      [field]: value,
+    });
+  };
+
+  if (contactType === 'company') {
+    return (
+      <div>
+        <h3 style={{ marginBottom: '16px' }}>Základné údaje firmy</h3>
+        <p style={{ marginBottom: '24px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
+          Zadajte názov a identifikačné údaje firmy.
+        </p>
+
+        <FormField label="Názov firmy" required>
+          <Input
+            value={data?.name || ''}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Napr. ABC s.r.o."
+          />
+        </FormField>
+
+        <FormField label="IČO" style={{ marginTop: '16px' }}>
+          <Input
+            value={data?.ico || ''}
+            onChange={(e) => handleChange('ico', e.target.value)}
+            placeholder="12345678"
+          />
+        </FormField>
+
+        <FormField label="DIČ" style={{ marginTop: '16px' }}>
+          <Input
+            value={data?.dic || ''}
+            onChange={(e) => handleChange('dic', e.target.value)}
+            placeholder="SK1234567890"
+          />
+        </FormField>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h3 style={{ marginBottom: '16px' }}>Základné údaje osoby</h3>
+      <p style={{ marginBottom: '24px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
+        Zadajte meno a priezvisko.
+      </p>
+
+      <FormField label="Meno" required>
+        <Input
+          value={data?.firstName || ''}
+          onChange={(e) => handleChange('firstName', e.target.value)}
+          placeholder="Ján"
+        />
+      </FormField>
+
+      <FormField label="Priezvisko" required style={{ marginTop: '16px' }}>
+        <Input
+          value={data?.lastName || ''}
+          onChange={(e) => handleChange('lastName', e.target.value)}
+          placeholder="Novák"
+        />
+      </FormField>
+    </div>
+  );
+};

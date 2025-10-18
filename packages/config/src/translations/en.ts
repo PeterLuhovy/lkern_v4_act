@@ -234,4 +234,10 @@ export const en: TranslationKeys = {
       },
     },
   },
+  wizard: {
+    step: 'Step',
+    previous: '← Previous',
+    next: 'Next →',
+    complete: 'Save',
+  },
 };
