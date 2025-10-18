@@ -45,7 +45,7 @@ export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
       <FormField label="Ulica a číslo">
         <Input
           value={data?.street || ''}
-          onChange={(e) => handleChange('street', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('street', e.target.value)}
           placeholder="Hlavná 123"
         />
       </FormField>
@@ -54,7 +54,7 @@ export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
         <FormField label="Mesto">
           <Input
             value={data?.city || ''}
-            onChange={(e) => handleChange('city', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('city', e.target.value)}
             placeholder="Bratislava"
           />
         </FormField>
@@ -64,7 +64,7 @@ export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
         <FormField label="PSČ">
           <Input
             value={data?.zip || ''}
-            onChange={(e) => handleChange('zip', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('zip', e.target.value)}
             placeholder="81101"
           />
         </FormField>
@@ -74,7 +74,7 @@ export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
         <FormField label="Krajina">
           <Input
             value={data?.country || 'Slovensko'}
-            onChange={(e) => handleChange('country', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('country', e.target.value)}
             placeholder="Slovensko"
           />
         </FormField>

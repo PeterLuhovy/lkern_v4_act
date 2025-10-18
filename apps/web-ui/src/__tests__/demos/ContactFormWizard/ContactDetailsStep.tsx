@@ -45,7 +45,7 @@ export const ContactDetailsStep: React.FC<ContactDetailsStepProps> = ({ data, on
         <Input
           type="email"
           value={data?.email || ''}
-          onChange={(e) => handleChange('email', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('email', e.target.value)}
           placeholder="info@example.com"
         />
       </FormField>
@@ -55,7 +55,7 @@ export const ContactDetailsStep: React.FC<ContactDetailsStepProps> = ({ data, on
           <Input
             type="tel"
             value={data?.phone || ''}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('phone', e.target.value)}
             placeholder="+421 900 123 456"
           />
         </FormField>
@@ -66,7 +66,7 @@ export const ContactDetailsStep: React.FC<ContactDetailsStepProps> = ({ data, on
           <Input
             type="url"
             value={data?.web || ''}
-            onChange={(e) => handleChange('web', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('web', e.target.value)}
             placeholder="www.example.com"
           />
         </FormField>

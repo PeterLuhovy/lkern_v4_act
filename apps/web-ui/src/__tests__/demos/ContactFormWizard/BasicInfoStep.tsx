@@ -53,7 +53,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <FormField label="Názov firmy" required>
           <Input
             value={data?.name || ''}
-            onChange={(e) => handleChange('name', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)}
             placeholder="Napr. ABC s.r.o."
           />
         </FormField>
@@ -62,7 +62,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           <FormField label="IČO">
             <Input
               value={data?.ico || ''}
-              onChange={(e) => handleChange('ico', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('ico', e.target.value)}
               placeholder="12345678"
             />
           </FormField>
@@ -72,7 +72,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           <FormField label="DIČ">
             <Input
               value={data?.dic || ''}
-              onChange={(e) => handleChange('dic', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('dic', e.target.value)}
               placeholder="SK1234567890"
             />
           </FormField>
@@ -91,7 +91,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
       <FormField label="Meno" required>
         <Input
           value={data?.firstName || ''}
-          onChange={(e) => handleChange('firstName', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('firstName', e.target.value)}
           placeholder="Ján"
         />
       </FormField>
@@ -100,7 +100,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         <FormField label="Priezvisko" required>
           <Input
             value={data?.lastName || ''}
-            onChange={(e) => handleChange('lastName', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('lastName', e.target.value)}
             placeholder="Novák"
           />
         </FormField>

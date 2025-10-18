@@ -17,8 +17,8 @@
  */
 
 import React, { useState } from 'react';
-import { BasePage, Button, Input } from '@l-kern/ui-components';
-import { Modal } from '../../components/Modal3Variants';
+import { BasePage, Modal, Button, Input } from '@l-kern/ui-components';
+import type { ModalFooterConfig } from '@l-kern/ui-components';
 import { useModal } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
@@ -299,11 +299,8 @@ export function TestModalV3Page() {
               submitModal.close();
               setInputValue('');
             }}
-            modalId="submit-enter"
             title={t('components.modalV3.test6.modalTitle')}
             size="md"
-            submitOnEnter={true}
-            onSubmit={handleSubmit}
           >
             <div className={styles.modalContent}>
               <p>
