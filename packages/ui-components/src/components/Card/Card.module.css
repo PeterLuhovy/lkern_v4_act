@@ -2,9 +2,9 @@
  * ================================================================
  * FILE: Card.module.css
  * PATH: /packages/ui-components/src/components/Card/Card.module.css
- * DESCRIPTION: Card component styles with gradient design system
- * VERSION: v1.0.0
- * CREATED: 2025-10-18
+ * DESCRIPTION: Card component styles with gradient design system and responsive breakpoints
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
@@ -158,4 +158,22 @@
     inset 0 1px 2px rgba(255, 255, 255, 0.03),
     0 4px 12px rgba(0, 0, 0, 0.5),
     0 0 0 3px rgba(156, 39, 176, 0.35);
+}
+
+/* ================================================
+ * RESPONSIVE BREAKPOINTS
+ * ================================================ */
+
+/* Tablet (max-width: 1023px) */
+@media (max-width: 1023px) {
+  .card {
+    padding: var(--spacing-md, 16px);
+  }
+}
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+  .card {
+    padding: var(--spacing-sm, 12px);
+  }
 }
