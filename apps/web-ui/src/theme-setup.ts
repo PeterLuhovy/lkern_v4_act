@@ -3,8 +3,8 @@
  * FILE: theme-setup.ts
  * PATH: apps/web-ui/src/theme-setup.ts
  * DESCRIPTION: Generate theme CSS from @l-kern/config design tokens
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19 17:30:00
  * ================================================================
  */
 
@@ -35,6 +35,7 @@ export function setupTheme(): void {
       /* Brand colors */
       --color-primary: ${COLORS.brand.primary};
       --color-brand-primary: ${COLORS.brand.primary};
+      --color-brand-primary-dark: #7b1fa2;
       --color-brand-secondary: ${COLORS.brand.secondary};
       --color-secondary: ${COLORS.brand.secondary};
       --color-accent: ${COLORS.brand.accent};
@@ -58,11 +59,12 @@ export function setupTheme(): void {
       --color-info: ${COLORS.status.info};
       --color-status-success: ${COLORS.status.success};
       --color-status-error: ${COLORS.status.error};
+      --color-status-error-dark: #d32f2f;
       --color-status-warning: ${COLORS.status.warning};
       --color-status-info: ${COLORS.status.info};
 
       /* Spacing (8px grid) */
-      --spacing-none: 0px;
+      --spacing-none: ${SPACING.none}px;
       --spacing-xs: ${SPACING.xs}px;
       --spacing-sm: ${SPACING.sm}px;
       --spacing-md: ${SPACING.md}px;
@@ -70,6 +72,8 @@ export function setupTheme(): void {
       --spacing-xl: ${SPACING.xl}px;
       --spacing-xxl: ${SPACING.xxl}px;
       --spacing-xxxl: ${SPACING.xxxl}px;
+      --spacing-huge: ${SPACING.huge}px;
+      --spacing-xhuge: ${SPACING.xhuge}px;
 
       /* Font sizes */
       --font-size-xs: ${TYPOGRAPHY.fontSize.xs}px;
@@ -80,6 +84,7 @@ export function setupTheme(): void {
       --font-size-xxl: ${TYPOGRAPHY.fontSize.xxl}px;
       --font-size-xxxl: ${TYPOGRAPHY.fontSize.xxxl}px;
       --font-size-huge: ${TYPOGRAPHY.fontSize.huge}px;
+      --font-size-hero: ${TYPOGRAPHY.fontSize.hero}px;
 
       /* Font weights */
       --font-weight-light: ${TYPOGRAPHY.fontWeight.light};
