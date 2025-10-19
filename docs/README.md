@@ -85,6 +85,7 @@ Coding standards, conventions, and practical examples.
 | **Testing Guide** | pytest + Vitest testing checklists | [programming/testing-guide.md](programming/testing-guide.md) |
 | **Docker Standards** | Docker & DevOps best practices | [programming/docker-standards.md](programming/docker-standards.md) |
 | **Code Examples** | Practical examples (React, API, gRPC, DB, Testing) | [programming/code-examples.md](programming/code-examples.md) |
+| **Toast Usage** | Toast notification system guide (useToast hook) | [programming/toast-usage.md](programming/toast-usage.md) |
 
 **⭐ Important:** All code must follow [coding-standards.md](programming/coding-standards.md). For detailed patterns, see frontend/backend/testing/docker standards!
 

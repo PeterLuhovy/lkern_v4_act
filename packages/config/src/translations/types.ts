@@ -487,4 +487,17 @@ export interface TranslationKeys {
     clicks: string;
     keys: string;
   };
+  notifications: {
+    copiedToClipboard: string;
+    copyFailed: string;
+    savedSuccessfully: string;
+    saveFailed: string;
+    deletedSuccessfully: string;
+    deleteFailed: string;
+    updateSuccessfully: string;
+    updateFailed: string;
+    errorOccurred: string;
+    actionCompleted: string;
+    processingRequest: string;
+  };
 }

@@ -462,4 +462,17 @@ export const sk: TranslationKeys = {
     clicks: 'Kliky',
     keys: 'Klávesy',
   },
+  notifications: {
+    copiedToClipboard: 'Skopírované do schránky',
+    copyFailed: 'Chyba pri kopírovaní',
+    savedSuccessfully: 'Úspešne uložené',
+    saveFailed: 'Chyba pri ukladaní',
+    deletedSuccessfully: 'Úspešne vymazané',
+    deleteFailed: 'Chyba pri mazaní',
+    updateSuccessfully: 'Úspešne aktualizované',
+    updateFailed: 'Chyba pri aktualizácii',
+    errorOccurred: 'Vyskytla sa chyba',
+    actionCompleted: 'Akcia dokončená',
+    processingRequest: 'Spracovávam požiadavku...',
+  },
 };

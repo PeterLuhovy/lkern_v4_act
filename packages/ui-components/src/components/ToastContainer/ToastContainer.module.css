@@ -1,0 +1,88 @@
+/*
+ * ================================================================
+ * FILE: ToastContainer.module.css
+ * PATH: /packages/ui-components/src/components/ToastContainer/ToastContainer.module.css
+ * DESCRIPTION: Toast container positioning styles
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-19 13:00:00
+ * ================================================================
+ */
+
+.toastContainer {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+/* === POSITION VARIANTS === */
+
+/* Top positions */
+.toastContainer--top-left {
+  top: 24px;
+  left: 24px;
+  align-items: flex-start;
+}
+
+.toastContainer--top-center {
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+
+.toastContainer--top-right {
+  top: 24px;
+  right: 24px;
+  align-items: flex-end;
+}
+
+/* Bottom positions */
+.toastContainer--bottom-left {
+  bottom: 24px;
+  left: 24px;
+  align-items: flex-start;
+  flex-direction: column-reverse; /* Stack from bottom */
+}
+
+.toastContainer--bottom-center {
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  flex-direction: column-reverse; /* Stack from bottom */
+}
+
+.toastContainer--bottom-right {
+  bottom: 24px;
+  right: 24px;
+  align-items: flex-end;
+  flex-direction: column-reverse; /* Stack from bottom */
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+  .toastContainer--top-left,
+  .toastContainer--bottom-left {
+    left: 16px;
+  }
+
+  .toastContainer--top-right,
+  .toastContainer--bottom-right {
+    right: 16px;
+  }
+
+  .toastContainer--top-left,
+  .toastContainer--top-center,
+  .toastContainer--top-right {
+    top: 16px;
+  }
+
+  .toastContainer--bottom-left,
+  .toastContainer--bottom-center,
+  .toastContainer--bottom-right {
+    bottom: 16px;
+  }
+}

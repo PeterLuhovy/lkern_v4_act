@@ -462,4 +462,17 @@ export const en: TranslationKeys = {
     clicks: 'Clicks',
     keys: 'Keys',
   },
+  notifications: {
+    copiedToClipboard: 'Copied to clipboard',
+    copyFailed: 'Failed to copy',
+    savedSuccessfully: 'Saved successfully',
+    saveFailed: 'Failed to save',
+    deletedSuccessfully: 'Deleted successfully',
+    deleteFailed: 'Failed to delete',
+    updateSuccessfully: 'Updated successfully',
+    updateFailed: 'Failed to update',
+    errorOccurred: 'An error occurred',
+    actionCompleted: 'Action completed',
+    processingRequest: 'Processing request...',
+  },
 };

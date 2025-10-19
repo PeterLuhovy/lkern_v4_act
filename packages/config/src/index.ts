@@ -29,10 +29,12 @@ export * from './utils/index';
 export * from './hooks/useModal';
 export * from './hooks/useModalWizard';
 export * from './hooks/usePageAnalytics';
+export * from './hooks/useToast';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers
 export * from './contexts/ModalContext';
+export * from './contexts/ToastContext';
 
 // === TYPES EXPORTS ===
 // Export all TypeScript types
