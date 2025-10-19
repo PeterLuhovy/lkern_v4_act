@@ -13,16 +13,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation, useTheme } from '@l-kern/config';
 import { Card, BasePage } from '@l-kern/ui-components';
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import styles from './HomePage.module.css';
 
 // === COMPONENT ===
 export const HomePage: React.FC = () => {
   const { t, language, setLanguage } = useTranslation();
   const { theme, toggleTheme } = useTheme();
-
-  // Enable global keyboard shortcuts
-  useKeyboardShortcuts();
 
   return (
     <BasePage>

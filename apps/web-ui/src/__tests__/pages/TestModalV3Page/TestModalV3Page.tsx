@@ -21,14 +21,10 @@ import { BasePage, Modal, Button, Input } from '@l-kern/ui-components';
 import type { ModalFooterConfig } from '@l-kern/ui-components';
 import { useModal } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
-import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import styles from './TestModalV3Page.module.css';
 
 export function TestModalV3Page() {
   const { t } = useTranslation();
-
-  // Enable global keyboard shortcuts (Ctrl+D, Ctrl+L)
-  useKeyboardShortcuts();
 
   // Test 1: Basic drag & drop
   const dragModal = useModal();

@@ -13,7 +13,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
 import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card, BasePage } from '@l-kern/ui-components';
-import { useKeyboardShortcuts } from '../../../hooks/useKeyboardShortcuts';
 import styles from './FormsTestPage.module.css';
 
 export const FormsTestPage: React.FC = () => {
@@ -22,9 +21,6 @@ export const FormsTestPage: React.FC = () => {
   // Radio state
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [selectedLayout, setSelectedLayout] = useState<string>('');
-
-  // Enable global keyboard shortcuts
-  useKeyboardShortcuts();
 
   return (
     <BasePage>

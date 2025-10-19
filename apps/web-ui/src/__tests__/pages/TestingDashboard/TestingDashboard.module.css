@@ -52,43 +52,6 @@
   gap: var(--spacing-lg, 24px);
 }
 
-.cardLink {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  height: 100%;
-}
-
-.cardContent {
-  height: 100%;
-  transition: all 0.2s ease;
-}
-
-.cardContent:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.icon {
-  font-size: 48px;
-  margin-bottom: var(--spacing-md, 16px);
-}
-
-.cardTitle {
-  margin-top: 0;
-  margin-bottom: var(--spacing-sm, 12px);
-  font-size: 20px;
-  color: var(--theme-text, #212121);
-  font-weight: 600;
-}
-
-.cardDescription {
-  margin: 0;
-  font-size: 14px;
-  color: var(--theme-text-muted, #666);
-  line-height: 1.5;
-}
-
 /* Info footer */
 .infoFooter {
   margin-top: var(--spacing-xl, 48px);

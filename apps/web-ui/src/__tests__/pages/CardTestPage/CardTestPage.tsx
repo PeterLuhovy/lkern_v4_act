@@ -13,14 +13,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, BasePage } from '@l-kern/ui-components';
 import { useTranslation } from '@l-kern/config';
-import { useKeyboardShortcuts } from '../../../hooks/useKeyboardShortcuts';
 import styles from './CardTestPage.module.css';
 
 export const CardTestPage: React.FC = () => {
   const { t } = useTranslation();
-
-  // Enable global keyboard shortcuts
-  useKeyboardShortcuts();
 
   return (
     <BasePage>
