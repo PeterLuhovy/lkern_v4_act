@@ -277,6 +277,65 @@ Drawer and fullscreen variants exist in test files but NOT in production package
 
 ---
 
+### **🎯 NEXT IMMEDIATE TASK: Modal & UI Component Improvements**
+**Priority**: 🔴 **CRITICAL** - User-requested features
+**Status**: 📋 **PLANNED** - Implementation plan ready
+**Created**: 2025-10-19
+**Plan Document**: [`docs/temp/implementation-plan-modal-improvements.md`](../temp/implementation-plan-modal-improvements.md)
+
+**Overview:**
+Comprehensive modal system improvements and UI enhancements based on v3 patterns analysis.
+
+**Key Features:**
+1. ✅ **Input Reserved Error Space** - Fix form field jumping (UX critical)
+2. ✅ **DebugBar Analytics Fix** - Fix broken click/keyboard tracking
+3. ✅ **ConfirmModal Component** - Replace `alert()` with proper modal
+4. ✅ **useFormDirty Hook** - Track unsaved changes
+5. ✅ **Unsaved Changes Protection** - Confirm before closing dirty modal
+6. ✅ **Card Accent Variant** - Purple border + glow (v3 DashboardCard style)
+7. ✅ **Clear Form Button** - Reset form fields (NO confirmation)
+8. ✅ **Toast Test Page** - Testing page for toast notifications
+9. ✅ **4 Modal Templates** (v3 → v4 migration, postupne):
+   - EditItemModal (Add/Edit single item)
+   - ManagementModal (Manage list of items)
+   - SectionEditModal (Generic form builder with FieldDefinition system)
+   - DetailModal (Complex entity detail with 3-level modal hierarchy)
+
+**Confirmation Dialogs Strategy:**
+- ✅ **YES Confirm**: Delete Item, Close modal with unsaved data
+- ❌ **NO Confirm**: Clear Form (direct clear)
+
+**Implementation Phases:**
+- **Phase 1** (3-5h): Critical UX fixes (Input + DebugBar)
+- **Phase 2** (6-9h): New components (ConfirmModal + useFormDirty)
+- **Phase 3** (12-20h): Enhancements (Card + Templates + Toast page)
+- **Phase 4** (8-12h): Testing & Documentation
+
+**Effort Estimate:**
+- **Without Templates**: 18-27 hours (3-4 days)
+- **With Templates**: 29-46 hours (5-7 days)
+
+**Milestones:**
+- **Milestone 1** (9-14h): Core fixes + ConfirmModal
+- **Milestone 2** (20-32h): Templates + Testing
+
+**Deliverables:**
+- ✅ Input component with reserved error space
+- ✅ Fixed DebugBar analytics
+- ✅ ConfirmModal component with Promise-based API
+- ✅ useFormDirty hook for change tracking
+- ✅ Card accent variant (purple border)
+- ✅ Clear Form button pattern
+- ✅ Toast test page
+- ✅ 4 modal templates (postupne implementation)
+- ✅ Unit tests (90%+ coverage)
+- ✅ Integration tests (modal hierarchy)
+- ✅ Documentation updates (code-examples.md, coding-standards.md)
+
+**Next Step**: Review implementation plan → Start Milestone 1
+
+---
+
 ### **Task 0.2 Summary**
 
 **Current Progress:**
