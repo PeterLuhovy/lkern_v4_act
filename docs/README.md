@@ -2,9 +2,9 @@
 # L-KERN v4 - Documentation Map
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\README.md
-# Version: 2.0.0
+# Version: 2.2.0
 # Created: 2025-10-13
-# Updated: 2025-10-18
+# Updated: 2025-10-19
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -82,7 +82,12 @@ Coding standards, conventions, and practical examples.
 | **Coding Standards** | Core rules (DRY, translations, theme, headers) | [programming/coding-standards.md](programming/coding-standards.md) |
 | **Frontend Standards** | React 19, TypeScript 5.7, Vite 6, CSS patterns | [programming/frontend-standards.md](programming/frontend-standards.md) |
 | **Backend Standards** | Python 3.11, FastAPI, gRPC, Kafka, SQLAlchemy | [programming/backend-standards.md](programming/backend-standards.md) |
-| **Testing Guide** | pytest + Vitest testing checklists | [programming/testing-guide.md](programming/testing-guide.md) |
+| **Testing Overview** | ⭐ Main testing hub (strategy, tools, quick start) | [programming/testing-overview.md](programming/testing-overview.md) |
+| **Testing - Unit** | Unit testing (Vitest + RTL, pytest) | [programming/testing-unit.md](programming/testing-unit.md) |
+| **Testing - Integration** | Integration testing (MSW, API stubs) | [programming/testing-integration.md](programming/testing-integration.md) |
+| **Testing - E2E** | End-to-end testing (Playwright) | [programming/testing-e2e.md](programming/testing-e2e.md) |
+| **Testing - Best Practices** | Flaky tests, isolation, coverage | [programming/testing-best-practices.md](programming/testing-best-practices.md) |
+| **Testing - Visual (OPTIONAL)** | Visual regression (NOT IMPLEMENTED) | [programming/testing-visual.md](programming/testing-visual.md) |
 | **Docker Standards** | Docker & DevOps best practices | [programming/docker-standards.md](programming/docker-standards.md) |
 | **Code Examples** | Practical examples (React, API, gRPC, DB, Testing) | [programming/code-examples.md](programming/code-examples.md) |
 | **Toast Usage** | Toast notification system guide (useToast hook) | [programming/toast-usage.md](programming/toast-usage.md) |
@@ -279,6 +284,6 @@ L:\system\lkern_codebase_v4_act\docs\
 
 ---
 
-**Last Updated:** 2025-10-18
+**Last Updated:** 2025-10-19
 **Maintainer:** BOSSystems s.r.o.
 **Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\`
