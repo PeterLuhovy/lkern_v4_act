@@ -3,8 +3,8 @@
  * FILE: DashboardCard.module.css
  * PATH: /packages/ui-components/src/components/DashboardCard/DashboardCard.module.css
  * DESCRIPTION: Styling for DashboardCard component
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 23:15:00
+ * VERSION: v1.0.1
+ * UPDATED: 2025-10-19 16:40:00
  * ================================================================
  */
 
@@ -33,12 +33,12 @@
   padding: var(--spacing-xl, 24px);
   gap: var(--spacing-md, 12px);
   height: 100%;
-  min-height: 180px;
+  min-height: var(--spacing-xhuge, 180px);
 }
 
 /* Icon */
 .icon {
-  font-size: 48px;
+  font-size: var(--font-size-hero, 48px);
   line-height: 1;
   margin-bottom: var(--spacing-sm, 8px);
 }

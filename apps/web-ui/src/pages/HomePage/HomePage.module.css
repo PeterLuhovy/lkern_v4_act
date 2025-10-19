@@ -3,15 +3,15 @@
  * FILE: HomePage.module.css
  * PATH: /apps/web-ui/src/pages/HomePage/HomePage.module.css
  * DESCRIPTION: Styles for HomePage component with responsive breakpoints
- * VERSION: v1.1.0
- * UPDATED: 2025-10-19
+ * VERSION: v1.1.1
+ * UPDATED: 2025-10-19 17:00:00
  * ================================================================
  */
 
 /* === MAIN CONTAINER === */
 .container {
   padding: var(--spacing-huge, 56px) var(--spacing-xxl, 40px);
-  max-width: 800px;
+  max-width: var(--layout-max-width-content, 800px);
   margin: 0 auto;
   font-family: Arial, sans-serif;
 }

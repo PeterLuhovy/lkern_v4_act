@@ -3,8 +3,8 @@
  * FILE: Badge.module.css
  * PATH: /packages/ui-components/src/components/Badge/Badge.module.css
  * DESCRIPTION: Badge component styles with design tokens
- * VERSION: v1.0.0
- * CREATED: 2025-10-18
+ * VERSION: v1.0.1
+ * UPDATED: 2025-10-19 16:30:00
  * ================================================================
  */
 
@@ -24,8 +24,8 @@
 }
 
 .badge__dot {
-  width: 6px;
-  height: 6px;
+  width: var(--spacing-xs, 6px);
+  height: var(--spacing-xs, 6px);
   border-radius: var(--border-radius-full, 999px);
   background-color: currentColor;
 }
@@ -41,8 +41,8 @@
 }
 
 .badge--small .badge__dot {
-  width: 4px;
-  height: 4px;
+  width: var(--spacing-xs, 4px);
+  height: var(--spacing-xs, 4px);
 }
 
 .badge--medium {

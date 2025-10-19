@@ -3,8 +3,8 @@
  * FILE: BasePageTemplate.module.css
  * PATH: /apps/web-ui/src/pages/_templates/BasePageTemplate.module.css
  * DESCRIPTION: CSS Modules styles for BasePageTemplate
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 21:00:00
+ * VERSION: v1.0.1
+ * UPDATED: 2025-10-19 17:00:00
  *
  * NOTE: This is a template - copy these styles and customize for your page
  * ================================================================
@@ -12,7 +12,7 @@
 
 /* Main page container */
 .container {
-  max-width: 1200px;
+  max-width: var(--layout-max-width-page, 1200px);
   margin: 0 auto;
   padding: var(--spacing-xl, 40px);
 }
@@ -149,7 +149,7 @@
 .resultLabel {
   color: var(--theme-text, #212121);
   font-weight: 600;
-  min-width: 150px;
+  min-width: calc(var(--spacing-huge, 64px) * 2.3);
 }
 
 .resultValue {

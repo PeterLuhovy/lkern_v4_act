@@ -3,8 +3,8 @@
  * FILE: DebugBar.module.css
  * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.module.css
  * DESCRIPTION: Debug bar styles (based on v3 ModalDebugHeader inline styles)
- * VERSION: v2.1.0
- * UPDATED: 2025-10-19 15:30:00
+ * VERSION: v2.1.1
+ * UPDATED: 2025-10-19 16:45:00
  * ================================================================
  */
 
@@ -15,7 +15,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 28px;
+  height: var(--spacing-lg, 28px);
 
   /* Background - orange gradient (from v3) */
   background: linear-gradient(90deg, rgba(255,152,0,0.95), rgba(255,193,7,0.95));
@@ -44,7 +44,7 @@
 .debugBar__left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm, 8px);
 }
 
 .debugBar__modalName {
@@ -55,7 +55,7 @@
 .debugBar__center {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: calc(var(--spacing-sm, 8px) + 2px);
 }
 
 .debugBar__counter {
@@ -71,7 +71,7 @@
 .debugBar__right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: calc(var(--spacing-sm, 8px) + 2px);
 }
 
 .debugBar__indicator {
@@ -82,10 +82,10 @@
 .debugBar__timerBox {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm, 8px);
   background: rgba(0, 0, 0, 0.15);
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: calc(var(--spacing-xs, 4px) / 2) var(--spacing-sm, 8px);
+  border-radius: var(--spacing-xs, 4px);
 }
 
 .debugBar__timerMain {
@@ -97,15 +97,15 @@
   font-size: 9px;
   opacity: 0.7;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-  padding-left: 8px;
+  padding-left: var(--spacing-sm, 8px);
 }
 
 /* === COPY BUTTON === */
 .debugBar__copyBtn {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
-  padding: 2px 8px;
+  border-radius: var(--spacing-xs, 4px);
+  padding: calc(var(--spacing-xs, 4px) / 2) var(--spacing-sm, 8px);
   cursor: pointer;
   font-size: 9px;
   color: var(--theme-text, #212121);

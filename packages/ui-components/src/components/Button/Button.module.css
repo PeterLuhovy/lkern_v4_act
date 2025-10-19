@@ -2,8 +2,8 @@
  * @file Button.module.css
  * @package @l-kern/ui-components
  * @description Button component styles using CSS Modules and design tokens
- * @version 1.0.0
- * @date 2025-10-18
+ * @version 1.0.1
+ * @updated 2025-10-19 16:30:00
  */
 
 /* ================================================================
@@ -138,19 +138,19 @@
 .button--small {
   padding: calc(var(--spacing-xs, 4px) * 0.75) var(--spacing-sm, 8px);
   font-size: var(--font-size-xs, 10px);
-  height: 28px;
+  height: var(--spacing-lg, 28px);
 }
 
 .button--medium {
   padding: var(--spacing-sm, 8px) var(--spacing-md, 12px);
   font-size: var(--font-size-sm, 12px);
-  height: 38px;
+  height: var(--spacing-xxl, 38px);
 }
 
 .button--large {
   padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
   font-size: var(--font-size-md, 14px);
-  height: 48px;
+  height: var(--spacing-xxxl, 48px);
 }
 
 /* ================================================================
@@ -173,7 +173,7 @@
 .loadingSpinner {
   display: inline-block;
   animation: button-spin 1s linear infinite;
-  font-size: 16px;
+  font-size: var(--font-size-lg, 16px);
 }
 
 @keyframes button-spin {
