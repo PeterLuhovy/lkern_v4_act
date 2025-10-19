@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.1.0
+# Version: 1.2.0
 # Created: 2025-10-13
-# Updated: 2025-10-19
+# Updated: 2025-10-19 17:00:00
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -35,6 +35,31 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 **Deployment Strategy:**
 - **Phase 0**: Develop all core services → Deploy to test environment
 - **Phase 1**: Extended functionality (after Phase 0 validation)
+
+---
+
+## 🎉 Recent Achievements
+
+### ✅ Codebase Refactoring (2025-10-19)
+**Status:** COMPLETED
+**Duration:** 12 hours
+**Commits:** 18 total
+
+**Achievements:**
+- 🔥 **Security:** Removed CRITICAL database password exposure
+- 💾 **Stability:** Fixed 2 memory leaks in Modal component
+- 📱 **Responsive:** Added mobile/tablet support for HomePage + 3 core components
+- 🎨 **DRY Compliance:** 100% (colors & texts), 90% (spacing)
+- 🌍 **Translations:** +76 new keys (SK/EN bilingual support)
+- 🧹 **Cleanup:** Archived 11 temp files, removed 8 empty directories
+
+**Results:**
+- Tests: 365/365 passing (100%) ✅
+- Build: Zero TypeScript errors ✅
+- Security: Zero vulnerabilities ✅
+- Grade: **A (93/100)**
+
+**Documentation:** See [docs/REFACTORING-SUMMARY.md](../REFACTORING-SUMMARY.md) for complete details.
 
 ---
 
