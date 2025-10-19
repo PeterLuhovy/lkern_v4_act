@@ -112,7 +112,9 @@ export const DebugBar: React.FC<DebugBarProps> = ({
     >
       {/* Left side - Modal name + Copy button */}
       <div className={styles.debugBar__left}>
-        <span className={styles.debugBar__modalName}>🐛 {modalName}</span>
+        <span className={styles.debugBar__modalName}>
+          <span role="img" aria-label="bug">🐛</span> {modalName}
+        </span>
         <button
           className={styles.debugBar__copyBtn}
           onClick={(e) => {
@@ -123,17 +125,17 @@ export const DebugBar: React.FC<DebugBarProps> = ({
           type="button"
           title="Copy modal name to clipboard"
         >
-          📋 copy
+          <span role="img" aria-label="clipboard">📋</span> copy
         </button>
       </div>
 
       {/* Center - Event counts (emoji) */}
       <div className={styles.debugBar__center}>
         <span className={styles.debugBar__counter}>
-          🖱️ <strong>{analytics.metrics.clickCount}</strong>
+          <span role="img" aria-label="mouse">🖱️</span> <strong>{analytics.metrics.clickCount}</strong>
         </span>
         <span className={styles.debugBar__counter}>
-          ⌨️ <strong>{analytics.metrics.keyboardCount}</strong>
+          <span role="img" aria-label="keyboard">⌨️</span> <strong>{analytics.metrics.keyboardCount}</strong>
         </span>
       </div>
 
@@ -141,24 +143,28 @@ export const DebugBar: React.FC<DebugBarProps> = ({
       <div className={styles.debugBar__right}>
         {/* Theme indicator */}
         <span className={styles.debugBar__indicator}>
-          {isDarkMode ? '🌙 Dark' : '☀️ Light'}
+          {isDarkMode ? (
+            <><span role="img" aria-label="moon">🌙</span> Dark</>
+          ) : (
+            <><span role="img" aria-label="sun">☀️</span> Light</>
+          )}
         </span>
 
         {/* Language indicator */}
         <span className={styles.debugBar__indicator}>
-          🌐 {currentLanguage.toUpperCase()}
+          <span role="img" aria-label="globe">🌐</span> {currentLanguage.toUpperCase()}
         </span>
 
         {/* Dual timer box */}
         <div className={styles.debugBar__timerBox}>
           {/* Total time */}
           <span className={styles.debugBar__timerMain}>
-            ⏱️ {analytics.metrics.totalTime}
+            <span role="img" aria-label="stopwatch">⏱️</span> {analytics.metrics.totalTime}
           </span>
 
           {/* Time since last activity */}
           <span className={styles.debugBar__timerSub}>
-            🕐 {analytics.metrics.timeSinceLastActivity}
+            <span role="img" aria-label="clock">🕐</span> {analytics.metrics.timeSinceLastActivity}
           </span>
         </div>
       </div>

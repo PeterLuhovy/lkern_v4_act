@@ -60,6 +60,10 @@ export interface UsePageAnalyticsReturn {
   // Session control
   startSession: () => void;
   endSession: (outcome: 'confirmed' | 'cancelled' | 'dismissed' | 'navigated') => void;
+  resetSession: () => void;
+
+  // Session state
+  isSessionActive: boolean;
 
   // Event tracking
   trackClick: (element: string, elementType: string, event?: React.MouseEvent) => void;
@@ -102,6 +106,12 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
   // ================================================================
 
   const startSession = useCallback(() => {
+    // Prevent starting session twice
+    if (sessionRef.current && !sessionRef.current.endTime) {
+      console.log('[PageAnalytics] Session already active, ignoring start request');
+      return;
+    }
+
     const now = Date.now();
     const newSession: PageAnalyticsSession = {
       sessionId: `${pageName}-${now}`,
@@ -153,6 +163,18 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
       sessionRef.current = null;
       setSession(null);
     }, 100);
+  }, []);
+
+  const resetSession = useCallback(() => {
+    sessionRef.current = null;
+    setSession(null);
+    setTotalTime('0.0s');
+    setTimeSinceLastActivity('-');
+    setClickCount(0);
+    setKeyboardCount(0);
+    lastActivityTimeRef.current = 0;
+    lastClickTimeRef.current = 0;
+    lastKeyTimeRef.current = 0;
   }, []);
 
   // ================================================================
@@ -312,6 +334,8 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
   return {
     startSession,
     endSession,
+    resetSession,
+    isSessionActive: session !== null && !session.endTime,
     trackClick,
     trackKeyboard,
     metrics,

@@ -21,6 +21,21 @@ vi.mock('@l-kern/config', () => ({
       };
       return translations[key] || key;
     },
+    language: 'sk',
+  }),
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: vi.fn(),
+  }),
+  usePageAnalytics: (pageName: string) => ({
+    session: null,
+    totalTime: '0.0s',
+    timeSinceLastActivity: '0.0s',
+    clicks: 0,
+    keys: 0,
+    startSession: vi.fn(),
+    endSession: vi.fn(),
+    trackClick: vi.fn(),
   }),
 }));
 

@@ -3,8 +3,11 @@
  * FILE: index.ts
  * PATH: /packages/config/src/utils/index.ts
  * DESCRIPTION: Main export file for utility functions
- * VERSION: v1.0.0
- * CREATED: 2025-10-18
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 15:00:00
+ *
+ * CHANGES:
+ *   - v2.0.0: Migrated to folder structure (phoneUtils/, emailUtils/, etc.)
  * ================================================================
  */
 
@@ -44,3 +47,6 @@ export {
 
 // Modal stack utility
 export { modalStack } from './modalStack';
+
+// Toast notification manager
+export { toastManager, type Toast, type ToastOptions, type ToastType } from './toastManager';

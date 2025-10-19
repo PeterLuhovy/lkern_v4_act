@@ -26,15 +26,15 @@ export * from './utils/index';
 
 // === HOOKS EXPORTS ===
 // Export custom React hooks
-export * from './hooks/useModal';
-export * from './hooks/useModalWizard';
-export * from './hooks/usePageAnalytics';
-export * from './hooks/useToast';
+export * from './hooks/useModal/useModal';
+export * from './hooks/useModalWizard/useModalWizard';
+export * from './hooks/usePageAnalytics/usePageAnalytics';
+export * from './hooks/useToast/useToast';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers
-export * from './contexts/ModalContext';
-export * from './contexts/ToastContext';
+export * from './contexts/ModalContext/ModalContext';
+export * from './contexts/ToastContext/ToastContext';
 
 // === TYPES EXPORTS ===
 // Export all TypeScript types

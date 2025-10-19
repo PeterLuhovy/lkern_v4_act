@@ -9,7 +9,7 @@
  * ================================================================
  */
 
-import { EMAIL_REGEX, EMAIL_CONSTRAINTS } from '../constants/validation-constants';
+import { EMAIL_REGEX, EMAIL_CONSTRAINTS } from '../../constants/validation-constants';
 
 /**
  * Validates email address format
