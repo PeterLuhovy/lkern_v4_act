@@ -110,6 +110,7 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
           variant="ghost"
           onClick={onPrevious}
           disabled={!canGoPrevious || isSubmitting}
+          data-testid="wizard-previous-button"
         >
           {prevLabel}
         </Button>
@@ -125,6 +126,7 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
             onClick={onComplete}
             disabled={!canGoNext || isSubmitting}
             loading={isSubmitting}
+            data-testid="wizard-complete-button"
           >
             {completeLabelText}
           </Button>
@@ -132,6 +134,7 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
       ) : (
         onNext && (
           <Button
+            data-testid="wizard-next-button"
             variant="primary"
             onClick={onNext}
             disabled={!canGoNext || isSubmitting}

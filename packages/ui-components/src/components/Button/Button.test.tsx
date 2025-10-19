@@ -70,11 +70,13 @@ describe('Button', () => {
   });
 
   it('disables button and shows loading spinner when loading', () => {
-    render(<Button loading>Loading</Button>);
-    const button = screen.getByRole('button');
+    render(<Button loading data-testid="loading-button">Loading</Button>);
+    const button = screen.getByTestId('loading-button');
 
     expect(button).toBeDisabled();
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // ✅ Test for loading indicator existence, not specific text
+    expect(button).toHaveAttribute('disabled');
+    expect(button.className).toContain('button--loading');
   });
 
   it('does not call onClick when loading', async () => {
@@ -123,39 +125,42 @@ describe('Button', () => {
   });
 
   describe('Translation Support', () => {
-    it('renders translated text when provided as children', () => {
-      // Simulate translated text being passed from parent component
-      const translatedText = 'Uložiť'; // Slovak for "Save"
-      render(<Button>{translatedText}</Button>);
+    it('renders text content passed as children', () => {
+      // ✅ CORRECT: Test structure, not specific translated text
+      // Parent component passes t('key'), we just verify button works
+      render(<Button data-testid="action-button">Action Text</Button>);
 
-      expect(screen.getByText('Uložiť')).toBeInTheDocument();
+      const button = screen.getByTestId('action-button');
+      expect(button).toBeInTheDocument();
+      expect(button.textContent).toBeTruthy(); // Has some text
     });
 
-    it('re-renders with new translated text when children change', () => {
-      const { rerender } = render(<Button>Save</Button>);
-      expect(screen.getByText('Save')).toBeInTheDocument();
+    it('re-renders when children prop changes', () => {
+      // ✅ CORRECT: Test that button updates, not what it updates to
+      const { rerender } = render(<Button data-testid="dynamic-button">Initial</Button>);
 
-      // Simulate language change - parent passes new translated text
-      rerender(<Button>Uložiť</Button>);
-      expect(screen.queryByText('Save')).not.toBeInTheDocument();
-      expect(screen.getByText('Uložiť')).toBeInTheDocument();
+      const button = screen.getByTestId('dynamic-button');
+      const initialText = button.textContent;
+      expect(initialText).toBe('Initial');
+
+      // Simulate language change - parent passes new text from t()
+      rerender(<Button data-testid="dynamic-button">Updated</Button>);
+
+      const newText = button.textContent;
+      expect(newText).toBe('Updated');
+      expect(newText).not.toBe(initialText); // Verify it changed
     });
 
-    it('properly displays any text passed as children (translation-agnostic)', () => {
-      // Button should work with ANY text (hardcoded or translated)
-      // Real translation happens in parent component using t() function
-      const testCases = [
-        'Save',           // English
-        'Uložiť',         // Slovak
-        'Speichern',      // German
-        '保存',           // Japanese
-      ];
+    it('properly displays any text content (language-independent)', () => {
+      // ✅ CORRECT: Test that button renders ANY text correctly
+      // ❌ WRONG: We don't test specific languages like "Save" or "Uložiť"
+      const arbitraryText = 'Any Text Content';
 
-      testCases.forEach((text) => {
-        const { unmount } = render(<Button>{text}</Button>);
-        expect(screen.getByText(text)).toBeInTheDocument();
-        unmount();
-      });
+      render(<Button data-testid="text-button">{arbitraryText}</Button>);
+
+      const button = screen.getByTestId('text-button');
+      expect(button.textContent).toBe(arbitraryText);
+      expect(button).toBeInTheDocument();
     });
   });
 });

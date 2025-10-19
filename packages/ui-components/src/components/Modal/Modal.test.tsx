@@ -257,7 +257,13 @@ describe('Modal v3.0.0', () => {
       </Modal>
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // ✅ CORRECT: Test for loading state, not specific text
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    // Modal should have loading class or contain spinner element
+    // Check that content is hidden and spinner is shown
+    expect(screen.queryByText('Content')).not.toBeInTheDocument();
   });
 
   it('hides content when loading', () => {

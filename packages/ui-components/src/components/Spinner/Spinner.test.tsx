@@ -61,13 +61,22 @@ describe('Spinner Component', () => {
   // ================================================
 
   it('renders label when provided', () => {
-    render(<Spinner label="Loading..." />);
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // ✅ CORRECT: Test that label prop works (language-independent)
+    const customLabel = 'Custom Label Text';
+    render(<Spinner label={customLabel} data-testid="spinner-with-label" />);
+
+    const spinner = screen.getByTestId('spinner-with-label');
+    expect(spinner.textContent).toContain(customLabel);
   });
 
-  it('renders custom label text', () => {
-    render(<Spinner label="Načítavam dáta" />);
-    expect(screen.getByText('Načítavam dáta')).toBeInTheDocument();
+  it('renders any label text provided by parent', () => {
+    // ✅ CORRECT: Test structure, not specific language
+    // Parent provides translated text via t(), we just verify it renders
+    const arbitraryLabel = 'Any Text Here';
+    render(<Spinner label={arbitraryLabel} data-testid="labeled-spinner" />);
+
+    const spinner = screen.getByTestId('labeled-spinner');
+    expect(spinner.textContent).toBe(arbitraryLabel);
   });
 
   // ================================================
@@ -114,15 +123,21 @@ describe('Spinner Component', () => {
   // ================================================
 
   it('renders small spinner with label', () => {
-    const { container } = render(<Spinner size="small" label="Loading" />);
+    // ✅ CORRECT: Test combined props (size + label)
+    const testLabel = 'Test Label';
+    const { container } = render(<Spinner size="small" label={testLabel} data-testid="small-spinner" />);
     const spinner = container.firstChild as HTMLElement;
     expect(spinner.className).toContain('spinner--small');
-    expect(screen.getByText('Loading')).toBeInTheDocument();
+
+    const spinnerElement = screen.getByTestId('small-spinner');
+    expect(spinnerElement.textContent).toContain(testLabel);
   });
 
   it('renders large spinner with custom color and label', () => {
+    // ✅ CORRECT: Test multiple props together
+    const testLabel = 'Custom Text';
     const { container } = render(
-      <Spinner size="large" color="#00ff00" label="Please wait..." />
+      <Spinner size="large" color="#00ff00" label={testLabel} data-testid="large-spinner" />
     );
     const spinner = container.firstChild as HTMLElement;
     const ring = spinner.firstChild as HTMLElement;
@@ -130,6 +145,8 @@ describe('Spinner Component', () => {
     expect(spinner.className).toContain('spinner--large');
     expect(ring.style.borderTopColor).toBe('#00ff00');
     expect(ring.style.borderRightColor).toBe('#00ff00');
-    expect(screen.getByText('Please wait...')).toBeInTheDocument();
+
+    const spinnerElement = screen.getByTestId('large-spinner');
+    expect(spinnerElement.textContent).toContain(testLabel);
   });
 });

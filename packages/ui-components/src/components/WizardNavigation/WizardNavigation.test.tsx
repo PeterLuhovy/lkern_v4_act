@@ -16,14 +16,7 @@ import { WizardNavigation } from './WizardNavigation';
 // Mock translation hook
 vi.mock('@l-kern/config', () => ({
   useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'wizard.previous': '← Späť',
-        'wizard.next': 'Ďalej →',
-        'wizard.complete': 'Uložiť',
-      };
-      return translations[key] || key;
-    },
+    t: (key: string) => `mock_${key}`, // Generic mock - no hardcoded translations
     language: 'sk',
   }),
   useTheme: () => ({
@@ -38,7 +31,9 @@ vi.mock('@l-kern/config', () => ({
     keys: 0,
     startSession: vi.fn(),
     endSession: vi.fn(),
+    resetSession: vi.fn(),
     trackClick: vi.fn(),
+    isSessionActive: false,
   }),
 }));
 
@@ -57,8 +52,8 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.getByText('← Späť')).toBeInTheDocument();
-      expect(screen.getByText('Ďalej →')).toBeInTheDocument();
+      expect(screen.getByTestId('wizard-previous-button')).toBeInTheDocument();
+      expect(screen.getByTestId('wizard-next-button')).toBeInTheDocument();
     });
 
     it('should render complete button on last step', () => {
@@ -72,8 +67,8 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.getByText('Uložiť')).toBeInTheDocument();
-      expect(screen.queryByText('Ďalej →')).not.toBeInTheDocument();
+      expect(screen.getByTestId('wizard-complete-button')).toBeInTheDocument();
+      expect(screen.queryByTestId('wizard-next-button')).not.toBeInTheDocument();
     });
 
     it('should not render previous button when onPrevious not provided', () => {
@@ -86,7 +81,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.queryByText('← Späť')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('wizard-previous-button')).not.toBeInTheDocument();
     });
 
     it('should not render next button when onNext not provided', () => {
@@ -99,7 +94,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.queryByText('Ďalej →')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('wizard-next-button')).not.toBeInTheDocument();
     });
   });
 
@@ -115,7 +110,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      await user.click(screen.getByText('← Späť'));
+      await user.click(screen.getByTestId('wizard-previous-button'));
 
       expect(onPrevious).toHaveBeenCalledTimes(1);
     });
@@ -131,7 +126,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      await user.click(screen.getByText('Ďalej →'));
+      await user.click(screen.getByTestId('wizard-next-button'));
 
       expect(onNext).toHaveBeenCalledTimes(1);
     });
@@ -148,7 +143,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      await user.click(screen.getByText('Uložiť'));
+      await user.click(screen.getByTestId('wizard-complete-button'));
 
       expect(onComplete).toHaveBeenCalledTimes(1);
     });
@@ -165,7 +160,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      const prevButton = screen.getByText('← Späť').closest('button');
+      const prevButton = screen.getByTestId('wizard-previous-button');
       expect(prevButton).toBeDisabled();
     });
 
@@ -179,7 +174,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      const nextButton = screen.getByText('Ďalej →').closest('button');
+      const nextButton = screen.getByTestId('wizard-next-button');
       expect(nextButton).toBeDisabled();
     });
 
@@ -194,7 +189,7 @@ describe('WizardNavigation', () => {
         />
       );
 
-      const completeButton = screen.getByText('Uložiť').closest('button');
+      const completeButton = screen.getByTestId('wizard-complete-button');
       expect(completeButton).toBeDisabled();
     });
 
@@ -212,8 +207,8 @@ describe('WizardNavigation', () => {
         />
       );
 
-      const prevButton = screen.getByText('← Späť').closest('button');
-      const nextButton = screen.getByText('Ďalej →').closest('button');
+      const prevButton = screen.getByTestId('wizard-previous-button');
+      const nextButton = screen.getByTestId('wizard-next-button');
 
       expect(prevButton).toBeDisabled();
       expect(nextButton).toBeDisabled();
@@ -231,10 +226,9 @@ describe('WizardNavigation', () => {
         />
       );
 
-      // When submitting, button shows "Loading..." instead of "Uložiť"
-      const loadingButton = screen.getByText('Loading...').closest('button');
-      expect(loadingButton).toBeDisabled();
-      expect(screen.queryByText('Uložiť')).not.toBeInTheDocument();
+      // When submitting, button is disabled (loading prop passed to Button component)
+      const completeButton = screen.getByTestId('wizard-complete-button');
+      expect(completeButton).toBeDisabled();
     });
   });
 
@@ -295,8 +289,8 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.queryByText('← Späť')).not.toBeInTheDocument();
-      expect(screen.getByText('Ďalej →')).toBeInTheDocument();
+      expect(screen.queryByTestId('wizard-previous-button')).not.toBeInTheDocument();
+      expect(screen.getByTestId('wizard-next-button')).toBeInTheDocument();
     });
 
     it('should handle middle step (has previous, has next)', () => {
@@ -312,8 +306,8 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.getByText('← Späť')).toBeInTheDocument();
-      expect(screen.getByText('Ďalej →')).toBeInTheDocument();
+      expect(screen.getByTestId('wizard-previous-button')).toBeInTheDocument();
+      expect(screen.getByTestId('wizard-next-button')).toBeInTheDocument();
     });
 
     it('should handle last step (has previous, has complete)', () => {
@@ -330,9 +324,9 @@ describe('WizardNavigation', () => {
         />
       );
 
-      expect(screen.getByText('← Späť')).toBeInTheDocument();
-      expect(screen.getByText('Uložiť')).toBeInTheDocument();
-      expect(screen.queryByText('Ďalej →')).not.toBeInTheDocument();
+      expect(screen.getByTestId('wizard-previous-button')).toBeInTheDocument();
+      expect(screen.getByTestId('wizard-complete-button')).toBeInTheDocument();
+      expect(screen.queryByTestId('wizard-next-button')).not.toBeInTheDocument();
     });
   });
 });

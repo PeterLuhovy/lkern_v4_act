@@ -35,10 +35,15 @@ export interface SpinnerProps {
    * Additional CSS class names
    */
   className?: string;
+
+  /**
+   * Test ID for testing purposes
+   */
+  'data-testid'?: string;
 }
 
 export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
-  ({ size = 'medium', label, color, className }, ref) => {
+  ({ size = 'medium', label, color, className, 'data-testid': dataTestId }, ref) => {
     const classes = [styles.spinner, styles[`spinner--${size}`], className]
       .filter(Boolean)
       .join(' ');
@@ -52,7 +57,7 @@ export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
       : undefined;
 
     return (
-      <div ref={ref} className={classes}>
+      <div ref={ref} className={classes} data-testid={dataTestId}>
         <div className={styles.spinner__ring} style={ringStyle} />
         {label && <div className={styles.spinner__label}>{label}</div>}
       </div>
