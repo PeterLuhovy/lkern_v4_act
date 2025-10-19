@@ -440,4 +440,10 @@ export const en: TranslationKeys = {
     next: 'Next →',
     complete: 'Save',
   },
+  debugBar: {
+    totalTimeOnPage: 'Total time on page',
+    timeSinceLastClick: 'Time since last action',
+    clicks: 'Clicks',
+    keys: 'Keys',
+  },
 };

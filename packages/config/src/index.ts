@@ -28,6 +28,7 @@ export * from './utils/index';
 // Export custom React hooks
 export * from './hooks/useModal';
 export * from './hooks/useModalWizard';
+export * from './hooks/usePageAnalytics';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers

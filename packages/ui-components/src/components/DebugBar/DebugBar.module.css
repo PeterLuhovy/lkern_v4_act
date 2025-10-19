@@ -1,0 +1,198 @@
+/*
+ * ================================================================
+ * FILE: DebugBar.module.css
+ * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.module.css
+ * DESCRIPTION: Debug bar styles - používa CSS premenné z theme-setup.ts
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-18 23:50:00
+ * ================================================================
+ */
+
+/* === DEBUG BAR === */
+.debugBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(90deg, rgba(255,152,0,0.95), rgba(255,193,7,0.95));
+  color: #1a1a1a;
+  padding: 0 12px;
+  box-shadow: 0 2px 10px rgba(255,152,0,0.4);
+  font-family: monospace;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  border: 1px solid rgba(255,152,0,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 1001;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+}
+
+/* === PAGE INFO (LEFT SIDE) === */
+.debugBar__pageInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.debugBar__pageName {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  font-size: 12px;
+}
+
+.debugBar__pagePath {
+  font-family: 'Courier New', monospace;
+  font-weight: var(--font-weight-normal);
+  opacity: 0.8;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+/* === TIME INFO (RIGHT SIDE) === */
+.debugBar__timeInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.debugBar__timeLabel {
+  font-weight: var(--font-weight-normal);
+  opacity: 0.8;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.debugBar__timeValue {
+  font-weight: var(--font-weight-bold);
+  font-family: 'Courier New', monospace;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* === COPY BUTTONS === */
+.debugBar__copyBtn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+  font-size: 9px;
+  cursor: pointer;
+  color: #1a1a1a;
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.debugBar__copyBtn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+}
+
+.debugBar__copyBtn:active {
+  transform: scale(0.95);
+}
+
+.debugBar__copyBtn--copied {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+
+/* === SEPARATOR === */
+.debugBar__separator {
+  opacity: 0.6;
+  font-weight: var(--font-weight-bold);
+  margin: 0 4px;
+  font-size: 10px;
+}
+
+/* === RESPONSIVE === */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .debugBar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .debugBar__pageName {
+    max-width: 150px;
+  }
+
+  .debugBar__pagePath {
+    max-width: 180px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .debugBar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-xs);
+    min-height: auto;
+  }
+
+  .debugBar__pageInfo,
+  .debugBar__timeInfo {
+    gap: var(--spacing-xs);
+  }
+
+  .debugBar__pageName {
+    max-width: none;
+  }
+
+  .debugBar__pagePath {
+    max-width: none;
+  }
+
+  .debugBar__timeInfo {
+    flex-wrap: wrap;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .debugBar__pageInfo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .debugBar__separator {
+    display: none;
+  }
+
+  .debugBar__timeInfo {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

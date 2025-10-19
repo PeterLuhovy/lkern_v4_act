@@ -440,4 +440,10 @@ export const sk: TranslationKeys = {
     next: 'Ďalej →',
     complete: 'Uložiť',
   },
+  debugBar: {
+    totalTimeOnPage: 'Celkový čas na stránke',
+    timeSinceLastClick: 'Čas od poslednej akcie',
+    clicks: 'Kliky',
+    keys: 'Klávesy',
+  },
 };

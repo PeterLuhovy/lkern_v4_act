@@ -465,4 +465,10 @@ export interface TranslationKeys {
     next: string;
     complete: string;
   };
+  debugBar: {
+    totalTimeOnPage: string;
+    timeSinceLastClick: string;
+    clicks: string;
+    keys: string;
+  };
 }

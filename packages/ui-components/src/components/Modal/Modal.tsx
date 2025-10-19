@@ -524,6 +524,7 @@ export const Modal: React.FC<ModalProps> = ({
             style={{
               cursor: disableDrag ? 'default' : isDragging ? 'grabbing' : 'grab',
               userSelect: 'none',
+              paddingTop: showDebugBar ? '48px' : undefined,
             }}
           >
             {title && (

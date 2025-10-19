@@ -2,13 +2,10 @@
   "name": "@l-kern/ui-components",
   "version": "0.0.1",
   "description": "L-KERN v4 UI Component Library",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "exports": {
-    ".": {
-      "import": "./index.mjs",
-      "require": "./index.js"
-    }
+    ".": "./src/index.ts"
   },
   "peerDependencies": {
     "react": "^19.0.0",

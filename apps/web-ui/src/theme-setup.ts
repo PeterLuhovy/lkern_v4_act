@@ -8,7 +8,7 @@
  * ================================================================
  */
 
-import { COLORS } from '@l-kern/config';
+import { COLORS, TYPOGRAPHY, LAYOUT, SPACING, SHADOWS } from '@l-kern/config';
 
 /**
  * Inject theme CSS variables into document
@@ -35,6 +35,7 @@ export function setupTheme(): void {
       /* Brand colors */
       --color-primary: ${COLORS.brand.primary};
       --color-brand-primary: ${COLORS.brand.primary};
+      --color-brand-secondary: ${COLORS.brand.secondary};
       --color-secondary: ${COLORS.brand.secondary};
       --color-accent: ${COLORS.brand.accent};
 
@@ -55,6 +56,78 @@ export function setupTheme(): void {
       --color-warning: ${COLORS.status.warning};
       --color-error: ${COLORS.status.error};
       --color-info: ${COLORS.status.info};
+      --color-status-success: ${COLORS.status.success};
+      --color-status-error: ${COLORS.status.error};
+      --color-status-warning: ${COLORS.status.warning};
+      --color-status-info: ${COLORS.status.info};
+
+      /* Spacing (8px grid) */
+      --spacing-none: 0px;
+      --spacing-xs: ${SPACING.xs}px;
+      --spacing-sm: ${SPACING.sm}px;
+      --spacing-md: ${SPACING.md}px;
+      --spacing-lg: ${SPACING.lg}px;
+      --spacing-xl: ${SPACING.xl}px;
+      --spacing-xxl: ${SPACING.xxl}px;
+      --spacing-xxxl: ${SPACING.xxxl}px;
+
+      /* Font sizes */
+      --font-size-xs: ${TYPOGRAPHY.fontSize.xs}px;
+      --font-size-sm: ${TYPOGRAPHY.fontSize.sm}px;
+      --font-size-md: ${TYPOGRAPHY.fontSize.md}px;
+      --font-size-lg: ${TYPOGRAPHY.fontSize.lg}px;
+      --font-size-xl: ${TYPOGRAPHY.fontSize.xl}px;
+      --font-size-xxl: ${TYPOGRAPHY.fontSize.xxl}px;
+      --font-size-xxxl: ${TYPOGRAPHY.fontSize.xxxl}px;
+      --font-size-huge: ${TYPOGRAPHY.fontSize.huge}px;
+
+      /* Font weights */
+      --font-weight-light: ${TYPOGRAPHY.fontWeight.light};
+      --font-weight-normal: ${TYPOGRAPHY.fontWeight.normal};
+      --font-weight-medium: ${TYPOGRAPHY.fontWeight.medium};
+      --font-weight-semibold: ${TYPOGRAPHY.fontWeight.semibold};
+      --font-weight-bold: ${TYPOGRAPHY.fontWeight.bold};
+      --font-weight-extrabold: ${TYPOGRAPHY.fontWeight.extrabold};
+
+      /* Font family */
+      --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+
+      /* Border radius */
+      --border-radius-none: ${LAYOUT.borderRadius.none}px;
+      --border-radius-sm: ${LAYOUT.borderRadius.sm}px;
+      --border-radius-md: ${LAYOUT.borderRadius.md}px;
+      --border-radius-lg: ${LAYOUT.borderRadius.lg}px;
+      --border-radius-xl: ${LAYOUT.borderRadius.xl}px;
+      --border-radius-round: ${LAYOUT.borderRadius.round}%;
+      --border-radius-pill: ${LAYOUT.borderRadius.pill}px;
+
+      /* Border widths */
+      --border-width-thin: 1px;
+      --border-width-medium: 2px;
+      --border-width-thick: 4px;
+
+      /* Z-index */
+      --z-index-hide: ${LAYOUT.zIndex.hide};
+      --z-index-base: ${LAYOUT.zIndex.base};
+      --z-index-dropdown: ${LAYOUT.zIndex.dropdown};
+      --z-index-sticky: ${LAYOUT.zIndex.sticky};
+      --z-index-modal: ${LAYOUT.zIndex.modal};
+      --z-index-popover: ${LAYOUT.zIndex.popover};
+      --z-index-notification: ${LAYOUT.zIndex.notification};
+
+      /* Shadows */
+      --shadow-sm: ${SHADOWS.sm};
+      --shadow-md: ${SHADOWS.md};
+      --shadow-lg: ${SHADOWS.lg};
+      --shadow-xl: ${SHADOWS.xl};
+
+      /* Animations */
+      --animation-duration-fast: 150ms;
+      --animation-duration-normal: 300ms;
+      --animation-duration-slow: 500ms;
+      --animation-timing-ease: ease;
+      --animation-timing-ease-in: ease-in;
+      --animation-timing-ease-out: ease-out;
     }
 
     /* Dark Theme */

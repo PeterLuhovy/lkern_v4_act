@@ -18,6 +18,12 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
     }),
   ],
+  // Resolve aliases for monorepo packages (required for Vitest)
+  resolve: {
+    alias: {
+      '@l-kern/config': path.resolve(__dirname, '../config/src/index.ts'),
+    },
+  },
   // CSS Modules configuration
   css: {
     modules: {
