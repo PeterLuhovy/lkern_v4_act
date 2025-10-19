@@ -2,7 +2,7 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 4.1.0
+# Version: 4.2.0
 # Created: 2025-10-13
 # Updated: 2025-10-19
 # Project: BOSS (Business Operating System Service)
@@ -406,19 +406,41 @@ L-KERN v4/
 
 ## 📝 Recent Changes
 
+### 2025-10-19: Testing Documentation Restructure
+- ✅ **Modular Testing Docs**: Created 6 comprehensive testing guides
+  - testing-overview.md - Main hub (strategy, tools, pyramid)
+  - testing-unit.md - Unit testing (Vitest + RTL, pytest)
+  - testing-integration.md - Integration testing (MSW, API stubs)
+  - testing-e2e.md - E2E testing (Playwright)
+  - testing-best-practices.md - Flaky tests, isolation, coverage
+  - testing-visual.md - Visual regression (OPTIONAL, not implemented)
+- ✅ **Integration Testing Analysis**: Readiness assessment complete
+  - MSW setup recommended for preparation
+  - Real integration tests after Task 0.3 (backend infrastructure)
+  - E2E tests after Task 0.4 (first microservice)
+- ✅ **Documentation Updates**: docs/README.md v2.2.0
+  - Added 6 testing documentation links
+  - Archived old testing-guide.md → temp/
+
 ### 2025-10-19: Modal System Refactoring
-- ✅ **Modal v3.4.0**: Hybrid keyboard handling implementation
-  - ESC/Enter handled locally in Modal component
-  - Fixed nested modal ESC behavior (bubble phase listeners)
-  - Fixed modal centering animation jump
-  - Fixed Enter key behavior in modals without onConfirm
+- ✅ **Modal v3.6.0**: Enhanced keyboard handling + Multi-step Wizard
+  - ESC/Enter with focused input: Blur input (don't close modal)
+  - Enter without onConfirm: Close modal (smart default)
+  - Test 8: Multi-step Wizard integration (3-step composable pattern)
 - ✅ **DebugBar v2.0.0**: Migrated from v3 ModalDebugHeader
-  - Added theme/language indicators
-  - Changed counters to emoji (🖱️/⌨️)
-  - Dual timer box with dark background
+  - Theme indicator (🌙 Dark / ☀️ Light)
+  - Language indicator (🌐 SK / EN)
+  - Emoji counters (🖱️ clicks, ⌨️ keyboard events)
 - ✅ **BasePage v3.0.0**: Simplified to global shortcuts only
-  - Removed ESC/Enter handling (moved to Modal)
-  - Kept only Ctrl+D and Ctrl+L
+  - Hybrid keyboard handling (Modal owns ESC/Enter)
+
+### 2025-10-19: Toast Notification System
+- ✅ **Toast System v1.0.0**: Complete implementation
+  - toastManager.ts - Global event emitter (27 unit tests)
+  - ToastContext + useToast hook - React integration
+  - Toast + ToastContainer UI components
+  - 4 variants (success, error, warning, info)
+  - 11 translation keys (SK + EN)
 
 ### 2025-10-18: Modal & Wizard Components
 - ✅ Modal v2.0.0 - Basic centered modal
@@ -428,4 +450,4 @@ L-KERN v4/
 
 ---
 
-**Last Updated**: 2025-10-19 01:45:00
+**Last Updated**: 2025-10-19 15:30:00

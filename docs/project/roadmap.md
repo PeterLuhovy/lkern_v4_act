@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.0.0
+# Version: 1.1.0
 # Created: 2025-10-13
-# Updated: 2025-10-18
+# Updated: 2025-10-19
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -189,24 +189,50 @@ Modal component simplified - only **centered variant** exported to production.
 Drawer and fullscreen variants exist in test files but NOT in production package.
 
 **4.1 Core Advanced (5 components):**
-- [x] **Modal** - ⚠️ **PARTIAL** (centered variant only in production)
+
+**✅ COMPLETED:**
+- [x] **Modal** (v3.6.0) - ⚠️ **PARTIAL** (centered variant only in production)
   - ✅ Production: `packages/ui-components/src/components/Modal/Modal.tsx` (centered only)
   - ⚠️ Testing only: `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` (drawer, fullscreen)
   - 26 tests passing (centered variant)
+  - Enhanced keyboard handling (ESC/Enter with input focus support)
   - **Missing**: Drawer variant, Fullscreen variant (NOT exported to @l-kern/ui-components)
-- [x] **WizardProgress** - ✅ **COMPLETED** (3 variants: dots, bar, numbers)
+- [x] **WizardProgress** (v1.0.0) - ✅ **COMPLETED** (3 variants: dots, bar, numbers)
   - Location: `packages/ui-components/src/components/WizardProgress/WizardProgress.tsx`
   - 15 tests passing
-- [x] **WizardNavigation** - ✅ **COMPLETED** (Previous/Next/Complete buttons)
+- [x] **WizardNavigation** (v1.0.0) - ✅ **COMPLETED** (Previous/Next/Complete buttons)
   - Location: `packages/ui-components/src/components/WizardNavigation/WizardNavigation.tsx`
-- [x] **useModalWizard hook** - ✅ **COMPLETED** (multi-step workflow management)
+- [x] **useModalWizard hook** (v1.0.0) - ✅ **COMPLETED** (multi-step workflow management)
   - Location: `packages/config/src/hooks/useModalWizard.ts`
   - 19 tests passing
-- [x] **ModalContext** - ✅ **COMPLETED** (centralized modal registry, z-index management)
+- [x] **ModalContext** (v1.0.0) - ✅ **COMPLETED** (centralized modal registry, z-index management)
   - Location: `packages/config/src/contexts/ModalContext.tsx`
-- [ ] **Table/DataGrid** - ❌ **NOT STARTED** - Sortable table with pagination
-- [ ] **DataGridDetail** - ❌ **NOT STARTED** - Expanded row detail view
-- [ ] **FilterAndSearch** - ❌ **NOT STARTED** - Filter toolbar for tables
+
+**🎯 NEXT PRIORITY (Task 0.2 Phase 4 - Critical Path):**
+- [ ] **Table/DataGrid** - ❌ **URGENT** - CRITICAL for contacts page, invoices, orders
+  - Sortable columns (ASC/DESC toggle)
+  - Pagination (previous, next, page size selector)
+  - Row selection (single/multi with checkboxes)
+  - Empty state + loading state
+  - Responsive (horizontal scroll on mobile)
+  - Expandable rows (optional detail panel)
+  - Custom cell renderers
+  - **Estimated**: 4-6 hours
+  - **Blockers**: None (ready to start)
+  - **Unlocks**: ContactList page, all CRUD list pages
+- [ ] **FilterAndSearch** - ❌ **HIGH PRIORITY** - Needed with Table/DataGrid
+  - Search input with debounce
+  - Filter dropdowns (status, category, date range)
+  - Clear filters button
+  - Filter count badge
+  - **Estimated**: 2-3 hours
+  - **Dependencies**: Should work standalone OR with Table
+- [ ] **DataGridDetail** - ❌ **OPTIONAL** - Enhanced row detail view
+  - Expandable row content area
+  - Custom detail renderer
+  - Slide animation
+  - **Estimated**: 2-3 hours
+  - **Can wait**: Not critical for MVP
 
 **4.2 Utility Components (4 components):**
 - [ ] **ThemeCustomizer** - ❌ **NOT STARTED** - Theme switcher panel (light/dark/auto)
