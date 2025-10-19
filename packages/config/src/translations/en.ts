@@ -3,7 +3,7 @@
  * FILE: en.ts
  * PATH: packages/config/src/translations/en.ts
  * DESCRIPTION: English translations for L-KERN v4
- * VERSION: v1.1.0
+ * VERSION: v1.2.0
  * UPDATED: 2025-10-19
  * ================================================================
  */
@@ -474,5 +474,29 @@ export const en: TranslationKeys = {
     errorOccurred: 'An error occurred',
     actionCompleted: 'Action completed',
     processingRequest: 'Processing request...',
+  },
+
+  contactType: {
+    company: 'Company',
+    person: 'Individual',
+  },
+
+  fields: {
+    name: 'Name',
+    ico: 'Company ID',
+    dic: 'Tax ID',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    fullName: 'Full Name',
+    email: 'Email',
+    phone: 'Phone',
+    web: 'Website',
+    street: 'Street',
+    city: 'City',
+    zip: 'ZIP Code',
+    country: 'Country',
+    iban: 'IBAN',
+    swift: 'SWIFT',
+    bankName: 'Bank Name',
   },
 };

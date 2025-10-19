@@ -3,8 +3,8 @@
  * FILE: design-tokens.ts
  * PATH: packages/config/src/constants/design-tokens.ts
  * DESCRIPTION: Design tokens for L-KERN v4 ERP system
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.0.2
+ * UPDATED: 2025-10-19 16:00:00
  * ================================================================
  */
 
@@ -60,33 +60,49 @@ export const COLORS = {
 /**
  * SPACING TOKENS
  * 8px grid system - all spacing values based on 8px base unit
+ *
+ * Čo to je: Systém rozostupov založený na 8px mriežke pre konzistentné spacing
+ * Prečo: Jednotné rozostupy pre všetky komponenty, responzívne layouty, hero sekcie
+ * Kedy zmeniť: Pri redizajne spacing systému alebo zmene design language
  */
 export const SPACING = {
-  xs: 4,      // 0.25rem
-  sm: 8,      // 0.5rem
-  md: 12,     // 0.75rem
-  lg: 16,     // 1rem
-  xl: 20,     // 1.25rem
-  xxl: 24,    // 1.5rem
-  xxxl: 32,   // 2rem
-  huge: 40,   // 2.5rem
+  none: 0,    // 0rem - žiadny rozostup
+  xs: 4,      // 0.25rem - extra malý rozostup (padding v malých prvkoch)
+  sm: 8,      // 0.5rem - malý rozostup (compact layouts)
+  md: 16,     // 1rem - stredný rozostup (štandardné medzery)
+  lg: 24,     // 1.5rem - veľký rozostup (sekcie)
+  xl: 32,     // 2rem - extra veľký rozostup (veľké sekcie)
+  xxl: 40,    // 2.5rem - dvoj-extra veľký (veľké oddelenia)
+  xxxl: 48,   // 3rem - troj-extra veľký (hlavné sekcie)
+  huge: 56,   // 3.5rem - obrovský rozostup (hero sekcie, veľké layouty)
+  xhuge: 64,  // 4rem - extra obrovský rozostup (najväčšie sekcie, hero bannery)
 } as const;
 
 /**
  * TYPOGRAPHY TOKENS
  * Font sizes, weights, and line heights
+ *
+ * Čo to je: Systém veľkostí písma, váh a výšok riadkov pre všetky textové elementy
+ * Prečo: Jednotná typografia, konzistentné nadpisy, hero sekcie s veľkou typografiou
+ * Kedy zmeniť: Pri redizajne typografie alebo zmene brand guidelines
  */
 export const TYPOGRAPHY = {
   // Font sizes
   fontSize: {
-    xs: 10,     // Extra small - badges, timestamps
-    sm: 12,     // Small - helper text, captions
-    md: 14,     // Standard - body text, inputs
-    lg: 16,     // Large - headings, important text
-    xl: 18,     // Extra large - section headings
-    xxl: 24,    // H2 headings, modal titles
-    xxxl: 32,   // H1 headings, page titles
-    huge: 40,   // Hero text
+    xs: 10,     // Extra small - badges, timestamps, tiny labels
+    sm: 12,     // Small - helper text, captions, footnotes
+    md: 14,     // Standard - body text, inputs, default text
+    lg: 16,     // Large - headings, important text, emphasized content
+    xl: 18,     // Extra large - section headings, subheaders
+    xxl: 24,    // H2 headings, modal titles, card headers
+    xxxl: 32,   // H1 headings, page titles, main headers
+    huge: 40,   // Hero text - large hero sections
+    /**
+     * Čo to je: Hero veľkosť fontu (48px) pre hlavné nadpisy landing pages
+     * Prečo: Potrebné pre hero sekcie homepage kde je potrebná veľká typografia
+     * Kedy zmeniť: Pri redizajne typografie alebo zmene brand guidelines
+     */
+    hero: 48,   // Hero titles - najväčšie titulky na landing pages a hero sekciách
   },
 
   // Font weights

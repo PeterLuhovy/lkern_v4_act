@@ -3,7 +3,7 @@
  * FILE: sk.ts
  * PATH: packages/config/src/translations/sk.ts
  * DESCRIPTION: Slovak translations for L-KERN v4
- * VERSION: v1.1.0
+ * VERSION: v1.2.0
  * UPDATED: 2025-10-19
  * ================================================================
  */
@@ -474,5 +474,29 @@ export const sk: TranslationKeys = {
     errorOccurred: 'Vyskytla sa chyba',
     actionCompleted: 'Akcia dokončená',
     processingRequest: 'Spracovávam požiadavku...',
+  },
+
+  contactType: {
+    company: 'Firma',
+    person: 'Fyzická osoba',
+  },
+
+  fields: {
+    name: 'Názov',
+    ico: 'IČO',
+    dic: 'DIČ',
+    firstName: 'Meno',
+    lastName: 'Priezvisko',
+    fullName: 'Meno',
+    email: 'Email',
+    phone: 'Telefón',
+    web: 'Web',
+    street: 'Ulica',
+    city: 'Mesto',
+    zip: 'PSČ',
+    country: 'Krajina',
+    iban: 'IBAN',
+    swift: 'SWIFT',
+    bankName: 'Názov banky',
   },
 };

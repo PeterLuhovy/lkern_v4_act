@@ -3,7 +3,7 @@
  * FILE: types.ts
  * PATH: packages/config/src/translations/types.ts
  * DESCRIPTION: TypeScript types for translation system
- * VERSION: v1.1.0
+ * VERSION: v1.2.0
  * UPDATED: 2025-10-19
  * ================================================================
  */
@@ -499,5 +499,31 @@ export interface TranslationKeys {
     errorOccurred: string;
     actionCompleted: string;
     processingRequest: string;
+  };
+
+  // Typy kontaktov (Firma / Fyzická osoba)
+  contactType: {
+    company: string;
+    person: string;
+  };
+
+  // Polia formulárov (názvy formulárových polí)
+  fields: {
+    name: string;
+    ico: string;
+    dic: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    web: string;
+    street: string;
+    city: string;
+    zip: string;
+    country: string;
+    iban: string;
+    swift: string;
+    bankName: string;
   };
 }
