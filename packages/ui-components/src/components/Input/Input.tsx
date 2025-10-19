@@ -2,8 +2,8 @@
  * @file Input.tsx
  * @package @l-kern/ui-components
  * @description Text input component with error handling and helper text
- * @version 1.0.0
- * @date 2025-10-18
+ * @version 1.1.0
+ * @date 2025-10-19
  */
 
 import React from 'react';
@@ -72,6 +72,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
         {error && (
           <span id={`${props.id}-error`} className={styles.errorText}>
+            <span className={styles.errorIcon} aria-hidden="true">⚠</span>
             {error}
           </span>
         )}

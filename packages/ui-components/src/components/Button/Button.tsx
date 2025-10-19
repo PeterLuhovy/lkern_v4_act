@@ -2,11 +2,12 @@
  * @file Button.tsx
  * @package @l-kern/ui-components
  * @description Customizable button component with variants, sizes, and loading state
- * @version 1.0.0
- * @date 2025-10-18
+ * @version 1.1.0
+ * @date 2025-10-19
  */
 
 import React from 'react';
+import { useTranslation } from '@l-kern/config';
 import { classNames } from '../../utils/classNames';
 import type { Variant, Size } from '../../types/common';
 import styles from './Button.module.css';
@@ -90,6 +91,8 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   ...props
 }) => {
+  const { t } = useTranslation();
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick && !loading && !disabled) {
       onClick(event);
@@ -111,11 +114,13 @@ export const Button: React.FC<ButtonProps> = ({
       className={buttonClassName}
       onClick={handleClick}
       disabled={loading || disabled}
+      aria-busy={loading}
+      aria-label={loading ? t('common.loading') : undefined}
     >
       {loading ? (
         <>
-          <span className={styles.loadingSpinner}>⟳</span>
-          <span>Loading...</span>
+          <span className={styles.loadingSpinner} aria-hidden="true">⟳</span>
+          <span>{t('common.loading')}</span>
         </>
       ) : (
         <>

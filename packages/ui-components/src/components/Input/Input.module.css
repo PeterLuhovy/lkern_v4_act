@@ -2,7 +2,7 @@
  * @file Input.module.css
  * @package @l-kern/ui-components
  * @description Input component styles using CSS Modules and design tokens
- * @version 1.1.0
+ * @version 1.2.0
  * @date 2025-10-19
  */
 
@@ -101,7 +101,9 @@
 
 .helperText,
 .errorText {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
   margin-top: var(--spacing-xs, 4px);
   font-size: var(--font-size-xs, 10px);
   font-weight: var(--font-weight-normal, 400);
@@ -114,6 +116,11 @@
 
 .errorText {
   color: var(--color-status-error, #f44336);
+}
+
+.errorIcon {
+  font-size: var(--font-size-sm, 12px);
+  flex-shrink: 0;
 }
 
 /* ================================================================

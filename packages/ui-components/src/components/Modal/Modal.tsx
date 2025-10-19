@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.7.0
- * UPDATED: 2025-10-19 15:30:00
+ * VERSION: v3.8.0
+ * UPDATED: 2025-10-19 17:00:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -659,6 +659,7 @@ export const Modal: React.FC<ModalProps> = ({
                 className={styles.modalCloseButton}
                 onClick={onClose}
                 aria-label={t('common.close')}
+                title={`${t('common.close')} (ESC)`}
                 type="button"
               >
                 ×
