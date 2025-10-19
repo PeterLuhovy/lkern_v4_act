@@ -3,8 +3,8 @@
  * FILE: WizardProgress.module.css
  * PATH: /packages/ui-components/src/components/Modal/WizardProgress.module.css
  * DESCRIPTION: Styles for WizardProgress component with responsive breakpoints
- * VERSION: v1.1.0
- * UPDATED: 2025-10-19 15:30:00
+ * VERSION: v1.1.1
+ * UPDATED: 2025-10-19 16:00:00
  * ================================================================
  */
 
@@ -51,7 +51,11 @@
 
 .progressBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #9c27b0 0%, #7b1fa2 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-primary, #9c27b0) 0%,
+    var(--color-brand-primary-dark, #7b1fa2) 100%
+  );
   transition: width 300ms ease;
   border-radius: 3px;
 }
