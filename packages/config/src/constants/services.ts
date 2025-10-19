@@ -3,8 +3,8 @@
  * FILE: services.ts
  * PATH: packages/config/src/constants/services.ts
  * DESCRIPTION: Service metadata and configuration for L-KERN v4
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.0.1
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
@@ -217,27 +217,3 @@ export function getServiceUrl(
   return `http://${host}:${service.port}`;
 }
 
-/**
- * Get database connection string for a service
- */
-export function getDatabaseUrl(
-  lkmsId: string,
-  options: {
-    user?: string;
-    password?: string;
-    host?: string;
-    port?: number;
-  } = {}
-): string | undefined {
-  const service = SERVICES[lkmsId];
-  if (!service || !service.database) return undefined;
-
-  const {
-    user = 'lkern_user',
-    password = 'lkern_dev_password',
-    host = 'lkms501-postgres',
-    port = 5432,
-  } = options;
-
-  return `postgresql://${user}:${password}@${host}:${port}/${service.database}`;
-}

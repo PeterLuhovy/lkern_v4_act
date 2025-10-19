@@ -3,8 +3,8 @@
  * FILE: index.ts
  * PATH: packages/config/src/constants/index.ts
  * DESCRIPTION: Main constants export file
- * VERSION: v1.1.0
- * UPDATED: 2025-10-18
+ * VERSION: v1.1.1
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
