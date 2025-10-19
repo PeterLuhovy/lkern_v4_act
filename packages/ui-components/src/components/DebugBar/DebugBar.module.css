@@ -3,8 +3,8 @@
  * FILE: DebugBar.module.css
  * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.module.css
  * DESCRIPTION: Debug bar styles (based on v3 ModalDebugHeader inline styles)
- * VERSION: v2.0.0
- * UPDATED: 2025-10-19 00:20:00
+ * VERSION: v2.1.0
+ * UPDATED: 2025-10-19 15:30:00
  * ================================================================
  */
 
@@ -34,7 +34,7 @@
   font-size: 11px;
   font-family: monospace;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--theme-text, #212121);
 
   /* Stacking */
   z-index: 1001;
@@ -108,7 +108,7 @@
   padding: 2px 8px;
   cursor: pointer;
   font-size: 9px;
-  color: #1a1a1a;
+  color: var(--theme-text, #212121);
   font-weight: 600;
   transition: all 0.2s ease;
 }
