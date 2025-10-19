@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.6.0
- * UPDATED: 2025-10-19 02:15:00
+ * VERSION: v3.7.0
+ * UPDATED: 2025-10-19 15:30:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -21,6 +21,7 @@
  *   - BasePage only handles global shortcuts (Ctrl+D, Ctrl+L)
  *
  * CHANGES:
+ *   - v3.7.0: CRITICAL - Fixed 2 memory leaks (drag listeners + keyboard listener churn)
  *   - v3.6.0: Enter closes modal when no onConfirm (same as ESC)
  *   - v3.5.0: Enhanced input field handling - ESC/Enter blur input instead of modal action
  *   - v3.4.0: Fixed nested modal ESC - switched to bubble phase listeners
@@ -295,6 +296,7 @@ export const Modal: React.FC<ModalProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const listenersAttachedRef = useRef(false); // Track drag listener state
 
   // Auto z-index from modalStack
   const [calculatedZIndex, setCalculatedZIndex] = useState<number>(1000);
@@ -350,6 +352,9 @@ export const Modal: React.FC<ModalProps> = ({
   // ================================================================
   // Modal handles ESC and Enter locally (not delegated to BasePage)
   // This gives modal full control over its keyboard behavior
+
+  // Stabilize keyboard handler with useRef to prevent listener churn
+  const handleModalKeyDownRef = useRef<((e: KeyboardEvent) => void) | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -424,13 +429,21 @@ export const Modal: React.FC<ModalProps> = ({
       }
     };
 
+    // Update ref with current handler
+    handleModalKeyDownRef.current = handleModalKeyDown;
+
+    // FIXED: Stable event handler to prevent listener churn
+    const stableHandler = (e: KeyboardEvent) => {
+      handleModalKeyDownRef.current?.(e);
+    };
+
     // IMPORTANT: Use BUBBLE phase (false), NOT capture phase
     // Bubble phase ensures child modal listener runs BEFORE parent
     // (Child is deeper in DOM, so it bubbles up from child to parent)
-    document.addEventListener('keydown', handleModalKeyDown, false);
+    document.addEventListener('keydown', stableHandler, false);
 
     return () => {
-      document.removeEventListener('keydown', handleModalKeyDown, false);
+      document.removeEventListener('keydown', stableHandler, false);
     };
   }, [isOpen, modalId, onClose, onConfirm]);
 
@@ -497,16 +510,28 @@ export const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
-  // Drag event listeners
+  // Drag event listeners - FIXED: Memory leak prevention
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging && !listenersAttachedRef.current) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      return () => {
+      listenersAttachedRef.current = true;
+    }
+
+    if (!isDragging && listenersAttachedRef.current) {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      listenersAttachedRef.current = false;
+    }
+
+    // CRITICAL: Cleanup on unmount
+    return () => {
+      if (listenersAttachedRef.current) {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
+        listenersAttachedRef.current = false;
+      }
+    };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   // === FOCUS TRAP ===
