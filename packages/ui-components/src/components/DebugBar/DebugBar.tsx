@@ -2,13 +2,16 @@
  * ================================================================
  * FILE: DebugBar.tsx
  * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.tsx
- * DESCRIPTION: Debug analytics bar - displays page metrics (time, clicks, keyboard events)
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 23:30:00
+ * DESCRIPTION: Debug analytics bar - displays modal metrics (based on v3 ModalDebugHeader)
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 00:15:00
+ * CHANGES:
+ *   - v2.0.0: Migrated to v3 ModalDebugHeader design (theme, language, dual timer, emoji counters)
+ *   - v1.0.0: Initial implementation
  * ================================================================
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from '@l-kern/config';
 import type { UsePageAnalyticsReturn } from '@l-kern/config';
 import styles from './DebugBar.module.css';
@@ -17,182 +20,147 @@ import styles from './DebugBar.module.css';
 
 export interface DebugBarProps {
   /**
-   * Page or modal name to display
+   * Modal name to display
    */
-  pageName: string;
+  modalName: string;
 
   /**
-   * File path to display
+   * Whether dark mode is active
    */
-  pagePath: string;
+  isDarkMode: boolean;
 
   /**
    * Analytics instance from usePageAnalytics hook
    */
   analytics: UsePageAnalyticsReturn;
+
+  /**
+   * Whether to show debug bar
+   * @default true
+   */
+  show?: boolean;
 }
 
 // === COMPONENT ===
 
 /**
- * Debug analytics bar component
+ * Debug analytics bar component (based on v3 ModalDebugHeader)
  *
- * Displays real-time page analytics:
- * - Page name and path (with copy-to-clipboard buttons)
- * - Total time on page
- * - Time since last activity (click or keyboard)
- * - Click count
- * - Keyboard event count
+ * Displays real-time modal analytics:
+ * - Modal name with copy-to-clipboard
+ * - Click count (🖱️) and keyboard count (⌨️)
+ * - Theme indicator (🌙 Dark / ☀️ Light)
+ * - Language indicator (🌐 SK/EN)
+ * - Dual timer box (total time + time since last activity)
  *
  * **Features:**
- * - Orange gradient background for visibility
- * - Fixed position at top of viewport
- * - Copy-to-clipboard functionality
+ * - Orange gradient background
+ * - Absolute positioning at top of modal
  * - Real-time metrics (updates every 100ms)
- * - Responsive design (mobile-friendly)
+ * - Click tracking on debug header area
  *
  * @example
  * ```tsx
- * const analytics = usePageAnalytics('ContactsPage');
+ * const analytics = usePageAnalytics('edit-contact');
  *
  * <DebugBar
- *   pageName="Contacts"
- *   pagePath="/apps/web-ui/src/pages/ContactsPage.tsx"
+ *   modalName="edit-contact"
+ *   isDarkMode={theme === 'dark'}
  *   analytics={analytics}
+ *   show={true}
  * />
  * ```
  */
 export const DebugBar: React.FC<DebugBarProps> = ({
-  pageName,
-  pagePath,
+  modalName,
+  isDarkMode,
   analytics,
+  show = true,
 }) => {
-  const { t } = useTranslation();
-  const [copiedItem, setCopiedItem] = useState<'name' | 'path' | null>(null);
+  const { language } = useTranslation();
+  const currentLanguage = language || 'sk';
 
-  // === COPY TO CLIPBOARD ===
-  const copyToClipboard = async (text: string, type: 'name' | 'path') => {
+  // Don't render if show is false
+  if (!show) {
+    return null;
+  }
+
+  // === COPY MODAL NAME ===
+  const handleCopyModalName = async () => {
     try {
-      // Don't track clicks if a modal is open
-      const isModalOpen = document.querySelector('[data-modal-overlay]');
-      if (!isModalOpen) {
-        analytics.trackClick(`DebugBar-Copy-${type}`, 'button', undefined);
-      }
-
-      await navigator.clipboard.writeText(text);
-      setCopiedItem(type);
-
-      setTimeout(() => {
-        setCopiedItem(null);
-      }, 1500);
+      await navigator.clipboard.writeText(modalName);
+      console.log('[DebugBar] Copied modal name:', modalName);
     } catch (err) {
       console.error('[DebugBar] Copy failed:', err);
     }
   };
 
-  // === TIME FORMATTING ===
-  const formatTime = (timeStr: string): string => {
-    // timeStr format: "5.3s" (decimal format from hook)
-    const seconds = parseFloat(timeStr);
-
-    if (isNaN(seconds)) return '-';
-
-    if (seconds < 60) {
-      // Keep decimal format for seconds < 60 (e.g., "5.3s")
-      return timeStr;
-    }
-    // Show minutes and seconds for >= 60 (e.g., "2m 30s")
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    const ms = Math.floor((seconds % 1) * 10); // Get single decimal digit
-    return `${minutes}m ${remainingSeconds}.${ms}s`;
+  // === CLICK TRACKING ===
+  const handleAnalyticsClick = (id: string, type: string, event: React.MouseEvent) => {
+    analytics.trackClick(id, type, event);
   };
 
   return (
     <div
       className={styles.debugBar}
       onClick={(e) => {
-        // Don't track clicks if a modal is open
-        const isModalOpen = document.querySelector('[data-modal-overlay]');
-        if (isModalOpen) {
-          e.stopPropagation();
-          return;
+        // Track clicks on debug header (but not button - it has its own handler)
+        if (!(e.target as HTMLElement).closest('button')) {
+          handleAnalyticsClick('DebugHeader', 'debug-header', e);
         }
-
-        // Track clicks on debug bar
-        const target = e.target as HTMLElement;
-
-        // Don't track if clicking on button (buttons have their own handlers)
-        if (target.closest('button')) return;
-
-        let elementId = 'DebugBar';
-
-        // Identify which part of debug bar was clicked
-        if (target.closest(`.${styles.debugBar__pageInfo}`)) {
-          elementId = 'DebugBar-PageInfo';
-        } else if (target.closest(`.${styles.debugBar__timeInfo}`)) {
-          elementId = 'DebugBar-TimeInfo';
-        }
-
-        analytics.trackClick(elementId, 'debug-bar', undefined);
       }}
     >
-      {/* Page info - left side */}
-      <div className={styles.debugBar__pageInfo}>
-        <span className={styles.debugBar__pageName}>{pageName}</span>
+      {/* Left side - Modal name + Copy button */}
+      <div className={styles.debugBar__left}>
+        <span className={styles.debugBar__modalName}>🐛 {modalName}</span>
         <button
-          className={`${styles.debugBar__copyBtn} ${copiedItem === 'name' ? styles['debugBar__copyBtn--copied'] : ''}`}
-          onClick={() => copyToClipboard(pageName, 'name')}
-          title="Copy page name"
+          className={styles.debugBar__copyBtn}
+          onClick={(e) => {
+            e.stopPropagation(); // Don't trigger debug header click analytics
+            handleAnalyticsClick('CopyModalName', 'button', e);
+            handleCopyModalName();
+          }}
           type="button"
+          title="Copy modal name to clipboard"
         >
-          {copiedItem === 'name' ? '✓' : '📋'}
-        </button>
-
-        <span className={styles.debugBar__separator}>•</span>
-
-        <span className={styles.debugBar__pagePath}>{pagePath}</span>
-        <button
-          className={`${styles.debugBar__copyBtn} ${copiedItem === 'path' ? styles['debugBar__copyBtn--copied'] : ''}`}
-          onClick={() => copyToClipboard(pagePath, 'path')}
-          title="Copy page path"
-          type="button"
-        >
-          {copiedItem === 'path' ? '✓' : '📋'}
+          📋 copy
         </button>
       </div>
 
-      {/* Analytics info - right side */}
-      <div className={styles.debugBar__timeInfo}>
-        {/* Total time on page */}
-        <span className={styles.debugBar__timeLabel}>
-          {t('debugBar.totalTimeOnPage')}:
+      {/* Center - Event counts (emoji) */}
+      <div className={styles.debugBar__center}>
+        <span className={styles.debugBar__counter}>
+          🖱️ <strong>{analytics.metrics.clickCount}</strong>
         </span>
-        <span className={styles.debugBar__timeValue}>{formatTime(analytics.metrics.totalTime)}</span>
-
-        <span className={styles.debugBar__separator}>•</span>
-
-        {/* Time since last activity (click OR keyboard) */}
-        <span className={styles.debugBar__timeLabel}>
-          {t('debugBar.timeSinceLastClick')}:
+        <span className={styles.debugBar__counter}>
+          ⌨️ <strong>{analytics.metrics.keyboardCount}</strong>
         </span>
-        <span className={styles.debugBar__timeValue}>{formatTime(analytics.metrics.timeSinceLastActivity)}</span>
+      </div>
 
-        <span className={styles.debugBar__separator}>•</span>
-
-        {/* Click count */}
-        <span className={styles.debugBar__timeLabel}>
-          {t('debugBar.clicks')}:
+      {/* Right side - Theme + Language + Dual Timers */}
+      <div className={styles.debugBar__right}>
+        {/* Theme indicator */}
+        <span className={styles.debugBar__indicator}>
+          {isDarkMode ? '🌙 Dark' : '☀️ Light'}
         </span>
-        <span className={styles.debugBar__timeValue}>{analytics.metrics.clickCount}</span>
 
-        <span className={styles.debugBar__separator}>•</span>
-
-        {/* Keyboard count */}
-        <span className={styles.debugBar__timeLabel}>
-          {t('debugBar.keys')}:
+        {/* Language indicator */}
+        <span className={styles.debugBar__indicator}>
+          🌐 {currentLanguage.toUpperCase()}
         </span>
-        <span className={styles.debugBar__timeValue}>{analytics.metrics.keyboardCount}</span>
+
+        {/* Dual timer box */}
+        <div className={styles.debugBar__timerBox}>
+          {/* Total time */}
+          <span className={styles.debugBar__timerMain}>
+            ⏱️ {analytics.metrics.totalTime}
+          </span>
+
+          {/* Time since last activity */}
+          <span className={styles.debugBar__timerSub}>
+            🕐 {analytics.metrics.timeSinceLastActivity}
+          </span>
+        </div>
       </div>
     </div>
   );

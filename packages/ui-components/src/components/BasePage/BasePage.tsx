@@ -3,13 +3,17 @@
  * FILE: BasePage.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.tsx
  * DESCRIPTION: Base page wrapper component with global keyboard shortcuts
- * VERSION: v2.0.0
- * UPDATED: 2025-10-18 23:00:00
+ * VERSION: v3.0.0
+ * UPDATED: 2025-10-19 01:05:00
+ * CHANGES:
+ *   - v3.0.0: HYBRID keyboard handling - removed ESC/Enter (now in Modal.tsx)
+ *   - v2.1.0: Fixed Enter key behavior - always preventDefault when modal is open
+ *   - v2.0.0: Initial version with keyboard shortcuts
  * ================================================================
  */
 
 import React, { useEffect } from 'react';
-import { modalStack, useTheme, useTranslation } from '@l-kern/config';
+import { useTheme, useTranslation } from '@l-kern/config';
 
 /**
  * Props for BasePage component
@@ -35,11 +39,13 @@ export interface BasePageProps {
 /**
  * BasePage Component
  *
- * Provides global keyboard shortcuts for all pages:
- * - ESC: Close topmost modal (from modalStack)
- * - Enter: Confirm/submit topmost modal (if onConfirm callback provided)
+ * Provides GLOBAL keyboard shortcuts for all pages (non-modal specific):
  * - Ctrl+D: Toggle dark/light theme
  * - Ctrl+L: Toggle language (SK ↔ EN)
+ *
+ * IMPORTANT: ESC and Enter are handled by Modal component directly (v3.0.0+)
+ * This ensures better separation of concerns and allows modals to work
+ * independently of BasePage wrapper.
  *
  * Note: Keyboard shortcuts are disabled when user is typing in INPUT/TEXTAREA/SELECT fields.
  *
@@ -51,7 +57,7 @@ export interface BasePageProps {
  *     modalId="my-modal"
  *     isOpen={isOpen}
  *     onClose={onClose}
- *     onConfirm={handleSave}  // Enter key will trigger this
+ *     onConfirm={handleSave}  // Enter handled by Modal (not BasePage)
  *   >
  *     Content
  *   </Modal>
@@ -88,19 +94,12 @@ export const BasePage: React.FC<BasePageProps> = ({
         }
       }
 
-      // ESC key - close topmost modal
-      if (e.key === 'Escape') {
-        const topmostModalId = modalStack.getTopmostModalId();
-
-        if (topmostModalId) {
-          console.log('[BasePage] ESC pressed - closing topmost modal:', topmostModalId);
-          e.preventDefault();
-          e.stopPropagation();
-
-          // Close modal via modalStack (calls onClose callback)
-          modalStack.closeModal(topmostModalId);
-        }
-      }
+      // ================================================================
+      // GLOBAL SHORTCUTS (non-modal specific)
+      // ================================================================
+      // NOTE: ESC and Enter are now handled by Modal component directly
+      // This ensures better separation of concerns and allows modals
+      // to work independently of BasePage wrapper
 
       // Ctrl+D - Toggle dark/light mode
       if (e.ctrlKey && e.key === 'd') {
@@ -112,21 +111,6 @@ export const BasePage: React.FC<BasePageProps> = ({
       if (e.ctrlKey && e.key === 'l') {
         e.preventDefault();
         setLanguage(language === 'sk' ? 'en' : 'sk');
-      }
-
-      // Enter key - confirm/submit topmost modal
-      if (e.key === 'Enter') {
-        const topmostModalId = modalStack.getTopmostModalId();
-
-        if (topmostModalId) {
-          console.log('[BasePage] Enter pressed - confirming topmost modal:', topmostModalId);
-          const confirmed = modalStack.confirmModal(topmostModalId);
-
-          if (confirmed) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }
       }
     };
 

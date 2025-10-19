@@ -2,112 +2,115 @@
  * ================================================================
  * FILE: DebugBar.module.css
  * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.module.css
- * DESCRIPTION: Debug bar styles - používa CSS premenné z theme-setup.ts
+ * DESCRIPTION: Debug bar styles (based on v3 ModalDebugHeader inline styles)
  * VERSION: v2.0.0
- * UPDATED: 2025-10-18 23:50:00
+ * UPDATED: 2025-10-19 00:20:00
  * ================================================================
  */
 
-/* === DEBUG BAR === */
+/* === DEBUG BAR CONTAINER === */
 .debugBar {
+  /* Position - absolute at top of modal */
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 28px;
+
+  /* Background - orange gradient (from v3) */
   background: linear-gradient(90deg, rgba(255,152,0,0.95), rgba(255,193,7,0.95));
-  color: #1a1a1a;
-  padding: 0 12px;
-  box-shadow: 0 2px 10px rgba(255,152,0,0.4);
-  font-family: monospace;
-  font-weight: var(--font-weight-semibold);
   border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   border: 1px solid rgba(255,152,0,0.6);
   backdrop-filter: blur(10px);
-  z-index: 1001;
+  box-shadow: 0 2px 10px rgba(255,152,0,0.4);
 
+  /* Layout */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  padding: 0 12px;
+
+  /* Typography */
   font-size: 11px;
+  font-family: monospace;
+  font-weight: 600;
+  color: #1a1a1a;
+
+  /* Stacking */
+  z-index: 1001;
 }
 
-/* === PAGE INFO (LEFT SIDE) === */
-.debugBar__pageInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-shrink: 1;
-  min-width: 0;
-}
-
-.debugBar__pageName {
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-  font-size: 12px;
-}
-
-.debugBar__pagePath {
-  font-family: 'Courier New', monospace;
-  font-weight: var(--font-weight-normal);
-  opacity: 0.8;
-  background: rgba(0, 0, 0, 0.15);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 250px;
-}
-
-/* === TIME INFO (RIGHT SIDE) === */
-.debugBar__timeInfo {
+/* === LEFT SIDE (Modal name + Copy button) === */
+.debugBar__left {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
-  flex-shrink: 0;
 }
 
-.debugBar__timeLabel {
-  font-weight: var(--font-weight-normal);
+.debugBar__modalName {
+  font-size: 12px;
+}
+
+/* === CENTER (Event counts with emoji) === */
+.debugBar__center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debugBar__counter {
+  font-size: 10px;
   opacity: 0.8;
-  white-space: nowrap;
+}
+
+.debugBar__counter strong {
+  font-weight: 700;
+}
+
+/* === RIGHT SIDE (Theme + Language + Timers) === */
+.debugBar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debugBar__indicator {
   font-size: 10px;
 }
 
-.debugBar__timeValue {
-  font-weight: var(--font-weight-bold);
-  font-family: 'Courier New', monospace;
+/* === DUAL TIMER BOX (dark background with 2 timers) === */
+.debugBar__timerBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(0, 0, 0, 0.15);
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 11px;
-  white-space: nowrap;
-  min-width: 40px;
-  text-align: center;
 }
 
-/* === COPY BUTTONS === */
+.debugBar__timerMain {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.debugBar__timerSub {
+  font-size: 9px;
+  opacity: 0.7;
+  border-left: 1px solid rgba(0, 0, 0, 0.2);
+  padding-left: 8px;
+}
+
+/* === COPY BUTTON === */
 .debugBar__copyBtn {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 4px;
   padding: 2px 8px;
-  margin-left: 8px;
-  font-size: 9px;
   cursor: pointer;
+  font-size: 9px;
   color: #1a1a1a;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .debugBar__copyBtn:hover {
@@ -117,82 +120,4 @@
 
 .debugBar__copyBtn:active {
   transform: scale(0.95);
-}
-
-.debugBar__copyBtn--copied {
-  background: rgba(76, 175, 80, 0.9);
-  color: white;
-}
-
-/* === SEPARATOR === */
-.debugBar__separator {
-  opacity: 0.6;
-  font-weight: var(--font-weight-bold);
-  margin: 0 4px;
-  font-size: 10px;
-}
-
-/* === RESPONSIVE === */
-
-/* Tablet */
-@media (max-width: 1024px) {
-  .debugBar {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    gap: var(--spacing-md);
-    font-size: var(--font-size-xs);
-  }
-
-  .debugBar__pageName {
-    max-width: 150px;
-  }
-
-  .debugBar__pagePath {
-    max-width: 180px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .debugBar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    gap: var(--spacing-xs);
-    min-height: auto;
-  }
-
-  .debugBar__pageInfo,
-  .debugBar__timeInfo {
-    gap: var(--spacing-xs);
-  }
-
-  .debugBar__pageName {
-    max-width: none;
-  }
-
-  .debugBar__pagePath {
-    max-width: none;
-  }
-
-  .debugBar__timeInfo {
-    flex-wrap: wrap;
-  }
-}
-
-/* Very small screens */
-@media (max-width: 480px) {
-  .debugBar__pageInfo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
-  }
-
-  .debugBar__separator {
-    display: none;
-  }
-
-  .debugBar__timeInfo {
-    width: 100%;
-    justify-content: space-between;
-  }
 }

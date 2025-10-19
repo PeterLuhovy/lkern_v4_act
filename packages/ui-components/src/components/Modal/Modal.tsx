@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.1.0
- * UPDATED: 2025-10-18 23:00:00
+ * VERSION: v3.4.0
+ * UPDATED: 2025-10-19 01:30:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -13,10 +13,18 @@
  *   - Alignment: top/center/bottom positioning
  *   - Padding Override: Custom overlay padding for nested modals
  *
- * KEYBOARD SHORTCUTS:
- *   - Handled by BasePage component
- *   - ESC: Closes topmost modal (calls onClose via modalStack)
- *   - Enter: Confirms topmost modal (calls onConfirm via modalStack, if provided)
+ * KEYBOARD SHORTCUTS (HYBRID APPROACH - v3.2.0+):
+ *   - Modal handles ESC and Enter locally (separation of concerns)
+ *   - ESC: Closes topmost modal only (bubble phase ensures correct order)
+ *   - Enter: Confirms topmost modal (calls onConfirm directly, if provided)
+ *   - Uses bubble phase (false) instead of capture phase for proper event order
+ *   - BasePage only handles global shortcuts (Ctrl+D, Ctrl+L)
+ *
+ * CHANGES:
+ *   - v3.4.0: Fixed nested modal ESC - switched to bubble phase listeners
+ *   - v3.3.0: Attempted fix with _modalHandled flag (didn't work)
+ *   - v3.2.0: Hybrid keyboard handling - Modal handles ESC/Enter locally
+ *   - v3.1.0: Initial version with keyboard delegation to BasePage
  *
  * MIGRATED FROM: L-KERN v3 ModalBaseTemplate.tsx (lines 1-681)
  * ================================================================
@@ -24,7 +32,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, modalStack, usePageAnalytics } from '@l-kern/config';
+import { useTranslation, useTheme, modalStack, usePageAnalytics } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import styles from './Modal.module.css';
 
@@ -157,16 +165,10 @@ export interface ModalProps {
   showDebugBar?: boolean;
 
   /**
-   * Page/modal name for debug bar
-   * @default Uses modalId if not provided
+   * Modal name for debug bar
+   * @default Uses title or modalId if not provided
    */
   debugPageName?: string;
-
-  /**
-   * File path for debug bar
-   * @default '/unknown'
-   */
-  debugPagePath?: string;
 }
 
 // === HELPER FUNCTIONS ===
@@ -281,9 +283,9 @@ export const Modal: React.FC<ModalProps> = ({
   className = '',
   showDebugBar = true,
   debugPageName,
-  debugPagePath = '/unknown',
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -297,6 +299,9 @@ export const Modal: React.FC<ModalProps> = ({
 
   // Analytics for DebugBar
   const analytics = usePageAnalytics(debugPageName || modalId);
+
+  // Check if dark mode is active
+  const isDarkMode = theme === 'dark';
 
   // ================================================================
   // DEBUG BAR ANALYTICS SESSION
@@ -337,6 +342,79 @@ export const Modal: React.FC<ModalProps> = ({
       }
     };
   }, [isOpen, modalId, parentModalId, onClose, onConfirm]);
+
+  // ================================================================
+  // KEYBOARD SHORTCUTS (HYBRID APPROACH)
+  // ================================================================
+  // Modal handles ESC and Enter locally (not delegated to BasePage)
+  // This gives modal full control over its keyboard behavior
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleModalKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in input field
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable
+      ) {
+        return; // Let user type normally
+      }
+
+      // CRITICAL: Check if this modal is topmost SYNCHRONOUSLY
+      // This must happen BEFORE any setState/onClose calls
+      const topmostModalId = modalStack.getTopmostModalId();
+
+      console.log('[Modal] KeyDown:', {
+        modalId,
+        topmost: topmostModalId,
+        key: e.key,
+        isTopmost: topmostModalId === modalId
+      });
+
+      // Only topmost modal handles keyboard events
+      if (topmostModalId !== modalId) {
+        console.log('[Modal] Not topmost, ignoring event');
+        return;
+      }
+
+      // ESC key - Close modal
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log('[Modal] ESC - closing topmost modal:', modalId);
+        onClose();
+        return;
+      }
+
+      // ENTER key - Confirm/submit (if onConfirm defined)
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (onConfirm) {
+          console.log('[Modal] ENTER - confirming modal:', modalId);
+          onConfirm();
+        } else {
+          console.log('[Modal] ENTER - no onConfirm, preventing default only');
+        }
+        return;
+      }
+    };
+
+    // IMPORTANT: Use BUBBLE phase (false), NOT capture phase
+    // Bubble phase ensures child modal listener runs BEFORE parent
+    // (Child is deeper in DOM, so it bubbles up from child to parent)
+    document.addEventListener('keydown', handleModalKeyDown, false);
+
+    return () => {
+      document.removeEventListener('keydown', handleModalKeyDown, false);
+    };
+  }, [isOpen, modalId, onClose, onConfirm]);
 
   // ================================================================
   // DRAG AND DROP HANDLERS
@@ -510,9 +588,10 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Debug Bar - Top of modal */}
         {showDebugBar && (
           <DebugBar
-            pageName={debugPageName || title || modalId}
-            pagePath={debugPagePath}
+            modalName={debugPageName || title || modalId}
+            isDarkMode={isDarkMode}
             analytics={analytics}
+            show={showDebugBar}
           />
         )}
 
