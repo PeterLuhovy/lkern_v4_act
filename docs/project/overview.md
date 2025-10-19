@@ -2,9 +2,9 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 4.0.0
+# Version: 4.1.0
 # Created: 2025-10-13
-# Updated: 2025-10-18
+# Updated: 2025-10-19
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -282,13 +282,24 @@ L-KERN v4/
 **Started**: 2025-10-18
 **Note**: Modal simplified - only centered variant in production package
 
-**✅ Completed Components (3/3 basic):**
-- ✅ **Modal** (v2.0.0) - Centered variant only
-  - Portal rendering, focus trap, ESC key, backdrop
+**✅ Completed Components (4/4 core):**
+- ✅ **Modal** (v3.4.0) - Production modal with v3 enhancements
+  - Portal rendering, focus trap, hybrid keyboard handling
   - 3 sizes: sm (400px), md (600px), lg (800px)
-  - Loading state, custom footer
+  - Drag & drop support, nested modals, enhanced footer
+  - ESC/Enter handled locally (bubble phase for nested modals)
+  - Loading state, custom footer, alignment options
   - 26 tests passing
   - **Location**: `packages/ui-components/src/components/Modal/Modal.tsx`
+  - **Updated**: 2025-10-19 (keyboard handling refactor)
+- ✅ **DebugBar** (v2.0.0) - Debug analytics bar (migrated from v3)
+  - Theme indicator (🌙 Dark / ☀️ Light)
+  - Language indicator (🌐 SK / EN)
+  - Emoji counters (🖱️ clicks, ⌨️ keyboard events)
+  - Dual timer box (total time + time since activity)
+  - Copy modal name to clipboard
+  - **Location**: `packages/ui-components/src/components/DebugBar/DebugBar.tsx`
+  - **Created**: 2025-10-19 (v3 ModalDebugHeader migration)
 - ✅ **WizardProgress** (v1.0.0) - Progress indicators
   - 3 variants: dots, bar, numbers
   - Current step highlighting
@@ -304,6 +315,13 @@ L-KERN v4/
   - **Location**: `packages/config/src/hooks/useModalWizard.ts`
 - ✅ **ModalContext** - Centralized modal registry
   - z-index management, multiple modals
+
+**✅ Completed Page Wrappers:**
+- ✅ **BasePage** (v3.0.0) - Global keyboard shortcuts wrapper
+  - Ctrl+D (toggle dark mode), Ctrl+L (toggle language)
+  - Simplified - modal shortcuts moved to Modal component (hybrid approach)
+  - **Location**: `packages/ui-components/src/components/BasePage/BasePage.tsx`
+  - **Updated**: 2025-10-19 (hybrid keyboard handling refactor)
   - **Location**: `packages/config/src/contexts/ModalContext.tsx`
 
 **⚠️ MISSING from Production:**
@@ -384,4 +402,30 @@ L-KERN v4/
 
 ---
 
-**Last Updated**: 2025-10-18 19:50:00
+---
+
+## 📝 Recent Changes
+
+### 2025-10-19: Modal System Refactoring
+- ✅ **Modal v3.4.0**: Hybrid keyboard handling implementation
+  - ESC/Enter handled locally in Modal component
+  - Fixed nested modal ESC behavior (bubble phase listeners)
+  - Fixed modal centering animation jump
+  - Fixed Enter key behavior in modals without onConfirm
+- ✅ **DebugBar v2.0.0**: Migrated from v3 ModalDebugHeader
+  - Added theme/language indicators
+  - Changed counters to emoji (🖱️/⌨️)
+  - Dual timer box with dark background
+- ✅ **BasePage v3.0.0**: Simplified to global shortcuts only
+  - Removed ESC/Enter handling (moved to Modal)
+  - Kept only Ctrl+D and Ctrl+L
+
+### 2025-10-18: Modal & Wizard Components
+- ✅ Modal v2.0.0 - Basic centered modal
+- ✅ WizardProgress v1.0.0 - Progress indicators
+- ✅ WizardNavigation v1.0.0 - Navigation buttons
+- ✅ useModalWizard hook - Multi-step workflow logic
+
+---
+
+**Last Updated**: 2025-10-19 01:45:00
