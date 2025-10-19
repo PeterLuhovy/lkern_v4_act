@@ -3,8 +3,8 @@
  * FILE: sk.ts
  * PATH: packages/config/src/translations/sk.ts
  * DESCRIPTION: Slovak translations for L-KERN v4
- * VERSION: v1.2.0
- * UPDATED: 2025-10-19
+ * VERSION: v1.3.0
+ * UPDATED: 2025-10-19 13:00:00
  * ================================================================
  */
 
@@ -455,6 +455,36 @@ export const sk: TranslationKeys = {
     previous: '← Späť',
     next: 'Ďalej →',
     complete: 'Uložiť',
+    contactForm: {
+      title: 'Nový kontakt',
+      contactType: {
+        title: 'Typ kontaktu',
+        description: 'Vyberte či pridávate firmu alebo fyzickú osobu.',
+      },
+      basicInfo: {
+        title: 'Základné údaje',
+        titleCompany: 'Základné údaje firmy',
+        titlePerson: 'Základné údaje osoby',
+        descriptionCompany: 'Zadajte názov a identifikačné údaje firmy.',
+        descriptionPerson: 'Zadajte meno a priezvisko.',
+      },
+      contactDetails: {
+        title: 'Kontaktné údaje',
+        description: 'Zadajte email, telefón a webovú stránku (všetky polia sú nepovinné).',
+      },
+      address: {
+        title: 'Adresa',
+        description: 'Zadajte adresu kontaktu (všetky polia sú nepovinné).',
+      },
+      banking: {
+        title: 'Bankové údaje',
+        description: 'Zadajte bankové údaje pre platby (všetky polia sú nepovinné).',
+      },
+      summary: {
+        title: 'Zhrnutie',
+        description: 'Skontrolujte údaje a pridajte poznámky.',
+      },
+    },
   },
   debugBar: {
     totalTimeOnPage: 'Celkový čas na stránke',
@@ -491,12 +521,41 @@ export const sk: TranslationKeys = {
     email: 'Email',
     phone: 'Telefón',
     web: 'Web',
-    street: 'Ulica',
+    street: 'Ulica a číslo',
     city: 'Mesto',
     zip: 'PSČ',
     country: 'Krajina',
     iban: 'IBAN',
-    swift: 'SWIFT',
+    swift: 'SWIFT/BIC',
     bankName: 'Názov banky',
+    notes: 'Poznámky',
+  },
+
+  placeholders: {
+    companyName: 'Napr. ABC s.r.o.',
+    ico: '12345678',
+    dic: 'SK1234567890',
+    firstName: 'Ján',
+    lastName: 'Novák',
+    email: 'info@example.com',
+    phone: '+421 900 123 456',
+    web: 'www.example.com',
+    street: 'Hlavná 123',
+    city: 'Bratislava',
+    zip: '81101',
+    country: 'Slovensko',
+    iban: 'SK31 1200 0000 1987 4263 7541',
+    swift: 'GIBASKBX',
+    bankName: 'Slovenská sporiteľňa',
+    notes: 'Napr. VIP zákazník, preferovaný dodávateľ...',
+  },
+
+  helperTexts: {
+    emailExample: 'Napr. info@example.com',
+    phoneExample: 'Napr. +421 900 123 456',
+    webExample: 'Napr. www.example.com',
+    ibanHelper: 'Medzinárodné číslo bankového účtu',
+    swiftHelper: 'Identifikačný kód banky',
+    notesHelper: 'Ďalšie informácie o kontakte',
   },
 };

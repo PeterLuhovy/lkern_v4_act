@@ -3,8 +3,8 @@
  * FILE: en.ts
  * PATH: packages/config/src/translations/en.ts
  * DESCRIPTION: English translations for L-KERN v4
- * VERSION: v1.2.0
- * UPDATED: 2025-10-19
+ * VERSION: v1.3.0
+ * UPDATED: 2025-10-19 13:00:00
  * ================================================================
  */
 
@@ -455,6 +455,36 @@ export const en: TranslationKeys = {
     previous: '← Previous',
     next: 'Next →',
     complete: 'Save',
+    contactForm: {
+      title: 'New Contact',
+      contactType: {
+        title: 'Contact Type',
+        description: 'Select whether you are adding a company or an individual.',
+      },
+      basicInfo: {
+        title: 'Basic Information',
+        titleCompany: 'Company Information',
+        titlePerson: 'Personal Information',
+        descriptionCompany: 'Enter company name and identification details.',
+        descriptionPerson: 'Enter first and last name.',
+      },
+      contactDetails: {
+        title: 'Contact Details',
+        description: 'Enter email, phone and website (all fields are optional).',
+      },
+      address: {
+        title: 'Address',
+        description: 'Enter contact address (all fields are optional).',
+      },
+      banking: {
+        title: 'Banking Information',
+        description: 'Enter banking details for payments (all fields are optional).',
+      },
+      summary: {
+        title: 'Summary',
+        description: 'Review the details and add notes.',
+      },
+    },
   },
   debugBar: {
     totalTimeOnPage: 'Total time on page',
@@ -491,12 +521,41 @@ export const en: TranslationKeys = {
     email: 'Email',
     phone: 'Phone',
     web: 'Website',
-    street: 'Street',
+    street: 'Street and Number',
     city: 'City',
     zip: 'ZIP Code',
     country: 'Country',
     iban: 'IBAN',
-    swift: 'SWIFT',
+    swift: 'SWIFT/BIC',
     bankName: 'Bank Name',
+    notes: 'Notes',
+  },
+
+  placeholders: {
+    companyName: 'e.g. ABC Ltd.',
+    ico: '12345678',
+    dic: 'SK1234567890',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'info@example.com',
+    phone: '+1 555 123 4567',
+    web: 'www.example.com',
+    street: 'Main Street 123',
+    city: 'New York',
+    zip: '10001',
+    country: 'United States',
+    iban: 'GB29 NWBK 6016 1331 9268 19',
+    swift: 'NWBKGB2L',
+    bankName: 'National Bank',
+    notes: 'e.g. VIP customer, preferred supplier...',
+  },
+
+  helperTexts: {
+    emailExample: 'e.g. info@example.com',
+    phoneExample: 'e.g. +1 555 123 4567',
+    webExample: 'e.g. www.example.com',
+    ibanHelper: 'International Bank Account Number',
+    swiftHelper: 'Bank Identifier Code',
+    notesHelper: 'Additional information about contact',
   },
 };

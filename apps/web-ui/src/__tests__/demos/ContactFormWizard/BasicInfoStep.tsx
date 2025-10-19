@@ -3,13 +3,14 @@
  * FILE: BasicInfoStep.tsx
  * PATH: /apps/web-ui/src/demos/ContactFormWizard/BasicInfoStep.tsx
  * DESCRIPTION: Step 2 - Basic company/person information
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 18:15:00
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 13:00:00
  * ================================================================
  */
 
 import React from 'react';
 import { FormField, Input } from '@l-kern/ui-components';
+import { useTranslation } from '@l-kern/config';
 
 // === TYPES ===
 
@@ -34,6 +35,8 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   contactType,
   onChange,
 }) => {
+  const { t } = useTranslation();
+
   const handleChange = (field: keyof BasicInfoStepData, value: string) => {
     onChange({
       name: data?.name || '',
@@ -45,35 +48,35 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   if (contactType === 'company') {
     return (
       <div>
-        <h3 style={{ marginBottom: '16px' }}>Základné údaje firmy</h3>
+        <h3 style={{ marginBottom: '16px' }}>{t('wizard.contactForm.basicInfo.titleCompany')}</h3>
         <p style={{ marginBottom: '24px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
-          Zadajte názov a identifikačné údaje firmy.
+          {t('wizard.contactForm.basicInfo.descriptionCompany')}
         </p>
 
-        <FormField label="Názov firmy" required>
+        <FormField label={t('fields.name')} required>
           <Input
             value={data?.name || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)}
-            placeholder="Napr. ABC s.r.o."
+            placeholder={t('placeholders.companyName')}
           />
         </FormField>
 
         <div style={{ marginTop: '16px' }}>
-          <FormField label="IČO">
+          <FormField label={t('fields.ico')}>
             <Input
               value={data?.ico || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('ico', e.target.value)}
-              placeholder="12345678"
+              placeholder={t('placeholders.ico')}
             />
           </FormField>
         </div>
 
         <div style={{ marginTop: '16px' }}>
-          <FormField label="DIČ">
+          <FormField label={t('fields.dic')}>
             <Input
               value={data?.dic || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('dic', e.target.value)}
-              placeholder="SK1234567890"
+              placeholder={t('placeholders.dic')}
             />
           </FormField>
         </div>
@@ -83,25 +86,25 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
   return (
     <div>
-      <h3 style={{ marginBottom: '16px' }}>Základné údaje osoby</h3>
+      <h3 style={{ marginBottom: '16px' }}>{t('wizard.contactForm.basicInfo.titlePerson')}</h3>
       <p style={{ marginBottom: '24px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
-        Zadajte meno a priezvisko.
+        {t('wizard.contactForm.basicInfo.descriptionPerson')}
       </p>
 
-      <FormField label="Meno" required>
+      <FormField label={t('fields.firstName')} required>
         <Input
           value={data?.firstName || ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('firstName', e.target.value)}
-          placeholder="Ján"
+          placeholder={t('placeholders.firstName')}
         />
       </FormField>
 
       <div style={{ marginTop: '16px' }}>
-        <FormField label="Priezvisko" required>
+        <FormField label={t('fields.lastName')} required>
           <Input
             value={data?.lastName || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('lastName', e.target.value)}
-            placeholder="Novák"
+            placeholder={t('placeholders.lastName')}
           />
         </FormField>
       </div>

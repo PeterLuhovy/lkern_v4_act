@@ -3,8 +3,8 @@
  * FILE: types.ts
  * PATH: packages/config/src/translations/types.ts
  * DESCRIPTION: TypeScript types for translation system
- * VERSION: v1.2.0
- * UPDATED: 2025-10-19
+ * VERSION: v1.3.0
+ * UPDATED: 2025-10-19 13:00:00
  * ================================================================
  */
 
@@ -480,6 +480,36 @@ export interface TranslationKeys {
     previous: string;
     next: string;
     complete: string;
+    contactForm: {
+      title: string;
+      contactType: {
+        title: string;
+        description: string;
+      };
+      basicInfo: {
+        title: string;
+        titleCompany: string;
+        titlePerson: string;
+        descriptionCompany: string;
+        descriptionPerson: string;
+      };
+      contactDetails: {
+        title: string;
+        description: string;
+      };
+      address: {
+        title: string;
+        description: string;
+      };
+      banking: {
+        title: string;
+        description: string;
+      };
+      summary: {
+        title: string;
+        description: string;
+      };
+    };
   };
   debugBar: {
     totalTimeOnPage: string;
@@ -525,5 +555,34 @@ export interface TranslationKeys {
     iban: string;
     swift: string;
     bankName: string;
+    notes: string;
+  };
+
+  placeholders: {
+    companyName: string;
+    ico: string;
+    dic: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    web: string;
+    street: string;
+    city: string;
+    zip: string;
+    country: string;
+    iban: string;
+    swift: string;
+    bankName: string;
+    notes: string;
+  };
+
+  helperTexts: {
+    emailExample: string;
+    phoneExample: string;
+    webExample: string;
+    ibanHelper: string;
+    swiftHelper: string;
+    notesHelper: string;
   };
 }

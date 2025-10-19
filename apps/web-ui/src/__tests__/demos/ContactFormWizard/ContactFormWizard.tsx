@@ -3,15 +3,15 @@
  * FILE: ContactFormWizard.tsx
  * PATH: /apps/web-ui/src/__tests__/demos/ContactFormWizard/ContactFormWizard.tsx
  * DESCRIPTION: TESTING DEMO - 6-step contact form wizard
- * VERSION: v2.0.0
- * UPDATED: 2025-10-18 19:00:00
+ * VERSION: v3.0.0
+ * UPDATED: 2025-10-19 13:00:00
  *
  * NOTE: This is a TEST-ONLY demo. Uses Modal3Variants for testing all variants.
  * ================================================================
  */
 
 import React, { useState } from 'react';
-import { useModalWizard } from '@l-kern/config';
+import { useModalWizard, useTranslation } from '@l-kern/config';
 import { WizardProgress, WizardNavigation } from '@l-kern/ui-components';
 import { Modal3Variants } from '../../components/Modal3Variants';
 import { ContactTypeStep } from './ContactTypeStep';
@@ -53,6 +53,7 @@ export const ContactFormWizard: React.FC<ContactFormWizardProps> = ({
   onClose,
   onComplete,
 }) => {
+  const { t } = useTranslation();
   const [wizardData, setWizardData] = useState<WizardData>({
     contactType: { contactType: 'company' },
   });
@@ -60,12 +61,12 @@ export const ContactFormWizard: React.FC<ContactFormWizardProps> = ({
   const wizard = useModalWizard({
     id: 'contact-form-wizard',
     steps: [
-      { id: 'type', title: 'Typ kontaktu' },
-      { id: 'basic', title: 'Základné údaje' },
-      { id: 'contact', title: 'Kontaktné údaje' },
-      { id: 'address', title: 'Adresa' },
-      { id: 'banking', title: 'Bankové údaje' },
-      { id: 'summary', title: 'Zhrnutie' },
+      { id: 'type', title: t('wizard.contactForm.contactType.title') },
+      { id: 'basic', title: t('wizard.contactForm.basicInfo.title') },
+      { id: 'contact', title: t('wizard.contactForm.contactDetails.title') },
+      { id: 'address', title: t('wizard.contactForm.address.title') },
+      { id: 'banking', title: t('wizard.contactForm.banking.title') },
+      { id: 'summary', title: t('wizard.contactForm.summary.title') },
     ],
     onComplete: (finalData) => {
       onComplete(finalData);
@@ -169,7 +170,7 @@ export const ContactFormWizard: React.FC<ContactFormWizardProps> = ({
       onClose={wizard.cancel}
       variant={variant}
       size="md"
-      title="Nový kontakt"
+      title={t('wizard.contactForm.title')}
       closeOnBackdropClick={false}
       closeOnEscape={false}
       footer={

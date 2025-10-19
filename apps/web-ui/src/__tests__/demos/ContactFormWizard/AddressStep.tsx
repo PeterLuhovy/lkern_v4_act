@@ -3,13 +3,14 @@
  * FILE: AddressStep.tsx
  * PATH: /apps/web-ui/src/demos/ContactFormWizard/AddressStep.tsx
  * DESCRIPTION: Step 4 - Address information
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 18:15:00
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 13:00:00
  * ================================================================
  */
 
 import React from 'react';
 import { FormField, Input } from '@l-kern/ui-components';
+import { useTranslation } from '@l-kern/config';
 
 // === TYPES ===
 
@@ -28,6 +29,8 @@ export interface AddressStepProps {
 // === COMPONENT ===
 
 export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
+  const { t } = useTranslation();
+
   const handleChange = (field: keyof AddressStepData, value: string) => {
     onChange({
       ...data,
@@ -37,45 +40,45 @@ export const AddressStep: React.FC<AddressStepProps> = ({ data, onChange }) => {
 
   return (
     <div>
-      <h3 style={{ marginBottom: '16px' }}>Adresa</h3>
+      <h3 style={{ marginBottom: '16px' }}>{t('wizard.contactForm.address.title')}</h3>
       <p style={{ marginBottom: '24px', color: 'var(--theme-text-muted, #9e9e9e)' }}>
-        Zadajte adresu kontaktu (všetky polia sú nepovinné).
+        {t('wizard.contactForm.address.description')}
       </p>
 
-      <FormField label="Ulica a číslo">
+      <FormField label={t('fields.street')}>
         <Input
           value={data?.street || ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('street', e.target.value)}
-          placeholder="Hlavná 123"
+          placeholder={t('placeholders.street')}
         />
       </FormField>
 
       <div style={{ marginTop: '16px' }}>
-        <FormField label="Mesto">
+        <FormField label={t('fields.city')}>
           <Input
             value={data?.city || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('city', e.target.value)}
-            placeholder="Bratislava"
+            placeholder={t('placeholders.city')}
           />
         </FormField>
       </div>
 
       <div style={{ marginTop: '16px' }}>
-        <FormField label="PSČ">
+        <FormField label={t('fields.zip')}>
           <Input
             value={data?.zip || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('zip', e.target.value)}
-            placeholder="81101"
+            placeholder={t('placeholders.zip')}
           />
         </FormField>
       </div>
 
       <div style={{ marginTop: '16px' }}>
-        <FormField label="Krajina">
+        <FormField label={t('fields.country')}>
           <Input
-            value={data?.country || 'Slovensko'}
+            value={data?.country || t('placeholders.country')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('country', e.target.value)}
-            placeholder="Slovensko"
+            placeholder={t('placeholders.country')}
           />
         </FormField>
       </div>
