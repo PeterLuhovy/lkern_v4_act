@@ -3,8 +3,8 @@
  * FILE: en.ts
  * PATH: packages/config/src/translations/en.ts
  * DESCRIPTION: English translations for L-KERN v4
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
@@ -312,6 +312,22 @@ export const en: TranslationKeys = {
         buttonLabel: 'Open Non-Draggable Modal',
         modalTitle: '🚫 Dragging Disabled',
         content: 'This modal cannot be dragged (disableDrag=true). Header cursor is default, not grab.',
+      },
+      test8: {
+        title: '🧙 Test 8: Multi-step Wizard',
+        description: 'Three-step wizard with progress indicator and navigation buttons.',
+        buttonLabel: 'Open Wizard Modal',
+        modalTitle: 'Wizard Test',
+        step1Title: 'Step 1: Basic Info',
+        step1Content: 'Enter your basic information',
+        step1Placeholder: 'Your name...',
+        step2Title: 'Step 2: Details',
+        step2Content: 'Add additional details',
+        step2Placeholder: 'Your email address...',
+        step3Title: 'Step 3: Summary',
+        step3Content: 'Review your information and complete the wizard.',
+        hint: '💡 Use "Previous" and "Next" buttons for navigation, or Enter/ESC keys.',
+        completeMessage: 'Wizard completed! Data has been saved.',
       },
       featureSummary: {
         title: '✅ Modal v3.0.0 Features Summary',

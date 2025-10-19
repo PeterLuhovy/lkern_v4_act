@@ -2,15 +2,15 @@
 # L-KERN v4 - Code Examples
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\code-examples.md
-# Version: 1.0.0
+# Version: 1.1.0
 # Created: 2025-10-15
-# Updated: 2025-10-18
+# Updated: 2025-10-19
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Production-ready code examples for React, REST API, gRPC, FastAPI,
-#   SQLAlchemy, forms, and testing patterns following coding standards.
+#   SQLAlchemy, forms, wizard modals, and testing patterns following coding standards.
 # ================================================================
 
 ---
@@ -329,6 +329,217 @@ export const useContacts = (): UseContactsReturn => {
     delete: deleteContact
   };
 };
+```
+
+---
+
+### 1.4 Modal with Multi-Step Wizard
+
+**Pattern:** Composable wizard using `Modal` + `WizardProgress` + `WizardNavigation` + `useModalWizard`
+
+```typescript
+/*
+ * ================================================================
+ * FILE: UserRegistrationWizard.tsx
+ * PATH: /apps/web-ui/src/components/UserRegistrationWizard.tsx
+ * DESCRIPTION: Multi-step user registration wizard modal
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-19 02:30:00
+ * ================================================================
+ */
+
+// === IMPORTS ===
+import { useState } from 'react';
+import { useTranslation, useModalWizard } from '@l-kern/config';
+import { Modal, Button, Input, WizardProgress, WizardNavigation } from '@l-kern/ui-components';
+
+// === TYPES ===
+interface UserRegistrationWizardProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (userData: UserData) => void;
+}
+
+interface UserData {
+  email?: string;
+  password?: string;
+  name?: string;
+  phone?: string;
+}
+
+// === COMPONENT ===
+export const UserRegistrationWizard: React.FC<UserRegistrationWizardProps> = ({
+  isOpen,
+  onClose,
+  onComplete
+}) => {
+  const { t } = useTranslation();
+  const [userData, setUserData] = useState<UserData>({});
+
+  // Initialize wizard with 3 steps
+  const wizard = useModalWizard({
+    id: 'user-registration',
+    steps: [
+      { id: 'account', title: 'Účet' },
+      { id: 'personal', title: 'Osobné údaje' },
+      { id: 'contact', title: 'Kontakt' }
+    ],
+    onComplete: (finalData) => {
+      onComplete(finalData);
+      onClose();
+    },
+    onCancel: onClose
+  });
+
+  // Sync wizard open state with parent
+  React.useEffect(() => {
+    if (isOpen && !wizard.isOpen) {
+      wizard.start();
+    }
+  }, [isOpen]);
+
+  // Validation for current step
+  const canProceed = () => {
+    switch (wizard.currentStepId) {
+      case 'account':
+        return !!userData.email && !!userData.password;
+      case 'personal':
+        return !!userData.name;
+      case 'contact':
+        return true; // Optional step
+      default:
+        return false;
+    }
+  };
+
+  // Render content based on current step
+  const renderStepContent = () => {
+    switch (wizard.currentStepId) {
+      case 'account':
+        return (
+          <div>
+            <h3>{t('wizard.accountStep.title')}</h3>
+            <Input
+              type="email"
+              label={t('common.email')}
+              value={userData.email || ''}
+              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+              fullWidth
+            />
+            <Input
+              type="password"
+              label={t('common.password')}
+              value={userData.password || ''}
+              onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+              fullWidth
+            />
+          </div>
+        );
+
+      case 'personal':
+        return (
+          <div>
+            <h3>{t('wizard.personalStep.title')}</h3>
+            <Input
+              type="text"
+              label={t('common.name')}
+              value={userData.name || ''}
+              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+              fullWidth
+            />
+          </div>
+        );
+
+      case 'contact':
+        return (
+          <div>
+            <h3>{t('wizard.contactStep.title')}</h3>
+            <Input
+              type="tel"
+              label={t('common.phone')}
+              value={userData.phone || ''}
+              onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+              fullWidth
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Modal
+      isOpen={wizard.isOpen}
+      onClose={wizard.cancel}
+      onConfirm={
+        wizard.isLastStep && canProceed()
+          ? () => wizard.complete(userData)
+          : wizard.next
+      }
+      modalId="user-registration-wizard"
+      title={`${t('wizard.title')} - ${wizard.currentStepTitle}`}
+      size="md"
+      closeOnBackdropClick={false}
+      footer={
+        <>
+          {/* Progress indicator (dots, bar, or numbers) */}
+          <WizardProgress
+            currentStep={wizard.currentStep}
+            totalSteps={wizard.totalSteps}
+            currentStepTitle={wizard.currentStepTitle}
+            variant="dots"
+          />
+
+          {/* Navigation buttons (Previous, Next, Complete) */}
+          <WizardNavigation
+            onPrevious={wizard.canGoPrevious ? wizard.previous : undefined}
+            onNext={
+              !wizard.isLastStep && canProceed()
+                ? () => wizard.next(userData)
+                : undefined
+            }
+            onComplete={
+              wizard.isLastStep && canProceed()
+                ? () => wizard.complete(userData)
+                : undefined
+            }
+            canGoPrevious={wizard.canGoPrevious}
+            canGoNext={canProceed()}
+            isLastStep={wizard.isLastStep}
+            isSubmitting={wizard.isSubmitting}
+          />
+        </>
+      }
+    >
+      {renderStepContent()}
+    </Modal>
+  );
+};
+```
+
+**Key Points:**
+- ✅ **Reuse Modal component** - No custom wizard modal needed
+- ✅ **useModalWizard hook** - Manages step state and navigation
+- ✅ **WizardProgress** - Visual step indicator in footer
+- ✅ **WizardNavigation** - Previous/Next/Complete buttons
+- ✅ **Step validation** - `canProceed()` checks if user can advance
+- ✅ **Data accumulation** - `userData` state accumulates across steps
+- ✅ **Keyboard support** - Enter triggers Next/Complete, ESC cancels
+
+**Usage:**
+```typescript
+const [isOpen, setIsOpen] = useState(false);
+
+<UserRegistrationWizard
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  onComplete={(data) => {
+    console.log('Registration data:', data);
+    // Save to API...
+  }}
+/>
 ```
 
 ---

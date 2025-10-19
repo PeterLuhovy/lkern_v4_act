@@ -2,24 +2,26 @@
  * ================================================================
  * FILE: TestModalV3Page.tsx
  * PATH: /apps/web-ui/src/__tests__/pages/TestModalV3Page.tsx
- * DESCRIPTION: Testing page for Modal v3.0.0 enhanced features
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 22:00:00
+ * DESCRIPTION: Testing page for Modal v3.6.0 enhanced features
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 02:45:00
  *
  * TESTS:
  *   ✅ Drag & Drop - Modal can be dragged by header
- *   ✅ Enhanced Keyboard - ESC closes topmost only, Enter submits
+ *   ✅ Enhanced Keyboard - ESC/Enter blur input, close/submit modal
  *   ✅ Nested Modals - modalStack auto z-index management
  *   ✅ Enhanced Footer - Left/right slots + error message
  *   ✅ Alignment - top/center/bottom positioning
  *   ✅ Padding Override - Custom overlay padding
+ *   ✅ Disable Drag - Modal with dragging disabled
+ *   ✅ Multi-step Wizard - 3-step wizard with progress indicator
  * ================================================================
  */
 
-import React, { useState } from 'react';
-import { BasePage, Modal, Button, Input } from '@l-kern/ui-components';
+import { useState, useEffect } from 'react';
+import { BasePage, Modal, Button, Input, WizardProgress, WizardNavigation } from '@l-kern/ui-components';
 import type { ModalFooterConfig } from '@l-kern/ui-components';
-import { useModal } from '@l-kern/config';
+import { useModal, useModalWizard } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import styles from './TestModalV3Page.module.css';
 
@@ -47,6 +49,34 @@ export function TestModalV3Page() {
 
   // Test 6: Disable drag
   const noDragModal = useModal();
+
+  // Test 8: Multi-step Wizard
+  const wizardModal = useModal();
+  const [wizardData, setWizardData] = useState({ step1: '', step2: '' });
+
+  const wizard = useModalWizard({
+    id: 'test-wizard',
+    steps: [
+      { id: 'step1', title: t('components.modalV3.test8.step1Title') },
+      { id: 'step2', title: t('components.modalV3.test8.step2Title') },
+      { id: 'step3', title: t('components.modalV3.test8.step3Title') }
+    ],
+    onComplete: (data) => {
+      alert(t('components.modalV3.test8.completeMessage'));
+      wizardModal.close();
+      setWizardData({ step1: '', step2: '' });
+    },
+    onCancel: () => {
+      wizardModal.close();
+    }
+  });
+
+  // Sync wizard open state with parent modal
+  useEffect(() => {
+    if (wizardModal.isOpen && !wizard.isOpen) {
+      wizard.start();
+    }
+  }, [wizardModal.isOpen, wizard]);
 
   const handleSubmit = () => {
     console.log('[TestModalV3] Submit with value:', inputValue);
@@ -203,6 +233,7 @@ export function TestModalV3Page() {
               setFooterError('');
               setInputValue('');
             }}
+            onConfirm={handleFooterSave}
             modalId="enhanced-footer"
             title={t('components.modalV3.test3.modalTitle')}
             size="md"
@@ -295,6 +326,8 @@ export function TestModalV3Page() {
               submitModal.close();
               setInputValue('');
             }}
+            onConfirm={handleSubmit}
+            modalId="submit-test"
             title={t('components.modalV3.test6.modalTitle')}
             size="md"
           >
@@ -337,6 +370,103 @@ export function TestModalV3Page() {
             <div className={styles.modalContent}>
               <p>
                 {t('components.modalV3.test7.content')}
+              </p>
+            </div>
+          </Modal>
+        </div>
+
+        {/* Test 8: Multi-step Wizard */}
+        <div className={styles.testCard}>
+          <h2 className={styles.testTitle}>{t('components.modalV3.test8.title')}</h2>
+          <p className={styles.testDescription}>
+            {t('components.modalV3.test8.description')}
+          </p>
+          <Button variant="primary" onClick={wizardModal.open}>
+            {t('components.modalV3.test8.buttonLabel')}
+          </Button>
+
+          <Modal
+            isOpen={wizard.isOpen}
+            onClose={wizard.cancel}
+            onConfirm={
+              wizard.isLastStep
+                ? () => wizard.complete(wizardData)
+                : () => wizard.next(wizardData)
+            }
+            modalId="wizard-test"
+            title={`${t('components.modalV3.test8.modalTitle')} - ${wizard.currentStepTitle}`}
+            size="md"
+            closeOnBackdropClick={false}
+            footer={
+              <>
+                <WizardProgress
+                  currentStep={wizard.currentStep}
+                  totalSteps={wizard.totalSteps}
+                  currentStepTitle={wizard.currentStepTitle}
+                  variant="dots"
+                />
+                <WizardNavigation
+                  onPrevious={wizard.canGoPrevious ? wizard.previous : undefined}
+                  onNext={
+                    !wizard.isLastStep
+                      ? () => wizard.next(wizardData)
+                      : undefined
+                  }
+                  onComplete={
+                    wizard.isLastStep
+                      ? () => wizard.complete(wizardData)
+                      : undefined
+                  }
+                  canGoPrevious={wizard.canGoPrevious}
+                  canGoNext={true}
+                  isLastStep={wizard.isLastStep}
+                  isSubmitting={wizard.isSubmitting}
+                />
+              </>
+            }
+          >
+            <div className={styles.modalContent}>
+              {/* Step 1: Basic Info */}
+              {wizard.currentStep === 0 && (
+                <div>
+                  <p><strong>{t('components.modalV3.test8.step1Content')}</strong></p>
+                  <Input
+                    type="text"
+                    placeholder={t('components.modalV3.test8.step1Placeholder')}
+                    value={wizardData.step1}
+                    onChange={(e) => setWizardData({ ...wizardData, step1: e.target.value })}
+                    fullWidth
+                  />
+                </div>
+              )}
+
+              {/* Step 2: Details */}
+              {wizard.currentStep === 1 && (
+                <div>
+                  <p><strong>{t('components.modalV3.test8.step2Content')}</strong></p>
+                  <Input
+                    type="email"
+                    placeholder={t('components.modalV3.test8.step2Placeholder')}
+                    value={wizardData.step2}
+                    onChange={(e) => setWizardData({ ...wizardData, step2: e.target.value })}
+                    fullWidth
+                  />
+                </div>
+              )}
+
+              {/* Step 3: Summary */}
+              {wizard.currentStep === 2 && (
+                <div>
+                  <p><strong>{t('components.modalV3.test8.step3Content')}</strong></p>
+                  <ul style={{ marginTop: '16px' }}>
+                    <li>{t('components.modalV3.test8.step1Title')}: {wizardData.step1 || '(prázdne)'}</li>
+                    <li>{t('components.modalV3.test8.step2Title')}: {wizardData.step2 || '(prázdne)'}</li>
+                  </ul>
+                </div>
+              )}
+
+              <p className={styles.modalHint} style={{ marginTop: '16px' }}>
+                {t('components.modalV3.test8.hint')}
               </p>
             </div>
           </Modal>

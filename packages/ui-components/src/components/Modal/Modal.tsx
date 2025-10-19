@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.4.0
- * UPDATED: 2025-10-19 01:30:00
+ * VERSION: v3.6.0
+ * UPDATED: 2025-10-19 02:15:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -15,12 +15,14 @@
  *
  * KEYBOARD SHORTCUTS (HYBRID APPROACH - v3.2.0+):
  *   - Modal handles ESC and Enter locally (separation of concerns)
- *   - ESC: Closes topmost modal only (bubble phase ensures correct order)
- *   - Enter: Confirms topmost modal (calls onConfirm directly, if provided)
+ *   - ESC: Input focused → blur input | No input → close modal
+ *   - Enter: Input focused → blur input | No input → submit (onConfirm) OR close (no onConfirm)
  *   - Uses bubble phase (false) instead of capture phase for proper event order
  *   - BasePage only handles global shortcuts (Ctrl+D, Ctrl+L)
  *
  * CHANGES:
+ *   - v3.6.0: Enter closes modal when no onConfirm (same as ESC)
+ *   - v3.5.0: Enhanced input field handling - ESC/Enter blur input instead of modal action
  *   - v3.4.0: Fixed nested modal ESC - switched to bubble phase listeners
  *   - v3.3.0: Attempted fix with _modalHandled flag (didn't work)
  *   - v3.2.0: Hybrid keyboard handling - Modal handles ESC/Enter locally
@@ -353,16 +355,14 @@ export const Modal: React.FC<ModalProps> = ({
     if (!isOpen) return;
 
     const handleModalKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in input field
       const target = e.target as HTMLElement;
-      if (
+
+      // Check if user is typing in input field
+      const isInputField =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.tagName === 'SELECT' ||
-        target.isContentEditable
-      ) {
-        return; // Let user type normally
-      }
+        target.isContentEditable;
 
       // CRITICAL: Check if this modal is topmost SYNCHRONOUSLY
       // This must happen BEFORE any setState/onClose calls
@@ -372,7 +372,8 @@ export const Modal: React.FC<ModalProps> = ({
         modalId,
         topmost: topmostModalId,
         key: e.key,
-        isTopmost: topmostModalId === modalId
+        isTopmost: topmostModalId === modalId,
+        isInputField
       });
 
       // Only topmost modal handles keyboard events
@@ -381,26 +382,43 @@ export const Modal: React.FC<ModalProps> = ({
         return;
       }
 
-      // ESC key - Close modal
+      // ESC key handling
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log('[Modal] ESC - closing topmost modal:', modalId);
-        onClose();
+        if (isInputField) {
+          // Input field is focused → blur it (remove focus)
+          console.log('[Modal] ESC - blurring input field');
+          target.blur();
+        } else {
+          // No input focused → close modal
+          console.log('[Modal] ESC - closing topmost modal:', modalId);
+          onClose();
+        }
         return;
       }
 
-      // ENTER key - Confirm/submit (if onConfirm defined)
+      // ENTER key handling
       if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
 
-        if (onConfirm) {
-          console.log('[Modal] ENTER - confirming modal:', modalId);
-          onConfirm();
+        if (isInputField) {
+          // Input field is focused → blur it (remove focus)
+          console.log('[Modal] ENTER - blurring input field');
+          target.blur();
         } else {
-          console.log('[Modal] ENTER - no onConfirm, preventing default only');
+          // No input focused → submit OR close modal
+          if (onConfirm) {
+            // Modal has onConfirm → submit
+            console.log('[Modal] ENTER - confirming modal:', modalId);
+            onConfirm();
+          } else {
+            // Modal has NO onConfirm → close (same as ESC)
+            console.log('[Modal] ENTER - no onConfirm, closing modal:', modalId);
+            onClose();
+          }
         }
         return;
       }

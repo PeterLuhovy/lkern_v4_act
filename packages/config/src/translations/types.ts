@@ -3,8 +3,8 @@
  * FILE: types.ts
  * PATH: packages/config/src/translations/types.ts
  * DESCRIPTION: TypeScript types for translation system
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
@@ -354,6 +354,22 @@ export interface TranslationKeys {
         paddingOverrideDesc: string;
         modalStack: string;
         modalStackDesc: string;
+      };
+      test8: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+        modalTitle: string;
+        step1Title: string;
+        step1Content: string;
+        step1Placeholder: string;
+        step2Title: string;
+        step2Content: string;
+        step2Placeholder: string;
+        step3Title: string;
+        step3Content: string;
+        hint: string;
+        completeMessage: string;
       };
       common: {
         confirmDelete: string;

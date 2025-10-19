@@ -3,8 +3,8 @@
  * FILE: sk.ts
  * PATH: packages/config/src/translations/sk.ts
  * DESCRIPTION: Slovak translations for L-KERN v4
- * VERSION: v1.0.0
- * UPDATED: 2025-10-13
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19
  * ================================================================
  */
 
@@ -312,6 +312,22 @@ export const sk: TranslationKeys = {
         buttonLabel: 'Otvoriť nepresúvateľný Modal',
         modalTitle: '🚫 Presúvanie zakázané',
         content: 'Tento modal sa nedá presúvať (disableDrag=true). Kurzor nad hlavičkou je predvolený, nie grab.',
+      },
+      test8: {
+        title: '🧙 Test 8: Multi-step Wizard',
+        description: 'Trojkrokový wizard s progress indikátorom a navigačnými tlačidlami.',
+        buttonLabel: 'Otvoriť Wizard Modal',
+        modalTitle: 'Wizard Test',
+        step1Title: 'Krok 1: Základné info',
+        step1Content: 'Zadajte základné informácie',
+        step1Placeholder: 'Vaše meno...',
+        step2Title: 'Krok 2: Detaily',
+        step2Content: 'Doplňte podrobnosti',
+        step2Placeholder: 'Vaša emailová adresa...',
+        step3Title: 'Krok 3: Zhrnutie',
+        step3Content: 'Skontrolujte zadané údaje a dokončite wizard.',
+        hint: '💡 Použite tlačidlá "Späť" a "Ďalej" pre navigáciu, alebo Enter/ESC klávesy.',
+        completeMessage: 'Wizard dokončený! Údaje boli uložené.',
       },
       featureSummary: {
         title: '✅ Modal v3.0.0 Zhrnutie funkcií',
