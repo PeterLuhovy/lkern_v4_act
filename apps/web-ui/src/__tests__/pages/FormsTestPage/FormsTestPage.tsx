@@ -28,7 +28,7 @@ export const FormsTestPage: React.FC = () => {
         {/* Header */}
         <div className={styles.header}>
           <Link to="/testing" className={styles.backLink}>
-            ← {t('components.testing.backToDashboard')}
+            {t('components.testing.backToDashboard')}
           </Link>
           <h1 className={styles.title}>{t('components.testing.formComponents')}</h1>
           <p className={styles.subtitle}>

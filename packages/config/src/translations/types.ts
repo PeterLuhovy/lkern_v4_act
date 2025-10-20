@@ -149,6 +149,8 @@ export interface TranslationKeys {
       utilityDescription: string;
       wizardTitle: string;
       wizardDescription: string;
+      modalV3Title: string;
+      modalV3Description: string;
       variants: string;
       sizes: string;
       states: string;

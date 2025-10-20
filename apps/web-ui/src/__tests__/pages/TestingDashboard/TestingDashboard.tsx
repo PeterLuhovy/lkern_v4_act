@@ -62,9 +62,9 @@ export const TestingDashboard: React.FC = () => {
     },
     {
       path: '/testing/modal-v3',
-      icon: '🪟',
-      title: 'Modal v3.0.0 Enhanced',
-      description: 'Drag & Drop, Nested Modals, Enhanced Keyboard, Enhanced Footer, Alignment',
+      icon: '📋',
+      title: t('components.testing.modalV3Title'),
+      description: t('components.testing.modalV3Description'),
     },
     {
       path: '/testing/glass-modal',
@@ -80,7 +80,7 @@ export const TestingDashboard: React.FC = () => {
         {/* Header */}
         <div className={styles.header}>
           <Link to="/" className={styles.backLink}>
-            ← {t('components.testing.backToHome')}
+            {t('components.testing.backToHome')}
           </Link>
           <h1 className={styles.title}>
             🧪 {t('components.testing.dashboard')}

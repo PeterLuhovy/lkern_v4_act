@@ -24,7 +24,7 @@ export const CardTestPage: React.FC = () => {
         {/* Header with back link */}
         <div className={styles.header}>
           <Link to="/testing" className={styles.backLink}>
-            ← {t('components.testing.backToDashboard')}
+            {t('components.testing.backToDashboard')}
           </Link>
           <h1 className={styles.title}>{t('components.testing.cardTitle')}</h1>
         </div>

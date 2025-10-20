@@ -152,6 +152,8 @@ export const en: TranslationKeys = {
       cardTitle: 'Card Component',
       emptyStateTitle: 'EmptyState Component',
       wizardTitle: 'Wizard Modal Demo [TEST]',
+      modalV3Title: 'Modal v3.0.0 Enhanced',
+      modalV3Description: 'Drag & Drop, Nested Modals, Enhanced Keyboard, Enhanced Footer, Alignment',
       nestedContentExamples: 'Nested Content Examples',
       gridLayoutExample: 'Grid Layout Example',
       size: 'Size',
