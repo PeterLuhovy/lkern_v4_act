@@ -20,6 +20,7 @@ export interface ClickEvent {
   elementType: string;
   coordinates?: { x: number; y: number };
   timeSinceLastClick?: number;
+  eventType: 'mousedown' | 'mouseup' | 'click';
 }
 
 export interface KeyboardEvent {
@@ -83,7 +84,14 @@ export interface UsePageAnalyticsReturn {
 // HOOK IMPLEMENTATION
 // ================================================================
 
-export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
+export const usePageAnalytics = (
+  pageName: string,
+  contextType: 'page' | 'modal' = 'page'
+): UsePageAnalyticsReturn => {
+  // Log prefix: [Analytics][Page|Modal][pageName]
+  const contextLabel = contextType.charAt(0).toUpperCase() + contextType.slice(1); // "Page" or "Modal"
+  const logPrefix = `[Analytics][${contextLabel}][${pageName}]`;
+
   // Session state
   const [session, setSession] = useState<PageAnalyticsSession | null>(null);
   const sessionRef = useRef<PageAnalyticsSession | null>(null);
@@ -101,6 +109,10 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
   const lastClickTimeRef = useRef<number>(0);
   const lastKeyTimeRef = useRef<number>(0);
 
+  // Pending down events (for debouncing logic)
+  const pendingMouseDownRef = useRef<{ timestamp: number; element: string; elementType: string; coordinates?: { x: number; y: number } } | null>(null);
+  const pendingKeyDownRef = useRef<{ timestamp: number; key: string; code: string; modifiers: any; targetElement?: string } | null>(null);
+
   // ================================================================
   // SESSION MANAGEMENT
   // ================================================================
@@ -108,7 +120,7 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
   const startSession = useCallback(() => {
     // Prevent starting session twice
     if (sessionRef.current && !sessionRef.current.endTime) {
-      console.log('[PageAnalytics] Session already active, ignoring start request');
+      console.log(`${logPrefix} Session already active, ignoring start request`);
       return;
     }
 
@@ -131,8 +143,8 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
     lastClickTimeRef.current = 0;
     lastKeyTimeRef.current = 0;
 
-    console.log('[PageAnalytics] Session started:', newSession.sessionId);
-  }, [pageName]);
+    console.log(`${logPrefix} Session started:`, newSession.sessionId);
+  }, [pageName, logPrefix]);
 
   const endSession = useCallback((outcome: 'confirmed' | 'cancelled' | 'dismissed' | 'navigated') => {
     if (!sessionRef.current) return;
@@ -150,7 +162,7 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
     sessionRef.current = finalSession;
     setSession(finalSession);
 
-    console.log('[PageAnalytics] Session ended:', {
+    console.log(`${logPrefix} Session ended:`, {
       sessionId: finalSession.sessionId,
       outcome,
       duration: `${(duration / 1000).toFixed(1)}s`,
@@ -189,6 +201,108 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
     if (!sessionRef.current) return;
 
     const now = Date.now();
+    const mouseEventType = event?.type === 'mousedown'
+      ? 'mousedown'
+      : event?.type === 'mouseup'
+      ? 'mouseup'
+      : 'click';
+
+    // === DEBOUNCING LOGIC: < 1s = merged "click", >= 1s = separate down/up ===
+
+    if (mouseEventType === 'mousedown') {
+      // Store mousedown event (pending)
+      pendingMouseDownRef.current = {
+        timestamp: now,
+        element,
+        elementType,
+        coordinates: event ? { x: event.clientX, y: event.clientY } : undefined
+      };
+      return; // Don't log yet, wait for mouseup
+    }
+
+    if (mouseEventType === 'mouseup' && pendingMouseDownRef.current) {
+      const downEvent = pendingMouseDownRef.current;
+      const duration = now - downEvent.timestamp;
+      const timeSinceLastClick = lastClickTimeRef.current
+        ? downEvent.timestamp - lastClickTimeRef.current
+        : undefined;
+
+      // Detect drag operation (mouse moved > 5px)
+      let isDragOperation = false;
+      if (downEvent.coordinates && event) {
+        const deltaX = Math.abs(event.clientX - downEvent.coordinates.x);
+        const deltaY = Math.abs(event.clientY - downEvent.coordinates.y);
+        isDragOperation = deltaX > 5 || deltaY > 5;
+      }
+
+      if (duration < 1000 && !isDragOperation) {
+        // FAST CLICK (< 1s) → Log as single "click" event
+        const clickEvent: ClickEvent = {
+          timestamp: downEvent.timestamp,
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          coordinates: downEvent.coordinates,
+          timeSinceLastClick,
+          eventType: 'click'
+        };
+
+        sessionRef.current.clickEvents.push(clickEvent);
+        lastClickTimeRef.current = downEvent.timestamp;
+        lastActivityTimeRef.current = now;
+        setClickCount(prev => prev + 1);
+
+        console.log(`${logPrefix} Click:`, {
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          duration: `${duration}ms`,
+          coordinates: downEvent.coordinates,
+          timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
+        });
+      } else {
+        // SLOW CLICK (>= 1s) → Log both mousedown and mouseup
+        const downClickEvent: ClickEvent = {
+          timestamp: downEvent.timestamp,
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          coordinates: downEvent.coordinates,
+          timeSinceLastClick,
+          eventType: 'mousedown'
+        };
+
+        const upClickEvent: ClickEvent = {
+          timestamp: now,
+          element,
+          elementType,
+          coordinates: event ? { x: event.clientX, y: event.clientY } : undefined,
+          timeSinceLastClick: now - downEvent.timestamp,
+          eventType: 'mouseup'
+        };
+
+        sessionRef.current.clickEvents.push(downClickEvent, upClickEvent);
+        lastClickTimeRef.current = now;
+        lastActivityTimeRef.current = now;
+        setClickCount(prev => prev + 2);
+
+        console.log(`${logPrefix} Mouse down:`, {
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          coordinates: downEvent.coordinates,
+          timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
+        });
+
+        console.log(`${logPrefix} Mouse up:`, {
+          element,
+          elementType,
+          coordinates: event ? { x: event.clientX, y: event.clientY } : undefined,
+          duration: `${duration}ms`
+        });
+      }
+
+      pendingMouseDownRef.current = null; // Clear pending
+      return;
+    }
+
+    // Fallback: standalone click event (legacy support)
     const timeSinceLastClick = lastClickTimeRef.current
       ? now - lastClickTimeRef.current
       : undefined;
@@ -198,7 +312,8 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
       element,
       elementType,
       coordinates: event ? { x: event.clientX, y: event.clientY } : undefined,
-      timeSinceLastClick
+      timeSinceLastClick,
+      eventType: 'click'
     };
 
     sessionRef.current.clickEvents.push(clickEvent);
@@ -206,22 +321,26 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
     lastActivityTimeRef.current = now;
     setClickCount(prev => prev + 1);
 
-    console.log('[PageAnalytics] Click tracked:', {
+    console.log(`${logPrefix} Click:`, {
       element,
       elementType,
       timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
     });
-  }, []);
+  }, [logPrefix]);
 
   const trackKeyboard = useCallback((
     event: React.KeyboardEvent | globalThis.KeyboardEvent
   ) => {
     if (!sessionRef.current) return;
 
+    // CRITICAL: Ignore OS key repeat events (holding key down)
+    // Only track: first keydown + keyup (not millions of repeats)
+    if (event.repeat) {
+      return;
+    }
+
     const now = Date.now();
-    const timeSinceLastKey = lastKeyTimeRef.current
-      ? now - lastKeyTimeRef.current
-      : undefined;
+    const keyEventType = event.type === 'keyup' ? 'keyup' : 'keydown';
 
     // Get target element info (if available)
     let targetElement = 'unknown';
@@ -230,17 +349,160 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
       targetElement = target.getAttribute('name') || target.id || target.tagName.toLowerCase();
     }
 
+    const modifiers = {
+      ctrl: event.ctrlKey,
+      shift: event.shiftKey,
+      alt: event.altKey,
+      meta: event.metaKey
+    };
+
+    // === DEBOUNCING LOGIC: < 1s = merged "keypress", >= 1s = separate down/up ===
+
+    if (keyEventType === 'keydown') {
+      // Store keydown event (pending)
+      pendingKeyDownRef.current = {
+        timestamp: now,
+        key: event.key,
+        code: event.code,
+        modifiers,
+        targetElement
+      };
+      return; // Don't log yet, wait for keyup
+    }
+
+    if (keyEventType === 'keyup' && pendingKeyDownRef.current) {
+      const downEvent = pendingKeyDownRef.current;
+
+      // Only pair if same key
+      if (downEvent.key !== event.key) {
+        // Different key - log pending down event separately
+        const timeSinceLastKey = lastKeyTimeRef.current
+          ? downEvent.timestamp - lastKeyTimeRef.current
+          : undefined;
+
+        const downKeyEvent: KeyboardEvent = {
+          timestamp: downEvent.timestamp,
+          key: downEvent.key,
+          code: downEvent.code,
+          modifiers: downEvent.modifiers,
+          eventType: 'keydown',
+          timeSinceLastKey,
+          targetElement: downEvent.targetElement
+        };
+
+        sessionRef.current.keyboardEvents.push(downKeyEvent);
+        lastKeyTimeRef.current = downEvent.timestamp;
+        lastActivityTimeRef.current = now;
+        setKeyboardCount(prev => prev + 1);
+
+        const modifierStrs = [];
+        if (downEvent.modifiers.ctrl) modifierStrs.push('Ctrl');
+        if (downEvent.modifiers.shift) modifierStrs.push('Shift');
+        if (downEvent.modifiers.alt) modifierStrs.push('Alt');
+        if (downEvent.modifiers.meta) modifierStrs.push('Meta');
+        const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
+
+        console.log(`${logPrefix} Key down:`, {
+          key: `${modifierStr}${downEvent.key}`,
+          targetElement: downEvent.targetElement,
+          timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
+        });
+
+        pendingKeyDownRef.current = null;
+        return;
+      }
+
+      const duration = now - downEvent.timestamp;
+      const timeSinceLastKey = lastKeyTimeRef.current
+        ? downEvent.timestamp - lastKeyTimeRef.current
+        : undefined;
+
+      // Format modifiers for logging
+      const modifierStrs = [];
+      if (modifiers.ctrl) modifierStrs.push('Ctrl');
+      if (modifiers.shift) modifierStrs.push('Shift');
+      if (modifiers.alt) modifierStrs.push('Alt');
+      if (modifiers.meta) modifierStrs.push('Meta');
+      const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
+
+      if (duration < 1000) {
+        // FAST KEYPRESS (< 1s) → Log as single "keydown" event
+        const keyEvent: KeyboardEvent = {
+          timestamp: downEvent.timestamp,
+          key: downEvent.key,
+          code: downEvent.code,
+          modifiers: downEvent.modifiers,
+          eventType: 'keydown',
+          timeSinceLastKey,
+          targetElement: downEvent.targetElement
+        };
+
+        sessionRef.current.keyboardEvents.push(keyEvent);
+        lastKeyTimeRef.current = downEvent.timestamp;
+        lastActivityTimeRef.current = now;
+        setKeyboardCount(prev => prev + 1);
+
+        console.log(`${logPrefix} Keypress:`, {
+          key: `${modifierStr}${event.key}`,
+          duration: `${duration}ms`,
+          targetElement,
+          timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
+        });
+      } else {
+        // SLOW KEYPRESS (>= 1s) → Log both keydown and keyup
+        const downKeyEvent: KeyboardEvent = {
+          timestamp: downEvent.timestamp,
+          key: downEvent.key,
+          code: downEvent.code,
+          modifiers: downEvent.modifiers,
+          eventType: 'keydown',
+          timeSinceLastKey,
+          targetElement: downEvent.targetElement
+        };
+
+        const upKeyEvent: KeyboardEvent = {
+          timestamp: now,
+          key: event.key,
+          code: event.code,
+          modifiers,
+          eventType: 'keyup',
+          timeSinceLastKey: now - downEvent.timestamp,
+          targetElement
+        };
+
+        sessionRef.current.keyboardEvents.push(downKeyEvent, upKeyEvent);
+        lastKeyTimeRef.current = now;
+        lastActivityTimeRef.current = now;
+        setKeyboardCount(prev => prev + 2);
+
+        console.log(`${logPrefix} Key down:`, {
+          key: `${modifierStr}${event.key}`,
+          targetElement,
+          timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
+        });
+
+        console.log(`${logPrefix} Key up:`, {
+          key: `${modifierStr}${event.key}`,
+          duration: `${duration}ms`,
+          targetElement
+        });
+      }
+
+      pendingKeyDownRef.current = null; // Clear pending
+      return;
+    }
+
+    // Fallback: standalone keydown event (no matching keyup)
+    const timeSinceLastKey = lastKeyTimeRef.current
+      ? now - lastKeyTimeRef.current
+      : undefined;
+
     const keyEvent: KeyboardEvent = {
       timestamp: now,
       key: event.key,
       code: event.code,
-      modifiers: {
-        ctrl: event.ctrlKey,
-        shift: event.shiftKey,
-        alt: event.altKey,
-        meta: event.metaKey
-      },
-      eventType: event.type === 'keyup' ? 'keyup' : 'keydown',
+      modifiers,
+      eventType: keyEventType,
       timeSinceLastKey,
       targetElement
     };
@@ -250,21 +512,19 @@ export const usePageAnalytics = (pageName: string): UsePageAnalyticsReturn => {
     lastActivityTimeRef.current = now;
     setKeyboardCount(prev => prev + 1);
 
-    // Format modifiers for logging
-    const modifiers = [];
-    if (keyEvent.modifiers.ctrl) modifiers.push('Ctrl');
-    if (keyEvent.modifiers.shift) modifiers.push('Shift');
-    if (keyEvent.modifiers.alt) modifiers.push('Alt');
-    if (keyEvent.modifiers.meta) modifiers.push('Meta');
-    const modifierStr = modifiers.length > 0 ? `${modifiers.join('+')}+` : '';
+    const modifierStrs = [];
+    if (modifiers.ctrl) modifierStrs.push('Ctrl');
+    if (modifiers.shift) modifierStrs.push('Shift');
+    if (modifiers.alt) modifierStrs.push('Alt');
+    if (modifiers.meta) modifierStrs.push('Meta');
+    const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
 
-    console.log('[PageAnalytics] Keyboard tracked:', {
+    console.log(`${logPrefix} ${keyEventType}:`, {
       key: `${modifierStr}${event.key}`,
-      eventType: keyEvent.eventType,
       targetElement,
       timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
     });
-  }, []);
+  }, [logPrefix]);
 
   // ================================================================
   // REAL-TIME METRICS UPDATE (100ms interval)

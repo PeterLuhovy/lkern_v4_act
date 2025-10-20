@@ -145,7 +145,7 @@ export function TestModalV3Page() {
   };
 
   return (
-    <BasePage>
+    <BasePage pageName="modalV3Testing">
       <div className={styles.container}>
         <h1 className={styles.header}>
           {t('components.modalV3.pageTitle')}
@@ -166,6 +166,7 @@ export function TestModalV3Page() {
             isOpen={dragModal.isOpen}
             onClose={dragModal.close}
             modalId="drag-test"
+            pageName="dragTest"
             title={t('components.modalV3.test1.modalTitle')}
             size="md"
           >
@@ -197,6 +198,7 @@ export function TestModalV3Page() {
             isOpen={parentModal.isOpen}
             onClose={parentModal.close}
             modalId="parent"
+            pageName="parentModal"
             title={t('components.modalV3.test2.parentModalTitle')}
             size="lg"
           >
@@ -217,6 +219,7 @@ export function TestModalV3Page() {
               isOpen={childModal.isOpen}
               onClose={childModal.close}
               modalId="child"
+              pageName="childModal"
               parentModalId="parent"
               title={t('components.modalV3.test2.childModalTitle')}
               size="md"
@@ -258,6 +261,7 @@ export function TestModalV3Page() {
             }}
             onConfirm={handleFooterSave}
             modalId="enhanced-footer"
+            pageName="enhancedFooter"
             title={t('components.modalV3.test3.modalTitle')}
             size="md"
             footer={enhancedFooter}
@@ -341,6 +345,7 @@ export function TestModalV3Page() {
             isOpen={topModal.isOpen}
             onClose={topModal.close}
             modalId="top-align"
+            pageName="topAlign"
             title={t('components.modalV3.test4.modalTitle')}
             size="sm"
             alignment="top"
@@ -365,6 +370,7 @@ export function TestModalV3Page() {
             isOpen={bottomModal.isOpen}
             onClose={bottomModal.close}
             modalId="bottom-align"
+            pageName="bottomAlign"
             title={t('components.modalV3.test5.modalTitle')}
             size="sm"
             alignment="bottom"
@@ -393,6 +399,7 @@ export function TestModalV3Page() {
             }}
             onConfirm={handleSubmit}
             modalId="submit-test"
+            pageName="submitTest"
             title={t('components.modalV3.test6.modalTitle')}
             size="md"
           >
@@ -428,6 +435,7 @@ export function TestModalV3Page() {
             isOpen={noDragModal.isOpen}
             onClose={noDragModal.close}
             modalId="no-drag"
+            pageName="noDrag"
             title={t('components.modalV3.test7.modalTitle')}
             size="sm"
             disableDrag={true}
@@ -459,6 +467,7 @@ export function TestModalV3Page() {
                 : () => wizard.next(wizardData)
             }
             modalId="wizard-test"
+            pageName="wizardTest"
             title={`${t('components.modalV3.test8.modalTitle')} - ${wizard.currentStepTitle}`}
             size="md"
             closeOnBackdropClick={false}

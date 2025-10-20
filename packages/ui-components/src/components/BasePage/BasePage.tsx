@@ -13,7 +13,8 @@
  */
 
 import React, { useEffect } from 'react';
-import { useTheme, useTranslation } from '@l-kern/config';
+import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
+import { DebugBar } from '../DebugBar';
 
 /**
  * Props for BasePage component
@@ -34,6 +35,18 @@ export interface BasePageProps {
    * Optional className for custom styling
    */
   className?: string;
+
+  /**
+   * Page name for analytics tracking
+   * @default 'page'
+   */
+  pageName?: string;
+
+  /**
+   * Show debug bar with analytics
+   * @default true
+   */
+  showDebugBar?: boolean;
 }
 
 /**
@@ -68,13 +81,47 @@ export const BasePage: React.FC<BasePageProps> = ({
   children,
   onKeyDown,
   className,
+  pageName = 'page',
+  showDebugBar = true,
 }) => {
-  const { toggleTheme } = useTheme();
+  const { toggleTheme, theme } = useTheme();
   const { language, setLanguage } = useTranslation();
+  const analytics = usePageAnalytics(pageName);
 
-  // Global keyboard shortcut handler
+  // Analytics session lifecycle
   useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+    if (showDebugBar) {
+      analytics.startSession();
+      console.log('[BasePage] Analytics session started:', pageName);
+    }
+
+    return () => {
+      if (showDebugBar && analytics.isSessionActive) {
+        analytics.endSession('navigated');
+        console.log('[BasePage] Analytics session ended');
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageName, showDebugBar]);
+
+  // Global keyboard shortcut handler + analytics tracking
+  useEffect(() => {
+    // Universal keyboard handler (tracks both keydown AND keyup for analytics)
+    const handleGlobalKeyEvent = (e: KeyboardEvent) => {
+      // Don't track if modal is open (modal has priority)
+      const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
+
+      // Track keyboard event in analytics (only if no modal open)
+      // Track BOTH keydown and keyup to detect selection (Shift held)
+      if (showDebugBar && !hasOpenModal) {
+        analytics.trackKeyboard(e);
+      }
+
+      // Only process shortcuts on keydown (not keyup)
+      if (e.type !== 'keydown') {
+        return;
+      }
+
       // Don't trigger shortcuts if user is typing in input field
       const target = e.target as HTMLElement;
       if (
@@ -114,17 +161,61 @@ export const BasePage: React.FC<BasePageProps> = ({
       }
     };
 
-    // Register global keyboard listener
-    document.addEventListener('keydown', handleGlobalKeyDown, true); // Use capture phase
+    // Register global keyboard listeners (BOTH keydown and keyup)
+    document.addEventListener('keydown', handleGlobalKeyEvent, true); // Use capture phase
+    document.addEventListener('keyup', handleGlobalKeyEvent, true); // Use capture phase
 
     return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown, true);
+      document.removeEventListener('keydown', handleGlobalKeyEvent, true);
+      document.removeEventListener('keyup', handleGlobalKeyEvent, true);
     };
-  }, [onKeyDown, toggleTheme, setLanguage, language]);
+  }, [onKeyDown, toggleTheme, setLanguage, language, showDebugBar, analytics]);
+
+  // Handle mouse tracking (mousedown + mouseup)
+  const handleMouseEvent = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Don't track if modal is open (modal has priority via stopPropagation)
+    const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
+
+    if (showDebugBar && !hasOpenModal) {
+      // Get clicked element info
+      const target = e.target as HTMLElement;
+      const elementType = target.tagName.toLowerCase();
+      const elementId = target.id || target.className || 'unknown';
+
+      analytics.trackClick(elementId, elementType, e);
+    }
+  };
 
   return (
-    <div className={className} data-component="base-page">
-      {children}
+    <div
+      className={className}
+      data-component="base-page"
+      onMouseDown={handleMouseEvent}
+      onMouseUp={handleMouseEvent}
+    >
+      {/* Debug Bar - Fixed at top of page (always visible, tracks only page clicks) */}
+      {showDebugBar && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999
+        }}>
+          <DebugBar
+            modalName={pageName}
+            isDarkMode={theme === 'dark'}
+            analytics={analytics}
+            show={showDebugBar}
+            contextType="page"
+          />
+        </div>
+      )}
+
+      {/* Page content - add padding-top if debug bar is visible */}
+      <div style={showDebugBar ? { paddingTop: '48px' } : undefined}>
+        {children}
+      </div>
     </div>
   );
 };

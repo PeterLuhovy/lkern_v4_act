@@ -163,10 +163,11 @@ export interface ModalProps {
   showDebugBar?: boolean;
 
   /**
-   * Modal name for debug bar
-   * @default Uses title or modalId if not provided
+   * Modal name for analytics (English name)
+   * @default Uses modalId if not provided
+   * @example 'contactEdit', 'companyAdd'
    */
-  debugPageName?: string;
+  pageName?: string;
 
   /**
    * Form validation state
@@ -287,7 +288,7 @@ export const Modal: React.FC<ModalProps> = ({
   zIndexOverride,
   className = '',
   showDebugBar = true,
-  debugPageName,
+  pageName,
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -303,8 +304,8 @@ export const Modal: React.FC<ModalProps> = ({
   // Auto z-index from modalStack
   const [calculatedZIndex, setCalculatedZIndex] = useState<number>(1000);
 
-  // Analytics for DebugBar
-  const analytics = usePageAnalytics(debugPageName || modalId);
+  // Analytics for DebugBar (modal context)
+  const analytics = usePageAnalytics(pageName || modalId, 'modal');
 
   // Check if dark mode is active
   const isDarkMode = theme === 'dark';
@@ -316,16 +317,18 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen && showDebugBar) {
       analytics.startSession();
-      console.log('[Modal] DebugBar session started:', debugPageName || modalId);
+      console.log('[Modal] DebugBar session started:', pageName || modalId);
     }
 
     return () => {
-      if (showDebugBar && analytics.session) {
+      if (showDebugBar && analytics.isSessionActive) {
         analytics.endSession('dismissed');
         console.log('[Modal] DebugBar session ended');
       }
     };
-  }, [isOpen, showDebugBar, analytics, debugPageName, modalId]);
+    // analytics functions are stable (useCallback), safe to exclude from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, showDebugBar, pageName, modalId]);
 
   // ================================================================
   // MODAL STACK REGISTRATION
@@ -336,15 +339,12 @@ export const Modal: React.FC<ModalProps> = ({
       // Register in modalStack and get z-index
       const zIndex = modalStack.push(modalId, parentModalId, onClose, onConfirm);
       setCalculatedZIndex(zIndex);
-
-      console.log('[Modal] Registered:', modalId, 'z-index:', zIndex, 'hasConfirm:', !!onConfirm);
     }
 
     return () => {
       if (isOpen) {
         // Unregister from modalStack
         modalStack.pop(modalId);
-        console.log('[Modal] Unregistered:', modalId);
       }
     };
   }, [isOpen, modalId, parentModalId, onClose, onConfirm]);
@@ -356,12 +356,12 @@ export const Modal: React.FC<ModalProps> = ({
   // This gives modal full control over its keyboard behavior
 
   // Stabilize keyboard handler with useRef to prevent listener churn
-  const handleModalKeyDownRef = useRef<((e: KeyboardEvent) => void) | null>(null);
+  const handleModalKeyEventRef = useRef<((e: KeyboardEvent) => void) | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleModalKeyDown = (e: KeyboardEvent) => {
+    const handleModalKeyEvent = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
 
       // Check if user is typing in input field
@@ -375,17 +375,18 @@ export const Modal: React.FC<ModalProps> = ({
       // This must happen BEFORE any setState/onClose calls
       const topmostModalId = modalStack.getTopmostModalId();
 
-      console.log('[Modal] KeyDown:', {
-        modalId,
-        topmost: topmostModalId,
-        key: e.key,
-        isTopmost: topmostModalId === modalId,
-        isInputField
-      });
-
       // Only topmost modal handles keyboard events
       if (topmostModalId !== modalId) {
-        console.log('[Modal] Not topmost, ignoring event');
+        return;
+      }
+
+      // Track keyboard event in analytics (BOTH keydown and keyup for topmost modal)
+      if (showDebugBar) {
+        analytics.trackKeyboard(e);
+      }
+
+      // Only process shortcuts on keydown (not keyup)
+      if (e.type !== 'keydown') {
         return;
       }
 
@@ -396,11 +397,9 @@ export const Modal: React.FC<ModalProps> = ({
 
         if (isInputField) {
           // Input field is focused → blur it (remove focus)
-          console.log('[Modal] ESC - blurring input field');
           target.blur();
         } else {
           // No input focused → close modal
-          console.log('[Modal] ESC - closing topmost modal:', modalId);
           onClose();
         }
         return;
@@ -413,17 +412,14 @@ export const Modal: React.FC<ModalProps> = ({
 
         if (isInputField) {
           // Input field is focused → blur it (remove focus)
-          console.log('[Modal] ENTER - blurring input field');
           target.blur();
         } else {
           // No input focused → submit OR close modal
           if (onConfirm) {
             // Modal has onConfirm → submit
-            console.log('[Modal] ENTER - confirming modal:', modalId);
             onConfirm();
           } else {
             // Modal has NO onConfirm → close (same as ESC)
-            console.log('[Modal] ENTER - no onConfirm, closing modal:', modalId);
             onClose();
           }
         }
@@ -432,21 +428,25 @@ export const Modal: React.FC<ModalProps> = ({
     };
 
     // Update ref with current handler
-    handleModalKeyDownRef.current = handleModalKeyDown;
+    handleModalKeyEventRef.current = handleModalKeyEvent;
 
     // FIXED: Stable event handler to prevent listener churn
     const stableHandler = (e: KeyboardEvent) => {
-      handleModalKeyDownRef.current?.(e);
+      handleModalKeyEventRef.current?.(e);
     };
 
     // IMPORTANT: Use BUBBLE phase (false), NOT capture phase
     // Bubble phase ensures child modal listener runs BEFORE parent
     // (Child is deeper in DOM, so it bubbles up from child to parent)
+    // Register BOTH keydown and keyup listeners
     document.addEventListener('keydown', stableHandler, false);
+    document.addEventListener('keyup', stableHandler, false);
 
     return () => {
       document.removeEventListener('keydown', stableHandler, false);
+      document.removeEventListener('keyup', stableHandler, false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, modalId, onClose, onConfirm]);
 
   // ================================================================
@@ -613,7 +613,11 @@ export const Modal: React.FC<ModalProps> = ({
   const modalContent = (
     <div
       className={styles.modalOverlay}
-      onClick={handleBackdropClick}
+      onClick={(e) => {
+        // Stop event propagation to prevent BasePage analytics from tracking modal clicks
+        e.stopPropagation();
+        handleBackdropClick(e);
+      }}
       style={{
         zIndex: finalZIndex,
         alignItems: getAlignmentValue(alignment),
@@ -634,14 +638,57 @@ export const Modal: React.FC<ModalProps> = ({
           userSelect: isDragging ? 'none' : 'auto',
           zIndex: finalZIndex + 1,
         }}
+        onMouseDown={(e) => {
+          // CRITICAL: Stop propagation to prevent BasePage from tracking modal clicks
+          e.stopPropagation();
+
+          // Track mousedown inside modal
+          if (showDebugBar) {
+            const target = e.target as HTMLElement;
+            const elementType = target.tagName.toLowerCase();
+
+            // Get meaningful element identifier (priority order)
+            const elementId =
+              target.id ||
+              target.getAttribute('data-testid') ||
+              target.getAttribute('aria-label') ||
+              target.getAttribute('name') ||
+              (target.textContent?.trim().substring(0, 20) || elementType);
+
+            analytics.trackClick(elementId, elementType, e);
+          }
+        }}
+        onMouseUp={(e) => {
+          // Track mouseup inside modal (ALWAYS, even during drag)
+          if (showDebugBar) {
+            const target = e.target as HTMLElement;
+            const elementType = target.tagName.toLowerCase();
+
+            // Get meaningful element identifier (priority order)
+            const elementId =
+              target.id ||
+              target.getAttribute('data-testid') ||
+              target.getAttribute('aria-label') ||
+              target.getAttribute('name') ||
+              (target.textContent?.trim().substring(0, 20) || elementType);
+
+            analytics.trackClick(elementId, elementType, e);
+          }
+
+          // CRITICAL: Don't stopPropagation if dragging (allow document mouseup to fire)
+          if (!isDragging) {
+            e.stopPropagation(); // Prevent BasePage from tracking modal clicks
+          }
+        }}
       >
         {/* Debug Bar - Top of modal */}
         {showDebugBar && (
           <DebugBar
-            modalName={debugPageName || title || modalId}
+            modalName={pageName || modalId}
             isDarkMode={isDarkMode}
             analytics={analytics}
             show={showDebugBar}
+            contextType="modal"
           />
         )}
 
@@ -649,7 +696,39 @@ export const Modal: React.FC<ModalProps> = ({
         {(title || showCloseButton) && (
           <div
             className={styles.modalHeader}
-            onMouseDown={handleMouseDown}
+            onMouseDown={(e) => {
+              // Track mousedown on header (for drag analytics)
+              if (showDebugBar) {
+                const target = e.target as HTMLElement;
+                const elementType = target.tagName.toLowerCase();
+                const elementId =
+                  target.id ||
+                  target.getAttribute('data-testid') ||
+                  target.getAttribute('aria-label') ||
+                  target.getAttribute('name') ||
+                  (target.textContent?.trim().substring(0, 20) || elementType);
+
+                analytics.trackClick(elementId, elementType, e);
+              }
+
+              // Then handle drag logic
+              handleMouseDown(e);
+            }}
+            onMouseUp={(e) => {
+              // Track mouseup on header (for drag analytics)
+              if (showDebugBar) {
+                const target = e.target as HTMLElement;
+                const elementType = target.tagName.toLowerCase();
+                const elementId =
+                  target.id ||
+                  target.getAttribute('data-testid') ||
+                  target.getAttribute('aria-label') ||
+                  target.getAttribute('name') ||
+                  (target.textContent?.trim().substring(0, 20) || elementType);
+
+                analytics.trackClick(elementId, elementType, e);
+              }
+            }}
             style={{
               cursor: disableDrag ? 'default' : isDragging ? 'grabbing' : 'grab',
               userSelect: 'none',

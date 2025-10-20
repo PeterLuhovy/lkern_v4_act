@@ -233,7 +233,6 @@ class ModalStackManager {
   getTopmostModalId(): string | undefined {
     if (this.stack.length === 0) return undefined;
     const topmost = this.stack[this.stack.length - 1].id;
-    console.log('[ModalStack] getTopmostModalId:', topmost, 'stack:', this.stack.map(m => m.id));
     return topmost;
   }
 

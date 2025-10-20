@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <BasePage>
+    <BasePage pageName="home">
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
