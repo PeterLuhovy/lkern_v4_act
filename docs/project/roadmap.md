@@ -51,8 +51,8 @@
 | **Phase 1** | Critical UX Fixes (Input + DebugBar) | 3-5h | ✅ **DONE** | Yes |
 | **Phase 0** | modalStack utility migration | 0h | ✅ **DONE** (already exists!) | 🔴 Was BLOCKER |
 | **Phase 1.1** | useFormDirty hook | 2-3h | ✅ **DONE** (commit db27c1a) | Medium |
-| **Phase 1.2** | useConfirm hook | 4-5h | ⏳ **NEXT** | Medium |
-| **Phase 1.3** | Validation utilities | 2h | ⏳ Pending | Medium |
+| **Phase 1.2** | useConfirm hook | 4-5h | ✅ **DONE** (commit 51aa99b) | Medium |
+| **Phase 1.3** | Validation utilities | 2h | ⏳ **NEXT** | Medium |
 | **Phase 2** | ConfirmModal component | 5-6h | ⏳ Pending | Medium |
 | **Phase 3** | Modal Templates (3 templates) | 12-16h | ⏳ Pending | Medium |
 | **Phase 4** | Card accent + Toast page + docs | 4-6h | ⏳ Pending | Low |
@@ -65,7 +65,8 @@
 4. ✅ Phase 1.1 complete - useFormDirty hook (commit db27c1a)
 5. ✅ Test suite complete - 670/670 passing (commits d7e519e → 7f92e10)
 6. ✅ Translation fixes - 100% DRY compliance (commit 7f92e10)
-7. ⏳ **NEXT:** Phase 1.2 - useConfirm hook (4-5h)
+7. ✅ Phase 1.2 complete - useConfirm hook + translation fix (commit 51aa99b)
+8. ⏳ **NEXT:** Phase 1.3 - Validation utilities (2h)
 
 **See complete plan**: [`implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md)
 
