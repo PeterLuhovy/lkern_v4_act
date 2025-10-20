@@ -32,6 +32,7 @@ vi.mock('@l-kern/config', () => ({
   }),
   usePageAnalytics: (pageName: string) => ({
     session: null,
+    isSessionActive: false,
     metrics: {
       totalTime: '0.0s',
       timeSinceLastActivity: '0.0s',
@@ -41,6 +42,7 @@ vi.mock('@l-kern/config', () => ({
     },
     startSession: vi.fn(),
     endSession: vi.fn(),
+    resetSession: vi.fn(),
     trackClick: vi.fn(),
     trackKeyboard: vi.fn(),
     getSessionReport: vi.fn(),
@@ -450,37 +452,8 @@ describe('Modal v3.0.0', () => {
     expect(screen.getByTestId('save-btn')).toBeInTheDocument();
   });
 
-  it('renders enhanced footer with error message', () => {
-    const footerConfig: ModalFooterConfig = {
-      errorMessage: 'Please fix validation errors',
-    };
-
-    render(
-      <Modal isOpen={true} onClose={vi.fn()} modalId="test-modal" footer={footerConfig}>
-        <div>Content</div>
-      </Modal>
-    );
-
-    expect(screen.getByText('Please fix validation errors')).toBeInTheDocument();
-  });
-
-  it('renders complete enhanced footer with left, right, and error', () => {
-    const footerConfig: ModalFooterConfig = {
-      left: <button data-testid="delete-btn">Delete</button>,
-      right: <button data-testid="save-btn">Save</button>,
-      errorMessage: 'Validation failed',
-    };
-
-    render(
-      <Modal isOpen={true} onClose={vi.fn()} modalId="test-modal" footer={footerConfig}>
-        <div>Content</div>
-      </Modal>
-    );
-
-    expect(screen.getByTestId('delete-btn')).toBeInTheDocument();
-    expect(screen.getByTestId('save-btn')).toBeInTheDocument();
-    expect(screen.getByText('Validation failed')).toBeInTheDocument();
-  });
+  // NOTE: errorMessage was intentionally removed from ModalFooterConfig
+  // Error messages should be handled by parent components using FormField validation
 
   it('renders simple footer when not ModalFooterConfig', () => {
     render(
