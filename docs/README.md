@@ -2,9 +2,9 @@
 # L-KERN v4 - Documentation Map
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\README.md
-# Version: 2.2.0
+# Version: 2.3.0
 # Created: 2025-10-13
-# Updated: 2025-10-19
+# Updated: 2025-10-20
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -12,6 +12,7 @@
 #   Central documentation map for L-KERN v4 project.
 #   This file is the SINGLE ENTRY POINT to all documentation.
 #   Lists all documentation sections and their locations.
+#   Includes component/hook/utility documentation system with templates.
 # ================================================================
 
 ---
@@ -80,6 +81,7 @@ Coding standards, conventions, and practical examples.
 | File | Description | Path |
 |------|-------------|------|
 | **Coding Standards** | Core rules (DRY, translations, theme, headers) | [programming/coding-standards.md](programming/coding-standards.md) |
+| **Documentation Standards** | ⭐ How to document components/hooks/utilities | [programming/documentation-standards.md](programming/documentation-standards.md) |
 | **Frontend Standards** | React 19, TypeScript 5.7, Vite 6, CSS patterns | [programming/frontend-standards.md](programming/frontend-standards.md) |
 | **Backend Standards** | Python 3.11, FastAPI, gRPC, Kafka, SQLAlchemy | [programming/backend-standards.md](programming/backend-standards.md) |
 | **Testing Overview** | ⭐ Main testing hub (strategy, tools, quick start) | [programming/testing-overview.md](programming/testing-overview.md) |
@@ -118,6 +120,59 @@ Documentation for shared packages (@l-kern/*).
 |---------|-------------|------|
 | **@l-kern/config** | Constants, translations, theme, design tokens | [packages/config.md](packages/config.md) |
 | **@l-kern/ui-components** | Shared React components (Button, Input, etc.) | [packages/ui-components.md](packages/ui-components.md) |
+
+---
+
+### 📁 Components
+**Location:** `docs/components/`
+
+Detailed documentation for individual UI components.
+
+**⭐ Coming Soon:** Documentation for Button, Input, Modal, FormField, and all other components.
+
+**Template Available:** Use [templates/COMPONENT_TEMPLATE.md](templates/COMPONENT_TEMPLATE.md) to create new component documentation.
+
+---
+
+### 📁 Hooks
+**Location:** `docs/hooks/`
+
+Detailed documentation for React hooks and custom hooks.
+
+**⭐ Coming Soon:** Documentation for useFormDirty, useModalWizard, usePageAnalytics, and all other hooks.
+
+**Template Available:** Use [templates/HOOK_TEMPLATE.md](templates/HOOK_TEMPLATE.md) to create new hook documentation.
+
+---
+
+### 📁 Utilities
+**Location:** `docs/utils/`
+
+Detailed documentation for utility functions (validation, formatting, etc.).
+
+**⭐ Coming Soon:** Documentation for email validation, phone validation, date utilities, and all other utilities.
+
+**Template Available:** Use [templates/UTILITY_TEMPLATE.md](templates/UTILITY_TEMPLATE.md) to create new utility documentation.
+
+---
+
+### 📁 Templates
+**Location:** `docs/templates/`
+
+Documentation templates for consistent documentation across the project.
+
+| Template | Purpose | Path |
+|----------|---------|------|
+| **COMPONENT_TEMPLATE.md** | Template for UI component documentation | [templates/COMPONENT_TEMPLATE.md](templates/COMPONENT_TEMPLATE.md) |
+| **HOOK_TEMPLATE.md** | Template for hook documentation | [templates/HOOK_TEMPLATE.md](templates/HOOK_TEMPLATE.md) |
+| **UTILITY_TEMPLATE.md** | Template for utility function documentation | [templates/UTILITY_TEMPLATE.md](templates/UTILITY_TEMPLATE.md) |
+
+**How to Use:**
+1. Copy the appropriate template file
+2. Rename to match your component/hook/utility name
+3. Fill in all sections (remove placeholders)
+4. Save to appropriate folder (components/, hooks/, utils/)
+5. Update this README.md with link to new documentation
 
 ---
 
@@ -192,16 +247,20 @@ Work-in-progress documentation, planning notes, TODO files.
 
 ### Where to Add New Documentation
 
-| Type of Documentation | Location |
-|----------------------|----------|
-| Project roadmap updates | `project/roadmap.md` |
-| Setup/installation changes | `setup/getting-started.md` |
-| New problem solved | `setup/troubleshooting.md` |
-| New coding standard | `programming/coding-standards.md` |
-| New code example | `programming/code-examples.md` |
-| New package documentation | `packages/<package-name>.md` |
-| Architecture decisions | `architecture/<topic>.md` |
-| Temporary planning | `temp/<task-name>.md` |
+| Type of Documentation | Location | Template |
+|----------------------|----------|----------|
+| Project roadmap updates | `project/roadmap.md` | N/A |
+| Setup/installation changes | `setup/getting-started.md` | N/A |
+| New problem solved | `setup/troubleshooting.md` | N/A |
+| New coding standard | `programming/coding-standards.md` | N/A |
+| Documentation guide | `programming/documentation-standards.md` | N/A |
+| New code example | `programming/code-examples.md` | N/A |
+| **New component** | **`components/<ComponentName>.md`** | **`templates/COMPONENT_TEMPLATE.md`** |
+| **New hook** | **`hooks/<hookName>.md`** | **`templates/HOOK_TEMPLATE.md`** |
+| **New utility** | **`utils/<utility-name>.md`** | **`templates/UTILITY_TEMPLATE.md`** |
+| New package documentation | `packages/<package-name>.md` | N/A |
+| Architecture decisions | `architecture/<topic>.md` | N/A |
+| Temporary planning | `temp/<task-name>.md` | N/A |
 
 ---
 
@@ -284,6 +343,7 @@ L:\system\lkern_codebase_v4_act\docs\
 
 ---
 
-**Last Updated:** 2025-10-19
+**Last Updated:** 2025-10-20
 **Maintainer:** BOSSystems s.r.o.
 **Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\`
+**Documentation Version:** 2.3.0
