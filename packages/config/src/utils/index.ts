@@ -50,3 +50,11 @@ export { modalStack } from './modalStack';
 
 // Toast notification manager
 export { toastManager, type Toast, type ToastOptions, type ToastType } from './toastManager';
+
+// Validation utilities
+export {
+  debounce,
+  validateField,
+  type ValidationResult,
+  type ValidationType,
+} from './validation';

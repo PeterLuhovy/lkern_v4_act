@@ -481,6 +481,34 @@ export const sk: TranslationKeys = {
           converted: 'Konvertovaný',
         },
       },
+      validation: {
+        title: 'Validácia',
+        debounce: {
+          title: 'Debounce Demo',
+          description: 'Debounce oneskorí vykonanie funkcie až kým neprestanem písať. Skúšam rôzne oneskorenia.',
+          input: 'Zadajte text...',
+          delay: 'Oneskorenie (ms)',
+          lastValue: 'Posledná hodnota',
+          callCount: 'Počet volaní',
+          preventedCount: 'Zabránené volania',
+        },
+        validateField: {
+          title: 'Validácia polí',
+          description: 'Testovanie univerzálnej validateField() funkcie s rôznymi typmi validácie.',
+          validationType: 'Typ validácie',
+          testInput: 'Testovacia hodnota',
+          types: {
+            email: 'Email',
+            phone: 'Telefón',
+            url: 'URL',
+            required: 'Povinné pole',
+          },
+          results: {
+            isValid: 'Je platný',
+            error: 'Chyba',
+          },
+        },
+      },
       results: {
         title: 'Výsledky',
         empty: '(prázdne)',

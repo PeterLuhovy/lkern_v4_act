@@ -52,8 +52,8 @@
 | **Phase 0** | modalStack utility migration | 0h | ✅ **DONE** (already exists!) | 🔴 Was BLOCKER |
 | **Phase 1.1** | useFormDirty hook | 2-3h | ✅ **DONE** (commit db27c1a) | Medium |
 | **Phase 1.2** | useConfirm hook | 4-5h | ✅ **DONE** (commit 51aa99b) | Medium |
-| **Phase 1.3** | Validation utilities | 2h | ⏳ **NEXT** | Medium |
-| **Phase 2** | ConfirmModal component | 5-6h | ⏳ Pending | Medium |
+| **Phase 1.3** | Validation utilities | 2h | ✅ **DONE** (commit TBD) | Medium |
+| **Phase 2** | ConfirmModal component | 5-6h | ⏳ **NEXT** | Medium |
 | **Phase 3** | Modal Templates (3 templates) | 12-16h | ⏳ Pending | Medium |
 | **Phase 4** | Card accent + Toast page + docs | 4-6h | ⏳ Pending | Low |
 | **Phase 5** | Testing & Validation | 8-12h | ⏳ Pending | High |
@@ -66,7 +66,8 @@
 5. ✅ Test suite complete - 670/670 passing (commits d7e519e → 7f92e10)
 6. ✅ Translation fixes - 100% DRY compliance (commit 7f92e10)
 7. ✅ Phase 1.2 complete - useConfirm hook + translation fix (commit 51aa99b)
-8. ⏳ **NEXT:** Phase 1.3 - Validation utilities (2h)
+8. ✅ Phase 1.3 complete - Validation utilities (debounce + validateField)
+9. ⏳ **NEXT:** Phase 2 - ConfirmModal component (5-6h)
 
 **See complete plan**: [`implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md)
 
@@ -124,6 +125,47 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 - Tests: 670/670 passing (100%) ✅
 - Build: Zero TypeScript errors ✅
 - DRY Compliance: 100% ✅
+- Code Quality: Production-ready ✅
+
+---
+
+### ✅ Phase 1.3: Validation Utilities (2025-10-20)
+**Status:** COMPLETED
+**Duration:** 2.5 hours
+
+**Implementation:**
+- `debounce()` - Generic function delay utility
+- `validateField()` - Universal validation wrapper
+- Support for: email, phone, URL, required validation
+- Complete documentation in validation.md (957 lines)
+- 25/25 tests passing (100% coverage)
+
+**Functions Implemented:**
+- `debounce<T>(fn, delay)` - Delays function execution, cancels previous calls
+- `validateField(name, value, type)` - Async validation with ValidationResult interface
+- Type-safe generic implementation with full TypeScript support
+
+**Files Created:**
+- `packages/config/src/utils/validation/validation.ts` (142 lines)
+- `packages/config/src/utils/validation/validation.test.ts` (25 tests)
+- `packages/config/src/utils/validation/validation.md` (957 lines)
+- `packages/config/src/utils/validation/index.ts`
+
+**Translations Added:**
+- `pages.utilityTest.validation.*` (20+ new keys, SK/EN)
+- Debounce demo translations
+- Field validation translations
+
+**Integration:**
+- Exported from `@l-kern/config` package
+- Added to `utils/index.ts` exports
+- Ready for UtilityTestPage integration
+
+**Results:**
+- Tests: 25/25 passing (100%) ✅
+- Build: Zero TypeScript errors ✅
+- Export: Added to @l-kern/config ✅
+- Documentation: Complete (957 lines) ✅
 - Code Quality: Production-ready ✅
 
 ---

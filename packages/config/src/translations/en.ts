@@ -481,6 +481,34 @@ export const en: TranslationKeys = {
           converted: 'Converted',
         },
       },
+      validation: {
+        title: 'Validation',
+        debounce: {
+          title: 'Debounce Demo',
+          description: 'Debounce delays function execution until you stop typing. Try different delays.',
+          input: 'Enter text...',
+          delay: 'Delay (ms)',
+          lastValue: 'Last value',
+          callCount: 'Call count',
+          preventedCount: 'Prevented calls',
+        },
+        validateField: {
+          title: 'Field Validation',
+          description: 'Testing universal validateField() function with different validation types.',
+          validationType: 'Validation type',
+          testInput: 'Test value',
+          types: {
+            email: 'Email',
+            phone: 'Phone',
+            url: 'URL',
+            required: 'Required',
+          },
+          results: {
+            isValid: 'Is valid',
+            error: 'Error',
+          },
+        },
+      },
       results: {
         title: 'Results',
         empty: '(empty)',

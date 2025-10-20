@@ -506,6 +506,34 @@ export interface TranslationKeys {
           converted: string;
         };
       };
+      validation: {
+        title: string;
+        debounce: {
+          title: string;
+          description: string;
+          input: string;
+          delay: string;
+          lastValue: string;
+          callCount: string;
+          preventedCount: string;
+        };
+        validateField: {
+          title: string;
+          description: string;
+          validationType: string;
+          testInput: string;
+          types: {
+            email: string;
+            phone: string;
+            url: string;
+            required: string;
+          };
+          results: {
+            isValid: string;
+            error: string;
+          };
+        };
+      };
       results: {
         title: string;
         empty: string;
