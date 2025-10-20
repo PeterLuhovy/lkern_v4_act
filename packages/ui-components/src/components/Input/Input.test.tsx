@@ -17,26 +17,20 @@ describe('Input', () => {
     expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument();
   });
 
-  it('displays error message when error prop is provided', () => {
-    render(<Input error="This field is required" />);
-    expect(screen.getByText('This field is required')).toBeInTheDocument();
-  });
+  // NOTE: Input v2.0.0 no longer has error/helperText props
+  // These features are now in FormField component
+  // See FormField.test.tsx for validation tests
 
-  it('displays helper text when no error', () => {
-    render(<Input helperText="Enter at least 8 characters" />);
-    expect(screen.getByText('Enter at least 8 characters')).toBeInTheDocument();
-  });
-
-  it('hides helper text when error is present', () => {
-    render(<Input helperText="Helper text" error="Error message" />);
-    expect(screen.queryByText('Helper text')).not.toBeInTheDocument();
-    expect(screen.getByText('Error message')).toBeInTheDocument();
-  });
-
-  it('applies error class when error prop is provided', () => {
-    render(<Input error="Error" data-testid="input" />);
+  it('applies error class when hasError prop is true', () => {
+    render(<Input hasError data-testid="input" />);
     const input = screen.getByTestId('input');
     expect(input.className).toContain('input--error');
+  });
+
+  it('applies valid class when isValid prop is true', () => {
+    render(<Input isValid data-testid="input" />);
+    const input = screen.getByTestId('input');
+    expect(input.className).toContain('input--valid');
   });
 
   it('applies fullWidth class when fullWidth prop is true', () => {
@@ -76,21 +70,14 @@ describe('Input', () => {
     expect(screen.getByTestId('input')).toBeDisabled();
   });
 
-  it('sets aria-invalid when error is present', () => {
-    render(<Input error="Error" data-testid="input" />);
+  it('sets aria-invalid when hasError is true', () => {
+    render(<Input hasError data-testid="input" />);
     expect(screen.getByTestId('input')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('sets aria-describedby for error message', () => {
-    render(<Input id="email" error="Invalid email" data-testid="input" />);
-    const input = screen.getByTestId('input');
-    expect(input).toHaveAttribute('aria-describedby', 'email-error');
-  });
-
-  it('sets aria-describedby for helper text', () => {
-    render(<Input id="password" helperText="Min 8 chars" data-testid="input" />);
-    const input = screen.getByTestId('input');
-    expect(input).toHaveAttribute('aria-describedby', 'password-helper');
+  it('sets aria-invalid to false when hasError is false', () => {
+    render(<Input data-testid="input" />);
+    expect(screen.getByTestId('input')).toHaveAttribute('aria-invalid', 'false');
   });
 
   it('applies custom className', () => {
@@ -121,20 +108,6 @@ describe('Input', () => {
       expect(screen.getByPlaceholderText('Zadajte email')).toBeInTheDocument();
     });
 
-    it('renders translated error message', () => {
-      const translatedError = 'Toto pole je povinné'; // Slovak for "This field is required"
-      render(<Input error={translatedError} />);
-
-      expect(screen.getByText('Toto pole je povinné')).toBeInTheDocument();
-    });
-
-    it('renders translated helper text', () => {
-      const translatedHelper = 'Zadajte aspoň 8 znakov'; // Slovak for "Enter at least 8 characters"
-      render(<Input helperText={translatedHelper} />);
-
-      expect(screen.getByText('Zadajte aspoň 8 znakov')).toBeInTheDocument();
-    });
-
     it('updates placeholder when translation changes', () => {
       const { rerender } = render(<Input placeholder="Enter email" data-testid="input" />);
       expect(screen.getByPlaceholderText('Enter email')).toBeInTheDocument();
@@ -146,14 +119,7 @@ describe('Input', () => {
       expect(input).not.toHaveAttribute('placeholder', 'Enter email');
     });
 
-    it('updates error message when translation changes', () => {
-      const { rerender } = render(<Input error="Required" />);
-      expect(screen.getByText('Required')).toBeInTheDocument();
-
-      // Simulate language change
-      rerender(<Input error="Povinné" />);
-      expect(screen.queryByText('Required')).not.toBeInTheDocument();
-      expect(screen.getByText('Povinné')).toBeInTheDocument();
-    });
+    // NOTE: Error/helper text translations are tested in FormField.test.tsx
+    // Input v2.0.0 no longer handles error/helperText - that's FormField's job
   });
 });
