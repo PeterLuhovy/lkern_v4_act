@@ -351,6 +351,10 @@ export const en: TranslationKeys = {
         unsavedButton: 'Unsaved Changes Test',
         result: 'Result',
         modalTitle: '⚠️ Confirmation',
+        deleteMessage: 'Do you really want to delete this record? This action cannot be undone.',
+        unsavedMessage: 'You have unsaved changes. Do you really want to close?',
+        confirmedTrue: 'User confirmed (true)',
+        confirmedFalse: 'User cancelled (false)',
       },
       test8: {
         title: '🧙 Test 8: Multi-step Wizard',

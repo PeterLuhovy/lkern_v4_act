@@ -56,13 +56,13 @@ export function TestModalV3Page() {
   const [confirmResult, setConfirmResult] = useState<string>('');
 
   const handleDeleteTest = async () => {
-    const confirmed = await confirmHook.confirm('Naozaj chceš vymazať tento záznam? Túto akciu nemožno vrátiť späť.');
-    setConfirmResult(confirmed ? 'Používateľ potvrdil (true)' : 'Používateľ zrušil (false)');
+    const confirmed = await confirmHook.confirm(t('components.modalV3.testConfirm.deleteMessage'));
+    setConfirmResult(confirmed ? t('components.modalV3.testConfirm.confirmedTrue') : t('components.modalV3.testConfirm.confirmedFalse'));
   };
 
   const handleUnsavedTest = async () => {
-    const confirmed = await confirmHook.confirm('Máš neuložené zmeny. Naozaj chceš zavrieť?');
-    setConfirmResult(confirmed ? 'Používateľ potvrdil (true)' : 'Používateľ zrušil (false)');
+    const confirmed = await confirmHook.confirm(t('components.modalV3.testConfirm.unsavedMessage'));
+    setConfirmResult(confirmed ? t('components.modalV3.testConfirm.confirmedTrue') : t('components.modalV3.testConfirm.confirmedFalse'));
   };
 
   // Test 8: Multi-step Wizard

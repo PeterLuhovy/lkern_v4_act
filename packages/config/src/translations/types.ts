@@ -376,6 +376,10 @@ export interface TranslationKeys {
         unsavedButton: string;
         result: string;
         modalTitle: string;
+        deleteMessage: string;
+        unsavedMessage: string;
+        confirmedTrue: string;
+        confirmedFalse: string;
       };
       featureSummary: {
         title: string;

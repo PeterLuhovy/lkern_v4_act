@@ -351,6 +351,10 @@ export const sk: TranslationKeys = {
         unsavedButton: 'Test Neuložených zmien',
         result: 'Výsledok',
         modalTitle: '⚠️ Potvrdenie',
+        deleteMessage: 'Naozaj chceš vymazať tento záznam? Túto akciu nemožno vrátiť späť.',
+        unsavedMessage: 'Máš neuložené zmeny. Naozaj chceš zavrieť?',
+        confirmedTrue: 'Používateľ potvrdil (true)',
+        confirmedFalse: 'Používateľ zrušil (false)',
       },
       test8: {
         title: '🧙 Test 8: Multi-step Wizard',
