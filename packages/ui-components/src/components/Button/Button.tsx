@@ -52,6 +52,12 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   fullWidth?: boolean;
 
   /**
+   * Apply debug styling (orange gradient for debug/toolbar buttons)
+   * @default false
+   */
+  debug?: boolean;
+
+  /**
    * Click handler
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -85,6 +91,7 @@ export const Button: React.FC<ButtonProps> = ({
   iconPosition = 'left',
   loading = false,
   fullWidth = false,
+  debug = false,
   onClick,
   disabled,
   children,
@@ -105,6 +112,7 @@ export const Button: React.FC<ButtonProps> = ({
     styles[`button--${size}`],
     fullWidth && styles['button--fullWidth'],
     loading && styles['button--loading'],
+    debug && styles['button--debug'],
     className
   );
 

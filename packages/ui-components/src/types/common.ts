@@ -8,7 +8,7 @@
 /**
  * Standard sizes used across components
  */
-export type Size = 'small' | 'medium' | 'large';
+export type Size = 'xs' | 'small' | 'medium' | 'large';
 
 /**
  * Component variants for styling

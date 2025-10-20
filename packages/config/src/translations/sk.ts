@@ -522,6 +522,7 @@ export const sk: TranslationKeys = {
     timeSinceLastClick: 'Čas od poslednej akcie',
     clicks: 'Kliky',
     keys: 'Klávesy',
+    copyModalName: 'Skopírovať názov modalu',
   },
   notifications: {
     copiedToClipboard: 'Skopírované do schránky',

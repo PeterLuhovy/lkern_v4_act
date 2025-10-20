@@ -547,6 +547,7 @@ export interface TranslationKeys {
     timeSinceLastClick: string;
     clicks: string;
     keys: string;
+    copyModalName: string;
   };
   notifications: {
     copiedToClipboard: string;

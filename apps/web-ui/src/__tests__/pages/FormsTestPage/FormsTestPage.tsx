@@ -54,9 +54,17 @@ export const FormsTestPage: React.FC = () => {
 
           <h4 className={styles.sectionTitle}>{t('components.testing.sizes')}</h4>
           <div className={styles.buttonRowAligned}>
-            <Button size="small">{t('components.buttons.small')}</Button>
-            <Button size="medium">{t('components.buttons.medium')}</Button>
-            <Button size="large">{t('components.buttons.large')}</Button>
+            <Button variant="primary" size="xs">XS</Button>
+            <Button variant="primary" size="small">{t('components.buttons.small')}</Button>
+            <Button variant="primary" size="medium">{t('components.buttons.medium')}</Button>
+            <Button variant="primary" size="large">{t('components.buttons.large')}</Button>
+          </div>
+
+          <h4 className={styles.sectionTitle}>Debug Style (XS)</h4>
+          <div className={styles.buttonRow}>
+            <Button variant="secondary" size="xs" debug>📋 copy</Button>
+            <Button variant="secondary" size="xs" debug>🔍 search</Button>
+            <Button variant="secondary" size="xs" debug>⚙️ settings</Button>
           </div>
 
           <h4 className={styles.sectionTitle}>{t('components.testing.states')}</h4>

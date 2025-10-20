@@ -522,6 +522,7 @@ export const en: TranslationKeys = {
     timeSinceLastClick: 'Time since last action',
     clicks: 'Clicks',
     keys: 'Keys',
+    copyModalName: 'Copy modal name to clipboard',
   },
   notifications: {
     copiedToClipboard: 'Copied to clipboard',

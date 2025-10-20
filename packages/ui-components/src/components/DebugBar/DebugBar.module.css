@@ -99,37 +99,3 @@
   border-left: 1px solid rgba(0, 0, 0, 0.2);
   padding-left: var(--spacing-sm, 8px);
 }
-
-/* === COPY BUTTON === */
-.debugBar__copyBtn {
-  /* Lighter orange gradient with 3D effect */
-  background: linear-gradient(135deg, rgba(255, 140, 20, 0.9) 0%, rgba(230, 115, 0, 0.9) 100%);
-  border: 1px solid rgba(204, 102, 0, 0.7);
-  border-radius: var(--spacing-xs, 4px);
-  padding: 1.5px 4px;
-  cursor: pointer;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-  transition: all 0.15s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
-              0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.debugBar__copyBtn:hover {
-  background: linear-gradient(135deg, rgba(230, 115, 0, 0.95) 0%, rgba(204, 102, 0, 0.95) 100%);
-  border-color: rgba(184, 92, 0, 0.8);
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25),
-              0 3px 6px rgba(0, 0, 0, 0.4);
-}
-
-.debugBar__copyBtn:active {
-  transform: translateY(0);
-  background: linear-gradient(135deg, rgba(163, 82, 0, 0.95) 0%, rgba(133, 66, 0, 0.95) 100%);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3),
-              0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* === DARK MODE === */
-/* Button uses same styling in both themes for consistency */

@@ -137,6 +137,15 @@
  * SIZES
  * ================================================================ */
 
+/* Extra small - for debug bars and compact toolbars */
+.button--xs {
+  padding: 1.5px 6px;
+  font-size: 10px;
+  height: auto;
+  min-height: 18px;
+  font-weight: 600;
+}
+
 .button--small {
   padding: calc(var(--spacing-xs) * 0.75) var(--spacing-sm);
   font-size: var(--font-size-xs);
@@ -161,6 +170,32 @@
 
 .button--fullWidth {
   width: 100%;
+}
+
+/* ================================================================
+ * DEBUG STYLE
+ * ================================================================ */
+
+/* Orange debug button styling - for compact debug/toolbar buttons */
+.button--debug {
+  background: linear-gradient(135deg, rgba(255, 140, 20, 0.9) 0%, rgba(230, 115, 0, 0.9) 100%) !important;
+  border: 2px solid rgba(204, 102, 0, 0.7) !important;
+  color: #212121 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.button--debug:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(230, 115, 0, 0.95) 0%, rgba(204, 102, 0, 0.95) 100%) !important;
+  border-color: rgba(184, 92, 0, 0.8) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25),
+              0 3px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.button--debug:active:not(:disabled) {
+  background: linear-gradient(135deg, rgba(163, 82, 0, 0.95) 0%, rgba(133, 66, 0, 0.95) 100%) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3),
+              0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* ================================================================

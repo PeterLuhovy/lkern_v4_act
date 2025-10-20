@@ -14,13 +14,15 @@
 import React from 'react';
 import { useTranslation } from '@l-kern/config';
 import type { UsePageAnalyticsReturn } from '@l-kern/config';
+import { Button } from '../Button/Button';
 import styles from './DebugBar.module.css';
 
 // === TYPES ===
 
 export interface DebugBarProps {
   /**
-   * Modal name to display
+   * Modal/Page name to display (English name)
+   * @example 'contactEdit', 'home', 'modalV3Testing'
    */
   modalName: string;
 
@@ -39,6 +41,12 @@ export interface DebugBarProps {
    * @default true
    */
   show?: boolean;
+
+  /**
+   * Context type for analytics (page or modal)
+   * @default 'modal'
+   */
+  contextType?: 'page' | 'modal';
 }
 
 // === COMPONENT ===
@@ -76,8 +84,9 @@ export const DebugBar: React.FC<DebugBarProps> = ({
   isDarkMode,
   analytics,
   show = true,
+  contextType = 'modal',
 }) => {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const currentLanguage = language || 'sk';
 
   // Don't render if show is false
@@ -85,11 +94,15 @@ export const DebugBar: React.FC<DebugBarProps> = ({
     return null;
   }
 
-  // === COPY MODAL NAME ===
+  // === COPY FORMATTED NAME ===
   const handleCopyModalName = async () => {
     try {
-      await navigator.clipboard.writeText(modalName);
-      console.log('[DebugBar] Copied modal name:', modalName);
+      // Format: [Analytics][Page|Modal][pageName]
+      const contextLabel = contextType.charAt(0).toUpperCase() + contextType.slice(1);
+      const formattedName = `[Analytics][${contextLabel}][${modalName}]`;
+
+      await navigator.clipboard.writeText(formattedName);
+      console.log('[DebugBar] Copied formatted name:', formattedName);
     } catch (err) {
       console.error('[DebugBar] Copy failed:', err);
     }
@@ -115,18 +128,19 @@ export const DebugBar: React.FC<DebugBarProps> = ({
         <span className={styles.debugBar__modalName}>
           <span role="img" aria-label="bug">🐛</span> {modalName}
         </span>
-        <button
-          className={styles.debugBar__copyBtn}
+        <Button
+          variant="secondary"
+          size="xs"
+          debug
           onClick={(e) => {
             e.stopPropagation(); // Don't trigger debug header click analytics
             handleAnalyticsClick('CopyModalName', 'button', e);
             handleCopyModalName();
           }}
-          type="button"
-          title="Copy modal name to clipboard"
+          title={t('debugBar.copyModalName')}
         >
           <span role="img" aria-label="clipboard">📋</span> copy
-        </button>
+        </Button>
       </div>
 
       {/* Center - Event counts (emoji) */}
