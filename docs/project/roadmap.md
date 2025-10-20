@@ -50,7 +50,9 @@
 |-------|-------------|--------|--------|-----------|
 | **Phase 1** | Critical UX Fixes (Input + DebugBar) | 3-5h | ✅ **DONE** | Yes |
 | **Phase 0** | modalStack utility migration | 0h | ✅ **DONE** (already exists!) | 🔴 Was BLOCKER |
-| **Phase 1-NEW** | useFormDirty + useConfirm + validation | 8-10h | ⏳ **CURRENT** | Medium |
+| **Phase 1.1** | useFormDirty hook | 2-3h | ✅ **DONE** (commit db27c1a) | Medium |
+| **Phase 1.2** | useConfirm hook | 4-5h | ⏳ **NEXT** | Medium |
+| **Phase 1.3** | Validation utilities | 2h | ⏳ Pending | Medium |
 | **Phase 2** | ConfirmModal component | 5-6h | ⏳ Pending | Medium |
 | **Phase 3** | Modal Templates (3 templates) | 12-16h | ⏳ Pending | Medium |
 | **Phase 4** | Card accent + Toast page + docs | 4-6h | ⏳ Pending | Low |
@@ -60,7 +62,9 @@
 1. ✅ Implementation plan complete
 2. ✅ Phase 0 verified (modalStack already exists)
 3. ✅ User approval ("podme po rade zacni na tom pracovat")
-4. ⏳ **CURRENT:** Phase 1.1 - useFormDirty hook (2-3h)
+4. ✅ Phase 1.1 complete - useFormDirty hook (commit db27c1a)
+5. ⏳ **CURRENT:** Adding comprehensive tests for usePageAnalytics
+6. ⏳ **NEXT:** Phase 1.2 - useConfirm hook (4-5h)
 
 **See complete plan**: [`implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md)
 
@@ -88,6 +92,32 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 ---
 
 ## 🎉 Recent Achievements
+
+### ✅ Phase 1.1: useFormDirty Hook (2025-10-20)
+**Status:** COMPLETED
+**Duration:** 3 hours
+**Commit:** `db27c1a`
+
+**Achievements:**
+- 🪝 **useFormDirty Hook:** Track unsaved form changes (initial vs current)
+- 📊 **Deep Comparison:** JSON.stringify for nested objects/arrays
+- 🎯 **Field Filtering:** Ignore specified fields (e.g., updated_at)
+- ⚡ **Performance:** useMemo optimization for large forms
+- 🧪 **Tests:** 12/12 passing (null handling, nested objects, arrays)
+- 🐛 **Analytics Fix:** Fixed 2 failing usePageAnalytics keyboard tests
+
+**Results:**
+- Tests: 292/292 config tests passing (100%) ✅
+- Build: Zero TypeScript errors ✅
+- Export: Added to @l-kern/config ✅
+- Code Quality: Production-ready ✅
+
+**Files Created:**
+- `packages/config/src/hooks/useFormDirty/useFormDirty.ts` (200 lines)
+- `packages/config/src/hooks/useFormDirty/useFormDirty.test.ts` (12 tests)
+- `packages/config/src/hooks/useFormDirty/index.ts`
+
+---
 
 ### ✅ Codebase Refactoring (2025-10-19)
 **Status:** COMPLETED

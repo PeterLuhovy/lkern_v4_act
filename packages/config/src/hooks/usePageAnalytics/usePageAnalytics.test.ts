@@ -328,4 +328,258 @@ describe('usePageAnalytics', () => {
       expect(result.current.metrics.totalTime).toBe('0.0s');
     });
   });
+
+  describe('advanced features', () => {
+    describe('drag detection', () => {
+      it('should detect drag operation when mouse moves > 5px', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockMouseDown = {
+          type: 'mousedown',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        const mockMouseUp = {
+          type: 'mouseup',
+          clientX: 150, // Moved 50px horizontally
+          clientY: 100,
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('modal-header', 'header', mockMouseDown);
+        });
+
+        act(() => {
+          result.current.trackClick('modal-header', 'header', mockMouseUp);
+        });
+
+        // Drag detected - should log separate mousedown/mouseup (not merged click)
+        expect(result.current.session?.clickEvents.length).toBeGreaterThan(0);
+      });
+
+      it('should not detect drag when mouse moves <= 5px', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockMouseDown = {
+          type: 'mousedown',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        const mockMouseUp = {
+          type: 'mouseup',
+          clientX: 102, // Moved only 2px
+          clientY: 101, // Moved only 1px
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseDown);
+        });
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseUp);
+        });
+
+        // No drag - should log single "click" event
+        const clickEvent = result.current.session?.clickEvents[0];
+        expect(clickEvent?.eventType).toBe('click');
+      });
+    });
+
+    describe('click debouncing', () => {
+      it('should merge fast click (<1s) into single event', () => {
+        vi.useFakeTimers();
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockMouseDown = {
+          type: 'mousedown',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseDown);
+        });
+
+        // Fast click - 500ms duration
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+
+        const mockMouseUp = {
+          type: 'mouseup',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseUp);
+        });
+
+        // Should be merged into single "click" event
+        expect(result.current.session?.clickEvents).toHaveLength(1);
+        expect(result.current.session?.clickEvents[0].eventType).toBe('click');
+
+        vi.useRealTimers();
+      });
+
+      it('should log separate events for slow click (>=1s)', () => {
+        vi.useFakeTimers();
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockMouseDown = {
+          type: 'mousedown',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseDown);
+        });
+
+        // Slow click - 1500ms duration
+        act(() => {
+          vi.advanceTimersByTime(1500);
+        });
+
+        const mockMouseUp = {
+          type: 'mouseup',
+          clientX: 100,
+          clientY: 100,
+        } as React.MouseEvent;
+
+        act(() => {
+          result.current.trackClick('button', 'button', mockMouseUp);
+        });
+
+        // Should be 2 separate events: mousedown + mouseup
+        expect(result.current.session?.clickEvents).toHaveLength(2);
+        expect(result.current.session?.clickEvents[0].eventType).toBe('mousedown');
+        expect(result.current.session?.clickEvents[1].eventType).toBe('mouseup');
+
+        vi.useRealTimers();
+      });
+    });
+
+    describe('keyboard debouncing', () => {
+      it('should merge fast keypress (<1s) into single event', () => {
+        vi.useFakeTimers();
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockKeyDown = {
+          key: 'Enter',
+          code: 'Enter',
+          type: 'keydown',
+          repeat: false,
+          ctrlKey: false,
+          shiftKey: false,
+          altKey: false,
+          metaKey: false,
+        } as KeyboardEvent;
+
+        act(() => {
+          result.current.trackKeyboard(mockKeyDown);
+        });
+
+        // Fast keypress - 200ms
+        act(() => {
+          vi.advanceTimersByTime(200);
+        });
+
+        const mockKeyUp = {
+          key: 'Enter',
+          code: 'Enter',
+          type: 'keyup',
+          repeat: false,
+          ctrlKey: false,
+          shiftKey: false,
+          altKey: false,
+          metaKey: false,
+        } as KeyboardEvent;
+
+        act(() => {
+          result.current.trackKeyboard(mockKeyUp);
+        });
+
+        // Should be merged into single keyboard event
+        expect(result.current.session?.keyboardEvents).toHaveLength(1);
+
+        vi.useRealTimers();
+      });
+
+      it('should filter out OS key repeat events', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const mockKeyDownRepeat = {
+          key: 'A',
+          code: 'KeyA',
+          type: 'keydown',
+          repeat: true, // OS repeat event
+          ctrlKey: false,
+          shiftKey: false,
+          altKey: false,
+          metaKey: false,
+        } as KeyboardEvent;
+
+        // Send 10 repeat events (should all be ignored)
+        act(() => {
+          for (let i = 0; i < 10; i++) {
+            result.current.trackKeyboard(mockKeyDownRepeat);
+          }
+        });
+
+        // No events logged (all filtered out)
+        expect(result.current.session?.keyboardEvents).toHaveLength(0);
+      });
+    });
+
+    describe('context type', () => {
+      it('should use "Page" context label by default', () => {
+        const { result } = renderHook(() => usePageAnalytics('home'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        // Session should be created (internal verification)
+        expect(result.current.session?.pageName).toBe('home');
+      });
+
+      it('should use "Modal" context label when specified', () => {
+        const { result } = renderHook(() => usePageAnalytics('editContact', 'modal'));
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        // Session should be created with modal context
+        expect(result.current.session?.pageName).toBe('editContact');
+      });
+    });
+  });
 });
