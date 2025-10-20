@@ -321,9 +321,16 @@ export const Modal: React.FC<ModalProps> = ({
     }
 
     return () => {
-      if (showDebugBar && analytics.isSessionActive) {
-        analytics.endSession('dismissed');
-        console.log('[Modal] DebugBar session ended');
+      if (showDebugBar) {
+        // End session if still active
+        if (analytics.isSessionActive) {
+          analytics.endSession('dismissed');
+          console.log('[Modal] DebugBar session ended');
+        }
+
+        // CRITICAL: ALWAYS reset session on cleanup to allow quick reopen
+        // Without this, reopening modal quickly would fail (endTime check in startSession)
+        analytics.resetSession();
       }
     };
     // analytics functions are stable (useCallback), safe to exclude from deps
@@ -633,6 +640,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         tabIndex={-1}
+        data-modal-container-id={modalId}
         style={{
           ...modalPositionStyle,
           userSelect: isDragging ? 'none' : 'auto',
@@ -659,9 +667,18 @@ export const Modal: React.FC<ModalProps> = ({
           }
         }}
         onMouseUp={(e) => {
-          // Track mouseup inside modal (ALWAYS, even during drag)
-          if (showDebugBar) {
-            const target = e.target as HTMLElement;
+          // CRITICAL: Check if event came from THIS modal or a CHILD modal
+          // If event came from child modal (e.g., child modal header drag),
+          // we must NOT stopPropagation, otherwise child's document mouseup listener won't fire
+          const target = e.target as HTMLElement;
+          const closestModalContainer = target.closest('[data-modal-container-id]') as HTMLElement;
+          const eventFromChildModal = closestModalContainer?.getAttribute('data-modal-container-id') !== modalId;
+
+          // Check if event came from header (to avoid duplicate tracking)
+          const isFromHeader = target.closest(`.${styles.modalHeader}`) !== null;
+
+          // Track mouseup inside modal (but NOT if from header - header already tracked it)
+          if (showDebugBar && !eventFromChildModal && !isFromHeader) {
             const elementType = target.tagName.toLowerCase();
 
             // Get meaningful element identifier (priority order)
@@ -675,8 +692,9 @@ export const Modal: React.FC<ModalProps> = ({
             analytics.trackClick(elementId, elementType, e);
           }
 
-          // CRITICAL: Don't stopPropagation if dragging (allow document mouseup to fire)
-          if (!isDragging) {
+          // CRITICAL: Only stopPropagation if event is from THIS modal AND not dragging
+          // If event from child modal OR if dragging, allow propagation to document
+          if (!eventFromChildModal && !isDragging) {
             e.stopPropagation(); // Prevent BasePage from tracking modal clicks
           }
         }}
