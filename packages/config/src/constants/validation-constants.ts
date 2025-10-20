@@ -91,11 +91,17 @@ export const SK_AREA_CODES: readonly string[] = [
  * - Subdomains: user@mail.example.com
  * - Multiple TLDs: user@example.co.uk
  *
+ * Requirements:
+ * - TLD (top-level domain) must be at least 2 characters (e.g., .sk, .com)
+ * - Rejects single-character TLDs like .s (which don't exist)
+ *
  * @example
  * EMAIL_REGEX.test('user@example.com') // true
+ * EMAIL_REGEX.test('user@example.sk') // true
+ * EMAIL_REGEX.test('user@example.s') // false (TLD too short)
  * EMAIL_REGEX.test('invalid@') // false
  */
-export const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * Email length constraints (RFC 5321)

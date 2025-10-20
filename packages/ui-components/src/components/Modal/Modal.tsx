@@ -55,11 +55,6 @@ export interface ModalFooterConfig {
    * Right side content (typically cancel + confirm buttons)
    */
   right?: React.ReactNode;
-
-  /**
-   * Error message to display in footer
-   */
-  errorMessage?: string;
 }
 
 export interface ModalProps {
@@ -172,6 +167,13 @@ export interface ModalProps {
    * @default Uses title or modalId if not provided
    */
   debugPageName?: string;
+
+  /**
+   * Form validation state
+   * When false, submit/confirm button will be disabled
+   * @default true
+   */
+  isFormValid?: boolean;
 }
 
 // === HELPER FUNCTIONS ===
@@ -187,7 +189,7 @@ function isModalFooterConfig(
     footer !== undefined &&
     typeof footer === 'object' &&
     !React.isValidElement(footer) &&
-    ('left' in footer || 'right' in footer || 'errorMessage' in footer)
+    ('left' in footer || 'right' in footer)
   );
 }
 
@@ -457,6 +459,11 @@ export const Modal: React.FC<ModalProps> = ({
     // Only allow dragging from header (not close button)
     if ((e.target as HTMLElement).closest('button')) return;
 
+    // Blur any focused input before dragging
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     e.preventDefault(); // Prevent text selection while dragging
     e.stopPropagation(); // Prevent event bubbling
 
@@ -686,17 +693,9 @@ export const Modal: React.FC<ModalProps> = ({
             {footerConfig ? (
               // Enhanced footer with left/right slots
               <div className={styles.modalFooterEnhanced}>
-                {/* Left side: Delete button + error message */}
+                {/* Left side: Delete button */}
                 <div className={styles.modalFooterLeft}>
                   {footerConfig.left}
-                  {footerConfig.errorMessage && (
-                    <div className={styles.modalFooterError}>
-                      <span role="img" aria-label="Error">
-                        ❌
-                      </span>{' '}
-                      {footerConfig.errorMessage}
-                    </div>
-                  )}
                 </div>
 
                 {/* Right side: Cancel + Confirm */}

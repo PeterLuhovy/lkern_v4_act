@@ -180,6 +180,24 @@ export interface TranslationKeys {
       nestedContentExamples: string;
       gridLayoutExample: string;
       size: string;
+      glassModal: {
+        title: string;
+        description: string;
+        openModal: string;
+        modalTitle: string;
+        namePlaceholder: string;
+        fillAllFields: string;
+        submitted: string;
+        features: {
+          title: string;
+          backdropBlur: string;
+          gradientBackground: string;
+          scaleAnimation: string;
+          gradientText: string;
+          glassInputs: string;
+          purpleGlow: string;
+        };
+      };
     };
     card: {
       defaultVariant: string;
@@ -304,9 +322,20 @@ export interface TranslationKeys {
         modalTitle: string;
         testValidationHeading: string;
         placeholder: string;
+        namePlaceholder: string;
+        nameSuccess: string;
+        emailPlaceholder: string;
+        emailHelper: string;
+        emailSuccess: string;
+        messageLabel: string;
+        messagePlaceholder: string;
+        messageHelper: string;
         instruction1: string;
         instruction2: string;
         instruction3: string;
+        instruction4: string;
+        instruction5: string;
+        successMessage: string;
       };
       test4: {
         title: string;
@@ -401,6 +430,8 @@ export interface TranslationKeys {
     errors: {
       passwordLength: string;
       required: string;
+      invalidEmail: string;
+      fillAllFields: string;
     };
     checkboxes: {
       agreeTerms: string;

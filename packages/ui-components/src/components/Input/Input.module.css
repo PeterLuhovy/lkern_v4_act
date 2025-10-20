@@ -1,24 +1,17 @@
-/**
- * @file Input.module.css
- * @package @l-kern/ui-components
- * @description Input component styles using CSS Modules and design tokens
- * @version 1.2.0
- * @date 2025-10-19
+/*
+ * ================================================================
+ * FILE: Input.module.css
+ * PATH: /packages/ui-components/src/components/Input/Input.module.css
+ * DESCRIPTION: Simplified input styles - no wrapper, no error/helper text
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 18:00:00
+ *
+ * BREAKING CHANGES (v2.0.0):
+ *   - REMOVED: .wrapper, .wrapper--fullWidth (no wrapper div)
+ *   - REMOVED: .errorText, .helperText, .errorIcon (moved to FormField)
+ *   - Input is now a pure styled <input> element
+ * ================================================================
  */
-
-/* ================================================================
- * WRAPPER
- * ================================================================ */
-
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  width: auto;
-}
-
-.wrapper--fullWidth {
-  width: 100%;
-}
 
 /* ================================================================
  * BASE INPUT
@@ -42,7 +35,8 @@
   border-radius: var(--border-radius-md, 6px);
 
   /* Animation */
-  transition: border-color var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
+  transition: border-color var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease),
+              background var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
 
   /* Other */
   outline: none;
@@ -59,15 +53,34 @@
 /* Focus state */
 .input:focus {
   border-color: var(--color-brand-primary, #9c27b0);
+  background: var(--theme-input-background-focus);
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.15);
+  outline: none;
 }
 
 /* Error state */
 .input--error {
-  border-color: var(--color-status-error, #f44336);
+  border-color: var(--theme-validation-error-border, rgba(211, 47, 47, 0.5));
 }
 
 .input--error:focus {
   border-color: var(--color-status-error, #f44336);
+  background: var(--theme-input-background-focus);
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15);
+  outline: none;
+}
+
+/* Valid state - green border for successful validation */
+.input--valid {
+  border-color: var(--theme-validation-success-border, rgba(56, 142, 60, 0.5));
+  /* Background remains the same as base input (no override) */
+}
+
+.input--valid:focus {
+  border-color: var(--color-status-success, #4CAF50);
+  background: var(--theme-input-background-focus);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+  outline: none;
 }
 
 /* Disabled state */
@@ -84,43 +97,62 @@
 }
 
 /* ================================================================
- * HOVER STATES
+ * AUTOFILL STATES
  * ================================================================ */
 
-.input:hover:not(:disabled):not(:focus) {
-  border-color: var(--theme-input-border-hover, #bdbdbd);
+/* Override browser autofill styles to match our theme */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background) inset !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-.input--error:hover:not(:disabled) {
-  border-color: var(--color-status-error, #f44336);
+.input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background-focus) inset !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+/* Autofill for error state */
+.input--error:-webkit-autofill,
+.input--error:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background) inset !important;
+}
+
+.input--error:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background-focus) inset !important;
+}
+
+/* Autofill for valid state */
+.input--valid:-webkit-autofill,
+.input--valid:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background) inset !important;
+}
+
+.input--valid:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-input-background-focus) inset !important;
 }
 
 /* ================================================================
- * HELPER & ERROR TEXT
+ * HOVER STATES
  * ================================================================ */
 
-.helperText,
-.errorText {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs, 4px);
-  margin-top: var(--spacing-xs, 4px);
-  font-size: var(--font-size-xs, 10px);
-  font-weight: var(--font-weight-normal, 400);
-  line-height: var(--line-height-normal, 1.5);
+/* Normal input hover - purple border + shadow */
+.input:hover:not(:disabled):not(:focus):not(.input--error):not(.input--valid) {
+  border-color: var(--color-brand-primary, #9c27b0);
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
 }
 
-.helperText {
-  color: var(--theme-text-muted, #9e9e9e);
+/* Error input hover - darker red + shadow */
+.input--error:hover:not(:disabled):not(:focus) {
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
 }
 
-.errorText {
-  color: var(--color-status-error, #f44336);
-}
-
-.errorIcon {
-  font-size: var(--font-size-sm, 12px);
-  flex-shrink: 0;
+/* Valid input hover - darker green + shadow */
+.input--valid:hover:not(:disabled):not(:focus) {
+  border-color: #388e3c;
+  box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
 }
 
 /* ================================================================
@@ -161,4 +193,13 @@
     font-size: var(--font-size-sm, 12px);
     padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
   }
+}
+
+/* ================================================
+ * DARK MODE
+ * ================================================ */
+
+[data-theme='dark'] .input::placeholder {
+  color: var(--theme-text, #f5f5f5);
+  opacity: 0.4;
 }

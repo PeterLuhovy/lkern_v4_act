@@ -40,6 +40,14 @@ export function setupTheme(): void {
       --color-secondary: ${COLORS.brand.secondary};
       --color-accent: ${COLORS.brand.accent};
 
+      /* Button colors (lighter for light theme) */
+      --button-primary-from: ${COLORS.brand.light};
+      --button-primary-to: ${COLORS.brand.primary};
+      --button-danger-from: #ef5350;
+      --button-danger-to: #d32f2f;
+      --button-success-from: #66bb6a;
+      --button-success-to: #388E3C;
+
       /* Border colors */
       --color-border: ${COLORS.neutral.gray300};
       --theme-border: ${COLORS.neutral.gray300};
@@ -48,9 +56,22 @@ export function setupTheme(): void {
 
       /* Input/Form colors */
       --theme-input-background: ${COLORS.neutral.white};
+      --theme-input-background-focus: ${COLORS.neutral.gray200};
+      --theme-input-background-valid: ${COLORS.neutral.white};
       --theme-input-background-disabled: ${COLORS.neutral.gray100};
       --theme-hover-background: ${COLORS.neutral.gray100};
       --theme-button-text-on-color: ${COLORS.neutral.white};
+
+      /* Validation message colors - darker for light mode readability */
+      --theme-validation-error: #c62828;
+      --theme-validation-success: #2e7d32;
+
+      /* Validation border colors - less saturated for better visibility */
+      --theme-validation-error-border: rgba(211, 47, 47, 0.5);
+      --theme-validation-success-border: rgba(56, 142, 60, 0.5);
+
+      /* Card colors */
+      --theme-card-background: ${COLORS.neutral.gray100};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};
@@ -147,6 +168,9 @@ export function setupTheme(): void {
       --theme-text: ${COLORS.neutral.gray100};
       --theme-text-muted: ${COLORS.neutral.gray500};
 
+      /* Input text - dark for better contrast on lighter input background */
+      --theme-input-text: ${COLORS.neutral.gray900};
+
       /* Brand colors (lighter versions for dark mode) */
       --color-primary: ${COLORS.brand.light};
       --color-brand-primary: ${COLORS.brand.light};
@@ -159,17 +183,35 @@ export function setupTheme(): void {
       --theme-input-border: ${COLORS.neutral.gray600};
       --theme-input-border-hover: ${COLORS.neutral.gray500};
 
-      /* Input/Form colors - darker background, not bright */
-      --theme-input-background: ${COLORS.neutral.gray800};
+      /* Input/Form colors */
+      --theme-input-background: ${COLORS.neutral.gray600};
+      --theme-input-background-focus: ${COLORS.neutral.gray500};
+      --theme-input-background-valid: ${COLORS.neutral.gray600};
       --theme-input-background-disabled: ${COLORS.neutral.gray700};
       --theme-hover-background: ${COLORS.neutral.gray700};
       --theme-button-text-on-color: ${COLORS.neutral.white};
 
-      /* Status colors */
+      /* Validation message colors - lighter for dark mode readability */
+      --theme-validation-error: #ff6659;
+      --theme-validation-success: #66bb6a;
+
+      /* Validation border colors - full saturation for dark mode */
+      --theme-validation-error-border: #ff6659;
+      --theme-validation-success-border: #66bb6a;
+
+      /* Card colors - same as modal background */
+      --theme-card-background: ${COLORS.neutral.gray800};
+
+      /* Modal background - darker than inputs */
+      --theme-modal-background: ${COLORS.neutral.gray800};
+
+      /* Status colors - lighter shades for dark mode */
       --color-success: ${COLORS.status.success};
       --color-warning: ${COLORS.status.warning};
       --color-error: ${COLORS.status.error};
       --color-info: ${COLORS.status.info};
+      --color-status-error: #ef5350;
+      --color-status-error-light: #ff6659;
     }
 
     /* Global Styles */

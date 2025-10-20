@@ -3,8 +3,14 @@
  * FILE: Modal.module.css
  * PATH: /packages/ui-components/src/components/Modal/Modal.module.css
  * DESCRIPTION: Styles for Modal component (3 variants)
- * VERSION: v1.0.1
- * UPDATED: 2025-10-19 17:10:00
+ * VERSION: v1.1.0
+ * UPDATED: 2025-10-19 19:00:00
+ *
+ * CHANGES (v1.1.0):
+ *   - Modal widths now use CSS variables from design-tokens.ts
+ *   - --modal-width-sm: 480px (small modals)
+ *   - --modal-width-md: 720px (medium modals)
+ *   - --modal-width-lg: 1000px (large modals)
  * ================================================================
  */
 
@@ -36,7 +42,7 @@
 /* === CONTAINER (Base) === */
 
 .modalContainer {
-  background: var(--theme-input-background, #ffffff);
+  background: var(--theme-modal-background, var(--color-background-alt, #f5f5f5));
   border-radius: 8px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -64,19 +70,19 @@
   }
 }
 
-/* Sizes for centered modal */
+/* Sizes for centered modal - using design tokens */
 .modal--sm {
-  width: var(--spacing-xhuge, 400px);
+  width: var(--modal-width-sm, 480px);
   max-width: 90vw;
 }
 
 .modal--md {
-  width: calc(var(--spacing-xhuge, 400px) + 200px);
+  width: var(--modal-width-md, 720px);
   max-width: 90vw;
 }
 
 .modal--lg {
-  width: var(--layout-max-width-content, 800px);
+  width: var(--modal-width-lg, 1000px);
   max-width: 90vw;
 }
 
@@ -87,7 +93,7 @@
   right: 0;
   top: 0;
   height: 100vh;
-  width: calc(var(--spacing-xhuge, 400px) + 100px);
+  width: var(--modal-width-md, 720px);
   max-width: 90vw;
   max-height: 100vh;
   border-radius: 0;
@@ -224,15 +230,6 @@
   gap: var(--spacing-md, 12px);
 }
 
-.modalFooterError {
-  font-size: 12px;
-  color: var(--color-status-error, #f44336);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs, 4px);
-}
-
 /* === LOADING STATE === */
 
 .modalLoading {
@@ -268,7 +265,7 @@
 /* === DARK MODE === */
 
 [data-theme='dark'] .modalContainer {
-  background: var(--theme-input-background, #1e1e1e);
+  background: var(--theme-modal-background, var(--color-background-alt, #424242));
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 

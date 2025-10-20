@@ -1,9 +1,16 @@
-/**
- * @file FormField.module.css
- * @package @l-kern/ui-components
- * @description FormField component styles using CSS Modules and design tokens
- * @version 1.0.0
- * @date 2025-10-18
+/*
+ * ================================================================
+ * FILE: FormField.module.css
+ * PATH: /packages/ui-components/src/components/FormField/FormField.module.css
+ * DESCRIPTION: FormField styles with reserved space for validation messages
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-19 18:00:00
+ *
+ * CHANGES (v2.0.0):
+ *   - ADDED: .messageArea and .messageArea--reserved for layout shift prevention
+ *   - ADDED: .errorIcon for error message icon
+ *   - ENHANCED: Reserved space reserves ~18px height when enabled
+ * ================================================================
  */
 
 /* ================================================================
@@ -51,12 +58,40 @@
 }
 
 /* ================================================================
+ * MESSAGE AREA (Reserved Space Feature)
+ * ================================================================ */
+
+/**
+ * Message area container
+ * When reserveMessageSpace=true, always allocates min-height for message
+ * Prevents layout shift when validation messages appear/disappear
+ */
+.messageArea {
+  /* No min-height by default - container collapses when empty */
+  margin-top: 1px;
+}
+
+/**
+ * Reserved space variant
+ * Always allocates height for one line of error/helper text
+ * Calculation: font-size (10px) + line-height (1.5) + icon (12px) + gap (4px) ≈ 28px
+ */
+.messageArea--reserved {
+  min-height: calc(var(--spacing-lg, 24px) + var(--spacing-xs, 4px));
+  display: flex;
+  align-items: flex-start;
+}
+
+/* ================================================================
  * HELPER & ERROR TEXT
  * ================================================================ */
 
 .helperText,
-.errorText {
-  display: block;
+.errorText,
+.successText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
   font-size: var(--font-size-xs, 10px);
   font-weight: var(--font-weight-normal, 400);
   line-height: var(--line-height-normal, 1.5);
@@ -67,5 +102,33 @@
 }
 
 .errorText {
-  color: var(--color-status-error, #f44336);
+  color: var(--theme-validation-error, #c62828);
 }
+
+.successText {
+  color: var(--theme-validation-success, #2e7d32);
+}
+
+/**
+ * Error icon (⚠)
+ * Displayed before error text
+ */
+.errorIcon {
+  font-size: var(--font-size-sm, 12px);
+  flex-shrink: 0;
+}
+
+/**
+ * Success icon (✓)
+ * Displayed before success text
+ */
+.successIcon {
+  font-size: var(--font-size-sm, 12px);
+  flex-shrink: 0;
+}
+
+/* ================================================================
+ * DARK MODE
+ * ================================================================ */
+
+/* Dark mode colors are handled via CSS variables in theme-setup.ts */

@@ -19,9 +19,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { BasePage, Modal, Button, Input, WizardProgress, WizardNavigation } from '@l-kern/ui-components';
+import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card } from '@l-kern/ui-components';
 import type { ModalFooterConfig } from '@l-kern/ui-components';
-import { useModal, useModalWizard } from '@l-kern/config';
+import { useModal, useModalWizard, EMAIL_REGEX } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import styles from './TestModalV3Page.module.css';
 
@@ -35,9 +35,10 @@ export function TestModalV3Page() {
   const parentModal = useModal();
   const childModal = useModal();
 
-  // Test 3: Enhanced footer with error
+  // Test 3: Enhanced footer with real-time validation
   const footerModal = useModal();
-  const [footerError, setFooterError] = useState<string>('');
+  const [nameValid, setNameValid] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
 
   // Test 4: Alignment options
   const topModal = useModal();
@@ -61,7 +62,7 @@ export function TestModalV3Page() {
       { id: 'step2', title: t('components.modalV3.test8.step2Title') },
       { id: 'step3', title: t('components.modalV3.test8.step3Title') }
     ],
-    onComplete: (data) => {
+    onComplete: () => {
       alert(t('components.modalV3.test8.completeMessage'));
       wizardModal.close();
       setWizardData({ step1: '', step2: '' });
@@ -84,14 +85,32 @@ export function TestModalV3Page() {
     submitModal.close();
   };
 
+  // Validation functions for FormField
+  const validateName = (value: string): string | undefined => {
+    if (!value.trim()) return t('forms.errors.required');
+    return undefined;
+  };
+
+  const validateEmail = (value: string): string | undefined => {
+    if (!value.trim()) return t('forms.errors.required');
+    if (!EMAIL_REGEX.test(value)) return t('forms.errors.invalidEmail');
+    return undefined;
+  };
+
+  // Check if form is valid (both fields must be valid)
+  const isFormValid = nameValid && emailValid;
+
   const handleFooterSave = () => {
-    if (!inputValue) {
-      setFooterError(t('components.modalV3.common.inputEmptyError'));
+    if (!isFormValid) {
+      alert(t('forms.errors.fillAllFields'));
       return;
     }
-    setFooterError('');
-    alert(`${t('common.save')}: ${inputValue}`);
+
+    // Success - submit form
+    alert(`${t('common.save')} - ${t('components.modalV3.test3.successMessage')}`);
     footerModal.close();
+    setNameValid(false);
+    setEmailValid(false);
   };
 
   const handleFooterDelete = () => {
@@ -113,12 +132,16 @@ export function TestModalV3Page() {
         <Button variant="secondary" onClick={footerModal.close}>
           {t('common.cancel')}
         </Button>
-        <Button variant="primary" onClick={handleFooterSave} loading={footerModal.isSubmitting}>
+        <Button
+          variant="primary"
+          onClick={handleFooterSave}
+          loading={footerModal.isSubmitting}
+          disabled={!isFormValid}
+        >
           {t('common.save')}
         </Button>
       </>
     ),
-    errorMessage: footerError || undefined,
   };
 
   return (
@@ -130,7 +153,7 @@ export function TestModalV3Page() {
 
       <div className={styles.testGrid}>
         {/* Test 1: Drag & Drop */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test1.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test1.description')}
@@ -158,10 +181,10 @@ export function TestModalV3Page() {
               </ul>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 2: Nested Modals (ESC topmost only) */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test2.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test2.description')}
@@ -214,10 +237,10 @@ export function TestModalV3Page() {
               </div>
             </Modal>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 3: Enhanced Footer */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test3.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test3.description')}
@@ -230,8 +253,8 @@ export function TestModalV3Page() {
             isOpen={footerModal.isOpen}
             onClose={() => {
               footerModal.close();
-              setFooterError('');
-              setInputValue('');
+              setNameValid(false);
+              setEmailValid(false);
             }}
             onConfirm={handleFooterSave}
             modalId="enhanced-footer"
@@ -240,30 +263,72 @@ export function TestModalV3Page() {
             footer={enhancedFooter}
           >
             <div className={styles.modalContent}>
-              <p>
+              <p style={{ marginBottom: '20px' }}>
                 <strong>{t('components.modalV3.test3.testValidationHeading')}</strong>
               </p>
-              <Input
-                type="text"
-                placeholder={t('components.modalV3.test3.placeholder')}
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  if (footerError) setFooterError(''); // Clear error on input
-                }}
-                fullWidth
-              />
+
+              {/* Name Field - REQUIRED with real-time validation */}
+              <FormField
+                label={t('fields.name')}
+                required
+                validate={validateName}
+                onValidChange={setNameValid}
+                successMessage={t('components.modalV3.test3.nameSuccess')}
+                reserveMessageSpace
+                htmlFor="footer-name"
+              >
+                <Input
+                  id="footer-name"
+                  type="text"
+                  placeholder={t('components.modalV3.test3.namePlaceholder')}
+                />
+              </FormField>
+
+              {/* Email Field - REQUIRED with real-time validation */}
+              <FormField
+                label={t('fields.email')}
+                required
+                validate={validateEmail}
+                onValidChange={setEmailValid}
+                successMessage={t('components.modalV3.test3.emailSuccess')}
+                helperText={t('components.modalV3.test3.emailHelper')}
+                reserveMessageSpace
+                htmlFor="footer-email"
+              >
+                <Input
+                  id="footer-email"
+                  type="text"
+                  placeholder={t('components.modalV3.test3.emailPlaceholder')}
+                />
+              </FormField>
+
+              {/* Message Field - OPTIONAL (no validation) */}
+              <FormField
+                label={t('components.modalV3.test3.messageLabel')}
+                helperText={t('components.modalV3.test3.messageHelper')}
+                reserveMessageSpace
+                htmlFor="footer-message"
+              >
+                <Input
+                  id="footer-message"
+                  type="text"
+                  placeholder={t('components.modalV3.test3.messagePlaceholder')}
+                />
+              </FormField>
+
               <ul style={{ marginTop: '16px', fontSize: '14px' }}>
                 <li>{t('components.modalV3.test3.instruction1')}</li>
                 <li>{t('components.modalV3.test3.instruction2')}</li>
                 <li>{t('components.modalV3.test3.instruction3')}</li>
+                <li>{t('components.modalV3.test3.instruction4')}</li>
+                <li>{t('components.modalV3.test3.instruction5')}</li>
               </ul>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 4: Alignment Top */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test4.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test4.description')}
@@ -284,10 +349,10 @@ export function TestModalV3Page() {
               <p>{t('components.modalV3.test4.content')}</p>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 5: Alignment Bottom */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test5.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test5.description')}
@@ -308,10 +373,10 @@ export function TestModalV3Page() {
               <p>{t('components.modalV3.test5.content')}</p>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 6: Submit on Enter */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test6.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test6.description')}
@@ -347,10 +412,10 @@ export function TestModalV3Page() {
               </p>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 7: Disable Drag */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test7.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test7.description')}
@@ -373,10 +438,10 @@ export function TestModalV3Page() {
               </p>
             </div>
           </Modal>
-        </div>
+        </Card>
 
         {/* Test 8: Multi-step Wizard */}
-        <div className={styles.testCard}>
+        <Card variant="default">
           <h2 className={styles.testTitle}>{t('components.modalV3.test8.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test8.description')}
@@ -470,11 +535,11 @@ export function TestModalV3Page() {
               </p>
             </div>
           </Modal>
-        </div>
+        </Card>
       </div>
 
       {/* Feature Summary */}
-      <div className={styles.featureSummary}>
+      <Card variant="elevated" className={styles.featureSummary}>
         <h2 className={styles.featureSummaryTitle}>
           {t('components.modalV3.featureSummary.title')}
         </h2>
@@ -501,7 +566,7 @@ export function TestModalV3Page() {
             <strong>{t('components.modalV3.featureSummary.modalStack')}</strong> {t('components.modalV3.featureSummary.modalStackDesc')}
           </li>
         </ul>
-      </div>
+      </Card>
     </div>
     </BasePage>
   );

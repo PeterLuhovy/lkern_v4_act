@@ -34,7 +34,7 @@
   font-size: 11px;
   font-family: monospace;
   font-weight: 600;
-  color: var(--theme-text, #212121);
+  color: #212121; /* Always dark text for both themes */
 
   /* Stacking */
   z-index: 1001;
@@ -102,22 +102,34 @@
 
 /* === COPY BUTTON === */
 .debugBar__copyBtn {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  /* Lighter orange gradient with 3D effect */
+  background: linear-gradient(135deg, rgba(255, 140, 20, 0.9) 0%, rgba(230, 115, 0, 0.9) 100%);
+  border: 1px solid rgba(204, 102, 0, 0.7);
   border-radius: var(--spacing-xs, 4px);
-  padding: calc(var(--spacing-xs, 4px) / 2) var(--spacing-sm, 8px);
+  padding: 1.5px 4px;
   cursor: pointer;
-  font-size: 9px;
-  color: var(--theme-text, #212121);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .debugBar__copyBtn:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: scale(1.05);
+  background: linear-gradient(135deg, rgba(230, 115, 0, 0.95) 0%, rgba(204, 102, 0, 0.95) 100%);
+  border-color: rgba(184, 92, 0, 0.8);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25),
+              0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .debugBar__copyBtn:active {
-  transform: scale(0.95);
+  transform: translateY(0);
+  background: linear-gradient(135deg, rgba(163, 82, 0, 0.95) 0%, rgba(133, 66, 0, 0.95) 100%);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3),
+              0 1px 2px rgba(0, 0, 0, 0.2);
 }
+
+/* === DARK MODE === */
+/* Button uses same styling in both themes for consistency */
