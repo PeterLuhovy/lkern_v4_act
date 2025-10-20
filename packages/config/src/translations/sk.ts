@@ -3,8 +3,8 @@
  * FILE: sk.ts
  * PATH: packages/config/src/translations/sk.ts
  * DESCRIPTION: Slovak translations for L-KERN v4
- * VERSION: v1.3.0
- * UPDATED: 2025-10-19 13:00:00
+ * VERSION: v1.3.1
+ * UPDATED: 2025-10-20 18:10:00
  * ================================================================
  */
 

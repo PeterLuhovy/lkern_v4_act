@@ -127,6 +127,44 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 
 ---
 
+### ✅ Phase 1.2: useConfirm Hook (2025-10-20)
+**Status:** COMPLETED
+**Duration:** 2 hours
+
+**Implementation:**
+- Promise-based confirmation dialogs
+- Integration with Modal component
+- Dynamic translation support (SK/EN switching while modal is open)
+- Complete documentation in useConfirm.md
+- 17/17 tests passing (100% coverage)
+
+**Translation Fix:**
+- ❌ **Problem:** Modal messages didn't update when language changed
+- ✅ **Solution:** Store translation KEY in state, call t() in render (not in handler)
+- **Result:** Both message and result text now translate dynamically
+
+**Files Created:**
+- `packages/config/src/hooks/useConfirm/useConfirm.ts` (142 lines)
+- `packages/config/src/hooks/useConfirm/useConfirm.test.ts` (17 tests)
+- `packages/config/src/hooks/useConfirm/useConfirm.md` (450 lines)
+- `packages/config/src/hooks/useConfirm/index.ts`
+
+**Translations Added:**
+- `components.modalV3.testConfirm.*` (10 new keys, SK/EN)
+
+**Test Integration:**
+- Added to TestModalV3Page (2 test scenarios)
+- Delete confirmation test
+- Unsaved changes confirmation test
+
+**Results:**
+- Tests: 670/670 passing (100%) ✅
+- Build: Zero TypeScript errors ✅
+- Export: Added to @l-kern/config ✅
+- Code Quality: Production-ready ✅
+
+---
+
 ### ✅ Phase 1.1: useFormDirty Hook (2025-10-20)
 **Status:** COMPLETED
 **Duration:** 3 hours

@@ -53,16 +53,21 @@ export function TestModalV3Page() {
 
   // Test 7: useConfirm hook
   const confirmHook = useConfirm();
-  const [confirmResult, setConfirmResult] = useState<string>('');
+  const [confirmResultKey, setConfirmResultKey] = useState<string>('');
+  const [confirmMessageKey, setConfirmMessageKey] = useState<string>('');
 
   const handleDeleteTest = async () => {
-    const confirmed = await confirmHook.confirm(t('components.modalV3.testConfirm.deleteMessage'));
-    setConfirmResult(confirmed ? t('components.modalV3.testConfirm.confirmedTrue') : t('components.modalV3.testConfirm.confirmedFalse'));
+    setConfirmMessageKey('components.modalV3.testConfirm.deleteMessage');
+    const confirmed = await confirmHook.confirm('deleteMessage'); // Dummy value, real translation in Modal
+    setConfirmResultKey(confirmed ? 'components.modalV3.testConfirm.confirmedTrue' : 'components.modalV3.testConfirm.confirmedFalse');
+    setConfirmMessageKey('');
   };
 
   const handleUnsavedTest = async () => {
-    const confirmed = await confirmHook.confirm(t('components.modalV3.testConfirm.unsavedMessage'));
-    setConfirmResult(confirmed ? t('components.modalV3.testConfirm.confirmedTrue') : t('components.modalV3.testConfirm.confirmedFalse'));
+    setConfirmMessageKey('components.modalV3.testConfirm.unsavedMessage');
+    const confirmed = await confirmHook.confirm('unsavedMessage'); // Dummy value, real translation in Modal
+    setConfirmResultKey(confirmed ? 'components.modalV3.testConfirm.confirmedTrue' : 'components.modalV3.testConfirm.confirmedFalse');
+    setConfirmMessageKey('');
   };
 
   // Test 8: Multi-step Wizard
@@ -478,15 +483,15 @@ export function TestModalV3Page() {
             </Button>
           </div>
 
-          {confirmResult && (
+          {confirmResultKey && (
             <div style={{
               padding: '12px',
-              background: confirmResult.includes('true') ? '#e8f5e9' : '#fff3e0',
-              border: `1px solid ${confirmResult.includes('true') ? '#4caf50' : '#ff9800'}`,
+              background: confirmResultKey.includes('confirmedTrue') ? '#e8f5e9' : '#fff3e0',
+              border: `1px solid ${confirmResultKey.includes('confirmedTrue') ? '#4caf50' : '#ff9800'}`,
               borderRadius: '4px',
               marginTop: '12px'
             }}>
-              <strong>{t('components.modalV3.testConfirm.result')}:</strong> {confirmResult}
+              <strong>{t('components.modalV3.testConfirm.result')}:</strong> {t(confirmResultKey as any)}
             </div>
           )}
 
@@ -513,7 +518,7 @@ export function TestModalV3Page() {
               }
             >
               <div className={styles.modalContent}>
-                <p>{confirmHook.message}</p>
+                <p>{confirmMessageKey ? t(confirmMessageKey as any) : confirmHook.message}</p>
               </div>
             </Modal>
           )}
