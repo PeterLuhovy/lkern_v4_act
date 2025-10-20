@@ -18,7 +18,13 @@ import type { UsePageAnalyticsReturn } from '@l-kern/config';
 vi.mock('@l-kern/config', () => ({
   useTranslation: () => ({
     language: 'sk',
-    t: (key: string) => key,
+    t: (key: string) => {
+      // Return actual English translations for tests
+      const translations: Record<string, string> = {
+        'debugBar.copyModalName': 'Copy modal name to clipboard',
+      };
+      return translations[key] || key;
+    },
   }),
   useTheme: () => ({
     theme: 'light',
@@ -211,7 +217,8 @@ describe('DebugBar', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(clipboardWriteSpy).toHaveBeenCalledTimes(1);
-      expect(clipboardWriteSpy).toHaveBeenCalledWith('edit-contact');
+      // DebugBar copies formatted name: [Analytics][Modal][modalName]
+      expect(clipboardWriteSpy).toHaveBeenCalledWith('[Analytics][Modal][edit-contact]');
     });
 
     it('should track click analytics when copy button clicked', async () => {

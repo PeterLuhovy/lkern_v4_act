@@ -30,14 +30,30 @@ vi.mock('@l-kern/config', () => ({
   }),
   usePageAnalytics: (pageName: string) => ({
     session: null,
-    totalTime: '0.0s',
-    timeSinceLastActivity: '0.0s',
-    clicks: 0,
-    keys: 0,
+    isSessionActive: false,
     startSession: vi.fn(),
     endSession: vi.fn(),
+    resetSession: vi.fn(),
     trackClick: vi.fn(),
+    trackKeyboard: vi.fn(),
+    metrics: {
+      totalTime: '0.0s',
+      timeSinceLastActivity: '0.0s',
+      clickCount: 0,
+      keyboardCount: 0,
+      averageTimeBetweenClicks: 0,
+    },
+    getSessionReport: vi.fn(() => null),
   }),
+  // Mock modalStack for BasePage modal detection
+  modalStack: {
+    getTopmostModalId: vi.fn(() => undefined), // No modal open by default
+    push: vi.fn(),
+    pop: vi.fn(),
+    clear: vi.fn(),
+    has: vi.fn(),
+    size: vi.fn(),
+  },
 }));
 
 describe('BasePage', () => {
