@@ -122,6 +122,8 @@ export const DebugBar: React.FC<DebugBarProps> = ({
           handleAnalyticsClick('DebugHeader', 'debug-header', e);
         }
       }}
+      onMouseDown={(e) => e.stopPropagation()} // Prevent BasePage from tracking this click
+      onMouseUp={(e) => e.stopPropagation()}   // Prevent BasePage from tracking this click
     >
       {/* Left side - Modal name + Copy button */}
       <div className={styles.debugBar__left}>
