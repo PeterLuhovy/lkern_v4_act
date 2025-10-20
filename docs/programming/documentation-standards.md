@@ -35,29 +35,36 @@
 
 **Goal**: Every component, hook, and utility function in L-KERN v4 must have comprehensive documentation in a dedicated `.md` file.
 
-**Location**: All documentation files are stored in structured folders under `docs/`:
+**Location**: Documentation files are stored **directly with the code** in component/hook/utility folders:
 
 ```
-docs/
-├── components/          # UI component documentation
-│   ├── Button.md
-│   ├── Input.md
-│   ├── Modal.md
-│   └── ...
-├── hooks/               # React hooks documentation
-│   ├── useFormDirty.md
-│   ├── useModalWizard.md
-│   └── ...
-├── utils/               # Utility functions documentation
-│   ├── phone-validation.md
-│   ├── email-validation.md
-│   └── ...
-└── api/                 # API/backend documentation
-    ├── contacts-api.md
-    └── ...
+packages/ui-components/src/components/
+├── Button/
+│   ├── Button.tsx
+│   ├── Button.test.tsx
+│   ├── Button.module.css
+│   └── Button.md              # ✅ Documentation here!
+├── Input/
+│   ├── Input.tsx
+│   └── Input.md               # ✅ Documentation here!
+└── ...
+
+packages/config/src/hooks/
+├── useFormDirty/
+│   ├── useFormDirty.ts
+│   ├── useFormDirty.test.ts
+│   └── useFormDirty.md        # ✅ Documentation here!
+└── ...
+
+packages/config/src/utils/
+├── dateUtils/
+│   ├── dateUtils.ts
+│   ├── dateUtils.test.ts
+│   └── dateUtils.md           # ✅ Documentation here!
+└── ...
 ```
 
-**Main Index**: `docs/README.md` contains links to all documentation.
+**Main Index**: `docs/README.md` contains **index with links** to all documentation in packages/.
 
 ---
 
@@ -106,17 +113,18 @@ docs/
 - ✅ `useFormDirty.md` (for useFormDirty.ts)
 - ✅ `useModalWizard.md` (for useModalWizard.ts)
 
-**Utilities**: kebab-case describing function group
-- ✅ `phone-validation.md` (for validateMobile, formatPhoneNumber, etc.)
-- ✅ `email-validation.md` (for validateEmail, normalizeEmail, etc.)
+**Utilities**: Match folder name (camelCase)
+- ✅ `dateUtils.md` (for dateUtils folder with formatDate, parseDate, etc.)
+- ✅ `phoneUtils.md` (for phoneUtils folder with validateMobile, formatPhone, etc.)
+- ✅ `emailUtils.md` (for emailUtils folder with validateEmail, etc.)
 
 ### Location Rules
 
 ```
-Component → docs/components/<ComponentName>.md
-Hook → docs/hooks/<hookName>.md
-Utility → docs/utils/<utility-name>.md
-API → docs/api/<api-name>.md
+Component → packages/ui-components/src/components/<ComponentName>/<ComponentName>.md
+Hook → packages/config/src/hooks/<hookName>/<hookName>.md
+Utility → packages/config/src/utils/<utilityName>/<utilityName>.md
+API → services/<service-name>/docs/<api-name>.md
 ```
 
 ---
@@ -129,11 +137,11 @@ API → docs/api/<api-name>.md
 # ================================================================
 # <Component/Hook/Utility Name>
 # ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\<category>\<filename>.md
+# File: L:\system\lkern_codebase_v4_act\packages\<package>\src\<type>\<Name>\<Name>.md
 # Version: X.Y.Z
 # Created: YYYY-MM-DD
 # Updated: YYYY-MM-DD
-# Component Location: packages/<package>/src/components/<Name>/<Name>.tsx
+# Source: packages/<package>/src/<type>/<Name>/<Name>.tsx
 # Package: @l-kern/<package-name>
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
@@ -141,6 +149,21 @@ API → docs/api/<api-name>.md
 # Description:
 #   Brief 1-2 sentence description of what this component/hook/utility does.
 # ================================================================
+
+**Examples:**
+```
+# Component
+File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\Button\Button.md
+Source: packages/ui-components/src/components/Button/Button.tsx
+
+# Hook
+File: L:\system\lkern_codebase_v4_act\packages\config\src\hooks\useModal\useModal.md
+Source: packages/config/src/hooks/useModal/useModal.ts
+
+# Utility
+File: L:\system\lkern_codebase_v4_act\packages\config\src\utils\dateUtils\dateUtils.md
+Source: packages/config/src/utils/dateUtils/dateUtils.ts
+```
 ```
 
 **Version Rules:**

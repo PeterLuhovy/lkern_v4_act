@@ -124,71 +124,71 @@ Documentation for shared packages (@l-kern/*).
 ---
 
 ### 📁 Components
-**Location:** `docs/components/`
+**Location:** `packages/ui-components/src/components/`
 
-Detailed documentation for individual UI components.
+Detailed documentation for individual UI components (stored next to source code).
 
 **✅ COMPLETE** - All 19 components fully documented!
 
 | Component | Description | Path |
 |-----------|-------------|------|
-| **Badge** | Status indicators and labels (5 variants) | [components/Badge.md](components/Badge.md) |
-| **BasePage** | Page layout with keyboard shortcuts & analytics | [components/BasePage.md](components/BasePage.md) |
-| **Button** | Primary action button (5 variants, 4 sizes) | [components/Button.md](components/Button.md) |
-| **Card** | Container component with interaction states | [components/Card.md](components/Card.md) |
-| **Checkbox** | Checkbox input with indeterminate state | [components/Checkbox.md](components/Checkbox.md) |
-| **DashboardCard** | Navigation cards with icons | [components/DashboardCard.md](components/DashboardCard.md) |
-| **DebugBar** | Developer debugging toolbar with analytics | [components/DebugBar.md](components/DebugBar.md) |
-| **EmptyState** | Empty state UI with icon & action button | [components/EmptyState.md](components/EmptyState.md) |
-| **FormField** | Form wrapper with validation & error messages | [components/FormField.md](components/FormField.md) |
-| **Input** | Text input field (pure styling, no validation) | [components/Input.md](components/Input.md) |
-| **Modal** | Modal dialog with drag & nested modal support | [components/Modal.md](components/Modal.md) |
-| **Radio** | Radio button input | [components/Radio.md](components/Radio.md) |
-| **RadioGroup** | Radio button group management | [components/RadioGroup.md](components/RadioGroup.md) |
-| **Select** | Native dropdown with custom arrow | [components/Select.md](components/Select.md) |
-| **Spinner** | Loading spinner animation (3 sizes) | [components/Spinner.md](components/Spinner.md) |
-| **Toast** | Toast notification element (4 types) | [components/Toast.md](components/Toast.md) |
-| **ToastContainer** | Toast container (6 positions) | [components/ToastContainer.md](components/ToastContainer.md) |
-| **WizardNavigation** | Wizard step navigation buttons | [components/WizardNavigation.md](components/WizardNavigation.md) |
-| **WizardProgress** | Wizard progress indicator (3 variants) | [components/WizardProgress.md](components/WizardProgress.md) |
+| **Badge** | Status indicators and labels (5 variants) | [../packages/ui-components/src/components/Badge/Badge.md](../packages/ui-components/src/components/Badge/Badge.md) |
+| **BasePage** | Page layout with keyboard shortcuts & analytics | [../packages/ui-components/src/components/BasePage/BasePage.md](../packages/ui-components/src/components/BasePage/BasePage.md) |
+| **Button** | Primary action button (5 variants, 4 sizes) | [../packages/ui-components/src/components/Button/Button.md](../packages/ui-components/src/components/Button/Button.md) |
+| **Card** | Container component with interaction states | [../packages/ui-components/src/components/Card/Card.md](../packages/ui-components/src/components/Card/Card.md) |
+| **Checkbox** | Checkbox input with indeterminate state | [../packages/ui-components/src/components/Checkbox/Checkbox.md](../packages/ui-components/src/components/Checkbox/Checkbox.md) |
+| **DashboardCard** | Navigation cards with icons | [../packages/ui-components/src/components/DashboardCard/DashboardCard.md](../packages/ui-components/src/components/DashboardCard/DashboardCard.md) |
+| **DebugBar** | Developer debugging toolbar with analytics | [../packages/ui-components/src/components/DebugBar/DebugBar.md](../packages/ui-components/src/components/DebugBar/DebugBar.md) |
+| **EmptyState** | Empty state UI with icon & action button | [../packages/ui-components/src/components/EmptyState/EmptyState.md](../packages/ui-components/src/components/EmptyState/EmptyState.md) |
+| **FormField** | Form wrapper with validation & error messages | [../packages/ui-components/src/components/FormField/FormField.md](../packages/ui-components/src/components/FormField/FormField.md) |
+| **Input** | Text input field (pure styling, no validation) | [../packages/ui-components/src/components/Input/Input.md](../packages/ui-components/src/components/Input/Input.md) |
+| **Modal** | Modal dialog with drag & nested modal support | [../packages/ui-components/src/components/Modal/Modal.md](../packages/ui-components/src/components/Modal/Modal.md) |
+| **Radio** | Radio button input | [../packages/ui-components/src/components/Radio/Radio.md](../packages/ui-components/src/components/Radio/Radio.md) |
+| **RadioGroup** | Radio button group management | [../packages/ui-components/src/components/Radio/RadioGroup.md](../packages/ui-components/src/components/Radio/RadioGroup.md) |
+| **Select** | Native dropdown with custom arrow | [../packages/ui-components/src/components/Select/Select.md](../packages/ui-components/src/components/Select/Select.md) |
+| **Spinner** | Loading spinner animation (3 sizes) | [../packages/ui-components/src/components/Spinner/Spinner.md](../packages/ui-components/src/components/Spinner/Spinner.md) |
+| **Toast** | Toast notification element (4 types) | [../packages/ui-components/src/components/Toast/Toast.md](../packages/ui-components/src/components/Toast/Toast.md) |
+| **ToastContainer** | Toast container (6 positions) | [../packages/ui-components/src/components/ToastContainer/ToastContainer.md](../packages/ui-components/src/components/ToastContainer/ToastContainer.md) |
+| **WizardNavigation** | Wizard step navigation buttons | [../packages/ui-components/src/components/WizardNavigation/WizardNavigation.md](../packages/ui-components/src/components/WizardNavigation/WizardNavigation.md) |
+| **WizardProgress** | Wizard progress indicator (3 variants) | [../packages/ui-components/src/components/WizardProgress/WizardProgress.md](../packages/ui-components/src/components/WizardProgress/WizardProgress.md) |
 
 **Template Available:** [templates/COMPONENT_TEMPLATE.md](templates/COMPONENT_TEMPLATE.md)
 
 ---
 
 ### 📁 Hooks
-**Location:** `docs/hooks/`
+**Location:** `packages/config/src/hooks/`
 
-Detailed documentation for React hooks and custom hooks.
+Detailed documentation for React hooks and custom hooks (stored next to source code).
 
 **✅ COMPLETE** - All 5 hooks fully documented!
 
 | Hook | Description | Path |
 |------|-------------|------|
-| **useFormDirty** | Tracks form changes and dirty state | [hooks/useFormDirty.md](hooks/useFormDirty.md) |
-| **useModal** | Modal state management with callbacks | [hooks/useModal.md](hooks/useModal.md) |
-| **useModalWizard** | Multi-step wizard workflows | [hooks/useModalWizard.md](hooks/useModalWizard.md) |
-| **usePageAnalytics** | User interaction analytics tracking | [hooks/usePageAnalytics.md](hooks/usePageAnalytics.md) |
-| **useToast** | Toast notifications API | [hooks/useToast.md](hooks/useToast.md) |
+| **useFormDirty** | Tracks form changes and dirty state | [../packages/config/src/hooks/useFormDirty/useFormDirty.md](../packages/config/src/hooks/useFormDirty/useFormDirty.md) |
+| **useModal** | Modal state management with callbacks | [../packages/config/src/hooks/useModal/useModal.md](../packages/config/src/hooks/useModal/useModal.md) |
+| **useModalWizard** | Multi-step wizard workflows | [../packages/config/src/hooks/useModalWizard/useModalWizard.md](../packages/config/src/hooks/useModalWizard/useModalWizard.md) |
+| **usePageAnalytics** | User interaction analytics tracking | [../packages/config/src/hooks/usePageAnalytics/usePageAnalytics.md](../packages/config/src/hooks/usePageAnalytics/usePageAnalytics.md) |
+| **useToast** | Toast notifications API | [../packages/config/src/hooks/useToast/useToast.md](../packages/config/src/hooks/useToast/useToast.md) |
 
 **Template Available:** [templates/HOOK_TEMPLATE.md](templates/HOOK_TEMPLATE.md)
 
 ---
 
 ### 📁 Utilities
-**Location:** `docs/utils/`
+**Location:** `packages/config/src/utils/`
 
-Detailed documentation for utility functions (validation, formatting, etc.).
+Detailed documentation for utility functions (validation, formatting, etc.) (stored next to source code).
 
 **✅ COMPLETE** - All 5 utilities fully documented!
 
 | Utility | Description | Path |
 |---------|-------------|------|
-| **dateUtils** | Date formatting, parsing, validation (9 functions) | [utils/dateUtils.md](utils/dateUtils.md) |
-| **emailUtils** | Email validation, parsing (5 functions) | [utils/emailUtils.md](utils/emailUtils.md) |
-| **modalStack** | Modal stack management (9 methods) | [utils/modalStack.md](utils/modalStack.md) |
-| **phoneUtils** | Phone validation, formatting (5 functions) | [utils/phoneUtils.md](utils/phoneUtils.md) |
-| **toastManager** | Toast state management (5 methods) | [utils/toastManager.md](utils/toastManager.md) |
+| **dateUtils** | Date formatting, parsing, validation (9 functions) | [../packages/config/src/utils/dateUtils/dateUtils.md](../packages/config/src/utils/dateUtils/dateUtils.md) |
+| **emailUtils** | Email validation, parsing (5 functions) | [../packages/config/src/utils/emailUtils/emailUtils.md](../packages/config/src/utils/emailUtils/emailUtils.md) |
+| **modalStack** | Modal stack management (9 methods) | [../packages/config/src/utils/modalStack/modalStack.md](../packages/config/src/utils/modalStack/modalStack.md) |
+| **phoneUtils** | Phone validation, formatting (5 functions) | [../packages/config/src/utils/phoneUtils/phoneUtils.md](../packages/config/src/utils/phoneUtils/phoneUtils.md) |
+| **toastManager** | Toast state management (5 methods) | [../packages/config/src/utils/toastManager/toastManager.md](../packages/config/src/utils/toastManager/toastManager.md) |
 
 **Template Available:** [templates/UTILITY_TEMPLATE.md](templates/UTILITY_TEMPLATE.md)
 
