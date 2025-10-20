@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.2.0
+# Version: 1.3.0
 # Created: 2025-10-13
-# Updated: 2025-10-19 17:00:00
+# Updated: 2025-10-20 14:30:00
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -14,6 +14,55 @@
 # ================================================================
 
 **Status**: 🚀 Active Development
+
+---
+
+## 🎯 CURRENT PRIORITY: Modal System Implementation (v3.0)
+
+**Status**: 📋 **READY TO START** - Comprehensive analysis complete
+**Priority**: 🔴 **CRITICAL** - Production-ready modal system migration
+**Created**: 2025-10-20
+**Plan Document**: [`docs/temp/implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md) ⭐ **DETAILED PLAN**
+
+### **Analysis Complete:**
+- ✅ v3 project exploration (20 modal components analyzed)
+- ✅ Nx workspace dependency graph analysis
+- ✅ Coding standards compliance validation
+- ✅ Design system compliance validation
+- ✅ Affected tests identified (8 files, 26 existing tests)
+- ✅ Risk analysis complete
+- ✅ Rollback strategy defined
+
+### **Scope:**
+- **Total Components**: 13+ new components/hooks
+- **Total Tests**: 90+ unit tests + 15+ integration tests
+- **Total Effort**: 60-90 hours (8-10 working days)
+- **Risk Level**: ⚠️ MEDIUM-HIGH (complex dependencies)
+
+### **✅ Phase 0 Discovery:**
+- v4 Modal.tsx ALREADY imports `modalStack` from @l-kern/config
+- ✅ **modalStack ALREADY EXPORTED** - Implemented in Session #15 refactoring!
+- ✅ Build successful, no blockers for Phase 1-NEW
+
+### **Implementation Phases:**
+
+| Phase | Description | Effort | Status | Critical? |
+|-------|-------------|--------|--------|-----------|
+| **Phase 1** | Critical UX Fixes (Input + DebugBar) | 3-5h | ✅ **DONE** | Yes |
+| **Phase 0** | modalStack utility migration | 0h | ✅ **DONE** (already exists!) | 🔴 Was BLOCKER |
+| **Phase 1-NEW** | useFormDirty + useConfirm + validation | 8-10h | ⏳ **CURRENT** | Medium |
+| **Phase 2** | ConfirmModal component | 5-6h | ⏳ Pending | Medium |
+| **Phase 3** | Modal Templates (3 templates) | 12-16h | ⏳ Pending | Medium |
+| **Phase 4** | Card accent + Toast page + docs | 4-6h | ⏳ Pending | Low |
+| **Phase 5** | Testing & Validation | 8-12h | ⏳ Pending | High |
+
+### **Next Steps:**
+1. ✅ Implementation plan complete
+2. ✅ Phase 0 verified (modalStack already exists)
+3. ✅ User approval ("podme po rade zacni na tom pracovat")
+4. ⏳ **CURRENT:** Phase 1.1 - useFormDirty hook (2-3h)
+
+**See complete plan**: [`implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md)
 
 ---
 
@@ -300,66 +349,7 @@ Drawer and fullscreen variants exist in test files but NOT in production package
 
 **Estimated Effort:** ~8 hours (4h core + 2h UI + 2h docs/tests)
 
----
-
-### **🎯 NEXT IMMEDIATE TASK: Modal & UI Component Improvements**
-**Priority**: 🔴 **CRITICAL** - User-requested features
-**Status**: 📋 **PLANNED** - Implementation plan ready
-**Created**: 2025-10-19
-**Plan Document**: [`docs/temp/implementation-plan-modal-improvements.md`](../temp/implementation-plan-modal-improvements.md)
-
-**Overview:**
-Comprehensive modal system improvements and UI enhancements based on v3 patterns analysis.
-
-**Key Features:**
-1. ✅ **Input Reserved Error Space** - Fix form field jumping (UX critical)
-2. ✅ **DebugBar Analytics Fix** - Fix broken click/keyboard tracking
-3. ✅ **ConfirmModal Component** - Replace `alert()` with proper modal
-4. ✅ **useFormDirty Hook** - Track unsaved changes
-5. ✅ **Unsaved Changes Protection** - Confirm before closing dirty modal
-6. ✅ **Card Accent Variant** - Purple border + glow (v3 DashboardCard style)
-7. ✅ **Clear Form Button** - Reset form fields (NO confirmation)
-8. ✅ **Toast Test Page** - Testing page for toast notifications
-9. ✅ **4 Modal Templates** (v3 → v4 migration, postupne):
-   - EditItemModal (Add/Edit single item)
-   - ManagementModal (Manage list of items)
-   - SectionEditModal (Generic form builder with FieldDefinition system)
-   - DetailModal (Complex entity detail with 3-level modal hierarchy)
-
-**Confirmation Dialogs Strategy:**
-- ✅ **YES Confirm**: Delete Item, Close modal with unsaved data
-- ❌ **NO Confirm**: Clear Form (direct clear)
-
-**Implementation Phases:**
-- ✅ **Phase 1** (3-5h): Critical UX fixes (Input + DebugBar) - **COMPLETED** (2025-10-20)
-  - ✅ Phase 1.1: Input Reserved Error Space (FormField `reserveMessageSpace` prop)
-  - ✅ Phase 1.2: DebugBar Analytics Fix (keyboard/mouse tracking, debouncing, drag detection)
-- **Phase 2** (6-9h): New components (ConfirmModal + useFormDirty)
-- **Phase 3** (12-20h): Enhancements (Card + Templates + Toast page)
-- **Phase 4** (8-12h): Testing & Documentation
-
-**Effort Estimate:**
-- **Without Templates**: 18-27 hours (3-4 days)
-- **With Templates**: 29-46 hours (5-7 days)
-
-**Milestones:**
-- **Milestone 1** (9-14h): Core fixes + ConfirmModal
-- **Milestone 2** (20-32h): Templates + Testing
-
-**Deliverables:**
-- ✅ Input component with reserved error space
-- ✅ Fixed DebugBar analytics
-- ✅ ConfirmModal component with Promise-based API
-- ✅ useFormDirty hook for change tracking
-- ✅ Card accent variant (purple border)
-- ✅ Clear Form button pattern
-- ✅ Toast test page
-- ✅ 4 modal templates (postupne implementation)
-- ✅ Unit tests (90%+ coverage)
-- ✅ Integration tests (modal hierarchy)
-- ✅ Documentation updates (code-examples.md, coding-standards.md)
-
-**Next Step**: Review implementation plan → Start Milestone 1
+**Note**: Modal enhancements superseded by comprehensive v3.0 plan (see top of document)
 
 ---
 

@@ -30,6 +30,7 @@ export * from './hooks/useModal/useModal';
 export * from './hooks/useModalWizard/useModalWizard';
 export * from './hooks/usePageAnalytics/usePageAnalytics';
 export * from './hooks/useToast/useToast';
+export * from './hooks/useFormDirty/useFormDirty';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers

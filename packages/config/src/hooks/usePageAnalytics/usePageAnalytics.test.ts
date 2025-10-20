@@ -197,7 +197,7 @@ describe('usePageAnalytics', () => {
         result.current.startSession();
       });
 
-      const mockEvent = {
+      const mockKeyDown = {
         key: 'Enter',
         code: 'Enter',
         ctrlKey: false,
@@ -205,10 +205,23 @@ describe('usePageAnalytics', () => {
         altKey: false,
         metaKey: false,
         type: 'keydown',
+        repeat: false,
+      } as KeyboardEvent;
+
+      const mockKeyUp = {
+        key: 'Enter',
+        code: 'Enter',
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: false,
+        type: 'keyup',
+        repeat: false,
       } as KeyboardEvent;
 
       act(() => {
-        result.current.trackKeyboard(mockEvent);
+        result.current.trackKeyboard(mockKeyDown);
+        result.current.trackKeyboard(mockKeyUp);
       });
 
       expect(result.current.session?.keyboardEvents).toHaveLength(1);
@@ -222,7 +235,7 @@ describe('usePageAnalytics', () => {
         result.current.startSession();
       });
 
-      const mockEvent = {
+      const mockKeyDown = {
         key: 'S',
         code: 'KeyS',
         ctrlKey: true,
@@ -230,10 +243,23 @@ describe('usePageAnalytics', () => {
         altKey: false,
         metaKey: false,
         type: 'keydown',
+        repeat: false,
+      } as KeyboardEvent;
+
+      const mockKeyUp = {
+        key: 'S',
+        code: 'KeyS',
+        ctrlKey: true,
+        shiftKey: true,
+        altKey: false,
+        metaKey: false,
+        type: 'keyup',
+        repeat: false,
       } as KeyboardEvent;
 
       act(() => {
-        result.current.trackKeyboard(mockEvent);
+        result.current.trackKeyboard(mockKeyDown);
+        result.current.trackKeyboard(mockKeyUp);
       });
 
       const keyboardEvent = result.current.session?.keyboardEvents[0];
