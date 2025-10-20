@@ -1,9 +1,9 @@
 /**
  * @file Button.module.css
  * @package @l-kern/ui-components
- * @description Button component styles using CSS Modules and design tokens
- * @version 1.0.1
- * @updated 2025-10-19 16:30:00
+ * @description Clean button styles - simple gradient design
+ * @version 3.0.0
+ * @updated 2025-10-19 18:30:00
  */
 
 /* ================================================================
@@ -11,124 +11,126 @@
  * ================================================================ */
 
 .button {
-  /* Layout */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs, 4px);
-
-  /* Typography */
+  gap: var(--spacing-xs);
+  box-sizing: border-box;
   font-family: inherit;
-  font-weight: var(--font-weight-semibold, 600);
-
-  /* Appearance */
+  font-weight: var(--font-weight-semibold);
   border: none;
-  border-radius: var(--border-radius-md, 6px);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-
-  /* Animation */
-  transition: all var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
-
-  /* Position */
+  outline: none;
   position: relative;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* ================================================================
  * VARIANTS
  * ================================================================ */
 
-/* Primary - Brand color */
+/* Primary */
 .button--primary {
-  background: var(--color-brand-primary, #9c27b0);
-  color: var(--theme-button-text-on-color, #ffffff);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  background: linear-gradient(135deg, var(--button-primary-from) 0%, var(--button-primary-to) 100%);
+  color: var(--theme-button-text-on-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .button--primary:hover:not(:disabled) {
-  filter: brightness(0.9);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.15),
+              0 0 0 3px rgba(156, 39, 176, 0.2);
 }
 
 .button--primary:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Secondary - Neutral with border */
+/* Secondary */
 .button--secondary {
-  background-color: transparent;
-  color: var(--theme-text, #212121);
-  border: 2px solid var(--theme-border, #e0e0e0);
+  background: linear-gradient(135deg, var(--theme-input-background) 0%, var(--theme-input-background) 100%);
+  color: var(--theme-text);
+  border: 2px solid var(--theme-input-border);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .button--secondary:hover:not(:disabled) {
-  background-color: var(--theme-hover-background, #f5f5f5);
-  border-color: var(--color-brand-primary, #9c27b0);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+  border-color: var(--color-brand-primary);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05),
+              0 0 0 3px rgba(156, 39, 176, 0.1);
 }
 
 .button--secondary:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Danger - Error/destructive actions */
+/* Danger */
 .button--danger {
-  background: var(--color-status-error, #f44336);
-  color: var(--theme-button-text-on-color, #ffffff);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  background: linear-gradient(135deg, var(--button-danger-from) 0%, var(--button-danger-to) 100%);
+  color: var(--theme-button-text-on-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .button--danger:hover:not(:disabled) {
-  filter: brightness(0.85);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.15),
+              0 0 0 3px rgba(244, 67, 54, 0.2);
 }
 
 .button--danger:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Ghost - Transparent background */
+/* Ghost */
 .button--ghost {
-  background-color: transparent;
-  color: var(--theme-text, #212121);
-  border: none;
+  background: transparent;
+  color: var(--theme-text);
+  box-shadow: none;
 }
 
 .button--ghost:hover:not(:disabled) {
-  background-color: var(--theme-hover-background, #f5f5f5);
+  background: var(--theme-hover-background);
 }
 
 .button--ghost:active:not(:disabled) {
-  background-color: var(--theme-hover-background, #f5f5f5);
-  transform: scale(0.98);
+  background: var(--theme-hover-background);
 }
 
-/* Success - Positive actions */
+/* Success */
 .button--success {
-  background: var(--color-status-success, #4CAF50);
-  color: var(--theme-button-text-on-color, #ffffff);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  background: linear-gradient(135deg, var(--button-success-from) 0%, var(--button-success-to) 100%);
+  color: var(--theme-button-text-on-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .button--success:hover:not(:disabled) {
-  filter: brightness(0.9);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.15),
+              0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 .button--success:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* ================================================================
@@ -136,21 +138,21 @@
  * ================================================================ */
 
 .button--small {
-  padding: calc(var(--spacing-xs, 4px) * 0.75) var(--spacing-sm, 8px);
-  font-size: var(--font-size-xs, 10px);
-  height: var(--spacing-lg, 28px);
+  padding: calc(var(--spacing-xs) * 0.75) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  height: var(--spacing-lg);
 }
 
 .button--medium {
-  padding: var(--spacing-sm, 8px) var(--spacing-md, 12px);
-  font-size: var(--font-size-sm, 12px);
-  height: var(--spacing-xxl, 38px);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  height: var(--spacing-xxl);
 }
 
 .button--large {
-  padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
-  font-size: var(--font-size-md, 14px);
-  height: var(--spacing-xxxl, 48px);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  height: var(--spacing-xxxl);
 }
 
 /* ================================================================
@@ -173,7 +175,7 @@
 .loadingSpinner {
   display: inline-block;
   animation: button-spin 1s linear infinite;
-  font-size: var(--font-size-lg, 16px);
+  font-size: var(--font-size-lg);
 }
 
 @keyframes button-spin {

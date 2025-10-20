@@ -1,0 +1,357 @@
+/*
+ * ================================================================
+ * FILE: GlassModalTestPage.module.css
+ * PATH: /apps/web-ui/src/__tests__/pages/GlassModalTestPage/GlassModalTestPage.module.css
+ * DESCRIPTION: Glassmorphism modal design styles
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-19
+ * ================================================================
+ */
+
+/* ========================================
+   PAGE CONTAINER
+   ======================================== */
+
+.container {
+  min-height: 100vh;
+  padding: var(--spacing-xxl, 40px) var(--spacing-xl, 32px);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xxxl, 48px);
+}
+
+.title {
+  font-size: var(--font-size-huge, 40px);
+  font-weight: var(--font-weight-bold, 700);
+  color: #ffffff;
+  margin-bottom: var(--spacing-md, 16px);
+
+  /* Gradient text effect */
+  background: linear-gradient(to right, #e9d5ff 0%, #c7d2fe 50%, #bfdbfe 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.description {
+  font-size: var(--font-size-lg, 18px);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.buttonGrid {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg, 24px);
+  margin-bottom: var(--spacing-xxxl, 48px);
+}
+
+.infoBox {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-xl, 32px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-lg, 12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.infoBox h3 {
+  font-size: var(--font-size-xl, 20px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: #ffffff;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.infoBox ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoBox li {
+  padding: var(--spacing-sm, 8px) 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--font-size-base, 16px);
+  padding-left: var(--spacing-lg, 24px);
+  position: relative;
+}
+
+.infoBox li::before {
+  content: '✨';
+  position: absolute;
+  left: 0;
+  top: var(--spacing-sm, 8px);
+}
+
+/* ========================================
+   GLASSMORPHISM MODAL OVERLAY
+   ======================================== */
+
+.glassOverlay {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+  .glassOverlay {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+}
+
+/* ========================================
+   GLASSMORPHISM MODAL CONTAINER
+   ======================================== */
+
+.glassModal {
+  /* Override size to make modal wider */
+  max-width: 500px !important;
+  width: 100% !important;
+
+  /* Gradient background */
+  background: linear-gradient(
+    135deg,
+    rgba(27, 27, 47, 0.9) 0%,
+    rgba(38, 38, 77, 0.9) 50%,
+    rgba(62, 62, 99, 0.9) 100%
+  ) !important;
+
+  /* Border */
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+
+  /* Purple glow shadow */
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 40px rgba(150, 150, 255, 0.2) !important;
+
+  /* Backdrop effects */
+  backdrop-filter: saturate(150%);
+  -webkit-backdrop-filter: saturate(150%);
+
+  /* Text color */
+  color: #ffffff !important;
+}
+
+/* Override modal header styles */
+.glassModal h2 {
+  /* Gradient text for title */
+  background: linear-gradient(
+    to right,
+    #e9d5ff 0%,
+    #c7d2fe 50%,
+    #bfdbfe 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-weight: var(--font-weight-bold, 700);
+}
+
+/* ========================================
+   MODAL BODY & FORM LAYOUT
+   ======================================== */
+
+.modalBody {
+  padding: var(--spacing-xl, 32px);
+}
+
+/* Form field stack - vertical spacing between fields */
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg, 24px);
+}
+
+.formField {
+  margin-bottom: var(--spacing-xl, 32px);
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-medium, 500);
+  color: #ffffff;
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+/* ========================================
+   GLASSMORPHISM INPUT
+   ======================================== */
+
+.glassInput {
+  width: 100%;
+  padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+  font-size: var(--font-size-base, 16px);
+  line-height: 1.5;
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  /* Border */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-md, 6px);
+
+  /* Text */
+  color: #ffffff;
+
+  /* Transition */
+  transition: all 0.2s ease;
+}
+
+.glassInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.glassInput:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow:
+    0 0 0 2px #9c27b0,
+    0 0 12px rgba(156, 39, 176, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ========================================
+   MODAL FOOTER BUTTONS
+   ======================================== */
+
+.footer {
+  display: flex;
+  gap: var(--spacing-md, 12px);
+  justify-content: flex-end;
+  padding-top: var(--spacing-xl, 32px);
+  margin-top: var(--spacing-md, 16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Primary Button (Gradient) */
+.buttonPrimary {
+  padding: var(--spacing-md, 12px) var(--spacing-xl, 24px);
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: #ffffff;
+
+  /* Gradient background */
+  background: linear-gradient(
+    to right,
+    #9333ea 0%,
+    #4f46e5 50%,
+    #2563eb 100%
+  );
+
+  /* Border */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md, 6px);
+
+  /* Shadow */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  /* Cursor */
+  cursor: pointer;
+
+  /* Transition */
+  transition: filter 0.2s ease;
+}
+
+.buttonPrimary:hover {
+  filter: brightness(110%);
+}
+
+.buttonPrimary:focus {
+  outline: none;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 2px #818cf8;
+}
+
+/* Secondary Button (Outline Glass) */
+.buttonSecondary {
+  padding: var(--spacing-md, 12px) var(--spacing-xl, 24px);
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-medium, 500);
+  color: #ffffff;
+
+  /* Transparent background */
+  background-color: transparent;
+
+  /* Border */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-md, 6px);
+
+  /* Cursor */
+  cursor: pointer;
+
+  /* Transition */
+  transition: background-color 0.2s ease;
+}
+
+.buttonSecondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.buttonSecondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 767px) {
+  .container {
+    padding: var(--spacing-lg, 24px) var(--spacing-md, 16px);
+  }
+
+  .title {
+    font-size: var(--font-size-xxl, 24px);
+  }
+
+  .description {
+    font-size: var(--font-size-base, 16px);
+  }
+
+  .infoBox {
+    padding: var(--spacing-lg, 24px);
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+
+  .buttonPrimary,
+  .buttonSecondary {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATION
+   ======================================== */
+
+/* Disable blur on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .glassOverlay,
+  .glassInput {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .glassOverlay {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .glassInput {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}

@@ -158,6 +158,15 @@ export const LAYOUT = {
     wide: '1400px',
   },
 
+  // Modal widths (5 sizes for flexible modal sizing)
+  modalWidth: {
+    xs: '400px',    // Extra small - alerts, simple confirmations
+    sm: '480px',    // Small - compact forms, quick actions
+    md: '720px',    // Medium - standard forms, detailed content
+    lg: '1000px',   // Large - complex forms, rich content
+    xl: '1200px',   // Extra large - full-featured interfaces, dashboards
+  },
+
   // Responsive breakpoints
   breakpoint: {
     mobile: '480px',

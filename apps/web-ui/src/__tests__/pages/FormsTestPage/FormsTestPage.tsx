@@ -82,11 +82,15 @@ export const FormsTestPage: React.FC = () => {
           <h2 className={styles.cardTitle}>Input</h2>
 
           <div className={styles.formFieldStack}>
-            <Input placeholder={t('forms.placeholders.basicInput')} />
-            <Input placeholder={t('forms.placeholders.email')} type="email" />
-            <Input placeholder={t('forms.placeholders.password')} type="password" />
-            <Input placeholder={t('components.testing.withError')} error={t('forms.errors.required')} />
-            <Input placeholder={t('components.testing.withHelperText')} helperText={t('components.testing.enterYourName')} />
+            <Input placeholder={t('forms.placeholders.basicInput')} fullWidth />
+            <Input placeholder={t('forms.placeholders.email')} type="email" fullWidth />
+            <Input placeholder={t('forms.placeholders.password')} type="password" fullWidth />
+            <FormField error={t('forms.errors.required')} reserveMessageSpace>
+              <Input placeholder={t('components.testing.withError')} hasError fullWidth />
+            </FormField>
+            <FormField helperText={t('components.testing.enterYourName')} reserveMessageSpace>
+              <Input placeholder={t('components.testing.withHelperText')} fullWidth />
+            </FormField>
           </div>
         </Card>
 

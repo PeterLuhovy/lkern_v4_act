@@ -22,6 +22,7 @@ import { SpinnerTestPage } from '../__tests__/pages/SpinnerTestPage';
 import { UtilityTestPage } from '../__tests__/pages/UtilityTestPage';
 import { WizardVariantsDemo } from '../__tests__/pages/WizardVariantsDemo';
 import { TestModalV3Page } from '../__tests__/pages/TestModalV3Page';
+import { GlassModalTestPage } from '../__tests__/pages/GlassModalTestPage';
 
 export function App() {
   return (
@@ -41,6 +42,7 @@ export function App() {
       {/* Test-only routes (modal variants testing) */}
       <Route path="/testing/wizard-demo" element={<WizardVariantsDemo />} />
       <Route path="/testing/modal-v3" element={<TestModalV3Page />} />
+      <Route path="/testing/glass-modal" element={<GlassModalTestPage />} />
     </Routes>
   );
 }

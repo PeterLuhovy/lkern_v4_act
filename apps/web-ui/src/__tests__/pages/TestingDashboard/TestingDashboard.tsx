@@ -66,6 +66,12 @@ export const TestingDashboard: React.FC = () => {
       title: 'Modal v3.0.0 Enhanced',
       description: 'Drag & Drop, Nested Modals, Enhanced Keyboard, Enhanced Footer, Alignment',
     },
+    {
+      path: '/testing/glass-modal',
+      icon: '✨',
+      title: t('components.testing.glassModal.title'),
+      description: t('components.testing.glassModal.description'),
+    },
   ];
 
   return (
