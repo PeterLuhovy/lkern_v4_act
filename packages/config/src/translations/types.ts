@@ -369,6 +369,14 @@ export interface TranslationKeys {
         modalTitle: string;
         content: string;
       };
+      testConfirm: {
+        title: string;
+        description: string;
+        deleteButton: string;
+        unsavedButton: string;
+        result: string;
+        modalTitle: string;
+      };
       featureSummary: {
         title: string;
         dragDrop: string;

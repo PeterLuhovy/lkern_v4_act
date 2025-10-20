@@ -344,6 +344,14 @@ export const sk: TranslationKeys = {
         modalTitle: '🚫 Presúvanie zakázané',
         content: 'Tento modal sa nedá presúvať (disableDrag=true). Kurzor nad hlavičkou je predvolený, nie grab.',
       },
+      testConfirm: {
+        title: '🔔 Test: useConfirm Hook',
+        description: 'Test Promise-based potvrdzovacie dialógy. Kliknite na tlačidlá pre test rôznych scenárov.',
+        deleteButton: 'Test Vymazania',
+        unsavedButton: 'Test Neuložených zmien',
+        result: 'Výsledok',
+        modalTitle: '⚠️ Potvrdenie',
+      },
       test8: {
         title: '🧙 Test 8: Multi-step Wizard',
         description: 'Trojkrokový wizard s progress indikátorom a navigačnými tlačidlami.',

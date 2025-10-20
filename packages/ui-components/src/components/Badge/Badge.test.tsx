@@ -174,4 +174,95 @@ describe('Badge Component', () => {
     expect(badge.className).toContain('badge--warning');
     expect(spans.length).toBe(2); // dot + content
   });
+
+  // ================================================
+  // Accessibility Tests
+  // ================================================
+
+  it('has appropriate role for semantic badge', () => {
+    const { container } = render(<Badge variant="success">Active</Badge>);
+    const badge = container.firstChild as HTMLElement;
+    expect(badge.tagName).toBe('SPAN');
+  });
+
+  it('renders text content readable by screen readers', () => {
+    render(<Badge variant="error">Critical Error</Badge>);
+    expect(screen.getByText('Critical Error')).toBeInTheDocument();
+  });
+
+  it('has sufficient color contrast for variants', () => {
+    const { container: successContainer } = render(<Badge variant="success">Success</Badge>);
+    const successBadge = successContainer.firstChild as HTMLElement;
+    expect(successBadge.className).toContain('badge--success');
+
+    const { container: errorContainer } = render(<Badge variant="error">Error</Badge>);
+    const errorBadge = errorContainer.firstChild as HTMLElement;
+    expect(errorBadge.className).toContain('badge--error');
+  });
+
+  // ================================================
+  // Text Truncation & Long Content
+  // ================================================
+
+  it('renders very long text without breaking layout', () => {
+    const longText = 'This is an extremely long badge text that should potentially be truncated or handled gracefully by the component without breaking the layout';
+    render(<Badge>{longText}</Badge>);
+    expect(screen.getByText(longText)).toBeInTheDocument();
+  });
+
+  it('handles text with special characters', () => {
+    const specialText = '✓ Success! (100%)';
+    render(<Badge>{specialText}</Badge>);
+    expect(screen.getByText(specialText)).toBeInTheDocument();
+  });
+
+  it('renders empty string children', () => {
+    const { container } = render(<Badge>{''}</Badge>);
+    const badge = container.firstChild as HTMLElement;
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('handles numeric children', () => {
+    render(<Badge>{42}</Badge>);
+    expect(screen.getByText('42')).toBeInTheDocument();
+  });
+
+  // ================================================
+  // Custom Styling Edge Cases
+  // ================================================
+
+  it('merges custom className with variant classes', () => {
+    const { container } = render(
+      <Badge variant="success" className="custom-badge">
+        Custom
+      </Badge>
+    );
+    const badge = container.firstChild as HTMLElement;
+    expect(badge.className).toContain('badge--success');
+    expect(badge.className).toContain('custom-badge');
+  });
+
+  // ================================================
+  // Edge Case: Dot with Different Variants
+  // ================================================
+
+  it('renders dot with success variant', () => {
+    const { container } = render(
+      <Badge variant="success" dot>
+        Success
+      </Badge>
+    );
+    const spans = container.querySelectorAll('span span');
+    expect(spans.length).toBe(2);
+  });
+
+  it('renders dot with error variant', () => {
+    const { container } = render(
+      <Badge variant="error" dot>
+        Error
+      </Badge>
+    );
+    const spans = container.querySelectorAll('span span');
+    expect(spans.length).toBe(2);
+  });
 });

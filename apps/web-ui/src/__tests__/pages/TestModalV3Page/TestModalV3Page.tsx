@@ -21,7 +21,7 @@
 import { useState, useEffect } from 'react';
 import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card } from '@l-kern/ui-components';
 import type { ModalFooterConfig } from '@l-kern/ui-components';
-import { useModal, useModalWizard, EMAIL_REGEX } from '@l-kern/config';
+import { useModal, useModalWizard, useConfirm, EMAIL_REGEX } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import styles from './TestModalV3Page.module.css';
 
@@ -50,6 +50,20 @@ export function TestModalV3Page() {
 
   // Test 6: Disable drag
   const noDragModal = useModal();
+
+  // Test 7: useConfirm hook
+  const confirmHook = useConfirm();
+  const [confirmResult, setConfirmResult] = useState<string>('');
+
+  const handleDeleteTest = async () => {
+    const confirmed = await confirmHook.confirm('Naozaj chceš vymazať tento záznam? Túto akciu nemožno vrátiť späť.');
+    setConfirmResult(confirmed ? 'Používateľ potvrdil (true)' : 'Používateľ zrušil (false)');
+  };
+
+  const handleUnsavedTest = async () => {
+    const confirmed = await confirmHook.confirm('Máš neuložené zmeny. Naozaj chceš zavrieť?');
+    setConfirmResult(confirmed ? 'Používateľ potvrdil (true)' : 'Používateľ zrušil (false)');
+  };
 
   // Test 8: Multi-step Wizard
   const wizardModal = useModal();
@@ -446,6 +460,63 @@ export function TestModalV3Page() {
               </p>
             </div>
           </Modal>
+        </Card>
+
+        {/* Test 7b: useConfirm Hook */}
+        <Card variant="default">
+          <h2 className={styles.testTitle}>{t('components.modalV3.testConfirm.title')}</h2>
+          <p className={styles.testDescription}>
+            {t('components.modalV3.testConfirm.description')}
+          </p>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <Button variant="danger" onClick={handleDeleteTest}>
+              {t('components.modalV3.testConfirm.deleteButton')}
+            </Button>
+            <Button variant="secondary" onClick={handleUnsavedTest}>
+              {t('components.modalV3.testConfirm.unsavedButton')}
+            </Button>
+          </div>
+
+          {confirmResult && (
+            <div style={{
+              padding: '12px',
+              background: confirmResult.includes('true') ? '#e8f5e9' : '#fff3e0',
+              border: `1px solid ${confirmResult.includes('true') ? '#4caf50' : '#ff9800'}`,
+              borderRadius: '4px',
+              marginTop: '12px'
+            }}>
+              <strong>{t('components.modalV3.testConfirm.result')}:</strong> {confirmResult}
+            </div>
+          )}
+
+          {/* useConfirm renders its own Modal internally */}
+          {confirmHook.isOpen && (
+            <Modal
+              isOpen={confirmHook.isOpen}
+              onClose={confirmHook.handleCancel}
+              onConfirm={confirmHook.handleConfirm}
+              modalId="confirm-dialog"
+              pageName="confirmDialog"
+              title={t('components.modalV3.testConfirm.modalTitle')}
+              size="sm"
+              closeOnBackdropClick={false}
+              footer={
+                <>
+                  <Button variant="secondary" onClick={confirmHook.handleCancel}>
+                    {t('common.cancel')}
+                  </Button>
+                  <Button variant="primary" onClick={confirmHook.handleConfirm}>
+                    {t('common.confirm')}
+                  </Button>
+                </>
+              }
+            >
+              <div className={styles.modalContent}>
+                <p>{confirmHook.message}</p>
+              </div>
+            </Modal>
+          )}
         </Card>
 
         {/* Test 8: Multi-step Wizard */}

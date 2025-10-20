@@ -344,6 +344,14 @@ export const en: TranslationKeys = {
         modalTitle: '🚫 Dragging Disabled',
         content: 'This modal cannot be dragged (disableDrag=true). Header cursor is default, not grab.',
       },
+      testConfirm: {
+        title: '🔔 Test: useConfirm Hook',
+        description: 'Test Promise-based confirmation dialogs. Click buttons to test different scenarios.',
+        deleteButton: 'Delete Test',
+        unsavedButton: 'Unsaved Changes Test',
+        result: 'Result',
+        modalTitle: '⚠️ Confirmation',
+      },
       test8: {
         title: '🧙 Test 8: Multi-step Wizard',
         description: 'Three-step wizard with progress indicator and navigation buttons.',
