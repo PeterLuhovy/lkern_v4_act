@@ -92,14 +92,24 @@ export function debounce<T extends (...args: any[]) => any>(
  * @returns Promise resolving to ValidationResult
  *
  * @example
- * // Email validation
+ * // Email validation with metadata
  * const result = await validateField('email', 'user@example.com', 'email');
- * // { isValid: true }
+ * // {
+ * //   isValid: true,
+ * //   metadata: { emailDomain: 'example.com', normalizedEmail: 'user@example.com' }
+ * // }
  *
  * @example
- * // Phone validation
+ * // Phone validation with metadata (mobile + landline support)
  * const result = await validateField('phone', '+421902123456', 'phone');
- * // { isValid: true }
+ * // {
+ * //   isValid: true,
+ * //   metadata: {
+ * //     phoneType: 'mobile',
+ * //     formattedPhone: '+421 902 123 456',
+ * //     countryCode: '+421'
+ * //   }
+ * // }
  *
  * @example
  * // URL validation

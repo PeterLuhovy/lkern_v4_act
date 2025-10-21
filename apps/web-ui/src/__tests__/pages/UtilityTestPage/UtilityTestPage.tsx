@@ -16,15 +16,21 @@ import {
   validateLandlineOrFax,
   formatPhoneNumber,
   detectPhoneType,
+  getPhoneCountryCode,
   type PhoneCountryCode,
   type PhoneType,
   validateEmail,
   normalizeEmail,
   getEmailDomain,
   formatDate,
+  formatDateTime,
+  formatDateTimeFull,
   parseDate,
+  parseDateTime,
   convertDateLocale,
+  extractDateComponents,
   type DateLocale,
+  type DateComponents,
   debounce,
   validateField,
   type ValidationType,
@@ -85,8 +91,13 @@ export function UtilityTestPage() {
 
   // Date test results
   const dateResults = {
-    formatted: dateInput ? formatDate(dateInput, dateLocale) : '',
-    parsed: parseDate(dateInput, dateLocale),
+    // Use formatDateTimeFull if input contains time (has space + time part)
+    formatted: dateInput
+      ? (dateInput.includes(' ') && dateInput.split(' ')[1]?.includes(':')
+          ? formatDateTimeFull(dateInput, dateLocale)
+          : formatDate(dateInput, dateLocale))
+      : '',
+    parsed: parseDateTime(dateInput, dateLocale),
     converted: dateInput ? convertDateLocale(dateInput, dateLocale, dateLocale === 'sk' ? 'en' : 'sk') : '',
   };
 
@@ -119,7 +130,9 @@ export function UtilityTestPage() {
   const handleValidationExample = async (value: string) => {
     setValidationInput(value);
 
-    if (!value) {
+    // For 'required' validation type, we need to run validation even on empty values
+    // For other types, empty values don't need validation
+    if (!value && validationType !== 'required') {
       setValidationResult(null);
       setIsValidating(false);
       return;
@@ -149,8 +162,9 @@ export function UtilityTestPage() {
             📞 {t('pages.utilityTest.phone.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>Funkcie:</strong> validateMobile(), validateLandlineOrFax(), formatPhoneNumber(), detectPhoneType() |
-            <strong> Krajiny:</strong> SK, CZ, PL
+            <strong>🔧 {t('pages.utilityTest.phone.description.label')}:</strong> {t('pages.utilityTest.phone.description.functions')} |
+            <strong> {t('pages.utilityTest.phone.description.countries')}:</strong> {t('pages.utilityTest.phone.description.countriesList')} |
+            <strong> {t('pages.utilityTest.phone.description.usage')}:</strong> {t('pages.utilityTest.phone.description.usageDescription')}
           </p>
 
           <div className={styles.formRow}>
@@ -214,8 +228,14 @@ export function UtilityTestPage() {
             <div className={styles.resultRow}>
               <strong className={styles.resultLabel}>{t('pages.utilityTest.phone.results.detectedType')}:</strong>
               <Badge variant={phoneResults.detectedType === 'unknown' ? 'neutral' : 'info'}>
-                {phoneResults.detectedType}
+                {t(`pages.utilityTest.phone.types.${phoneResults.detectedType}`) || phoneResults.detectedType}
               </Badge>
+            </div>
+            <div className={styles.resultRow}>
+              <strong className={styles.resultLabel}>{t('pages.utilityTest.phone.results.countryCode')}:</strong>
+              <code className={styles.resultCode}>
+                {getPhoneCountryCode(phoneInput) || t('pages.utilityTest.results.empty')}
+              </code>
             </div>
           </div>
 
@@ -270,8 +290,9 @@ export function UtilityTestPage() {
             📧 {t('pages.utilityTest.email.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>Funkcie:</strong> validateEmail(), normalizeEmail(), getEmailDomain() |
-            <strong> RFC 5322 compliant</strong>
+            <strong>🔧 {t('pages.utilityTest.email.description.label')}:</strong> {t('pages.utilityTest.email.description.functions')} |
+            <strong> {t('pages.utilityTest.email.description.compliance')}</strong> |
+            <strong> {t('pages.utilityTest.email.description.usage')}:</strong> {t('pages.utilityTest.email.description.usageDescription')}
           </p>
 
           <Input
@@ -333,8 +354,9 @@ export function UtilityTestPage() {
             📅 {t('pages.utilityTest.date.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>Funkcie:</strong> formatDate(), parseDate(), convertDateLocale() |
-            <strong> Lokalizácia:</strong> SK (DD.MM.YYYY), EN (YYYY-MM-DD)
+            <strong>🔧 {t('pages.utilityTest.date.description.label')}:</strong> {t('pages.utilityTest.date.description.functions')} |
+            <strong> {t('pages.utilityTest.date.description.localization')}:</strong> {t('pages.utilityTest.date.description.localeFormats')} |
+            <strong> {t('pages.utilityTest.date.description.usage')}:</strong> {t('pages.utilityTest.date.description.usageDescription')}
           </p>
 
           <div className={styles.formRow}>
@@ -349,6 +371,16 @@ export function UtilityTestPage() {
                 <option value="en">🇬🇧 English (YYYY-MM-DD)</option>
               </select>
             </label>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const now = new Date();
+                const formatted = formatDateTimeFull(now, dateLocale);
+                setDateInput(formatted);
+              }}
+            >
+              🕐 {t('pages.utilityTest.date.nowButton')}
+            </Button>
           </div>
 
           <Input
@@ -378,9 +410,30 @@ export function UtilityTestPage() {
             <div className={styles.resultRow}>
               <strong className={styles.resultLabel}>{t('pages.utilityTest.date.results.converted')}:</strong>
               <code className={styles.resultCode}>
-                {dateResults.converted || t('pages.utilityTest.results.empty')}
+                {dateResults.parsed
+                  ? (dateResults.converted || t('pages.utilityTest.results.invalid'))
+                  : t('pages.utilityTest.results.invalid')}
               </code>
             </div>
+            {dateResults.parsed && (() => {
+              const components = extractDateComponents(dateResults.parsed);
+              return components ? (
+                <>
+                  <div className={styles.resultRow}>
+                    <strong className={styles.resultLabel}>{t('pages.utilityTest.date.results.yearMonthDay')}:</strong>
+                    <code className={styles.resultCode}>
+                      {components.year} / {components.month} / {components.day}
+                    </code>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <strong className={styles.resultLabel}>{t('pages.utilityTest.date.results.hourMinuteSecond')}:</strong>
+                    <code className={styles.resultCode}>
+                      {String(components.hour).padStart(2, '0')}:{String(components.minute).padStart(2, '0')}:{String(components.second).padStart(2, '0')}.{String(components.millisecond).padStart(3, '0')}
+                    </code>
+                  </div>
+                </>
+              ) : null;
+            })()}
           </div>
 
           <div className={styles.examplesContainer}>
@@ -424,9 +477,10 @@ export function UtilityTestPage() {
             🔍 {t('pages.utilityTest.validation.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>Funkcie:</strong> debounce(), validateField() |
-            <strong> Async API:</strong> Promise-based validation |
-            <strong> Typy:</strong> email, phone, url, required
+            <strong>🎁 {t('pages.utilityTest.validation.description.label')}:</strong> {t('pages.utilityTest.validation.description.functions')} |
+            <strong> {t('pages.utilityTest.validation.description.asyncApi')}:</strong> {t('pages.utilityTest.validation.description.asyncDescription')} |
+            <strong> {t('pages.utilityTest.validation.description.types')}:</strong> {t('pages.utilityTest.validation.description.typesList')} |
+            <strong> {t('pages.utilityTest.validation.description.usage')}:</strong> {t('pages.utilityTest.validation.description.usageDescription')}
           </p>
 
           {/* Debounce Demo */}
@@ -555,31 +609,33 @@ export function UtilityTestPage() {
               )}
               {validationResult.metadata?.phoneType && (
                 <div className={styles.resultRow}>
-                  <strong className={styles.resultLabel}>Phone Type:</strong>
-                  <code className={styles.resultCode}>{validationResult.metadata.phoneType}</code>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.phoneType')}:</strong>
+                  <code className={styles.resultCode}>
+                    {t(`pages.utilityTest.phone.types.${validationResult.metadata.phoneType}`) || validationResult.metadata.phoneType}
+                  </code>
                 </div>
               )}
               {validationResult.metadata?.formattedPhone && (
                 <div className={styles.resultRow}>
-                  <strong className={styles.resultLabel}>Formatted:</strong>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.formatted')}:</strong>
                   <code className={styles.resultCode}>{validationResult.metadata.formattedPhone}</code>
                 </div>
               )}
               {validationResult.metadata?.countryCode && (
                 <div className={styles.resultRow}>
-                  <strong className={styles.resultLabel}>Country Code:</strong>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.countryCode')}:</strong>
                   <code className={styles.resultCode}>{validationResult.metadata.countryCode}</code>
                 </div>
               )}
               {validationResult.metadata?.emailDomain && (
                 <div className={styles.resultRow}>
-                  <strong className={styles.resultLabel}>Domain:</strong>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.domain')}:</strong>
                   <code className={styles.resultCode}>{validationResult.metadata.emailDomain}</code>
                 </div>
               )}
               {validationResult.metadata?.normalizedEmail && (
                 <div className={styles.resultRow}>
-                  <strong className={styles.resultLabel}>Normalized:</strong>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.normalized')}:</strong>
                   <code className={styles.resultCode}>{validationResult.metadata.normalizedEmail}</code>
                 </div>
               )}

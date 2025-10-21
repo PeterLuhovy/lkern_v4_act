@@ -12,13 +12,20 @@ import { describe, it, expect } from 'vitest';
 import {
   formatDate,
   formatDateTime,
+  formatDateTimeFull,
   parseDate,
+  parseDateTime,
   validateDate,
   convertDateLocale,
   getToday,
   isToday,
   addDays,
   getDaysDifference,
+  extractDateComponents,
+  toUTC,
+  fromUTC,
+  getNowUTC,
+  formatUserDateTime,
 } from './dateUtils';
 
 describe('dateUtils', () => {
@@ -253,6 +260,191 @@ describe('dateUtils', () => {
     it('should handle invalid dates', () => {
       expect(getDaysDifference('invalid', '18.10.2025', 'sk')).toBe(0);
       expect(getDaysDifference('18.10.2025', 'invalid', 'sk')).toBe(0);
+    });
+  });
+
+  describe('formatDateTimeFull', () => {
+    it('should format Date to SK datetime with milliseconds', () => {
+      const date = new Date(2025, 9, 18, 14, 30, 45, 123);
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.123');
+    });
+
+    it('should format Date to EN datetime with milliseconds', () => {
+      const date = new Date(2025, 9, 18, 14, 30, 45, 123);
+      expect(formatDateTimeFull(date, 'en')).toBe('2025-10-18 14:30:45.123');
+    });
+
+    it('should handle zero milliseconds', () => {
+      const date = new Date(2025, 9, 18, 14, 30, 45, 0);
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.000');
+    });
+
+    it('should pad single-digit milliseconds', () => {
+      const date = new Date(2025, 9, 18, 14, 30, 45, 5);
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.005');
+    });
+
+    it('should handle invalid date', () => {
+      expect(formatDateTimeFull('invalid', 'sk')).toBe('');
+    });
+
+    it('should parse and format datetime string', () => {
+      expect(formatDateTimeFull('18.10.2025 14:30:45.123', 'sk')).toBe('18.10.2025 14:30:45.123');
+    });
+  });
+
+  describe('parseDateTime', () => {
+    it('should parse SK datetime with milliseconds', () => {
+      const result = parseDateTime('18.10.2025 14:30:45.123', 'sk');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(18);
+      expect(result?.getMonth()).toBe(9);
+      expect(result?.getFullYear()).toBe(2025);
+      expect(result?.getHours()).toBe(14);
+      expect(result?.getMinutes()).toBe(30);
+      expect(result?.getSeconds()).toBe(45);
+      expect(result?.getMilliseconds()).toBe(123);
+    });
+
+    it('should parse EN datetime with milliseconds', () => {
+      const result = parseDateTime('2025-10-18 14:30:45.123', 'en');
+      expect(result).toBeInstanceOf(Date);
+      expect(result?.getDate()).toBe(18);
+      expect(result?.getHours()).toBe(14);
+      expect(result?.getMilliseconds()).toBe(123);
+    });
+
+    it('should parse datetime without milliseconds', () => {
+      const result = parseDateTime('18.10.2025 14:30:45', 'sk');
+      expect(result?.getSeconds()).toBe(45);
+      expect(result?.getMilliseconds()).toBe(0);
+    });
+
+    it('should parse datetime with only hours and minutes', () => {
+      const result = parseDateTime('18.10.2025 14:30', 'sk');
+      expect(result?.getHours()).toBe(14);
+      expect(result?.getMinutes()).toBe(30);
+      expect(result?.getSeconds()).toBe(0);
+    });
+
+    it('should return null for invalid datetime', () => {
+      expect(parseDateTime('invalid', 'sk')).toBeNull();
+      expect(parseDateTime('31.02.2025 14:30', 'sk')).toBeNull();
+    });
+
+    it('should return null for invalid time', () => {
+      expect(parseDateTime('18.10.2025 25:00', 'sk')).toBeNull();
+      expect(parseDateTime('18.10.2025 14:60', 'sk')).toBeNull();
+    });
+  });
+
+  describe('extractDateComponents', () => {
+    it('should extract all components from Date object', () => {
+      const date = new Date(2025, 9, 18, 15, 30, 45, 123);
+      const result = extractDateComponents(date);
+      expect(result).toEqual({
+        year: 2025,
+        month: 10,
+        day: 18,
+        hour: 15,
+        minute: 30,
+        second: 45,
+        millisecond: 123,
+      });
+    });
+
+    it('should extract components from ISO string', () => {
+      const result = extractDateComponents('2025-10-18T15:30:45.123Z');
+      expect(result?.year).toBe(2025);
+      expect(result?.month).toBe(10);
+      expect(result?.day).toBe(18);
+    });
+
+    it('should return null for invalid date', () => {
+      expect(extractDateComponents('invalid')).toBeNull();
+    });
+
+    it('should return null for empty string', () => {
+      expect(extractDateComponents('')).toBeNull();
+    });
+  });
+
+  describe('UTC functions', () => {
+    describe('toUTC', () => {
+      it('should convert Date to UTC ISO string', () => {
+        const date = new Date(2025, 9, 18, 15, 30, 45, 123);
+        const result = toUTC(date);
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      });
+
+      it('should handle invalid date', () => {
+        const invalidDate = new Date('invalid');
+        expect(toUTC(invalidDate)).toBe('');
+      });
+    });
+
+    describe('fromUTC', () => {
+      it('should parse UTC ISO string to Date', () => {
+        const result = fromUTC('2025-10-18T15:30:45.123Z');
+        expect(result).toBeInstanceOf(Date);
+        expect(result?.getUTCFullYear()).toBe(2025);
+        expect(result?.getUTCMonth()).toBe(9);
+        expect(result?.getUTCDate()).toBe(18);
+      });
+
+      it('should return null for invalid UTC string', () => {
+        expect(fromUTC('invalid')).toBeNull();
+      });
+
+      it('should return null for empty string', () => {
+        expect(fromUTC('')).toBeNull();
+      });
+    });
+
+    describe('getNowUTC', () => {
+      it('should return current UTC timestamp', () => {
+        const result = getNowUTC();
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+
+        const parsed = new Date(result);
+        const now = new Date();
+        const diff = Math.abs(parsed.getTime() - now.getTime());
+        expect(diff).toBeLessThan(1000); // Within 1 second
+      });
+    });
+
+    describe('formatUserDateTime', () => {
+      it('should format UTC to user timezone (SK)', () => {
+        const result = formatUserDateTime('2025-10-18T14:30:00Z', 'Europe/Bratislava', 'sk');
+        expect(result).toMatch(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/);
+      });
+
+      it('should format UTC to user timezone (EN)', () => {
+        const result = formatUserDateTime('2025-10-18T14:30:00Z', 'UTC', 'en');
+        expect(result).toBe('2025-10-18 14:30');
+      });
+
+      it('should handle invalid UTC string', () => {
+        expect(formatUserDateTime('invalid', 'UTC', 'sk')).toBe('');
+      });
+    });
+  });
+
+  describe('convertDateLocale with datetime', () => {
+    it('should convert SK datetime to EN datetime', () => {
+      expect(convertDateLocale('18.10.2025 14:30:45.123', 'sk', 'en')).toBe('2025-10-18 14:30:45.123');
+    });
+
+    it('should convert EN datetime to SK datetime', () => {
+      expect(convertDateLocale('2025-10-18 14:30:45.123', 'en', 'sk')).toBe('18.10.2025 14:30:45.123');
+    });
+
+    it('should handle datetime without milliseconds', () => {
+      expect(convertDateLocale('18.10.2025 14:30', 'sk', 'en')).toBe('2025-10-18 14:30:00.000');
+    });
+
+    it('should handle invalid datetime', () => {
+      expect(convertDateLocale('31.02.2025 14:30', 'sk', 'en')).toBe('');
     });
   });
 });

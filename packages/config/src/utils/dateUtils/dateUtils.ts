@@ -88,6 +88,51 @@ export function formatDateTime(date: Date | string, locale: DateLocale): string 
 }
 
 /**
+ * Formats Date object to localized string with time including seconds and milliseconds
+ *
+ * @param date - Date object or ISO string to format
+ * @param locale - Target locale ('sk' or 'en')
+ * @returns Formatted datetime string with full precision
+ *
+ * @example
+ * formatDateTimeFull(new Date(2025, 9, 18, 14, 30, 45, 123), 'sk') // '18.10.2025 14:30:45.123'
+ * formatDateTimeFull(new Date(2025, 9, 18, 14, 30, 45, 123), 'en') // '2025-10-18 14:30:45.123'
+ */
+export function formatDateTimeFull(date: Date | string, locale: DateLocale): string {
+  if (!date) return '';
+
+  let dateObj: Date | null;
+
+  if (typeof date === 'string') {
+    // Try to parse as localized datetime first
+    dateObj = parseDateTime(date, locale);
+    // If that fails, try ISO string
+    if (!dateObj) {
+      const isoDate = new Date(date);
+      if (!isNaN(isoDate.getTime())) {
+        dateObj = isoDate;
+      }
+    }
+  } else {
+    dateObj = date;
+  }
+
+  // Check if date is valid
+  if (!dateObj || isNaN(dateObj.getTime())) {
+    return '';
+  }
+
+  const hours = String(dateObj.getHours()).padStart(2, '0');
+  const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+  const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+  const milliseconds = String(dateObj.getMilliseconds()).padStart(3, '0');
+
+  const dateStr = formatDate(dateObj, locale);
+
+  return `${dateStr} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
+/**
  * Parses localized date string to Date object
  *
  * @param dateString - Date string to parse
@@ -148,6 +193,68 @@ export function parseDate(dateString: string, locale: DateLocale): Date | null {
 }
 
 /**
+ * Parses localized datetime string to Date object
+ *
+ * @param dateTimeString - DateTime string to parse (supports both date-only and datetime formats)
+ * @param locale - Source locale ('sk' or 'en')
+ * @returns Date object or null if invalid
+ *
+ * @example
+ * parseDateTime('18.10.2025 14:30', 'sk') // Date(2025, 9, 18, 14, 30)
+ * parseDateTime('2025-10-18 14:30', 'en') // Date(2025, 9, 18, 14, 30)
+ * parseDateTime('18.10.2025', 'sk') // Date(2025, 9, 18, 0, 0) - time defaults to 00:00
+ */
+export function parseDateTime(dateTimeString: string, locale: DateLocale): Date | null {
+  if (!dateTimeString) return null;
+
+  const trimmed = dateTimeString.trim();
+
+  // Split by space to separate date and time parts
+  const parts = trimmed.split(' ');
+  const datePart = parts[0];
+  const timePart = parts[1]; // May be undefined if no time provided
+
+  // Parse date part using existing parseDate function
+  const date = parseDate(datePart, locale);
+  if (!date) return null;
+
+  // If time part exists, parse it
+  if (timePart) {
+    const timeComponents = timePart.split(':');
+    if (timeComponents.length >= 2) {
+      const hours = parseInt(timeComponents[0], 10);
+      const minutes = parseInt(timeComponents[1], 10);
+
+      // Parse seconds and milliseconds (format: "45.123" or "45")
+      let seconds = 0;
+      let milliseconds = 0;
+
+      if (timeComponents[2]) {
+        const secondsAndMs = timeComponents[2].split('.');
+        seconds = parseInt(secondsAndMs[0], 10);
+        if (secondsAndMs[1]) {
+          // Pad milliseconds to 3 digits if needed
+          const msStr = secondsAndMs[1].padEnd(3, '0').substring(0, 3);
+          milliseconds = parseInt(msStr, 10);
+        }
+      }
+
+      // Validate time values
+      if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return null;
+      if (hours < 0 || hours > 23) return null;
+      if (minutes < 0 || minutes > 59) return null;
+      if (seconds < 0 || seconds > 59) return null;
+      if (milliseconds < 0 || milliseconds > 999) return null;
+
+      // Set time on the date object
+      date.setHours(hours, minutes, seconds, milliseconds);
+    }
+  }
+
+  return date;
+}
+
+/**
  * Validates date string format
  *
  * @param dateString - Date string to validate
@@ -182,10 +289,20 @@ export function convertDateLocale(
   fromLocale: DateLocale,
   toLocale: DateLocale
 ): string {
-  const parsed = parseDate(dateString, fromLocale);
+  // Check if input contains time component (has space and colon)
+  const hasTime = dateString.includes(' ') && dateString.includes(':');
+
+  // Use appropriate parser
+  const parsed = hasTime
+    ? parseDateTime(dateString, fromLocale)
+    : parseDate(dateString, fromLocale);
+
   if (!parsed) return '';
 
-  return formatDate(parsed, toLocale);
+  // Use appropriate formatter
+  return hasTime
+    ? formatDateTimeFull(parsed, toLocale)
+    : formatDate(parsed, toLocale);
 }
 
 /**
@@ -288,4 +405,240 @@ export function getDaysDifference(
 
   const timeDiff = dateObj1.getTime() - dateObj2.getTime();
   return Math.round(timeDiff / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Date components interface
+ */
+export interface DateComponents {
+  /** Year (e.g., 2025) */
+  year: number;
+  /** Month (1-12) */
+  month: number;
+  /** Day of month (1-31) */
+  day: number;
+  /** Hour (0-23) */
+  hour: number;
+  /** Minute (0-59) */
+  minute: number;
+  /** Second (0-59) */
+  second: number;
+  /** Millisecond (0-999) */
+  millisecond: number;
+}
+
+/**
+ * Extracts all components from a Date object
+ *
+ * @param date - Date object or ISO string to extract components from
+ * @returns Object containing year, month, day, hour, minute, second, millisecond
+ *
+ * @example
+ * extractDateComponents(new Date(2025, 9, 18, 15, 30, 45, 123))
+ * // { year: 2025, month: 10, day: 18, hour: 15, minute: 30, second: 45, millisecond: 123 }
+ *
+ * @example
+ * extractDateComponents('2025-10-18T15:30:45.123Z')
+ * // { year: 2025, month: 10, day: 18, hour: 15, minute: 30, second: 45, millisecond: 123 }
+ */
+export function extractDateComponents(date: Date | string): DateComponents | null {
+  if (!date) return null;
+
+  let dateObj: Date;
+
+  if (typeof date === 'string') {
+    dateObj = new Date(date);
+  } else {
+    dateObj = date;
+  }
+
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return null;
+  }
+
+  return {
+    year: dateObj.getFullYear(),
+    month: dateObj.getMonth() + 1, // Convert from 0-indexed to 1-indexed
+    day: dateObj.getDate(),
+    hour: dateObj.getHours(),
+    minute: dateObj.getMinutes(),
+    second: dateObj.getSeconds(),
+    millisecond: dateObj.getMilliseconds(),
+  };
+}
+
+/**
+ * ==============================================================================
+ * UTC TIMEZONE UTILITIES
+ * ==============================================================================
+ * Internal system time: Always UTC
+ * User display time: Converted to user's preferred timezone
+ * ==============================================================================
+ */
+
+/**
+ * Supported timezones for user preferences
+ */
+export type SupportedTimezone =
+  | 'Europe/Bratislava'  // SK (UTC+1/UTC+2 DST)
+  | 'Europe/Prague'      // CZ (UTC+1/UTC+2 DST)
+  | 'Europe/Warsaw'      // PL (UTC+1/UTC+2 DST)
+  | 'UTC';               // UTC (no offset)
+
+/**
+ * Converts Date object to UTC ISO string (for backend storage)
+ *
+ * @param date - Date object to convert
+ * @returns UTC ISO string (e.g., "2025-10-21T14:30:00.000Z")
+ *
+ * @example
+ * toUTC(new Date(2025, 9, 21, 15, 30)) // "2025-10-21T13:30:00.000Z" (assuming local is UTC+2)
+ */
+export function toUTC(date: Date): string {
+  if (!date || isNaN(date.getTime())) return '';
+  return date.toISOString();
+}
+
+/**
+ * Parses UTC ISO string to Date object
+ *
+ * @param utcString - UTC ISO string
+ * @returns Date object or null if invalid
+ *
+ * @example
+ * fromUTC("2025-10-21T14:30:00.000Z") // Date object in UTC
+ */
+export function fromUTC(utcString: string): Date | null {
+  if (!utcString) return null;
+  const date = new Date(utcString);
+  if (isNaN(date.getTime())) return null;
+  return date;
+}
+
+/**
+ * Formats UTC datetime to user's timezone with locale formatting
+ *
+ * @param utcString - UTC ISO string from backend
+ * @param timezone - User's preferred timezone
+ * @param locale - Display locale ('sk' or 'en')
+ * @returns Formatted datetime string in user's timezone
+ *
+ * @example
+ * formatUserDateTime("2025-10-21T14:30:00Z", "Europe/Bratislava", "sk")
+ * // "21.10.2025 16:30" (UTC+2 in summer)
+ *
+ * @example
+ * formatUserDateTime("2025-10-21T14:30:00Z", "UTC", "en")
+ * // "2025-10-21 14:30"
+ */
+export function formatUserDateTime(
+  utcString: string,
+  timezone: SupportedTimezone,
+  locale: DateLocale
+): string {
+  const date = fromUTC(utcString);
+  if (!date) return '';
+
+  // Convert to user's timezone using Intl API
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  };
+
+  const formatter = new Intl.DateTimeFormat(locale === 'sk' ? 'sk-SK' : 'en-GB', options);
+  const parts = formatter.formatToParts(date);
+
+  // Extract parts
+  const year = parts.find(p => p.type === 'year')?.value || '';
+  const month = parts.find(p => p.type === 'month')?.value || '';
+  const day = parts.find(p => p.type === 'day')?.value || '';
+  const hour = parts.find(p => p.type === 'hour')?.value || '';
+  const minute = parts.find(p => p.type === 'minute')?.value || '';
+
+  // Format according to locale
+  if (locale === 'sk') {
+    return `${day}.${month}.${year} ${hour}:${minute}`;
+  } else {
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+}
+
+/**
+ * Gets current UTC datetime as ISO string (for creating timestamps)
+ *
+ * @returns Current UTC ISO string
+ *
+ * @example
+ * getNowUTC() // "2025-10-21T14:30:45.123Z"
+ */
+export function getNowUTC(): string {
+  return new Date().toISOString();
+}
+
+/**
+ * Converts user's local datetime input to UTC for backend storage
+ *
+ * @param localDateTimeString - User's input (e.g., "21.10.2025 16:30")
+ * @param timezone - User's timezone
+ * @param locale - Input locale ('sk' or 'en')
+ * @returns UTC ISO string for backend storage
+ *
+ * @example
+ * toUTCFromUserInput("21.10.2025 16:30", "Europe/Bratislava", "sk")
+ * // "2025-10-21T14:30:00.000Z" (assuming UTC+2)
+ */
+export function toUTCFromUserInput(
+  localDateTimeString: string,
+  timezone: SupportedTimezone,
+  locale: DateLocale
+): string | null {
+  // Parse user input to Date object
+  const localDate = parseDateTime(localDateTimeString, locale);
+  if (!localDate) return null;
+
+  // If timezone is UTC, just return ISO string
+  if (timezone === 'UTC') {
+    return localDate.toISOString();
+  }
+
+  // For other timezones, we need to adjust for timezone offset
+  // Note: This is a simplified approach. For production, consider using libraries like date-fns-tz
+
+  // Get timezone offset in minutes at the given date
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  // Format the local date in the target timezone
+  const formatted = formatter.format(localDate);
+
+  // Parse back and create UTC date
+  // This ensures proper timezone conversion
+  const [datePart, timePart] = formatted.split(', ');
+  const [month, day, year] = datePart.split('/');
+  const [hour, minute, second] = timePart.split(':');
+
+  const utcDate = new Date(Date.UTC(
+    parseInt(year),
+    parseInt(month) - 1,
+    parseInt(day),
+    parseInt(hour),
+    parseInt(minute),
+    parseInt(second)
+  ));
+
+  return utcDate.toISOString();
 }

@@ -15,6 +15,7 @@ import {
   validateLandlineOrFax,
   formatPhoneNumber,
   detectPhoneType,
+  getPhoneCountryCode,
 } from './phoneUtils';
 
 describe('phoneUtils', () => {
@@ -192,6 +193,39 @@ describe('phoneUtils', () => {
       expect(detectPhoneType('invalid')).toBe('unknown');
       expect(detectPhoneType('')).toBe('unknown');
       expect(detectPhoneType('123')).toBe('unknown');
+    });
+  });
+
+  describe('getPhoneCountryCode', () => {
+    it('should extract Slovak country code', () => {
+      expect(getPhoneCountryCode('+421 902 123 456')).toBe('+421');
+      expect(getPhoneCountryCode('+421212345678')).toBe('+421');
+    });
+
+    it('should extract Czech country code', () => {
+      expect(getPhoneCountryCode('+420 777 123 456')).toBe('+420');
+      expect(getPhoneCountryCode('+420777123456')).toBe('+420');
+    });
+
+    it('should extract Polish country code', () => {
+      expect(getPhoneCountryCode('+48 501 234 567')).toBe('+48');
+      expect(getPhoneCountryCode('+48501234567')).toBe('+48');
+    });
+
+    it('should return undefined for national format', () => {
+      expect(getPhoneCountryCode('0902 123 456')).toBeUndefined();
+      expect(getPhoneCountryCode('02 1234 5678')).toBeUndefined();
+    });
+
+    it('should return undefined for invalid numbers', () => {
+      expect(getPhoneCountryCode('invalid')).toBeUndefined();
+      expect(getPhoneCountryCode('')).toBeUndefined();
+      expect(getPhoneCountryCode('123')).toBeUndefined();
+    });
+
+    it('should return undefined for unsupported country codes', () => {
+      expect(getPhoneCountryCode('+1 555 1234567')).toBeUndefined(); // US
+      expect(getPhoneCountryCode('+44 7700 123456')).toBeUndefined(); // UK
     });
   });
 });

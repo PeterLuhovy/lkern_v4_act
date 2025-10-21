@@ -421,6 +421,27 @@ export interface TranslationKeys {
         inputEmptyError: string;
       };
     };
+    confirmModal: {
+      simple: {
+        defaultTitle: string;
+        defaultMessage: string;
+        defaultConfirm: string;
+        defaultCancel: string;
+      };
+      danger: {
+        defaultTitle: string;
+        defaultMessage: string;
+        defaultConfirm: string;
+        defaultCancel: string;
+        keywordLabel: string;
+        keywordPlaceholder: string;
+        keywordError: string;
+      };
+      unsavedChanges: {
+        title: string;
+        message: string;
+      };
+    };
   };
   forms: {
     username: string;
@@ -473,6 +494,14 @@ export interface TranslationKeys {
       subtitle: string;
       phone: {
         title: string;
+        description: {
+          label: string;
+          functions: string;
+          countries: string;
+          countriesList: string;
+          usage: string;
+          usageDescription: string;
+        };
         country: string;
         type: string;
         placeholder: string;
@@ -480,16 +509,25 @@ export interface TranslationKeys {
           mobile: string;
           landline: string;
           fax: string;
+          unknown: string;
         };
         results: {
           isMobile: string;
           isLandline: string;
           formatted: string;
           detectedType: string;
+          countryCode: string;
         };
       };
       email: {
         title: string;
+        description: {
+          label: string;
+          functions: string;
+          compliance: string;
+          usage: string;
+          usageDescription: string;
+        };
         placeholder: string;
         results: {
           isValid: string;
@@ -499,15 +537,36 @@ export interface TranslationKeys {
       };
       date: {
         title: string;
+        description: {
+          label: string;
+          functions: string;
+          localization: string;
+          localeFormats: string;
+          usage: string;
+          usageDescription: string;
+        };
         locale: string;
+        nowButton: string;
         results: {
           formatted: string;
           parsed: string;
           converted: string;
+          yearMonthDay: string;
+          hourMinuteSecond: string;
         };
       };
       validation: {
         title: string;
+        description: {
+          label: string;
+          functions: string;
+          asyncApi: string;
+          asyncDescription: string;
+          types: string;
+          typesList: string;
+          usage: string;
+          usageDescription: string;
+        };
         debounce: {
           title: string;
           description: string;
@@ -531,6 +590,11 @@ export interface TranslationKeys {
           results: {
             isValid: string;
             error: string;
+            phoneType: string;
+            formatted: string;
+            countryCode: string;
+            domain: string;
+            normalized: string;
           };
         };
       };

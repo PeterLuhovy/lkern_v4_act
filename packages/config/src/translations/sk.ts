@@ -396,6 +396,27 @@ export const sk: TranslationKeys = {
         inputEmptyError: 'Vstup nemôže byť prázdny',
       },
     },
+    confirmModal: {
+      simple: {
+        defaultTitle: 'Potvrďte akciu',
+        defaultMessage: 'Naozaj chcete pokračovať?',
+        defaultConfirm: 'Áno',
+        defaultCancel: 'Zrušiť',
+      },
+      danger: {
+        defaultTitle: 'Nebezpečná akcia',
+        defaultMessage: 'Táto akcia je nevratná. Zadajte "{keyword}" pre potvrdenie.',
+        defaultConfirm: 'Zmazať',
+        defaultCancel: 'Zrušiť',
+        keywordLabel: 'Potvrďte zadaním "{keyword}"',
+        keywordPlaceholder: 'Zadajte "{keyword}"',
+        keywordError: 'Nesprávne heslo. Zadajte "{keyword}" pre potvrdenie.',
+      },
+      unsavedChanges: {
+        title: 'Neuložené zmeny',
+        message: 'Máte neuložené zmeny. Naozaj chcete zatvoriť bez uloženia?',
+      },
+    },
   },
   forms: {
     username: 'Používateľské meno',
@@ -448,6 +469,14 @@ export const sk: TranslationKeys = {
       subtitle: 'Interaktívne testovanie validačných a formátovacích funkcií',
       phone: {
         title: 'Telefónne čísla',
+        description: {
+          label: 'ZÁKLADNÉ FUNKCIE',
+          functions: 'validateMobile(), validateLandlineOrFax(), formatPhoneNumber(), detectPhoneType(), getPhoneCountryCode()',
+          countries: 'Krajiny',
+          countriesList: 'SK, CZ, PL',
+          usage: 'Používanie',
+          usageDescription: 'Priame volanie špecifických funkcií',
+        },
         country: 'Krajina',
         type: 'Typ čísla',
         placeholder: 'Zadajte telefónne číslo...',
@@ -455,16 +484,25 @@ export const sk: TranslationKeys = {
           mobile: 'Mobil',
           landline: 'Pevná linka',
           fax: 'Fax',
+          unknown: 'Neznámy',
         },
         results: {
           isMobile: 'Je mobil',
           isLandline: 'Je pevná linka',
           formatted: 'Formátované',
           detectedType: 'Detekovaný typ',
+          countryCode: 'Predvoľba štátu',
         },
       },
       email: {
         title: 'Emailové adresy',
+        description: {
+          label: 'ZÁKLADNÉ FUNKCIE',
+          functions: 'validateEmail(), normalizeEmail(), getEmailDomain()',
+          compliance: 'RFC 5322 compliant',
+          usage: 'Používanie',
+          usageDescription: 'Priame volanie špecifických funkcií',
+        },
         placeholder: 'Zadajte email...',
         results: {
           isValid: 'Je platný',
@@ -474,15 +512,36 @@ export const sk: TranslationKeys = {
       },
       date: {
         title: 'Dátumy',
+        description: {
+          label: 'ZÁKLADNÉ FUNKCIE',
+          functions: 'formatDate(), parseDate(), convertDateLocale(), extractDateComponents()',
+          localization: 'Lokalizácia',
+          localeFormats: 'SK (DD.MM.YYYY), EN (YYYY-MM-DD)',
+          usage: 'Používanie',
+          usageDescription: 'Priame volanie špecifických funkcií',
+        },
         locale: 'Formát',
+        nowButton: 'Teraz (aktuálny čas)',
         results: {
           formatted: 'Formátovaný',
           parsed: 'Parsovaný',
           converted: 'Konvertovaný',
+          yearMonthDay: 'Rok / Mesiac / Deň',
+          hourMinuteSecond: 'Hodina : Minúta : Sekunda . Milisekunda',
         },
       },
       validation: {
         title: 'Validácia',
+        description: {
+          label: 'WRAPPER FUNKCIE',
+          functions: 'debounce(), validateField()',
+          asyncApi: 'Async API',
+          asyncDescription: 'Promise-based validation, vracia metadata',
+          types: 'Typy',
+          typesList: 'email, phone, url, required',
+          usage: 'Používanie',
+          usageDescription: 'Univerzálny wrapper nad základnými funkciami',
+        },
         debounce: {
           title: 'Debounce Demo',
           description: 'Debounce oneskorí vykonanie funkcie až kým neprestanem písať. Skúšam rôzne oneskorenia.',
@@ -506,6 +565,11 @@ export const sk: TranslationKeys = {
           results: {
             isValid: 'Je platný',
             error: 'Chyba',
+            phoneType: 'Typ telefónu',
+            formatted: 'Formátované',
+            countryCode: 'Predvoľba štátu',
+            domain: 'Doména',
+            normalized: 'Normalizovaný',
           },
         },
       },

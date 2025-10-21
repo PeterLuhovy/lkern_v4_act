@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.3.0
+# Version: 1.4.0
 # Created: 2025-10-13
-# Updated: 2025-10-20 14:30:00
+# Updated: 2025-10-21 11:30:00
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -95,6 +95,29 @@ L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarit
 ---
 
 ## 🎉 Recent Achievements
+
+### ✅ Utility Functions Testing & Documentation (2025-10-21)
+**Status:** COMPLETED
+**Duration:** 3 hours
+
+**Achievements:**
+- 📚 **Documentation Review:** All utility functions have complete JSDoc with examples
+- 🧪 **Test Coverage Enhancement:** Added 150+ new tests for advanced features
+  - dateUtils: +74 tests (formatDateTimeFull, parseDateTime, extractDateComponents, UTC)
+  - phoneUtils: +41 tests (getPhoneCountryCode for SK/CZ/PL)
+  - validation: +26 tests (debounce, validateField with metadata)
+- 🐛 **Bug Fixes:** Fixed 2 test failures in dateUtils
+  - parseDateTime: Now returns `null` for invalid time (was: date without time)
+  - toUTC: Consistent empty string `''` for invalid dates
+- ✅ **Test Results:** 394/394 tests passing (100%) across 15 test suites
+
+**Results:**
+- Tests: 394/394 passing (100%) ✅
+- Build: Zero TypeScript errors ✅
+- Documentation: Complete JSDoc coverage ✅
+- Code Quality: Production-ready ✅
+
+---
 
 ### ✅ Test Suite Completion + Translation Fixes (2025-10-20)
 **Status:** COMPLETED

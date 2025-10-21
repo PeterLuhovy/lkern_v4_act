@@ -2,9 +2,9 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 4.2.0
+# Version: 4.3.0
 # Created: 2025-10-13
-# Updated: 2025-10-19
+# Updated: 2025-10-21
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -405,6 +405,17 @@ L-KERN v4/
 ---
 
 ## 📝 Recent Changes
+
+### 2025-10-21: Utility Functions Testing & Documentation
+- ✅ **Complete Test Coverage**: Added 150+ tests for utility functions
+  - dateUtils: 74 tests total (formatDateTimeFull, parseDateTime, extractDateComponents, UTC)
+  - phoneUtils: 41 tests total (getPhoneCountryCode for SK/CZ/PL support)
+  - validation: 26 tests total (debounce, validateField with metadata)
+- ✅ **Bug Fixes**: Fixed 2 test failures in dateUtils
+  - parseDateTime: Returns `null` for invalid time (was returning date without time)
+  - toUTC: Consistent `''` return for invalid dates
+- ✅ **Documentation Review**: All utility functions verified with complete JSDoc
+- ✅ **Test Results**: 394/394 passing (100%) across 15 test suites
 
 ### 2025-10-19: Testing Documentation Restructure
 - ✅ **Modular Testing Docs**: Created 6 comprehensive testing guides

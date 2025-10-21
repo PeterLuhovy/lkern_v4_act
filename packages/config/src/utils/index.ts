@@ -18,6 +18,7 @@ export {
   validateLandlineOrFax,
   formatPhoneNumber,
   detectPhoneType,
+  getPhoneCountryCode,
   type PhoneType,
   type PhoneCountryCode,
 } from './phoneUtils';
@@ -35,14 +36,25 @@ export {
 export {
   formatDate,
   formatDateTime,
+  formatDateTimeFull,
   parseDate,
+  parseDateTime,
   validateDate,
   convertDateLocale,
   getToday,
   isToday,
   addDays,
   getDaysDifference,
+  extractDateComponents,
+  // UTC Timezone utilities
+  toUTC,
+  fromUTC,
+  formatUserDateTime,
+  getNowUTC,
+  toUTCFromUserInput,
   type DateLocale,
+  type DateComponents,
+  type SupportedTimezone,
 } from './dateUtils';
 
 // Modal stack utility
