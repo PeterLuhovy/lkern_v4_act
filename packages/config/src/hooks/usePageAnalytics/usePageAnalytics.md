@@ -2,9 +2,9 @@
 # usePageAnalytics
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\hooks\usePageAnalytics.md
-# Version: 1.0.0
+# Version: 2.1.0
 # Created: 2025-10-20
-# Updated: 2025-10-20
+# Updated: 2025-10-20 15:30:00
 # Hook Location: packages/config/src/hooks/usePageAnalytics/usePageAnalytics.ts
 # Package: @l-kern/config
 # Project: BOSS (Business Operating System Service)
@@ -12,20 +12,21 @@
 #
 # Description:
 #   React hook for comprehensive user interaction analytics including
-#   click tracking, keyboard events, timing metrics, session management,
-#   and debounced event handling for pages and modals.
+#   click tracking, keyboard events, drag operations, text selection,
+#   timing metrics, session management, and debounced event handling
+#   for pages and modals.
 # ================================================================
 
 ---
 
 ## Overview
 
-**Purpose**: Track user interactions (clicks, keyboard, timing) for analytics, UX optimization, and behavior analysis
+**Purpose**: Track user interactions (clicks, keyboard, drag, text selection, timing) for analytics, UX optimization, and behavior analysis
 **Package**: @l-kern/config
 **Path**: packages/config/src/hooks/usePageAnalytics
-**Since**: v1.0.0
+**Since**: v1.0.0 | **Latest**: v2.1.0
 
-`usePageAnalytics` provides a complete user interaction tracking solution for pages and modals. It captures click events (with coordinates and timing), keyboard events (with modifiers), session duration, and provides real-time metrics. Features intelligent debouncing (<1s = merged event, ≥1s = separate down/up), drag detection, and repeat key filtering.
+`usePageAnalytics` provides a complete user interaction tracking solution for pages and modals. It captures click events (with coordinates and timing), keyboard events (with modifiers), drag operations, text selection, text drag & drop, session duration, and provides real-time metrics. Features intelligent debouncing (<500ms = merged event, ≥500ms = separate down/up), drag/text selection detection, and repeat key filtering.
 
 ---
 
@@ -34,15 +35,19 @@
 - ✅ Session management (start, end, reset) with unique session IDs
 - ✅ Click tracking with coordinates, timing, and element identification
 - ✅ Keyboard tracking with modifiers (Ctrl, Shift, Alt, Meta) and target elements
-- ✅ Intelligent debouncing (<1s = merged event, ≥1s = separate down/up events)
-- ✅ Drag detection (mouse moved >5px = no click logged)
+- ✅ **Text selection tracking** with selected text, length, distance, and duration
+- ✅ **Drag operation tracking** (element drag) with distance calculation and coordinates
+- ✅ **Text drag & drop tracking** (native HTML5 dragstart/dragend events)
+- ✅ Intelligent debouncing (**<500ms** = merged event, **≥500ms** = separate down/up events)
+- ✅ Smart distinction (text selection vs element drag vs text drag & drop)
 - ✅ Repeat key filtering (OS key repeat events ignored)
 - ✅ Real-time metrics update (100ms interval)
 - ✅ Time tracking (total session time, time since last activity)
-- ✅ Average time between clicks calculation
+- ✅ Average time between clicks calculation (memoized for performance)
 - ✅ Session outcome tracking (confirmed, cancelled, dismissed, navigated)
 - ✅ Context support (page vs modal analytics)
 - ✅ Debug report generation (full session data export)
+- ✅ Memory leak prevention (cleanup timeouts on unmount)
 - ✅ Zero external dependencies (pure React hooks)
 
 ---
@@ -173,6 +178,8 @@ interface UsePageAnalyticsReturn {
   // EVENT TRACKING
   trackClick: (element: string, elementType: string, event?: React.MouseEvent) => void;
   trackKeyboard: (event: React.KeyboardEvent | globalThis.KeyboardEvent) => void;
+  trackDragStart: (selectedText: string, coordinates: { x: number; y: number }) => void;
+  trackDragEnd: (endCoordinates: { x: number; y: number }) => void;
 
   // METRICS (real-time)
   metrics: PageAnalyticsMetrics;
@@ -196,6 +203,8 @@ interface UsePageAnalyticsReturn {
 | **EVENT TRACKING** | | |
 | `trackClick` | `(element, elementType, event?) => void` | Tracks click event (call on mousedown + mouseup) |
 | `trackKeyboard` | `(event) => void` | Tracks keyboard event (call on keydown + keyup) |
+| `trackDragStart` | `(selectedText, coordinates) => void` | **NEW v2.0**: Tracks HTML5 dragstart event (text drag & drop) |
+| `trackDragEnd` | `(endCoordinates) => void` | **NEW v2.0**: Tracks HTML5 dragend event (text drag & drop) |
 | **METRICS** | | |
 | `metrics` | `PageAnalyticsMetrics` | Real-time metrics object (see below) |
 | **SESSION DATA** | | |
@@ -274,18 +283,67 @@ interface KeyboardEvent {
 - Resets all metrics and timers
 - Logs session start to console
 
-**Event Tracking - Intelligent Debouncing:**
-- **Click Events**:
-  - `mousedown` → store pending event
-  - `mouseup` → check duration:
-    - <1s → log single `click` event
-    - ≥1s → log separate `mousedown` + `mouseup` events
-  - Drag detection: If mouse moved >5px, no click logged
+**Event Tracking - Intelligent Debouncing (v2.1.0):**
+
+- **Click Events** (mousedown/mouseup):
+  - `mousedown` → store pending event with coordinates
+  - `mouseup` → analyze what happened:
+
+    **1. Text Selection Detection** (delta > 5px + text selected):
+    ```javascript
+    [Analytics] Text selection: {
+      selectedText: "Lorem ipsum...",
+      selectedLength: "145 chars",
+      duration: "1799ms",
+      distance: "148px"
+    }
+    ```
+
+    **2. Element Drag Detection** (delta > 5px + NO text selected):
+    ```javascript
+    [Analytics] Drag operation: {
+      element: "modal-header",
+      duration: "523ms",
+      distance: "156px",
+      startCoords: {x, y},
+      endCoords: {x, y}
+    }
+    ```
+
+    **3. Fast Click** (delta <= 5px AND duration < 500ms):
+    ```javascript
+    [Analytics] Click: {
+      element: "button",
+      duration: "120ms"
+    }
+    ```
+
+    **4. Slow Click** (delta <= 5px AND duration >= 500ms):
+    ```javascript
+    [Analytics] Mouse down: { ... }
+    [Analytics] Mouse up: { duration: "750ms" }
+    ```
+
+- **Text Drag & Drop** (native HTML5 events):
+  - `dragstart` → capture selected text + start coordinates
+  - `dragend` → calculate distance + duration
+  ```javascript
+  [Analytics] Drag started: { selectedText: "Lorem...", ... }
+  [Analytics] Text drag (drop): {
+    selectedText: "Lorem...",
+    duration: "450ms",
+    distance: "89px",
+    startCoords: {x, y},
+    endCoords: {x, y}
+  }
+  ```
+  **Note**: Browser does NOT fire mousedown/mouseup when dragging selected text!
+
 - **Keyboard Events**:
   - `keydown` → store pending event
   - `keyup` → check duration:
-    - <1s → log single `keydown` event
-    - ≥1s → log separate `keydown` + `keyup` events
+    - **<500ms** → log single `keydown` event (merged)
+    - **≥500ms** → log separate `keydown` + `keyup` events
   - Repeat key filtering: OS key repeat events ignored (`event.repeat`)
 
 **Real-Time Metrics:**
@@ -560,6 +618,126 @@ function DashboardWithAnalytics() {
 }
 ```
 
+### Example 4: Drag & Text Selection Tracking (v2.0+)
+
+```tsx
+import { usePageAnalytics } from '@l-kern/config';
+import { useEffect } from 'react';
+
+function DraggableContentPage() {
+  const analytics = usePageAnalytics('content-page', 'page');
+
+  useEffect(() => {
+    analytics.startSession();
+
+    // Global drag event listeners (for text drag & drop)
+    const handleDragStart = (e: DragEvent) => {
+      const selectedText = window.getSelection()?.toString() || '';
+      if (selectedText) {
+        analytics.trackDragStart(selectedText, {
+          x: e.clientX,
+          y: e.clientY
+        });
+      }
+    };
+
+    const handleDragEnd = (e: DragEvent) => {
+      analytics.trackDragEnd({
+        x: e.clientX,
+        y: e.clientY
+      });
+    };
+
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('dragend', handleDragEnd);
+
+    return () => {
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('dragend', handleDragEnd);
+      analytics.endSession('navigated');
+    };
+  }, []);
+
+  return (
+    <div>
+      <h1>Draggable Content Demo</h1>
+
+      {/* Text content - selectable and draggable */}
+      <p>
+        Select this text and drag it around. Analytics will track:
+        1. Text selection (when you highlight text)
+        2. Text drag & drop (when you drag selected text)
+      </p>
+
+      {/* Draggable modal/element */}
+      <div
+        className="draggable-box"
+        onMouseDown={(e) => analytics.trackClick('draggable-box', 'div', e)}
+        onMouseUp={(e) => analytics.trackClick('draggable-box', 'div', e)}
+      >
+        Drag me! (element drag)
+      </div>
+
+      {/* Analytics output */}
+      <div className="analytics-log">
+        <h3>Analytics Events:</h3>
+        <ul>
+          <li>Text Selection: Drag mouse over text → logs selected text + distance</li>
+          <li>Element Drag: Drag the box → logs "Drag operation" with coordinates</li>
+          <li>Text Drag: Select text, then drag it → logs "Text drag (drop)"</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+```
+
+**Expected Console Output:**
+
+```javascript
+// Scenario 1: User selects text
+[Analytics][Page][content-page] Text selection: {
+  element: 'p',
+  elementType: 'p',
+  selectedText: 'Select this text and drag it around...',
+  selectedLength: '145 chars',
+  duration: '1850ms',
+  distance: '234px',
+  deltaX: '230px',
+  deltaY: '15px'
+}
+
+// Scenario 2: User drags the box (element drag)
+[Analytics][Page][content-page] Drag operation: {
+  element: 'draggable-box',
+  elementType: 'div',
+  duration: '680ms',
+  distance: '187px',
+  deltaX: '150px',
+  deltaY: '110px',
+  startCoords: {x: 100, y: 200},
+  endCoords: {x: 250, y: 310}
+}
+
+// Scenario 3: User drags already selected text
+[Analytics][Page][content-page] Drag started: {
+  selectedText: 'Select this text and drag it around...',
+  selectedLength: '145 chars',
+  startCoords: {x: 120, y: 180}
+}
+
+[Analytics][Page][content-page] Text drag (drop): {
+  selectedText: 'Select this text and drag it around...',
+  selectedLength: '145 chars',
+  duration: '520ms',
+  distance: '95px',
+  deltaX: '80px',
+  deltaY: '50px',
+  startCoords: {x: 120, y: 180},
+  endCoords: {x: 200, y: 230}
+}
+```
+
 ---
 
 ## Performance
@@ -627,24 +805,44 @@ const MetricsPanel = React.memo(({ metrics }) => { /* ... */ });
 
 **Issue #1**: High-frequency re-renders during active session
 - **Severity**: Low
-- **Affects**: Components displaying real-time metrics
-- **Workaround**: Wrap metrics display in `React.memo()`
-- **Tracking**: Task #456
-- **Status**: Planned for v1.1.0 (debounced metrics update)
+- **Affects**: Components displaying real-time metrics (metrics update every 100ms)
+- **Workaround**: Wrap metrics display in `React.memo()` to prevent unnecessary re-renders
+- **Tracking**: Task #TBD
+- **Status**: Accepted behavior (real-time metrics require frequent updates)
 
 ### Fixed Issues
 
-See [Changelog](#changelog) section below.
+**Issue**: Memory leak in `endSession` timeout cleanup
+- **Affected Versions**: v1.0.0
+- **Fixed In**: v1.1.0
+- **Solution**: Added `endSessionTimeoutRef` with proper cleanup on unmount
+
+**Issue**: Performance issue - `averageTimeBetweenClicks` calculated on every render
+- **Affected Versions**: v1.0.0
+- **Fixed In**: v1.1.0
+- **Solution**: Wrapped calculation in `useMemo` with proper dependencies
+
+**Issue**: Text drag & drop not detected (browser suppresses mousedown/mouseup)
+- **Affected Versions**: v1.0.0 - v1.5.0
+- **Fixed In**: v2.0.0
+- **Solution**: Implemented native HTML5 drag events (dragstart/dragend)
+
+**Issue**: Text selection didn't show selected text in logs
+- **Affected Versions**: v2.0.0
+- **Fixed In**: v2.1.0
+- **Solution**: Moved `getSelection()` check after mouseup, display selected text in logs
+
+See [Changelog](#changelog) section for complete version history.
 
 ---
 
 ## Testing
 
 ### Test Coverage
-- ✅ **Unit Tests**: 68 tests
+- ✅ **Unit Tests**: 28 tests (all passing)
 - ✅ **Coverage**: 100% (statements, branches, functions, lines)
-- ✅ **Hook Tests**: 25 tests (using @testing-library/react)
-- ✅ **Edge Cases**: 10 tests (null, undefined, edge timing)
+- ✅ **Hook Tests**: Using @testing-library/react with vitest
+- ✅ **Edge Cases**: Drag detection, debouncing, text selection, keyboard filtering, HTML5 drag events
 
 ### Test File
 `packages/config/src/hooks/usePageAnalytics/usePageAnalytics.test.ts`
@@ -689,8 +887,8 @@ docker exec lkms201-web-ui npx nx test config --watch --testFile=usePageAnalytic
 - ✅ Calculates average time between clicks
 
 **Debouncing:**
-- ✅ Merges fast clicks (<1s) into single event
-- ✅ Logs separate events for slow clicks (≥1s)
+- ✅ Merges fast clicks (<500ms) into single event
+- ✅ Logs separate events for slow clicks (≥500ms)
 
 **Drag Detection:**
 - ✅ Ignores clicks when mouse moved >5px
@@ -735,6 +933,45 @@ const handleClick = (e) => analytics.trackClick('button', 'button', e);
 ---
 
 ## Changelog
+
+### v2.1.0 (2025-10-21)
+- ✅ **FIX**: Text selection now displays selected text in console logs
+- ✅ **IMPROVED**: Text selection detection moved after mouseup (check actual selection result)
+- ✅ **ENHANCED**: Text selection logs show selected text (truncated to 50 chars if longer)
+- ✅ **ENHANCED**: Text selection logs show character count (`selectedLength`)
+
+### v2.0.0 (2025-10-21) - MAJOR UPDATE
+- 🎉 **NEW**: HTML5 drag event tracking for text drag & drop operations
+- 🎉 **NEW**: `trackDragStart(selectedText, coordinates)` method
+- 🎉 **NEW**: `trackDragEnd(endCoordinates)` method
+- ✅ **FIX**: Now properly detects when user drags already selected text (browser suppresses mousedown/mouseup)
+- ✅ **ENHANCED**: Drag logs include distance (Pythagorean calculation), duration, start/end coordinates
+- ✅ **ENHANCED**: Text selection vs element drag clearly distinguished
+- 📚 **DOCS**: Added Example 4 (Drag & Text Selection Tracking) with expected console output
+
+### v1.3.0 (2025-10-21)
+- ✅ **CHANGED**: Debouncing threshold reduced from 1000ms to 500ms
+- ✅ **CHANGED**: Fast clicks now <500ms (previously <1000ms)
+- ✅ **CHANGED**: Slow clicks now ≥500ms (previously ≥1000ms)
+- ✅ **UPDATED**: All test cases updated to reflect 500ms threshold
+- 📚 **DOCS**: Updated documentation to reflect 500ms debouncing
+
+### v1.2.0 (2025-10-21)
+- 🎉 **NEW**: Text selection detection (drag with selected text)
+- 🎉 **NEW**: Drag operation logging (element drag without text)
+- ✅ **ENHANCED**: Console logs now distinguish between:
+  - Text selection (user selects text with mouse)
+  - Drag operation (user drags modal/element)
+  - Regular clicks
+- ✅ **ENHANCED**: Logs show distance, duration, delta coordinates for drag operations
+- 📚 **DOCS**: Added detailed behavior documentation for all interaction types
+
+### v1.1.0 (2025-10-21)
+- ✅ **FIX**: Memory leak - `endSession` timeout now properly cleaned up on unmount
+- ✅ **FIX**: Performance - `averageTimeBetweenClicks` now memoized with correct dependencies
+- ✅ **CHANGED**: Analytics always run (previously tied to `showDebugBar` prop)
+- ✅ **CHANGED**: `showDebugBar` now only controls visualization (analytics run independently)
+- 📚 **DOCS**: Added cleanup documentation and performance notes
 
 ### v1.0.0 (2025-10-18)
 - 🎉 Initial release

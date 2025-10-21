@@ -2,13 +2,20 @@
  * ================================================================
  * FILE: usePageAnalytics.ts
  * PATH: /packages/config/src/hooks/usePageAnalytics.ts
- * DESCRIPTION: Universal analytics hook - tracks clicks, keyboard events, timing, and user workflow (pages + modals)
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 23:30:00
+ * DESCRIPTION: Universal analytics - clicks, keyboard, drag tracking, timing (pages + modals)
+ * VERSION: v2.1.0
+ * UPDATED: 2025-10-21 18:00:00
+ * CHANGES:
+ *   - v2.1.0: FIXED - Text selection now shows selected text (check getSelection() after mouseup)
+ *   - v2.0.0: MAJOR - Added native HTML5 drag events (dragstart/dragend) for text drag tracking
+ *   - v1.3.0: Changed debouncing threshold 1000ms → 500ms (faster distinction)
+ *   - v1.2.0: Added text selection detection + drag operation logging (distance, duration)
+ *   - v1.1.0: Fixed timeout cleanup leak + memoized expensive calculations
+ *   - v1.0.0: Initial implementation
  * ================================================================
  */
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 
 // ================================================================
 // TYPES
@@ -113,6 +120,12 @@ export const usePageAnalytics = (
   const pendingMouseDownRef = useRef<{ timestamp: number; element: string; elementType: string; coordinates?: { x: number; y: number } } | null>(null);
   const pendingKeyDownRef = useRef<{ timestamp: number; key: string; code: string; modifiers: any; targetElement?: string } | null>(null);
 
+  // Pending drag events (for text drag & drop tracking)
+  const pendingDragRef = useRef<{ timestamp: number; selectedText: string; coordinates: { x: number; y: number } } | null>(null);
+
+  // Cleanup timeout for endSession
+  const endSessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // ================================================================
   // SESSION MANAGEMENT
   // ================================================================
@@ -149,6 +162,12 @@ export const usePageAnalytics = (
   const endSession = useCallback((outcome: 'confirmed' | 'cancelled' | 'dismissed' | 'navigated') => {
     if (!sessionRef.current) return;
 
+    // Clear any pending timeout
+    if (endSessionTimeoutRef.current) {
+      clearTimeout(endSessionTimeoutRef.current);
+      endSessionTimeoutRef.current = null;
+    }
+
     const now = Date.now();
     const duration = now - sessionRef.current.startTime;
 
@@ -170,14 +189,21 @@ export const usePageAnalytics = (
       keyboard: finalSession.keyboardEvents.length
     });
 
-    // Reset session after logging
-    setTimeout(() => {
+    // Reset session after logging (with cleanup tracking)
+    endSessionTimeoutRef.current = setTimeout(() => {
       sessionRef.current = null;
       setSession(null);
+      endSessionTimeoutRef.current = null;
     }, 100);
-  }, []);
+  }, [logPrefix]);
 
   const resetSession = useCallback(() => {
+    // Clear any pending timeout
+    if (endSessionTimeoutRef.current) {
+      clearTimeout(endSessionTimeoutRef.current);
+      endSessionTimeoutRef.current = null;
+    }
+
     sessionRef.current = null;
     setSession(null);
     setTotalTime('0.0s');
@@ -207,7 +233,7 @@ export const usePageAnalytics = (
       ? 'mouseup'
       : 'click';
 
-    // === DEBOUNCING LOGIC: < 1s = merged "click", >= 1s = separate down/up ===
+    // === DEBOUNCING LOGIC: < 500ms = merged "click", >= 500ms = separate down/up ===
 
     if (mouseEventType === 'mousedown') {
       // Store mousedown event (pending)
@@ -235,8 +261,54 @@ export const usePageAnalytics = (
         isDragOperation = deltaX > 5 || deltaY > 5;
       }
 
-      if (duration < 1000 && !isDragOperation) {
-        // FAST CLICK (< 1s) → Log as single "click" event
+      // Detect if drag resulted in text selection (user was selecting text, not dragging element)
+      const selectedText = window.getSelection()?.toString() || '';
+      const isTextSelection = isDragOperation && selectedText.length > 0;
+
+      if (isTextSelection) {
+        // TEXT SELECTION → User was selecting text with mouse
+        const deltaX = Math.abs(event.clientX - downEvent.coordinates!.x);
+        const deltaY = Math.abs(event.clientY - downEvent.coordinates!.y);
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
+
+        console.log(`${logPrefix} Text selection:`, {
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          selectedText: selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText,
+          selectedLength: `${selectedText.length} chars`,
+          duration: `${duration}ms`,
+          distance: `${Math.round(distance)}px`,
+          deltaX: `${deltaX}px`,
+          deltaY: `${deltaY}px`
+        });
+
+        pendingMouseDownRef.current = null;
+        return; // Don't count as click
+      }
+
+      if (isDragOperation) {
+        // DRAG OPERATION (modal, element) → User was dragging an element (not selecting text)
+        const deltaX = Math.abs(event.clientX - downEvent.coordinates!.x);
+        const deltaY = Math.abs(event.clientY - downEvent.coordinates!.y);
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
+
+        console.log(`${logPrefix} Drag operation:`, {
+          element: downEvent.element,
+          elementType: downEvent.elementType,
+          duration: `${duration}ms`,
+          distance: `${Math.round(distance)}px`,
+          deltaX: `${deltaX}px`,
+          deltaY: `${deltaY}px`,
+          startCoords: downEvent.coordinates,
+          endCoords: { x: event.clientX, y: event.clientY }
+        });
+
+        pendingMouseDownRef.current = null;
+        return; // Don't count as click
+      }
+
+      if (duration < 500 && !isDragOperation) {
+        // FAST CLICK (< 500ms) → Log as single "click" event
         const clickEvent: ClickEvent = {
           timestamp: downEvent.timestamp,
           element: downEvent.element,
@@ -259,7 +331,7 @@ export const usePageAnalytics = (
           timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
         });
       } else {
-        // SLOW CLICK (>= 1s) → Log both mousedown and mouseup
+        // SLOW CLICK (>= 500ms) → Log both mousedown and mouseup
         const downClickEvent: ClickEvent = {
           timestamp: downEvent.timestamp,
           element: downEvent.element,
@@ -356,7 +428,7 @@ export const usePageAnalytics = (
       meta: event.metaKey
     };
 
-    // === DEBOUNCING LOGIC: < 1s = merged "keypress", >= 1s = separate down/up ===
+    // === DEBOUNCING LOGIC: < 500ms = merged "keypress", >= 500ms = separate down/up ===
 
     if (keyEventType === 'keydown') {
       // Store keydown event (pending)
@@ -425,8 +497,8 @@ export const usePageAnalytics = (
       if (modifiers.meta) modifierStrs.push('Meta');
       const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
 
-      if (duration < 1000) {
-        // FAST KEYPRESS (< 1s) → Log as single "keydown" event
+      if (duration < 500) {
+        // FAST KEYPRESS (< 500ms) → Log as single "keydown" event
         const keyEvent: KeyboardEvent = {
           timestamp: downEvent.timestamp,
           key: downEvent.key,
@@ -449,7 +521,7 @@ export const usePageAnalytics = (
           timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
         });
       } else {
-        // SLOW KEYPRESS (>= 1s) → Log both keydown and keyup
+        // SLOW KEYPRESS (>= 500ms) → Log both keydown and keyup
         const downKeyEvent: KeyboardEvent = {
           timestamp: downEvent.timestamp,
           key: downEvent.key,
@@ -527,6 +599,62 @@ export const usePageAnalytics = (
   }, [logPrefix]);
 
   // ================================================================
+  // DRAG TRACKING (for native HTML5 text drag & drop)
+  // ================================================================
+
+  const trackDragStart = useCallback((
+    selectedText: string,
+    coordinates: { x: number; y: number }
+  ) => {
+    if (!sessionRef.current) return;
+
+    const now = Date.now();
+
+    pendingDragRef.current = {
+      timestamp: now,
+      selectedText,
+      coordinates
+    };
+
+    console.log(`${logPrefix} Drag started:`, {
+      selectedText: selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText,
+      selectedLength: `${selectedText.length} chars`,
+      startCoords: coordinates
+    });
+  }, [logPrefix]);
+
+  const trackDragEnd = useCallback((
+    endCoordinates: { x: number; y: number }
+  ) => {
+    if (!sessionRef.current || !pendingDragRef.current) return;
+
+    const dragStart = pendingDragRef.current;
+    const now = Date.now();
+    const duration = now - dragStart.timestamp;
+
+    const deltaX = Math.abs(endCoordinates.x - dragStart.coordinates.x);
+    const deltaY = Math.abs(endCoordinates.y - dragStart.coordinates.y);
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    console.log(`${logPrefix} Text drag (drop):`, {
+      selectedText: dragStart.selectedText.length > 50 ? dragStart.selectedText.substring(0, 50) + '...' : dragStart.selectedText,
+      selectedLength: `${dragStart.selectedText.length} chars`,
+      duration: `${duration}ms`,
+      distance: `${Math.round(distance)}px`,
+      deltaX: `${deltaX}px`,
+      deltaY: `${deltaY}px`,
+      startCoords: dragStart.coordinates,
+      endCoords: endCoordinates
+    });
+
+    // Update activity timestamp
+    lastActivityTimeRef.current = now;
+
+    // Clear pending drag
+    pendingDragRef.current = null;
+  }, [logPrefix]);
+
+  // ================================================================
   // REAL-TIME METRICS UPDATE (100ms interval)
   // ================================================================
 
@@ -564,12 +692,15 @@ export const usePageAnalytics = (
   // COMPUTED METRICS
   // ================================================================
 
-  const averageTimeBetweenClicks = session && session.clickEvents.length > 1
-    ? session.clickEvents
-        .slice(1)
-        .reduce((sum, event) => sum + (event.timeSinceLastClick || 0), 0)
-      / (session.clickEvents.length - 1)
-    : 0;
+  // Memoize expensive calculation (important for sessions with 100+ clicks)
+  const averageTimeBetweenClicks = useMemo(() => {
+    if (!session || session.clickEvents.length <= 1) return 0;
+
+    return session.clickEvents
+      .slice(1)
+      .reduce((sum, event) => sum + (event.timeSinceLastClick || 0), 0)
+      / (session.clickEvents.length - 1);
+  }, [session?.clickEvents, clickCount]);
 
   const metrics: PageAnalyticsMetrics = {
     totalTime,
@@ -588,6 +719,20 @@ export const usePageAnalytics = (
   }, []);
 
   // ================================================================
+  // CLEANUP ON UNMOUNT
+  // ================================================================
+
+  useEffect(() => {
+    return () => {
+      // Clear timeout on unmount to prevent memory leak
+      if (endSessionTimeoutRef.current) {
+        clearTimeout(endSessionTimeoutRef.current);
+        endSessionTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  // ================================================================
   // RETURN
   // ================================================================
 
@@ -598,6 +743,8 @@ export const usePageAnalytics = (
     isSessionActive: session !== null && !session.endTime,
     trackClick,
     trackKeyboard,
+    trackDragStart,
+    trackDragEnd,
     metrics,
     session,
     getSessionReport

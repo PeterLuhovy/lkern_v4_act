@@ -2,10 +2,12 @@
  * ================================================================
  * FILE: BasePage.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.tsx
- * DESCRIPTION: Base page wrapper component with global keyboard shortcuts
- * VERSION: v3.0.0
- * UPDATED: 2025-10-19 01:05:00
+ * DESCRIPTION: Base page wrapper with keyboard shortcuts, analytics, HTML5 drag tracking
+ * VERSION: v4.0.0
+ * UPDATED: 2025-10-21 18:00:00
  * CHANGES:
+ *   - v4.0.0: Added native HTML5 drag event tracking (dragstart/dragend) for text drag & drop
+ *   - v3.1.0: Analytics ALWAYS run, showDebugBar only controls visualization
  *   - v3.0.0: HYBRID keyboard handling - removed ESC/Enter (now in Modal.tsx)
  *   - v2.1.0: Fixed Enter key behavior - always preventDefault when modal is open
  *   - v2.0.0: Initial version with keyboard shortcuts
@@ -43,7 +45,7 @@ export interface BasePageProps {
   pageName?: string;
 
   /**
-   * Show debug bar with analytics
+   * Show visual debug bar (analytics always run, this just shows/hides visualization)
    * @default true
    */
   showDebugBar?: boolean;
@@ -88,21 +90,19 @@ export const BasePage: React.FC<BasePageProps> = ({
   const { language, setLanguage } = useTranslation();
   const analytics = usePageAnalytics(pageName);
 
-  // Analytics session lifecycle
+  // Analytics session lifecycle (ALWAYS runs, showDebugBar only controls visualization)
   useEffect(() => {
-    if (showDebugBar) {
-      analytics.startSession();
-      console.log('[BasePage] Analytics session started:', pageName);
-    }
+    analytics.startSession();
+    console.log('[BasePage] Analytics session started:', pageName);
 
     return () => {
-      if (showDebugBar && analytics.isSessionActive) {
+      if (analytics.isSessionActive) {
         analytics.endSession('navigated');
         console.log('[BasePage] Analytics session ended');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageName, showDebugBar]);
+  }, [pageName]);
 
   // Global keyboard shortcut handler + analytics tracking
   useEffect(() => {
@@ -111,9 +111,9 @@ export const BasePage: React.FC<BasePageProps> = ({
       // Don't track if modal is open (modal has priority)
       const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
 
-      // Track keyboard event in analytics (only if no modal open)
+      // Track keyboard event in analytics (ALWAYS track, only skip if modal open)
       // Track BOTH keydown and keyup to detect selection (Shift held)
-      if (showDebugBar && !hasOpenModal) {
+      if (!hasOpenModal) {
         analytics.trackKeyboard(e);
       }
 
@@ -169,14 +169,55 @@ export const BasePage: React.FC<BasePageProps> = ({
       document.removeEventListener('keydown', handleGlobalKeyEvent, true);
       document.removeEventListener('keyup', handleGlobalKeyEvent, true);
     };
-  }, [onKeyDown, toggleTheme, setLanguage, language, showDebugBar, analytics]);
+  }, [onKeyDown, toggleTheme, setLanguage, language, analytics]);
 
-  // Handle mouse tracking (mousedown + mouseup)
+  // Global drag event handler for text drag & drop tracking
+  useEffect(() => {
+    const handleDragStart = (e: globalThis.DragEvent) => {
+      const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
+
+      // Only track if no modal open (modal has priority)
+      if (!hasOpenModal) {
+        const selectedText = window.getSelection()?.toString() || '';
+
+        // Only track if there's actually selected text
+        if (selectedText) {
+          analytics.trackDragStart(selectedText, {
+            x: e.clientX,
+            y: e.clientY
+          });
+        }
+      }
+    };
+
+    const handleDragEnd = (e: globalThis.DragEvent) => {
+      const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
+
+      // Only track if no modal open (modal has priority)
+      if (!hasOpenModal) {
+        analytics.trackDragEnd({
+          x: e.clientX,
+          y: e.clientY
+        });
+      }
+    };
+
+    // Register global drag listeners
+    document.addEventListener('dragstart', handleDragStart, true);
+    document.addEventListener('dragend', handleDragEnd, true);
+
+    return () => {
+      document.removeEventListener('dragstart', handleDragStart, true);
+      document.removeEventListener('dragend', handleDragEnd, true);
+    };
+  }, [analytics]);
+
+  // Handle mouse tracking (mousedown + mouseup) - ALWAYS runs
   const handleMouseEvent = (e: React.MouseEvent<HTMLDivElement>) => {
     // Don't track if modal is open (modal has priority via stopPropagation)
     const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
 
-    if (showDebugBar && !hasOpenModal) {
+    if (!hasOpenModal) {
       // Get clicked element info
       const target = e.target as HTMLElement;
       const elementType = target.tagName.toLowerCase();
@@ -193,7 +234,7 @@ export const BasePage: React.FC<BasePageProps> = ({
       onMouseDown={handleMouseEvent}
       onMouseUp={handleMouseEvent}
     >
-      {/* Debug Bar - Fixed at top of page (always visible, tracks only page clicks) */}
+      {/* Debug Bar - Visual indicator only (analytics run independently) */}
       {showDebugBar && (
         <div style={{
           position: 'fixed',

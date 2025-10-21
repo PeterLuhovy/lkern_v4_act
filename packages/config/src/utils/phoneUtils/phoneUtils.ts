@@ -208,3 +208,35 @@ export function detectPhoneType(phone: string, countryCode: PhoneCountryCode = D
   if (validateLandlineOrFax(phone, countryCode)) return 'landline';
   return 'unknown';
 }
+
+/**
+ * Extracts country dialing code from phone number
+ *
+ * @param phone - Phone number to analyze
+ * @returns Country dialing code (e.g., '+421') or undefined if not found
+ *
+ * @example
+ * getPhoneCountryCode('+421 902 123 456') // '+421'
+ * getPhoneCountryCode('+420 777 123 456') // '+420'
+ * getPhoneCountryCode('0902 123 456') // undefined (national format)
+ */
+export function getPhoneCountryCode(phone: string): string | undefined {
+  if (!phone) return undefined;
+
+  const cleaned = cleanPhoneNumber(phone);
+
+  // Check if phone number starts with + and has dialing code
+  if (!cleaned.startsWith('+')) return undefined;
+
+  // Try to match against known country codes
+  const supportedCountries: PhoneCountryCode[] = ['SK', 'CZ', 'PL'];
+
+  for (const countryCode of supportedCountries) {
+    const config = getPhoneConfig(countryCode);
+    if (config && cleaned.startsWith(config.dialingCode)) {
+      return config.dialingCode;
+    }
+  }
+
+  return undefined;
+}

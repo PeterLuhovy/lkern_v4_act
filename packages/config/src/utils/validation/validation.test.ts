@@ -145,14 +145,17 @@ describe('validateField', () => {
   });
 
   describe('email validation', () => {
-    it('should return valid for correct email', async () => {
+    it('should return valid for correct email with metadata', async () => {
       const result = await validateField('email', 'user@example.com', 'email');
-      expect(result).toEqual({ isValid: true, error: undefined });
+      expect(result.isValid).toBe(true);
+      expect(result.metadata?.emailDomain).toBe('example.com');
+      expect(result.metadata?.normalizedEmail).toBe('user@example.com');
     });
 
-    it('should return valid for email with subdomain', async () => {
+    it('should return valid for email with subdomain and extract domain', async () => {
       const result = await validateField('email', 'user@mail.example.com', 'email');
       expect(result.isValid).toBe(true);
+      expect(result.metadata?.emailDomain).toBe('mail.example.com');
     });
 
     it('should return invalid for missing @', async () => {
@@ -169,20 +172,33 @@ describe('validateField', () => {
   });
 
   describe('phone validation', () => {
-    it('should return valid for Slovak mobile', async () => {
+    it('should return valid for Slovak mobile with complete metadata', async () => {
       const result = await validateField('phone', '+421902123456', 'phone');
-      expect(result).toEqual({ isValid: true, error: undefined });
+      expect(result.isValid).toBe(true);
+      expect(result.metadata?.phoneType).toBe('mobile');
+      expect(result.metadata?.formattedPhone).toBe('+421 902 123 456');
+      expect(result.metadata?.countryCode).toBe('+421');
+    });
+
+    it('should return valid for Slovak landline with complete metadata', async () => {
+      const result = await validateField('phone', '+421212345678', 'phone');
+      expect(result.isValid).toBe(true);
+      expect(result.metadata?.phoneType).toBe('landline');
+      expect(result.metadata?.formattedPhone).toBe('+421 2 1234 5678');
+      expect(result.metadata?.countryCode).toBe('+421');
     });
 
     it('should return valid for formatted phone', async () => {
       const result = await validateField('phone', '+421 902 123 456', 'phone');
       expect(result.isValid).toBe(true);
+      expect(result.metadata?.phoneType).toBe('mobile');
+      expect(result.metadata?.countryCode).toBe('+421');
     });
 
     it('should return invalid for invalid phone', async () => {
       const result = await validateField('phone', '123', 'phone');
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe('Invalid phone number');
+      expect(result.error).toBe('Invalid phone number (must be valid mobile or landline)');
     });
   });
 

@@ -1,30 +1,30 @@
 # ================================================================
 # BasePage
 # ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\components\BasePage.md
-# Version: 3.0.0
+# File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\BasePage\BasePage.md
+# Version: 4.0.0
 # Created: 2025-10-19
-# Updated: 2025-10-20
+# Updated: 2025-10-21
 # Component Location: packages/ui-components/src/components/BasePage/BasePage.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
-#   Base page wrapper component with global keyboard shortcuts and analytics.
-#   Provides Ctrl+D (theme toggle), Ctrl+L (language toggle), and DebugBar integration.
+#   Base page wrapper component with global keyboard shortcuts, analytics, and HTML5 drag event tracking.
+#   Provides Ctrl+D (theme toggle), Ctrl+L (language toggle), drag & drop detection, and DebugBar integration.
 # ================================================================
 
 ---
 
 ## Overview
 
-**Purpose**: Global page wrapper with keyboard shortcuts, analytics tracking, and debug bar
+**Purpose**: Global page wrapper with keyboard shortcuts, analytics tracking, drag & drop detection, and debug bar
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/BasePage
-**Since**: v2.0.0 (v3.0.0 hybrid keyboard handling)
+**Since**: v2.0.0 (v3.0.0 hybrid keyboard handling, v4.0.0 HTML5 drag events)
 
-BasePage is the foundation wrapper for all pages in L-KERN v4. It provides global keyboard shortcuts (Ctrl+D for theme toggle, Ctrl+L for language toggle), analytics tracking (clicks, keyboard events, session duration), and an optional DebugBar for development. Version 3.0.0 introduced hybrid keyboard handling where ESC/Enter are handled by Modal component directly, ensuring better separation of concerns.
+BasePage is the foundation wrapper for all pages in L-KERN v4. It provides global keyboard shortcuts (Ctrl+D for theme toggle, Ctrl+L for language toggle), analytics tracking (clicks, keyboard events, session duration, text selection, drag operations), HTML5 drag & drop detection, and an optional DebugBar for development. Version 3.0.0 introduced hybrid keyboard handling where ESC/Enter are handled by Modal component directly. Version 4.0.0 added native HTML5 drag event listeners for comprehensive text drag & drop tracking.
 
 ---
 
@@ -32,6 +32,9 @@ BasePage is the foundation wrapper for all pages in L-KERN v4. It provides globa
 
 - ✅ **Global Keyboard Shortcuts**: Ctrl+D (theme), Ctrl+L (language)
 - ✅ **Analytics Tracking**: Clicks, keyboard events, session duration, activity metrics
+- ✅ **HTML5 Drag Events**: Native dragstart/dragend listeners for text drag & drop tracking (v4.0.0+)
+- ✅ **Text Selection Detection**: Automatically detects and logs text selection with distance/duration
+- ✅ **Drag Operation Tracking**: Logs element drag operations with coordinates and distance
 - ✅ **Debug Bar Integration**: Fixed debug bar at top with real-time metrics
 - ✅ **Session Lifecycle**: Automatic session start/end on mount/unmount
 - ✅ **Modal Detection**: Disables page tracking when modal is open (modal priority)
@@ -313,14 +316,80 @@ useEffect(() => {
   document.addEventListener('keyup', handler, true);    // Capture phase
   document.addEventListener('mousedown', handler, true);
   document.addEventListener('mouseup', handler, true);
+  document.addEventListener('dragstart', handleDragStart, true);  // v4.0.0+
+  document.addEventListener('dragend', handleDragEnd, true);      // v4.0.0+
 
   return () => {
     // Unmount - cleanup
     document.removeEventListener('keydown', handler, true);
     document.removeEventListener('keyup', handler, true);
-    // ... etc
+    document.removeEventListener('mousedown', handler, true);
+    document.removeEventListener('mouseup', handler, true);
+    document.removeEventListener('dragstart', handleDragStart, true);
+    document.removeEventListener('dragend', handleDragEnd, true);
   };
 }, [dependencies]);
+```
+
+### HTML5 Drag Event Flow (v4.0.0+)
+
+**CRITICAL**: When user drags already selected text, browser SUPPRESSES mousedown/mouseup events. The ONLY way to detect this is via native HTML5 drag events.
+
+**Event Sequence:**
+
+```
+1. User selects text with mouse
+   → mousedown + mouseup fire normally (detected as "Text selection")
+
+2. User clicks on selected text and drags it
+   → Browser SUPPRESSES mousedown/mouseup (NO events)
+   → dragstart event fires → trackDragStart(selectedText, coordinates)
+   → drag event fires continuously (not tracked)
+   → dragend event fires → trackDragEnd(endCoordinates)
+
+3. Analytics logs:
+   [Analytics][Page][pageName] Drag started: {
+     selectedText: "Lorem ipsum dolor...",
+     selectedLength: "248 chars",
+     startCoords: { x: 150, y: 200 }
+   }
+
+   [Analytics][Page][pageName] Text drag (drop): {
+     selectedText: "Lorem ipsum dolor...",
+     selectedLength: "248 chars",
+     duration: "1200ms",
+     distance: "250px",
+     deltaX: "200px",
+     deltaY: "150px",
+     startCoords: { x: 150, y: 200 },
+     endCoords: { x: 350, y: 350 }
+   }
+```
+
+**Modal Priority:**
+```tsx
+const handleDragStart = (e: DragEvent) => {
+  const hasOpenModal = modalStack.getTopmostModalId() !== undefined;
+
+  // Only track if no modal open (modal has priority)
+  if (!hasOpenModal) {
+    const selectedText = window.getSelection()?.toString() || '';
+
+    if (selectedText) {
+      analytics.trackDragStart(selectedText, {
+        x: e.clientX,
+        y: e.clientY
+      });
+    }
+  }
+};
+```
+
+**Distance Calculation:**
+```tsx
+const deltaX = Math.abs(endCoords.x - startCoords.x);
+const deltaY = Math.abs(endCoords.y - startCoords.y);
+const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean theorem
 ```
 
 ---
@@ -666,6 +735,20 @@ function OptimizedPage() {
 ---
 
 ## Changelog
+
+### v4.0.0 (2025-10-21) - MAJOR UPDATE
+- 🎉 **NEW**: HTML5 drag event tracking (dragstart/dragend listeners)
+- 🎉 **NEW**: Text drag & drop detection via native browser events
+- ✅ **ENHANCED**: Analytics now track text drag operations with distance/duration
+- ✅ **FIX**: Properly detect when user drags selected text (browser suppresses mousedown/mouseup)
+- 📚 **DOCS**: Added comprehensive HTML5 drag event flow documentation
+- 📚 **DOCS**: Updated behavior section with drag event sequence
+
+**Technical Details:**
+- Added `dragstart` event listener with `trackDragStart(selectedText, coordinates)`
+- Added `dragend` event listener with `trackDragEnd(endCoordinates)`
+- Distance calculated using Pythagorean theorem: `Math.sqrt(deltaX² + deltaY²)`
+- Modal priority respected (drag events only tracked when no modal open)
 
 ### v3.0.0 (2025-10-19)
 - 🎉 Hybrid keyboard handling - removed ESC/Enter from BasePage

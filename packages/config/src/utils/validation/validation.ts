@@ -9,8 +9,8 @@
  * ================================================================
  */
 
-import { validateEmail } from '../emailUtils';
-import { validateMobile } from '../phoneUtils';
+import { validateEmail, getEmailDomain, normalizeEmail } from '../emailUtils';
+import { validateMobile, validateLandlineOrFax, detectPhoneType, formatPhoneNumber, getPhoneCountryCode } from '../phoneUtils';
 
 /**
  * Validation result interface
@@ -22,6 +22,21 @@ export interface ValidationResult {
   error?: string;
   /** Warning message (field is valid but has potential issues) */
   warning?: string;
+  /** Additional metadata about the validation (e.g., detected phone type, email domain) */
+  metadata?: {
+    /** For phone: detected type (mobile/landline) */
+    phoneType?: 'mobile' | 'landline' | 'fax' | 'unknown';
+    /** For phone: formatted phone number */
+    formattedPhone?: string;
+    /** For phone: country dialing code (e.g., '+421') */
+    countryCode?: string;
+    /** For email: extracted domain */
+    emailDomain?: string;
+    /** For email: normalized email */
+    normalizedEmail?: string;
+    /** Any other metadata */
+    [key: string]: any;
+  };
 }
 
 /**
@@ -118,18 +133,49 @@ export async function validateField(
   // Email validation
   if (validationType === 'email') {
     const isValid = validateEmail(value);
+
+    if (!isValid) {
+      return {
+        isValid: false,
+        error: 'Invalid email format',
+      };
+    }
+
+    // Extract metadata for valid emails
     return {
-      isValid,
-      error: isValid ? undefined : 'Invalid email format',
+      isValid: true,
+      metadata: {
+        emailDomain: getEmailDomain(value),
+        normalizedEmail: normalizeEmail(value),
+      },
     };
   }
 
-  // Phone validation
+  // Phone validation (supports both mobile and landline)
   if (validationType === 'phone') {
-    const isValid = validateMobile(value);
+    const isMobile = validateMobile(value);
+    const isLandline = validateLandlineOrFax(value);
+    const isValid = isMobile || isLandline;
+
+    if (!isValid) {
+      return {
+        isValid: false,
+        error: 'Invalid phone number (must be valid mobile or landline)',
+      };
+    }
+
+    // Extract metadata for valid phone numbers
+    const phoneType = detectPhoneType(value);
+    const formattedPhone = formatPhoneNumber(value, phoneType === 'mobile' ? 'mobile' : 'landline');
+    const countryCode = getPhoneCountryCode(value);
+
     return {
-      isValid,
-      error: isValid ? undefined : 'Invalid phone number',
+      isValid: true,
+      metadata: {
+        phoneType,
+        formattedPhone,
+        countryCode,
+      },
     };
   }
 

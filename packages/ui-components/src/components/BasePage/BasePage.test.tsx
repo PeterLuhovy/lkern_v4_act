@@ -36,6 +36,8 @@ vi.mock('@l-kern/config', () => ({
     resetSession: vi.fn(),
     trackClick: vi.fn(),
     trackKeyboard: vi.fn(),
+    trackDragStart: vi.fn(),
+    trackDragEnd: vi.fn(),
     metrics: {
       totalTime: '0.0s',
       timeSinceLastActivity: '0.0s',

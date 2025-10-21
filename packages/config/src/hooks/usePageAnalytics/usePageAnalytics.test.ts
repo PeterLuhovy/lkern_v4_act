@@ -2,9 +2,9 @@
  * ================================================================
  * FILE: usePageAnalytics.test.ts
  * PATH: /packages/config/src/hooks/usePageAnalytics/usePageAnalytics.test.ts
- * DESCRIPTION: Tests for usePageAnalytics hook
- * VERSION: v1.0.0
- * UPDATED: 2025-10-19 15:00:00
+ * DESCRIPTION: Tests for usePageAnalytics hook (28 tests - includes HTML5 drag events)
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-21 18:00:00
  * ================================================================
  */
 
@@ -333,6 +333,7 @@ describe('usePageAnalytics', () => {
     describe('drag detection', () => {
       it('should detect drag operation when mouse moves > 5px', () => {
         const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
 
         act(() => {
           result.current.startSession();
@@ -358,8 +359,22 @@ describe('usePageAnalytics', () => {
           result.current.trackClick('modal-header', 'header', mockMouseUp);
         });
 
-        // Drag detected - should log separate mousedown/mouseup (not merged click)
-        expect(result.current.session?.clickEvents.length).toBeGreaterThan(0);
+        // Drag detected - should NOT count as click (logged to console only)
+        expect(result.current.session?.clickEvents.length).toBe(0);
+        expect(result.current.metrics.clickCount).toBe(0);
+
+        // Should log "Drag operation" to console
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Drag operation'),
+          expect.objectContaining({
+            element: 'modal-header',
+            elementType: 'header',
+            distance: expect.stringContaining('px'),
+            duration: expect.stringContaining('ms')
+          })
+        );
+
+        consoleLogSpy.mockRestore();
       });
 
       it('should not detect drag when mouse moves <= 5px', () => {
@@ -396,7 +411,7 @@ describe('usePageAnalytics', () => {
     });
 
     describe('click debouncing', () => {
-      it('should merge fast click (<1s) into single event', () => {
+      it('should merge fast click (<500ms) into single event', () => {
         vi.useFakeTimers();
         const { result } = renderHook(() => usePageAnalytics('test-page'));
 
@@ -414,9 +429,9 @@ describe('usePageAnalytics', () => {
           result.current.trackClick('button', 'button', mockMouseDown);
         });
 
-        // Fast click - 500ms duration
+        // Fast click - 400ms duration (< 500ms threshold)
         act(() => {
-          vi.advanceTimersByTime(500);
+          vi.advanceTimersByTime(400);
         });
 
         const mockMouseUp = {
@@ -436,7 +451,7 @@ describe('usePageAnalytics', () => {
         vi.useRealTimers();
       });
 
-      it('should log separate events for slow click (>=1s)', () => {
+      it('should log separate events for slow click (>=500ms)', () => {
         vi.useFakeTimers();
         const { result } = renderHook(() => usePageAnalytics('test-page'));
 
@@ -454,9 +469,9 @@ describe('usePageAnalytics', () => {
           result.current.trackClick('button', 'button', mockMouseDown);
         });
 
-        // Slow click - 1500ms duration
+        // Slow click - 600ms duration (>= 500ms threshold)
         act(() => {
-          vi.advanceTimersByTime(1500);
+          vi.advanceTimersByTime(600);
         });
 
         const mockMouseUp = {
@@ -479,7 +494,7 @@ describe('usePageAnalytics', () => {
     });
 
     describe('keyboard debouncing', () => {
-      it('should merge fast keypress (<1s) into single event', () => {
+      it('should merge fast keypress (<500ms) into single event', () => {
         vi.useFakeTimers();
         const { result } = renderHook(() => usePageAnalytics('test-page'));
 
@@ -502,9 +517,9 @@ describe('usePageAnalytics', () => {
           result.current.trackKeyboard(mockKeyDown);
         });
 
-        // Fast keypress - 200ms
+        // Fast keypress - 300ms (< 500ms threshold)
         act(() => {
-          vi.advanceTimersByTime(200);
+          vi.advanceTimersByTime(300);
         });
 
         const mockKeyUp = {
@@ -579,6 +594,153 @@ describe('usePageAnalytics', () => {
 
         // Session should be created with modal context
         expect(result.current.session?.pageName).toBe('editContact');
+      });
+    });
+
+    describe('HTML5 drag events (v2.0.0+)', () => {
+      it('should track drag start with selected text', () => {
+        vi.useFakeTimers();
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const selectedText = 'Lorem ipsum dolor sit amet';
+        const startCoords = { x: 100, y: 200 };
+
+        act(() => {
+          result.current.trackDragStart(selectedText, startCoords);
+        });
+
+        // Should log "Drag started" to console
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Drag started'),
+          expect.objectContaining({
+            selectedText: selectedText,
+            selectedLength: `${selectedText.length} chars`,
+            startCoords: startCoords
+          })
+        );
+
+        consoleLogSpy.mockRestore();
+        vi.useRealTimers();
+      });
+
+      it('should track drag end with distance and duration', () => {
+        vi.useFakeTimers();
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const selectedText = 'Test text for dragging';
+        const startCoords = { x: 100, y: 200 };
+        const endCoords = { x: 250, y: 350 };
+
+        // Start drag
+        act(() => {
+          result.current.trackDragStart(selectedText, startCoords);
+        });
+
+        // Simulate 500ms drag duration
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+
+        // End drag
+        act(() => {
+          result.current.trackDragEnd(endCoords);
+        });
+
+        // Should log "Text drag (drop)" with distance and duration
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Text drag (drop)'),
+          expect.objectContaining({
+            selectedText: selectedText,
+            selectedLength: `${selectedText.length} chars`,
+            duration: expect.stringContaining('ms'),
+            distance: expect.stringContaining('px'),
+            deltaX: expect.stringContaining('px'),
+            deltaY: expect.stringContaining('px'),
+            startCoords: startCoords,
+            endCoords: endCoords
+          })
+        );
+
+        consoleLogSpy.mockRestore();
+        vi.useRealTimers();
+      });
+
+      it('should truncate long selected text to 50 chars', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        const longText = 'A'.repeat(100); // 100 characters
+        const startCoords = { x: 100, y: 200 };
+
+        act(() => {
+          result.current.trackDragStart(longText, startCoords);
+        });
+
+        // Should log truncated text (50 chars + '...')
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Drag started'),
+          expect.objectContaining({
+            selectedText: 'A'.repeat(50) + '...',
+            selectedLength: '100 chars'
+          })
+        );
+
+        consoleLogSpy.mockRestore();
+      });
+
+      it('should not track drag end without drag start', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
+
+        act(() => {
+          result.current.startSession();
+        });
+
+        // Try to end drag without starting it
+        act(() => {
+          result.current.trackDragEnd({ x: 250, y: 350 });
+        });
+
+        // Should NOT log anything (no pending drag)
+        expect(consoleLogSpy).not.toHaveBeenCalledWith(
+          expect.stringContaining('Text drag (drop)'),
+          expect.anything()
+        );
+
+        consoleLogSpy.mockRestore();
+      });
+
+      it('should not track drag without active session', () => {
+        const { result } = renderHook(() => usePageAnalytics('test-page'));
+        const consoleLogSpy = vi.spyOn(console, 'log');
+
+        // NO session started
+
+        act(() => {
+          result.current.trackDragStart('test text', { x: 100, y: 200 });
+        });
+
+        // Should NOT log anything (no active session)
+        expect(consoleLogSpy).not.toHaveBeenCalledWith(
+          expect.stringContaining('Drag started'),
+          expect.anything()
+        );
+
+        consoleLogSpy.mockRestore();
       });
     });
   });

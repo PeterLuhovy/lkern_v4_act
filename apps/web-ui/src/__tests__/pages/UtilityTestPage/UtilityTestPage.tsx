@@ -9,7 +9,7 @@
  * ================================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from '@l-kern/config';
 import {
   validateMobile,
@@ -25,6 +25,9 @@ import {
   parseDate,
   convertDateLocale,
   type DateLocale,
+  debounce,
+  validateField,
+  type ValidationType,
 } from '@l-kern/config';
 import { Input, Button, Card, Badge, BasePage } from '@l-kern/ui-components';
 import styles from './UtilityTestPage.module.css';
@@ -43,6 +46,27 @@ export function UtilityTestPage() {
   // Date testing state
   const [dateInput, setDateInput] = useState('');
   const [dateLocale, setDateLocale] = useState<DateLocale>('sk');
+
+  // Validation testing state
+  const [debounceInput, setDebounceInput] = useState('');
+  const [debounceDelay, setDebounceDelay] = useState(500);
+  const [debouncedValue, setDebouncedValue] = useState('');
+  const [debounceCallCount, setDebounceCallCount] = useState(0);
+  const [debouncePreventedCount, setDebouncePreventedCount] = useState(0);
+
+  const [validationType, setValidationType] = useState<ValidationType>('email');
+  const [validationInput, setValidationInput] = useState('');
+  const [validationResult, setValidationResult] = useState<{ isValid: boolean; error?: string } | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Memoized debounced function
+  const debouncedHandler = useMemo(() =>
+    debounce((value: string) => {
+      setDebouncedValue(value);
+      setDebounceCallCount(prev => prev + 1);
+    }, debounceDelay),
+    [debounceDelay]
+  );
 
   // Phone test results
   const phoneResults = {
@@ -66,6 +90,49 @@ export function UtilityTestPage() {
     converted: dateInput ? convertDateLocale(dateInput, dateLocale, dateLocale === 'sk' ? 'en' : 'sk') : '',
   };
 
+  // Validation handlers
+  const handleDebounceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDebounceInput(value);
+    setDebouncePreventedCount(prev => prev + 1);
+    debouncedHandler(value);
+  };
+
+  const handleValidationInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setValidationInput(value);
+
+    if (!value) {
+      setValidationResult(null);
+      setIsValidating(false);
+      return;
+    }
+
+    setIsValidating(true);
+    // Simulate async validation delay to show Promise-based API
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const result = await validateField('testField', value, validationType);
+    setValidationResult(result);
+    setIsValidating(false);
+  };
+
+  const handleValidationExample = async (value: string) => {
+    setValidationInput(value);
+
+    if (!value) {
+      setValidationResult(null);
+      setIsValidating(false);
+      return;
+    }
+
+    setIsValidating(true);
+    // Simulate async validation delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const result = await validateField('testField', value, validationType);
+    setValidationResult(result);
+    setIsValidating(false);
+  };
+
   return (
     <BasePage>
       <div className={styles.container}>
@@ -81,6 +148,10 @@ export function UtilityTestPage() {
           <h2 className={styles.sectionTitle}>
             📞 {t('pages.utilityTest.phone.title')}
           </h2>
+          <p className={styles.sectionDescription}>
+            <strong>Funkcie:</strong> validateMobile(), validateLandlineOrFax(), formatPhoneNumber(), detectPhoneType() |
+            <strong> Krajiny:</strong> SK, CZ, PL
+          </p>
 
           <div className={styles.formRow}>
             <label className={styles.formLabel}>
@@ -198,6 +269,10 @@ export function UtilityTestPage() {
           <h2 className={styles.sectionTitle}>
             📧 {t('pages.utilityTest.email.title')}
           </h2>
+          <p className={styles.sectionDescription}>
+            <strong>Funkcie:</strong> validateEmail(), normalizeEmail(), getEmailDomain() |
+            <strong> RFC 5322 compliant</strong>
+          </p>
 
           <Input
             type="email"
@@ -257,6 +332,10 @@ export function UtilityTestPage() {
           <h2 className={styles.sectionTitle}>
             📅 {t('pages.utilityTest.date.title')}
           </h2>
+          <p className={styles.sectionDescription}>
+            <strong>Funkcie:</strong> formatDate(), parseDate(), convertDateLocale() |
+            <strong> Lokalizácia:</strong> SK (DD.MM.YYYY), EN (YYYY-MM-DD)
+          </p>
 
           <div className={styles.formRow}>
             <label className={styles.formLabel}>
@@ -332,6 +411,226 @@ export function UtilityTestPage() {
                   </li>
                   <li onClick={() => setDateInput('2025-02-31')} className={styles.exampleItem}>
                     ❌ 2025-02-31 (invalid)
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        </Card>
+
+        {/* Validation Utilities Section */}
+        <Card className={styles.sectionCard}>
+          <h2 className={styles.sectionTitle}>
+            🔍 {t('pages.utilityTest.validation.title')}
+          </h2>
+          <p className={styles.sectionDescription}>
+            <strong>Funkcie:</strong> debounce(), validateField() |
+            <strong> Async API:</strong> Promise-based validation |
+            <strong> Typy:</strong> email, phone, url, required
+          </p>
+
+          {/* Debounce Demo */}
+          <h3 className={styles.subsectionTitle}>
+            ⏱️ {t('pages.utilityTest.validation.debounce.title')}
+          </h3>
+          <p className={styles.testDescription}>
+            {t('pages.utilityTest.validation.debounce.description')}
+          </p>
+
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>
+              {t('pages.utilityTest.validation.debounce.delay')}:
+              <input
+                type="number"
+                value={debounceDelay}
+                onChange={(e) => {
+                  setDebounceDelay(Number(e.target.value));
+                  setDebounceCallCount(0);
+                  setDebouncePreventedCount(0);
+                  setDebouncedValue('');
+                }}
+                className={styles.formSelect}
+                min={0}
+                max={5000}
+                step={100}
+              />
+            </label>
+          </div>
+
+          <Input
+            type="text"
+            value={debounceInput}
+            onChange={handleDebounceInput}
+            placeholder={t('pages.utilityTest.validation.debounce.input')}
+            fullWidth
+          />
+
+          <div className={styles.resultsContainer}>
+            <h3 className={styles.resultsTitle}>
+              {t('pages.utilityTest.results.title')}:
+            </h3>
+            <div className={styles.resultRow}>
+              <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.debounce.lastValue')}:</strong>
+              <code className={styles.resultCode}>
+                {debouncedValue || t('pages.utilityTest.results.empty')}
+              </code>
+            </div>
+            <div className={styles.resultRow}>
+              <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.debounce.callCount')}:</strong>
+              <Badge variant="info">{debounceCallCount}</Badge>
+            </div>
+            <div className={styles.resultRow}>
+              <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.debounce.preventedCount')}:</strong>
+              <Badge variant="neutral">{debouncePreventedCount - debounceCallCount}</Badge>
+            </div>
+          </div>
+
+          {/* ValidateField Demo */}
+          <h3 className={styles.subsectionTitle} style={{ marginTop: '24px' }}>
+            ✅ {t('pages.utilityTest.validation.validateField.title')}
+          </h3>
+          <p className={styles.testDescription}>
+            {t('pages.utilityTest.validation.validateField.description')}
+            <br />
+            <em style={{ color: 'var(--color-status-info)' }}>
+              ⚡ Promise-based API s async delay (simulácia backend validácie)
+            </em>
+          </p>
+
+          <div className={styles.formRow}>
+            <label className={styles.formLabel}>
+              {t('pages.utilityTest.validation.validateField.validationType')}:
+              <select
+                value={validationType}
+                onChange={(e) => {
+                  setValidationType(e.target.value as ValidationType);
+                  setValidationInput('');
+                  setValidationResult(null);
+                }}
+                className={styles.formSelect}
+              >
+                <option value="email">{t('pages.utilityTest.validation.validateField.types.email')}</option>
+                <option value="phone">{t('pages.utilityTest.validation.validateField.types.phone')}</option>
+                <option value="url">{t('pages.utilityTest.validation.validateField.types.url')}</option>
+                <option value="required">{t('pages.utilityTest.validation.validateField.types.required')}</option>
+              </select>
+            </label>
+          </div>
+
+          <Input
+            type="text"
+            value={validationInput}
+            onChange={handleValidationInput}
+            placeholder={t('pages.utilityTest.validation.validateField.testInput')}
+            fullWidth
+          />
+
+          {isValidating && (
+            <div className={styles.resultsContainer}>
+              <div className={styles.resultRow}>
+                <strong className={styles.resultLabel}>⏳ Validating...</strong>
+                <Badge variant="warning">Processing</Badge>
+              </div>
+            </div>
+          )}
+
+          {!isValidating && validationResult && (
+            <div className={styles.resultsContainer}>
+              <h3 className={styles.resultsTitle}>
+                {t('pages.utilityTest.results.title')}:
+              </h3>
+              <div className={styles.resultRow}>
+                <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.isValid')}:</strong>
+                <Badge variant={validationResult.isValid ? 'success' : 'error'}>
+                  {validationResult.isValid ? t('common.yes') : t('common.no')}
+                </Badge>
+              </div>
+              {validationResult.error && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>{t('pages.utilityTest.validation.validateField.results.error')}:</strong>
+                  <code className={styles.resultCode} style={{ color: 'var(--color-status-error)' }}>
+                    {validationResult.error}
+                  </code>
+                </div>
+              )}
+              {validationResult.metadata?.phoneType && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>Phone Type:</strong>
+                  <code className={styles.resultCode}>{validationResult.metadata.phoneType}</code>
+                </div>
+              )}
+              {validationResult.metadata?.formattedPhone && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>Formatted:</strong>
+                  <code className={styles.resultCode}>{validationResult.metadata.formattedPhone}</code>
+                </div>
+              )}
+              {validationResult.metadata?.countryCode && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>Country Code:</strong>
+                  <code className={styles.resultCode}>{validationResult.metadata.countryCode}</code>
+                </div>
+              )}
+              {validationResult.metadata?.emailDomain && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>Domain:</strong>
+                  <code className={styles.resultCode}>{validationResult.metadata.emailDomain}</code>
+                </div>
+              )}
+              {validationResult.metadata?.normalizedEmail && (
+                <div className={styles.resultRow}>
+                  <strong className={styles.resultLabel}>Normalized:</strong>
+                  <code className={styles.resultCode}>{validationResult.metadata.normalizedEmail}</code>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className={styles.examplesContainer}>
+            <h4 className={styles.examplesTitle}>
+              {t('pages.utilityTest.examples.title')}:
+            </h4>
+            <ul className={styles.examplesList}>
+              {validationType === 'email' && (
+                <>
+                  <li onClick={() => handleValidationExample('user@example.com')} className={styles.exampleItem}>
+                    ✉️ user@example.com (valid)
+                  </li>
+                  <li onClick={() => handleValidationExample('invalid@')} className={styles.exampleItem}>
+                    ❌ invalid@ (invalid)
+                  </li>
+                </>
+              )}
+              {validationType === 'phone' && (
+                <>
+                  <li onClick={() => handleValidationExample('+421902123456')} className={styles.exampleItem}>
+                    📱 +421902123456 (mobile SK)
+                  </li>
+                  <li onClick={() => handleValidationExample('+421212345678')} className={styles.exampleItem}>
+                    📞 +421212345678 (landline SK)
+                  </li>
+                  <li onClick={() => handleValidationExample('123')} className={styles.exampleItem}>
+                    ❌ 123 (invalid)
+                  </li>
+                </>
+              )}
+              {validationType === 'url' && (
+                <>
+                  <li onClick={() => handleValidationExample('https://example.com')} className={styles.exampleItem}>
+                    🌐 https://example.com (valid)
+                  </li>
+                  <li onClick={() => handleValidationExample('example.com')} className={styles.exampleItem}>
+                    ❌ example.com (invalid - no protocol)
+                  </li>
+                </>
+              )}
+              {validationType === 'required' && (
+                <>
+                  <li onClick={() => handleValidationExample('Some text')} className={styles.exampleItem}>
+                    ✅ Some text (valid)
+                  </li>
+                  <li onClick={() => handleValidationExample('')} className={styles.exampleItem}>
+                    ❌ (empty - invalid)
                   </li>
                 </>
               )}

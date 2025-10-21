@@ -14,6 +14,7 @@ export {
   validateLandlineOrFax,
   formatPhoneNumber,
   detectPhoneType,
+  getPhoneCountryCode,
   type PhoneType,
   type PhoneCountryCode,
 } from './phoneUtils';
