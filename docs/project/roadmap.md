@@ -2,15 +2,21 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.4.0
+# Version: 1.5.0
 # Created: 2025-10-13
-# Updated: 2025-10-21 11:30:00
+# Updated: 2025-10-21 12:00:00
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Complete development roadmap for L-KERN v4 from foundation
 #   setup through production deployment. Defines all phases and tasks.
+#
+# Structure:
+#   - CURRENT PRIORITY: Active work (Modal System v3.0)
+#   - Recent Achievements: Completed milestones
+#   - Phase 0: Foundation tasks (in progress)
+#   - Future Priorities: Planned work (DataGrid, Backend, etc.)
 # ================================================================
 
 **Status**: 🚀 Active Development
@@ -18,6 +24,8 @@
 ---
 
 ## 🎯 CURRENT PRIORITY: Modal System Implementation (v3.0)
+
+**⚠️ NOTE:** This is the **ACTIVE** priority. All other tasks (DataGrid, Backend) are **DEFERRED** until Modal System v3.0 is complete.
 
 **Status**: 📋 **READY TO START** - Comprehensive analysis complete
 **Priority**: 🔴 **CRITICAL** - Production-ready modal system migration
@@ -421,12 +429,22 @@ Complete UI infrastructure including form components, utilities, advanced compon
 
 ---
 
-### **Phase 4: Advanced Components & Templates** ⚠️ PARTIAL
-**Status**: ⚠️ **PARTIAL** - Modal wizard completed, but drawer/fullscreen NOT in production
+### **Phase 4: Advanced Components & Templates** ⚠️ DEFERRED
+**Status**: ⏸️ **DEFERRED** - Waiting for Modal System v3.0 completion
 **Location**: `packages/ui-components/src/components/`
-**Updated**: 2025-10-18
+**Updated**: 2025-10-21
 
-**⚠️ IMPORTANT NOTE:**
+**⚠️ IMPORTANT - PRIORITY CHANGED (2025-10-21):**
+This phase is **DEFERRED** until **Modal System v3.0** is complete.
+See **CURRENT PRIORITY** section at top of document for active work.
+
+**Current Status:**
+- ✅ Modal wizard completed (WizardProgress, WizardNavigation, useModalWizard)
+- ⏸️ Table/DataGrid - **DEFERRED** (will resume after Modal System v3.0)
+- ⏸️ FilterAndSearch - **DEFERRED**
+- ⏸️ All other advanced components - **DEFERRED**
+
+**Original Note (kept for reference):**
 Modal component simplified - only **centered variant** exported to production.
 Drawer and fullscreen variants exist in test files but NOT in production package.
 
@@ -450,8 +468,8 @@ Drawer and fullscreen variants exist in test files but NOT in production package
 - [x] **ModalContext** (v1.0.0) - ✅ **COMPLETED** (centralized modal registry, z-index management)
   - Location: `packages/config/src/contexts/ModalContext.tsx`
 
-**🎯 NEXT PRIORITY (Task 0.2 Phase 4 - Critical Path):**
-- [ ] **Table/DataGrid** - ❌ **URGENT** - CRITICAL for contacts page, invoices, orders
+**⏸️ DEFERRED PRIORITY (Will resume after Modal System v3.0):**
+- [ ] **Table/DataGrid** - ⏸️ **DEFERRED** - CRITICAL for contacts page, invoices, orders (will implement after modals)
   - Sortable columns (ASC/DESC toggle)
   - Pagination (previous, next, page size selector)
   - Row selection (single/multi with checkboxes)
@@ -462,14 +480,14 @@ Drawer and fullscreen variants exist in test files but NOT in production package
   - **Estimated**: 4-6 hours
   - **Blockers**: None (ready to start)
   - **Unlocks**: ContactList page, all CRUD list pages
-- [ ] **FilterAndSearch** - ❌ **HIGH PRIORITY** - Needed with Table/DataGrid
+- [ ] **FilterAndSearch** - ⏸️ **DEFERRED** - Needed with Table/DataGrid (after modals)
   - Search input with debounce
   - Filter dropdowns (status, category, date range)
   - Clear filters button
   - Filter count badge
   - **Estimated**: 2-3 hours
   - **Dependencies**: Should work standalone OR with Table
-- [ ] **DataGridDetail** - ❌ **OPTIONAL** - Enhanced row detail view
+- [ ] **DataGridDetail** - ⏸️ **DEFERRED** - Enhanced row detail view (optional, after modals)
   - Expandable row content area
   - Custom detail renderer
   - Slide animation
@@ -587,14 +605,22 @@ apps/web-ui/src/__tests__/                     ← Testing only (NOT exported)
   - ✅ Modal (centered), WizardProgress, WizardNavigation, useModalWizard, ModalContext
   - ❌ Table, DataGrid, FilterAndSearch, ThemeCustomizer, Layouts (NOT STARTED)
 
-**Next Priority:** Table/DataGrid component (CRITICAL for contacts page)
+**Next Priority (DEFERRED):** Table/DataGrid component - Will resume **AFTER** Modal System v3.0 completion
+
+---
+
+---
+
+## ⏸️ DEFERRED TASKS (Resume after Modal System v3.0)
+
+**All tasks below (0.3 - 0.21) are DEFERRED until Modal System v3.0 is complete.**
 
 ---
 
 #### 0.3 Backend Infrastructure & First Service
-**Priority**: CRITICAL
-**Status**: ⏳ Planned
-**Dependencies**: 0.2
+**Priority**: CRITICAL (DEFERRED)
+**Status**: ⏸️ Deferred - Waiting for Modal System v3.0
+**Dependencies**: 0.2 + Modal System v3.0 completion
 
 **Tasks:**
 
