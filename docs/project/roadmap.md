@@ -2,1355 +2,907 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 1.5.0
+# Version: 3.0.0
 # Created: 2025-10-13
-# Updated: 2025-10-21 12:00:00
+# Updated: 2025-10-22
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Complete development roadmap for L-KERN v4 from foundation
-#   setup through production deployment. Defines all phases and tasks.
-#
-# Structure:
-#   - CURRENT PRIORITY: Active work (Modal System v3.0)
-#   - Recent Achievements: Completed milestones
-#   - Phase 0: Foundation tasks (in progress)
-#   - Future Priorities: Planned work (DataGrid, Backend, etc.)
 # ================================================================
-
-**Status**: 🚀 Active Development
 
 ---
 
-## 🎯 CURRENT PRIORITY: Modal System Implementation (v3.0)
+## 📖 How to Use This Roadmap
 
-**⚠️ NOTE:** This is the **ACTIVE** priority. All other tasks (DataGrid, Backend) are **DEFERRED** until Modal System v3.0 is complete.
+**Purpose:** Complete development plan from MVP to production-ready system
 
-**Status**: 📋 **READY TO START** - Comprehensive analysis complete
-**Priority**: 🔴 **CRITICAL** - Production-ready modal system migration
-**Created**: 2025-10-20
-**Plan Document**: [`docs/temp/implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md) ⭐ **DETAILED PLAN**
+**How to work with it:**
+1. **Find current task** - Look for ⏳ IN PROGRESS status (always exactly ONE task)
+2. **Complete task** - Change status to ✅ COMPLETED, add completion date
+3. **Move to next** - Change next task from ⏸️ PLANNED to ⏳ IN PROGRESS
+4. **Add new tasks** - When bugs/features arise, add under appropriate phase
+5. **Update version** - Increment version (3.0.0 → 3.1.0) after changes
+6. **Update dates** - Adjust target dates when delays occur
 
-### **Analysis Complete:**
-- ✅ v3 project exploration (20 modal components analyzed)
-- ✅ Nx workspace dependency graph analysis
-- ✅ Coding standards compliance validation
-- ✅ Design system compliance validation
-- ✅ Affected tests identified (8 files, 26 existing tests)
-- ✅ Risk analysis complete
-- ✅ Rollback strategy defined
+**Status symbols:**
+- ✅ COMPLETED - Task finished (with date)
+- ⏳ IN PROGRESS - Currently working (only ONE at a time!)
+- ⏸️ PLANNED - Not started yet
+- 🔴 CRITICAL - Blocker, must be done ASAP
+- ⚠️ IMPORTANT - High priority
+- 💡 NICE TO HAVE - Can wait
+
+**Quick scan tip:** Čítaj len názvy taskov a statusy - za 5 sekúnd vidíš čo je hotové a čo ďalej!
+
+---
+
+## 🎯 CURRENT PRIORITY: Modal System v3.0 Implementation
+
+**⚠️ ACTIVE WORK:** Modal System má PRIORITU pred Table/DataGrid!
+
+**Status**: ⏳ IN PROGRESS (Phase 1.3 ✅ DONE, Phase 2 NEXT)
+**Started**: 2025-10-20
+**Plan Document**: [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md)
 
 ### **Scope:**
-- **Total Components**: 13+ new components/hooks
-- **Total Tests**: 90+ unit tests + 15+ integration tests
-- **Total Effort**: 60-90 hours (8-10 working days)
-- **Risk Level**: ⚠️ MEDIUM-HIGH (complex dependencies)
-
-### **✅ Phase 0 Discovery:**
-- v4 Modal.tsx ALREADY imports `modalStack` from @l-kern/config
-- ✅ **modalStack ALREADY EXPORTED** - Implemented in Session #15 refactoring!
-- ✅ Build successful, no blockers for Phase 1-NEW
+- **Components**: 22 modal components from v3 project to port
+- **Tests**: 150+ unit tests + 20+ integration tests
+- **Effort**: 100-130 hours total (20-26 days @ 5h/day)
+- **Risk**: ⚠️ HIGH (complex dependencies, backend API integration)
 
 ### **Implementation Phases:**
 
-| Phase | Description | Effort | Status | Critical? |
-|-------|-------------|--------|--------|-----------|
-| **Phase 1** | Critical UX Fixes (Input + DebugBar) | 3-5h | ✅ **DONE** | Yes |
-| **Phase 0** | modalStack utility migration | 0h | ✅ **DONE** (already exists!) | 🔴 Was BLOCKER |
-| **Phase 1.1** | useFormDirty hook | 2-3h | ✅ **DONE** (commit db27c1a) | Medium |
-| **Phase 1.2** | useConfirm hook | 4-5h | ✅ **DONE** (commit 51aa99b) | Medium |
-| **Phase 1.3** | Validation utilities | 2h | ✅ **DONE** (commit TBD) | Medium |
-| **Phase 2** | ConfirmModal component | 5-6h | ⏳ **NEXT** | Medium |
-| **Phase 3** | Modal Templates (3 templates) | 12-16h | ⏳ Pending | Medium |
-| **Phase 4** | Card accent + Toast page + docs | 4-6h | ⏳ Pending | Low |
-| **Phase 5** | Testing & Validation | 8-12h | ⏳ Pending | High |
+| Phase | Description | Effort | Status | Target |
+|-------|-------------|--------|--------|--------|
+| Phase 1.1 | useFormDirty hook | 2-3h | ✅ DONE (2025-10-20) | - |
+| Phase 1.2 | useConfirm hook | 4-5h | ✅ DONE (2025-10-20) | - |
+| Phase 1.3 | Validation utilities | 2h | ✅ DONE (2025-10-21) | - |
+| **Phase 2** | **Core Modals (3)** | 15-20h | ⏳ **NEXT** | 2025-10-25 |
+| Phase 3 | Advanced Modals (2) | 30-40h | ⏸️ Pending | 2025-11-01 |
+| Phase 4 | List Editors (6) | 20-25h | ⏸️ Pending | 2025-11-05 |
+| Phase 5 | Smart Autocomplete (6) | 15-20h | ⏸️ Pending | 2025-11-08 |
+| Phase 6 | Supporting Components (4) | 8-12h | ⏸️ Pending | 2025-11-10 |
+| Phase 7 | Testing & Validation | 8-12h | ⏸️ Pending | 2025-11-12 |
 
-### **Next Steps:**
-1. ✅ Implementation plan complete
-2. ✅ Phase 0 verified (modalStack already exists)
-3. ✅ User approval ("podme po rade zacni na tom pracovat")
-4. ✅ Phase 1.1 complete - useFormDirty hook (commit db27c1a)
-5. ✅ Test suite complete - 670/670 passing (commits d7e519e → 7f92e10)
-6. ✅ Translation fixes - 100% DRY compliance (commit 7f92e10)
-7. ✅ Phase 1.2 complete - useConfirm hook + translation fix (commit 51aa99b)
-8. ✅ Phase 1.3 complete - Validation utilities (debounce + validateField)
-9. ⏳ **NEXT:** Phase 2 - ConfirmModal component (5-6h)
+### **Phase 2 Details: Core Modals (3 components)** ⏳ NEXT
 
-**See complete plan**: [`implementation-plan-modal-system-v3.md`](../temp/implementation-plan-modal-system-v3.md)
+**What to build:**
 
----
+**1. ConfirmModal** (5-6h) - 🔴 FIRST
+- Replaces MiniConfirmModal from v3
+- Reusable confirmation dialog component
+- Uses Modal + useConfirm hook internally
+- SK/EN translations support
+- Variants: delete, warning, info, success
+- 15 unit tests
+- Complete documentation (ConfirmModal.md)
 
-## 📋 Overview
+**2. EditItemModal** (4-6h)
+- Generic add/edit wrapper from v3
+- Form validation integration
+- useFormDirty integration (unsaved changes detection)
+- Customizable fields via props
+- 15 unit tests
+- Documentation (EditItemModal.md)
 
-L-KERN v4 je postavený na princípoch **simplicity, maintainability, and clarity**. Roadmap definuje postupný vývoj od základnej infraštruktúry po nasadenie do testovacej prevádzky.
+**3. ManagementModal** (4-6h)
+- List management wrapper from v3
+- CRUD operations support
+- Integrates with EditItemModal
+- Add/Edit/Delete functionality
+- 12 unit tests
+- Documentation (ManagementModal.md)
 
-**Key Principles:**
-- ✅ Incremental development (malé kroky, časté commity)
-- ✅ Documentation-first approach
-- ✅ Test each component before moving forward
-- ✅ No hardcoded values (centralized configuration)
-- ✅ DRY compliance (Single Source of Truth)
+**Deliverables:**
+- 3 production-ready modal components ✅
+- Complete documentation for each ✅
+- 42 tests passing (15+15+12) ✅
+- Export from @l-kern/ui-components ✅
 
-**Communication Architecture:**
-- **External API**: REST (HTTP/JSON) - Frontend → Backend
-- **Inter-service**: gRPC - Backend ↔ Backend communication
-
-**Deployment Strategy:**
-- **Phase 0**: Develop all core services → Deploy to test environment
-- **Phase 1**: Extended functionality (after Phase 0 validation)
-
----
-
-## 🎉 Recent Achievements
-
-### ✅ Utility Functions Testing & Documentation (2025-10-21)
-**Status:** COMPLETED
-**Duration:** 3 hours
-
-**Achievements:**
-- 📚 **Documentation Review:** All utility functions have complete JSDoc with examples
-- 🧪 **Test Coverage Enhancement:** Added 150+ new tests for advanced features
-  - dateUtils: +74 tests (formatDateTimeFull, parseDateTime, extractDateComponents, UTC)
-  - phoneUtils: +41 tests (getPhoneCountryCode for SK/CZ/PL)
-  - validation: +26 tests (debounce, validateField with metadata)
-- 🐛 **Bug Fixes:** Fixed 2 test failures in dateUtils
-  - parseDateTime: Now returns `null` for invalid time (was: date without time)
-  - toUTC: Consistent empty string `''` for invalid dates
-- ✅ **Test Results:** 394/394 tests passing (100%) across 15 test suites
-
-**Results:**
-- Tests: 394/394 passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- Documentation: Complete JSDoc coverage ✅
-- Code Quality: Production-ready ✅
+**After Phase 2 → Continue to Phase 3 (Advanced Modals)**
+**After Modal System complete (Phase 7) → Resume Table/DataGrid**
 
 ---
 
-### ✅ Test Suite Completion + Translation Fixes (2025-10-20)
-**Status:** COMPLETED
-**Duration:** 6 hours
-**Commits:** `d7e519e`, `b865474`, `dddfe5b`, `57f52ee`, `7f92e10`
+## 🎯 Version Strategy
 
-**Achievements:**
-- ✅ **Test Coverage:** 670/670 tests passing (100%) - ui-components (370) + config (300)
-- 🧪 **usePageAnalytics Tests:** +8 advanced tests (drag detection, debouncing, context types)
-- 🧪 **FormField v3 Tests:** +19 tests (real-time validation, success messages, prop injection)
-- 🐛 **Fixed 73 Failing Tests:** Input, DebugBar, BasePage, Modal test suites
-- 🌍 **Translation Fixes:** Removed all hardcoded text from testing pages
-- 🎨 **DRY Compliance:** 100% (icons, arrows in translations)
+**Current Version:** 4.0.0 (MVP Development)
 
-**Test Fixes Summary:**
-- **Input.test.tsx:** Removed obsolete tests for features moved to FormField
-- **DebugBar.test.tsx:** Fixed translation mock + clipboard assertion pattern
-- **BasePage.test.tsx:** Added complete metrics object + modalStack mock
-- **Modal.test.tsx:** Added resetSession/isSessionActive, removed obsolete errorMessage tests
+| Version | Phase | Goal | Target Date | Status |
+|---------|-------|------|-------------|--------|
+| **4.0.x** | Phase 1 | MVP - Core functionality | 2026-03-10 | ⏳ IN PROGRESS |
+| **4.1.x** | Phase 2 | Security, bug fixes | TBD | ⏸️ PLANNED |
+| **4.2.x** | Phase 3 | Production hardening | TBD | ⏸️ PLANNED |
+| **4.3.x+** | Phase 4+ | Features, competitiveness | TBD | ⏸️ PLANNED |
 
-**Root Cause Analysis:**
-- Input v2.0.0 architectural change: error/helperText moved to FormField
-- usePageAnalytics mock missing: metrics, resetSession, isSessionActive
-- Translation mock returned keys instead of actual English text
-- ModalFooterConfig errorMessage feature intentionally removed (FormField handles validation)
-
-**Results:**
-- Tests: 670/670 passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- DRY Compliance: 100% ✅
-- Code Quality: Production-ready ✅
+**Version Increments:**
+- **4.0.x → 4.1.0** - Phase 1 complete, MVP deployed to production
+- **4.1.x → 4.2.0** - Phase 2 complete, security hardened
+- **4.2.x → 4.3.0** - Phase 3 complete, production stable
+- **4.x.0 → 4.x.1** - Minor fixes within phase
 
 ---
 
-### ✅ Phase 1.3: Validation Utilities (2025-10-20)
-**Status:** COMPLETED
-**Duration:** 2.5 hours
+## 📋 PHASE 1: MVP Development (v4.0.x)
 
-**Implementation:**
-- `debounce()` - Generic function delay utility
-- `validateField()` - Universal validation wrapper
-- Support for: email, phone, URL, required validation
-- Complete documentation in validation.md (957 lines)
-- 25/25 tests passing (100% coverage)
-
-**Functions Implemented:**
-- `debounce<T>(fn, delay)` - Delays function execution, cancels previous calls
-- `validateField(name, value, type)` - Async validation with ValidationResult interface
-- Type-safe generic implementation with full TypeScript support
-
-**Files Created:**
-- `packages/config/src/utils/validation/validation.ts` (142 lines)
-- `packages/config/src/utils/validation/validation.test.ts` (25 tests)
-- `packages/config/src/utils/validation/validation.md` (957 lines)
-- `packages/config/src/utils/validation/index.ts`
-
-**Translations Added:**
-- `pages.utilityTest.validation.*` (20+ new keys, SK/EN)
-- Debounce demo translations
-- Field validation translations
-
-**Integration:**
-- Exported from `@l-kern/config` package
-- Added to `utils/index.ts` exports
-- Ready for UtilityTestPage integration
-
-**Results:**
-- Tests: 25/25 passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- Export: Added to @l-kern/config ✅
-- Documentation: Complete (957 lines) ✅
-- Code Quality: Production-ready ✅
+**Goal:** Build minimum viable product and deploy to production
+**Timeline:** Oct 2025 - Mar 2026
+**Progress:** 2.7/21 tasks (~12%)
 
 ---
 
-### ✅ Phase 1.2: useConfirm Hook (2025-10-20)
-**Status:** COMPLETED
-**Duration:** 2 hours
-
-**Implementation:**
-- Promise-based confirmation dialogs
-- Integration with Modal component
-- Dynamic translation support (SK/EN switching while modal is open)
-- Complete documentation in useConfirm.md
-- 17/17 tests passing (100% coverage)
-
-**Translation Fix:**
-- ❌ **Problem:** Modal messages didn't update when language changed
-- ✅ **Solution:** Store translation KEY in state, call t() in render (not in handler)
-- **Result:** Both message and result text now translate dynamically
-
-**Files Created:**
-- `packages/config/src/hooks/useConfirm/useConfirm.ts` (142 lines)
-- `packages/config/src/hooks/useConfirm/useConfirm.test.ts` (17 tests)
-- `packages/config/src/hooks/useConfirm/useConfirm.md` (450 lines)
-- `packages/config/src/hooks/useConfirm/index.ts`
-
-**Translations Added:**
-- `components.modalV3.testConfirm.*` (10 new keys, SK/EN)
-
-**Test Integration:**
-- Added to TestModalV3Page (2 test scenarios)
-- Delete confirmation test
-- Unsaved changes confirmation test
-
-**Results:**
-- Tests: 670/670 passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- Export: Added to @l-kern/config ✅
-- Code Quality: Production-ready ✅
+### **1.0 Infrastructure Setup** ✅ COMPLETED (2025-10-15)
+- ✅ Nx workspace (Yarn 4 + TypeScript 5.7)
+- ✅ Docker development environment
+- ✅ React 19 web-ui (port 4201)
+- ✅ @l-kern/config package
+- ✅ Documentation structure (docs/README.md, overview.md, roadmap.md)
+- ✅ Port mapping strategy (LKMS{XXX} → 4{XXX})
 
 ---
 
-### ✅ Phase 1.1: useFormDirty Hook (2025-10-20)
-**Status:** COMPLETED
-**Duration:** 3 hours
-**Commit:** `db27c1a`
-
-**Achievements:**
-- 🪝 **useFormDirty Hook:** Track unsaved form changes (initial vs current)
-- 📊 **Deep Comparison:** JSON.stringify for nested objects/arrays
-- 🎯 **Field Filtering:** Ignore specified fields (e.g., updated_at)
-- ⚡ **Performance:** useMemo optimization for large forms
-- 🧪 **Tests:** 12/12 passing (null handling, nested objects, arrays)
-- 🐛 **Analytics Fix:** Fixed 2 failing usePageAnalytics keyboard tests
-
-**Results:**
-- Tests: 300/300 config tests passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- Export: Added to @l-kern/config ✅
-- Code Quality: Production-ready ✅
-
-**Files Created:**
-- `packages/config/src/hooks/useFormDirty/useFormDirty.ts` (200 lines)
-- `packages/config/src/hooks/useFormDirty/useFormDirty.test.ts` (12 tests)
-- `packages/config/src/hooks/useFormDirty/index.ts`
+### **1.1 Coding Standards** ✅ COMPLETED (2025-10-15)
+- ✅ Created coding-standards.md (2235 lines)
+- ✅ Created code-examples.md (1700 lines)
+- ✅ TypeScript conventions
+- ✅ React component patterns
+- ✅ Python/FastAPI conventions
+- ✅ Testing standards (pytest + Vitest)
 
 ---
 
-### ✅ Codebase Refactoring (2025-10-19)
-**Status:** COMPLETED
-**Duration:** 12 hours
-**Commits:** 18 total
+### **1.2 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~75%)
+**Started:** 2025-10-18
+**Target Completion:** 2025-10-27 (~5 days - Modal System v3.0 complete)
 
-**Achievements:**
-- 🔥 **Security:** Removed CRITICAL database password exposure
-- 💾 **Stability:** Fixed 2 memory leaks in Modal component
-- 📱 **Responsive:** Added mobile/tablet support for HomePage + 3 core components
-- 🎨 **DRY Compliance:** 100% (colors & texts), 90% (spacing)
-- 🌍 **Translations:** +76 new keys (SK/EN bilingual support)
-- 🧹 **Cleanup:** Archived 11 temp files, removed 8 empty directories
+#### **1.2.1 Form Components** ✅ COMPLETED (2025-10-18)
+- ✅ Button (primary, secondary, danger, ghost, success)
+- ✅ Input (text, number, email, password)
+- ✅ FormField wrapper
+- ✅ Select (dropdown)
+- ✅ Checkbox (with indeterminate)
+- ✅ Radio/RadioGroup
+- ✅ 115 tests passing
 
-**Results:**
-- Tests: 365/365 passing (100%) ✅
-- Build: Zero TypeScript errors ✅
-- Security: Zero vulnerabilities ✅
-- Grade: **A (93/100)**
+#### **1.2.2 Layout Components** ✅ COMPLETED (2025-10-18)
+- ✅ Card
+- ✅ Badge
+- ✅ Spinner/Loader
+- ✅ EmptyState
+- ✅ 67 tests passing
 
-**Documentation:** See [docs/REFACTORING-SUMMARY.md](../REFACTORING-SUMMARY.md) for complete details.
+#### **1.2.3 Utility Functions** ✅ COMPLETED (2025-10-21)
+- ✅ phoneUtils (6 functions - SK/CZ/PL support)
+- ✅ emailUtils (5 functions)
+- ✅ dateUtils (9 functions - SK/EN formats)
+- ✅ validation (debounce, validateField)
+- ✅ 148 tests passing
+- ✅ Bug fixes (2 critical bugs in dateUtils)
 
----
+#### **1.2.4 Advanced Components** ⏳ IN PROGRESS (~50%)
 
-## Phase 0: Foundation & Core System
+**1.2.4.1 Modal System** ⏳ IN PROGRESS (~60%)
+**Priority:** 🔴 CRITICAL - Active work
 
-**Status**: ⏳ **IN PROGRESS**
-**Goal**: Build complete core system and deploy to test environment
+**Completed:**
+- ✅ Modal (centered variant) - 26 tests
+- ✅ WizardProgress - 15 tests
+- ✅ WizardNavigation
+- ✅ DebugBar
+- ✅ Toast + ToastContainer
+- ✅ DashboardCard
+- ✅ useModalWizard hook - 19 tests
+- ✅ useModal hook
+- ✅ usePageAnalytics hook
+- ✅ useToast hook + ToastContext
+- ✅ useFormDirty hook - 12 tests (2025-10-20)
+- ✅ useConfirm hook - 17 tests (2025-10-20)
+- ✅ ModalContext (z-index management)
+- ✅ validation utilities (debounce, validateField)
 
-### ✅ Completed Tasks
+**Next (Modal System v3.0 - Complete Port from v3):**
 
-#### 0.0 Infrastructure Setup (DONE)
-- ✅ Nx workspace setup (Yarn 4 + TypeScript 5.7)
-- ✅ Docker development environment with hot-reload
-- ✅ React 19 web-ui application (lkms201-web-ui on port 4201)
-- ✅ @l-kern/config package (constants, translations, theme)
-- ✅ Documentation structure (docs/README.md, PROJECT-OVERVIEW.md, port-mapping.md)
-- ✅ Port mapping strategy (LKMS{XXX} → Port 4{XXX})
+**Phase 2: Core Modals** (15-20h, target: 2025-10-25)
+- ⏳ **ConfirmModal** - 🔴 NEXT (5-6h)
+  - Replaces MiniConfirmModal from v3
+  - Variants: delete, warning, info, success
+  - SK/EN translations
+  - 15 unit tests
+- ⏸️ **EditItemModal** (4-6h)
+  - Generic add/edit wrapper from v3
+  - Form validation integration
+  - useFormDirty integration
+  - 15 unit tests
+- ⏸️ **ManagementModal** (4-6h)
+  - List management wrapper from v3
+  - CRUD operations support
+  - 12 unit tests
 
-**Deliverables**: ✅ Working development environment
+**Phase 3: Advanced Modals** (30-40h, target: 2025-11-01)
+- ⏸️ **SectionEditModal** (12-16h)
+  - Form builder with FieldDefinition system from v3
+  - Dynamic field rendering
+  - Validation framework
+  - 20 unit tests
+- ⏸️ **ModalDetailContact** (15-20h)
+  - 3-level contact detail modal from v3
+  - Section-based editing
+  - Multi-value fields (emails, phones, addresses)
+  - Backend API integration required
+  - 25+ unit tests
 
----
+**Phase 4: List Editors** (20-25h, target: 2025-11-05)
+- ⏸️ **EmailListEditor** (3-4h) - Multi-email management
+- ⏸️ **PhoneListEditor** (3-4h) - Multi-phone management
+- ⏸️ **AddressListEditor** (4-5h) - Multi-address management
+- ⏸️ **RoleListEditor** (2-3h) - Role management
+- ⏸️ **WebsiteListEditor** (2-3h) - Website management
+- ⏸️ **SocialNetworkListEditor** (3-4h) - Social media links
+- Each with validation, uniqueness checks, tests
 
-### ✅ Completed Tasks (Continued)
+**Phase 5: Smart Autocomplete Components** (15-20h, target: 2025-11-08)
+- ⏸️ **CountrySelect** (2-3h) - Country autocomplete with flags
+- ⏸️ **LanguageSelect** (2-3h) - Language selection
+- ⏸️ **TitleSelect** (2h) - Person title (Mr., Mrs., Dr., etc.)
+- ⏸️ **RoleSelect** (2-3h) - Role/position autocomplete
+- ⏸️ **CompanyAutocomplete** (3-4h) - Company search with API
+- ⏸️ **AddressAutocomplete** (4-5h) - Address autofill integration
 
-#### 0.1 Coding Standards (DONE)
-**Priority**: HIGH
-**Status**: ✅ Completed
-**Completed**: 2025-10-15
+**Phase 6: Supporting Components** (8-12h, target: 2025-11-10)
+- ⏸️ **ValidatedInput** (3-4h) - Universal validated input
+- ⏸️ **ListManager** (3-4h) - Generic list management component
+- ⏸️ **ModalButton** (2-3h) - Styled modal buttons from v3
+- ⏸️ **ModalDebugHeader** (1-2h) - Development debug header
 
-**Tasks:**
-- ✅ Create `docs/programming/coding-standards.md`
-  - TypeScript conventions
-  - React component patterns
-  - Python/FastAPI conventions
-  - gRPC service patterns
-  - File naming conventions
-  - Import/export standards
-  - Comment guidelines
-  - Error handling patterns
-  - Retry logic with exponential backoff
-  - Kafka/message broker patterns
-- ✅ Create `docs/programming/code-examples.md`
-  - React component examples (basic, with API, custom hooks)
-  - REST API client usage (Axios setup, interceptors)
-  - gRPC client/server usage (Python implementation)
-  - FastAPI router examples (complete CRUD)
-  - Database operations (SQLAlchemy, Pydantic, Alembic)
-  - Form handling patterns (validation, error handling)
-  - Testing examples (pytest + Vitest)
+**Phase 7: Testing & Validation** (8-12h, target: 2025-11-12)
+- ⏸️ Integration tests (15+)
+- ⏸️ E2E scenarios
+- ⏸️ Performance testing
+- ⏸️ Accessibility audit
 
-**Deliverables**: ✅ Complete coding guidelines for team (2235 lines + 1700 lines)
+**Total Effort:** 100-130 hours (20-26 days @ 5h/day)
+**Components to Port:** 22 modal components from v3
 
----
+**1.2.4.2 Data Display** ⏸️ DEFERRED (After Modal System v3.0)
+**Priority:** 🔴 CRITICAL - Next after modals
 
-### ⏳ Planned Tasks
-
-#### 0.2 UI Infrastructure (Components + Utilities)
-**Priority**: HIGH
-**Status**: ⏳ **IN PROGRESS (Phase 1 & 2 ✅, Phase 3 & 4 ⏳)**
-**Dependencies**: 0.1
-**Started**: 2025-10-18
-**Updated**: 2025-10-18
-
-**Overview:**
-Complete UI infrastructure including form components, utilities, advanced components, and page templates.
-
----
-
-### **Phase 1: Form Components** ✅ COMPLETED
-**Status**: ✅ Done (2025-10-18)
-
-**Components (6):**
-- [x] Button (primary, secondary, danger, ghost, success variants) ✅
-- [x] Input (text, number, email, password) ✅
-- [x] Select (native dropdown with options array) ✅
-- [x] Checkbox (with indeterminate state) ✅
-- [x] Radio/RadioGroup ✅
-- [x] FormField wrapper ✅
-
-**Stats:**
-- TypeScript: ~740 lines
-- CSS: ~840 lines
-- Tests: 115 (100% passing)
-
----
-
-### **Phase 2: Layout & Display** ✅ COMPLETED
-**Status**: ✅ Done (2025-10-18)
-
-**Components (4):**
-- [x] Card ✅
-- [x] Badge ✅
-- [x] Spinner/Loader ✅
-- [x] EmptyState ✅
-
-**Stats:**
-- TypeScript: ~340 lines
-- CSS: ~560 lines
-- Tests: 67 (100% passing)
-
----
-
-### **Phase 3: Utility Functions & Validators** ✅ COMPLETED
-**Status**: ✅ Completed (2025-10-18)
-**Location**: `packages/config/src/utils/`
-
-**Utilities (3 modules):**
-- [x] **phoneUtils.ts** - Phone formatting & validation ✅
-  - [x] `formatPhoneNumber(phone, type: 'mobile' | 'landline' | 'fax')` - Multi-country (SK, CZ, PL)
-  - [x] `validateMobile(phone)` - Mobile validation with country detection
-  - [x] `validateLandlineOrFax(phone)` - Landline/fax validation
-  - [x] `detectPhoneType(phone)` - Auto-detect mobile/landline
-  - [x] `cleanPhoneNumber(phone)` - Remove formatting characters
-  - [x] Phone config system for easy country additions
-  - [x] Tests: 35 tests (100% coverage)
-
-- [x] **emailUtils.ts** - Email validation & normalization ✅
-  - [x] `validateEmail(email)` - RFC 5322 compliant
-  - [x] `normalizeEmail(email)` - Lowercase, trim
-  - [x] `getEmailDomain(email)` - Extract domain
-  - [x] `getEmailLocal(email)` - Extract username
-  - [x] `isEmailFromDomain(email, domain)` - Domain matching
-  - [x] Tests: 43 tests (100% coverage)
-
-- [x] **dateUtils.ts** - Date formatting & parsing ✅
-  - [x] `formatDate(date, locale)` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
-  - [x] `formatDateTime(date, locale)` - With time formatting
-  - [x] `parseDate(dateString, locale)` - Parse to Date object
-  - [x] `validateDate(dateString, locale)` - Format validation
-  - [x] `convertDateLocale(dateString, from, to)` - SK ↔ EN conversion
-  - [x] `getToday(locale)` - Current date formatted
-  - [x] `isToday(date)` - Check if date is today
-  - [x] `addDays(date, days)` - Date arithmetic
-  - [x] `getDaysDifference(date1, date2)` - Calculate day diff
-  - [x] Tests: 45 tests (100% coverage)
-
-**Stats:**
-- **Total Functions**: 20 (6 phone + 5 email + 9 date)
-- **TypeScript**: ~400 lines
-- **Tests**: 123 (100% passing, 100% coverage)
-- **Multi-language**: SK, CZ, PL phone support + SK/EN date formats
-
----
-
-### **Phase 4: Advanced Components & Templates** ⚠️ DEFERRED
-**Status**: ⏸️ **DEFERRED** - Waiting for Modal System v3.0 completion
-**Location**: `packages/ui-components/src/components/`
-**Updated**: 2025-10-21
-
-**⚠️ IMPORTANT - PRIORITY CHANGED (2025-10-21):**
-This phase is **DEFERRED** until **Modal System v3.0** is complete.
-See **CURRENT PRIORITY** section at top of document for active work.
-
-**Current Status:**
-- ✅ Modal wizard completed (WizardProgress, WizardNavigation, useModalWizard)
-- ⏸️ Table/DataGrid - **DEFERRED** (will resume after Modal System v3.0)
-- ⏸️ FilterAndSearch - **DEFERRED**
-- ⏸️ All other advanced components - **DEFERRED**
-
-**Original Note (kept for reference):**
-Modal component simplified - only **centered variant** exported to production.
-Drawer and fullscreen variants exist in test files but NOT in production package.
-
-**4.1 Core Advanced (5 components):**
-
-**✅ COMPLETED:**
-- [x] **Modal** (v3.6.0) - ⚠️ **PARTIAL** (centered variant only in production)
-  - ✅ Production: `packages/ui-components/src/components/Modal/Modal.tsx` (centered only)
-  - ⚠️ Testing only: `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` (drawer, fullscreen)
-  - 26 tests passing (centered variant)
-  - Enhanced keyboard handling (ESC/Enter with input focus support)
-  - **Missing**: Drawer variant, Fullscreen variant (NOT exported to @l-kern/ui-components)
-- [x] **WizardProgress** (v1.0.0) - ✅ **COMPLETED** (3 variants: dots, bar, numbers)
-  - Location: `packages/ui-components/src/components/WizardProgress/WizardProgress.tsx`
-  - 15 tests passing
-- [x] **WizardNavigation** (v1.0.0) - ✅ **COMPLETED** (Previous/Next/Complete buttons)
-  - Location: `packages/ui-components/src/components/WizardNavigation/WizardNavigation.tsx`
-- [x] **useModalWizard hook** (v1.0.0) - ✅ **COMPLETED** (multi-step workflow management)
-  - Location: `packages/config/src/hooks/useModalWizard.ts`
-  - 19 tests passing
-- [x] **ModalContext** (v1.0.0) - ✅ **COMPLETED** (centralized modal registry, z-index management)
-  - Location: `packages/config/src/contexts/ModalContext.tsx`
-
-**⏸️ DEFERRED PRIORITY (Will resume after Modal System v3.0):**
-- [ ] **Table/DataGrid** - ⏸️ **DEFERRED** - CRITICAL for contacts page, invoices, orders (will implement after modals)
+- ⏸️ **Table/DataGrid** - 🔴 CRITICAL (4-6h, target: 2025-10-28)
   - Sortable columns (ASC/DESC toggle)
-  - Pagination (previous, next, page size selector)
-  - Row selection (single/multi with checkboxes)
+  - Pagination (prev/next/page size)
+  - Row selection (single/multi checkboxes)
   - Empty state + loading state
-  - Responsive (horizontal scroll on mobile)
-  - Expandable rows (optional detail panel)
-  - Custom cell renderers
-  - **Estimated**: 4-6 hours
-  - **Blockers**: None (ready to start)
-  - **Unlocks**: ContactList page, all CRUD list pages
-- [ ] **FilterAndSearch** - ⏸️ **DEFERRED** - Needed with Table/DataGrid (after modals)
+  - Responsive (horizontal scroll)
+  - **Blocks:** ContactList page, all CRUD list pages
+
+- ⏸️ **FilterAndSearch** - ⚠️ IMPORTANT (2-3h, target: 2025-10-29)
   - Search input with debounce
-  - Filter dropdowns (status, category, date range)
+  - Filter dropdowns (status, category, date)
   - Clear filters button
   - Filter count badge
-  - **Estimated**: 2-3 hours
-  - **Dependencies**: Should work standalone OR with Table
-- [ ] **DataGridDetail** - ⏸️ **DEFERRED** - Enhanced row detail view (optional, after modals)
-  - Expandable row content area
-  - Custom detail renderer
-  - Slide animation
-  - **Estimated**: 2-3 hours
-  - **Can wait**: Not critical for MVP
 
-**4.2 Utility Components (4 components):**
-- [ ] **ThemeCustomizer** - ❌ **NOT STARTED** - Theme switcher panel (light/dark/auto)
-- [ ] **KeyboardShortcuts** - ❌ **NOT STARTED** - Keyboard shortcuts display panel
-- [ ] **DebugBar** - ❌ **NOT STARTED** - Developer debug panel (state/props viewer)
-- [ ] **Analytics** - ❌ **NOT STARTED** - Analytics dashboard widget
+**1.2.4.3 Page Templates** ⏸️ DEFERRED
+**Priority:** 💡 NICE TO HAVE
 
-**4.3 Composite Components (3 components):**
-- [ ] **Report** - ❌ **NOT STARTED** - Report container (header + filters + content + export)
-- [ ] **HeaderCard** - ❌ **NOT STARTED** - Page header with breadcrumbs + actions
-- [ ] **CustomPalette** - ❌ **NOT STARTED** - Color palette picker/viewer
+- ⏸️ **Page Layout Templates** (3-4h, target: 2025-10-30)
+  - BasePageLayout (sidebar + header + content)
+  - TableTemplate (header + filters + grid)
+  - DashboardTemplate (widget grid)
 
-**4.4 Layout Templates (3 templates):**
-- [ ] **BasePageLayout** - ❌ **NOT STARTED** - Master layout (sidebar + header + content)
-- [ ] **DashboardTemplate** - ❌ **NOT STARTED** - Dashboard page with widget grid
-- [ ] **TableTemplate** - ❌ **NOT STARTED** - Table page template (header + filters + grid)
-
-**Stats:**
-- **Completed**: 3 components (Modal centered, WizardProgress, WizardNavigation) + 2 hooks/context
-- **Partial**: Modal (drawer/fullscreen variants NOT in production)
-- **Missing**: 14 components (Table/DataGrid, FilterAndSearch, ThemeCustomizer, Templates, etc.)
-- **TypeScript**: ~580 lines (completed)
-- **CSS**: ~420 lines (completed)
-- **Tests**: 60 passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
-- **Progress**: 3/17 components (18%)
-
-**📋 Modal Enhancement Plan (v3 Features):**
-- [ ] **Drag & Drop** - Modal movable by header dragging
-- [ ] **Enhanced Keyboard** - ESC (topmost only), Enter (with textarea exception)
-- [ ] **Nested Modals** - Full ModalContext integration with z-index management
-- [ ] **Footer Layout** - Delete button (left), Cancel/Confirm (right), error messages
-- [ ] **Alignment Options** - Top/Center/Bottom positioning
-- [ ] **Padding Override** - Custom overlay padding for nested modals
-
-**📚 Documentation Updates:**
-- [x] ✅ Updated `docs/packages/ui-components.md` with complete Modal + Wizard system documentation
-- [x] ✅ Created `docs/temp/modal-enhancement-plan.md` - Detailed implementation plan (8 hours estimated)
-- [x] ✅ Updated `docs/packages/components-reference.md` with Modal, WizardProgress, WizardNavigation + hooks
-- [ ] Create Modal demo page showcasing all features (after enhancements implemented)
-
-**Estimated Effort:** ~8 hours (4h core + 2h UI + 2h docs/tests)
-
-**Note**: Modal enhancements superseded by comprehensive v3.0 plan (see top of document)
+**Current Stats:**
+- Components: 17 production ✅
+- Hooks: 6 ✅
+- Utilities: 22 functions ✅
+- Tests: 394/394 passing (100%) ✅
 
 ---
 
-### **Task 0.2 Summary**
+### **1.3 Backend Infrastructure** ⏸️ PLANNED
+**Dependencies:** Task 1.2 complete
+**Estimated:** 8-12 hours (2-3 days)
+**Target Start:** 2025-10-31
+**Target Completion:** 2025-11-02
 
-**Current Progress:**
-- ✅ **Phase 1**: 6 form components (Button, Input, Select, Checkbox, Radio, FormField) - 100%
-- ✅ **Phase 2**: 4 layout components (Card, Badge, Spinner, EmptyState) - 100%
-- ✅ **Phase 3**: 20 utility functions (phone, email, date) - 100%
-- ⚠️ **Phase 4**: 3/17 advanced components (Modal, WizardProgress, WizardNavigation) - 18%
+#### **1.3.1 PostgreSQL Setup**
+- ⏸️ Add PostgreSQL 15 to docker-compose.yml
+- ⏸️ Configure on port 4501
+- ⏸️ Setup database volume
+- ⏸️ Configure health checks
+- ⏸️ Test connection
 
-**Stats:**
-- **Components**: 13 production ✅ (6 form + 4 layout + 3 modal/wizard)
-- **Utilities**: 20 functions ✅ (6 phone + 5 email + 9 date)
-- **Hooks**: 2 ✅ (useModalWizard, useModal)
-- **Context**: 1 ✅ (ModalContext)
-- **Tests**: 305 passing ✅ (115 form + 67 layout + 123 utilities + 60 modal/wizard = 365 tests)
-- **TypeScript**: ~2500 lines
-- **CSS**: ~2200 lines
-- **Test coverage**: 100%
-- **Design tokens**: Full compliance
-- **Dark mode**: Full support
+#### **1.3.2 Alembic Migrations**
+- ⏸️ Install Alembic
+- ⏸️ Create migration scripts structure
+- ⏸️ Document migration workflow
+- ⏸️ Test migration up/down
 
-**⚠️ Modal Status:**
-- ✅ Production: Centered variant only (`packages/ui-components/src/components/Modal/Modal.tsx`)
-- ⚠️ Test only: Drawer + Fullscreen variants (`apps/web-ui/src/__tests__/components/Modal3Variants.tsx`)
-- ❌ NOT exported to @l-kern/ui-components package
+#### **1.3.3 gRPC Infrastructure**
+- ⏸️ Install grpcio + grpcio-tools
+- ⏸️ Create proto/ directory
+- ⏸️ Setup proto compilation pipeline
+- ⏸️ Create base gRPC service template
+- ⏸️ Document gRPC patterns
 
-**File Organization (Updated 2025-10-18 20:45):**
-```
-packages/ui-components/src/components/         ← Production (exported)
-  ├── Modal/
-  │   ├── Modal.tsx (centered only) ✅
-  │   ├── Modal.module.css ✅
-  │   ├── Modal.test.tsx ✅
-  │   └── index.ts ✅
-  ├── WizardProgress/                          🆕 Reorganized (own folder)
-  │   ├── WizardProgress.tsx ✅
-  │   ├── WizardProgress.module.css ✅
-  │   ├── WizardProgress.test.tsx ✅
-  │   └── index.ts ✅
-  └── WizardNavigation/                        🆕 Reorganized (own folder)
-      ├── WizardNavigation.tsx ✅
-      ├── WizardNavigation.module.css ✅
-      ├── WizardNavigation.test.tsx ⚠️ MISSING
-      └── index.ts ✅
-
-apps/web-ui/src/__tests__/                     ← Testing only (NOT exported)
-  ├── components/Modal3Variants.tsx (drawer, fullscreen) ⚠️
-  ├── demos/ContactFormWizard/ (6-step demo)
-  └── pages/WizardVariantsDemo.tsx (comparison page)
-```
-
-**✅ Component Organization Verified (2025-10-18):**
-- **Total Components**: 13
-- **With Unit Tests**: 12/13 (92%)
-- **Missing Test**: WizardNavigation.test.tsx
-- **All Have barrel exports**: ✅ Yes (index.ts in every folder)
-- **Reorganization Complete**: Wizard components moved to own folders
-- **Verified Inventory**: `docs/temp/component-inventory-2025-10-18.md`
-
-**Deliverables**:
-- ✅ Phase 1: 6 form components (100%)
-- ✅ Phase 2: 4 layout components (100%)
-- ✅ Phase 3: 20 utility functions (100%)
-- ⚠️ Phase 4: 3/17 advanced components (18%)
-  - ✅ Modal (centered), WizardProgress, WizardNavigation, useModalWizard, ModalContext
-  - ❌ Table, DataGrid, FilterAndSearch, ThemeCustomizer, Layouts (NOT STARTED)
-
-**Next Priority (DEFERRED):** Table/DataGrid component - Will resume **AFTER** Modal System v3.0 completion
+#### **1.3.4 Adminer UI**
+- ⏸️ Add Adminer to docker-compose.yml
+- ⏸️ Configure on port 4901
+- ⏸️ Test database access
 
 ---
 
----
+### **1.4 Contacts Service (lkms101)** ⏸️ PLANNED
+**Dependencies:** Task 1.3 complete
+**Estimated:** 20-30 hours (5-7 days)
+**Target Start:** 2025-11-03
+**Target Completion:** 2025-11-10
+**Ports:** 4101 (REST), 5101 (gRPC)
+**Database:** lkms101_contacts
 
-## ⏸️ DEFERRED TASKS (Resume after Modal System v3.0)
+#### **1.4.1 Backend**
+- ⏸️ Create FastAPI service structure
+- ⏸️ Setup gRPC server
+- ⏸️ Define Contact model
+- ⏸️ Create database migration
+- ⏸️ REST API: POST/GET/PUT/DELETE /api/v1/contacts
+- ⏸️ REST API: GET /api/v1/contacts/search
+- ⏸️ gRPC API: GetContact, GetContactsByIds, ValidateContact
+- ⏸️ Create .proto file
+- ⏸️ Validation (Pydantic schemas)
+- ⏸️ Unit tests (pytest)
 
-**All tasks below (0.3 - 0.21) are DEFERRED until Modal System v3.0 is complete.**
-
----
-
-#### 0.3 Backend Infrastructure & First Service
-**Priority**: CRITICAL (DEFERRED)
-**Status**: ⏸️ Deferred - Waiting for Modal System v3.0
-**Dependencies**: 0.2 + Modal System v3.0 completion
-
-**Tasks:**
-
-**PostgreSQL Setup (lkms501-postgres):**
-- [ ] Add PostgreSQL 15 to docker-compose.yml
-- [ ] Configure on port 4501
-- [ ] Setup database volume for persistence
-- [ ] Configure health checks
-- [ ] Test connection from host
-
-**Alembic Migrations:**
-- [ ] Install Alembic
-- [ ] Create migration scripts structure
-- [ ] Document migration workflow
-- [ ] Test migration up/down
-
-**gRPC Infrastructure:**
-- [ ] Install grpcio and grpcio-tools
-- [ ] Create proto/ directory structure for .proto files
-- [ ] Setup proto compilation pipeline
-- [ ] Create base gRPC service template
-- [ ] Document gRPC usage patterns
-
-**Adminer UI (lkms901-adminer):**
-- [ ] Add Adminer to docker-compose.yml
-- [ ] Configure on port 4901
-- [ ] Test database access
-
-**Deliverables**: Running database infrastructure + gRPC foundation
+#### **1.4.2 Frontend**
+- ⏸️ Contacts page
+- ⏸️ Contact list view (with Table component)
+- ⏸️ Contact detail view
+- ⏸️ Contact form (add/edit)
+- ⏸️ Search functionality
+- ⏸️ Pagination
+- ⏸️ Loading states
+- ⏸️ Error handling
 
 ---
 
-#### 0.4 Contacts Service (lkms101-contacts)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.3
-**Port**: 4101 (REST), 5101 (gRPC)
-**Database**: lkms101_contacts
+### **1.5 Employees Service (lkms108)** ⏸️ PLANNED
+**Dependencies:** Task 1.4 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-11-11
+**Target Completion:** 2025-11-16
+**Ports:** 4108 (REST), 5108 (gRPC)
+**Database:** lkms108_employees
 
-**Backend Tasks:**
-- [ ] Create `services/lkms101-contacts` folder structure
-- [ ] Setup FastAPI application (REST API)
-- [ ] Setup gRPC server (inter-service communication)
-- [ ] Create Dockerfile for Python service
-- [ ] Add service to docker-compose.yml (expose both ports)
-- [ ] Define Contact model (name, email, phone, address, ICO, DIC)
-- [ ] Create database schema migration
-- [ ] **REST API** - Implement endpoints:
-  - [ ] `POST /api/v1/contacts` - Create contact
-  - [ ] `GET /api/v1/contacts` - List contacts (pagination)
-  - [ ] `GET /api/v1/contacts/{id}` - Get contact detail
-  - [ ] `PUT /api/v1/contacts/{id}` - Update contact
-  - [ ] `DELETE /api/v1/contacts/{id}` - Delete contact
-  - [ ] `GET /api/v1/contacts/search` - Search contacts
-- [ ] **gRPC API** - Implement methods:
-  - [ ] `GetContact(ContactId) → Contact`
-  - [ ] `GetContactsByIds(ContactIds) → Contacts`
-  - [ ] `ValidateContact(ContactId) → ValidationResult`
-- [ ] Create .proto file for Contact service
-- [ ] Implement validation (Pydantic schemas)
-- [ ] Add error handling
-- [ ] Create OpenAPI documentation (REST)
-- [ ] Write unit tests
+#### **1.5.1 Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Employee model
+- ⏸️ Database migration
+- ⏸️ REST API: CRUD /api/v1/employees
+- ⏸️ gRPC API: GetEmployee, GetEmployeesByIds
+- ⏸️ Role management
+- ⏸️ Tests
 
-**Frontend Tasks:**
-- [ ] Create contacts page in web-ui
-- [ ] Implement contact list view with Table component
-- [ ] Implement contact detail view
-- [ ] Create contact form (add/edit)
-- [ ] Add search functionality
-- [ ] Add pagination
-- [ ] Implement loading states
-- [ ] Add error handling
-
-**Deliverables**: Complete contacts management system with REST + gRPC
+#### **1.5.2 Frontend**
+- ⏸️ Employees page
+- ⏸️ Employee list view
+- ⏸️ Employee detail view
+- ⏸️ Add/Edit employee form
 
 ---
 
-#### 0.5 Employees Service (lkms108-employees)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.4
-**Port**: 4108 (REST), 5108 (gRPC)
-**Database**: lkms108_employees
+### **1.6 Issues Service (lkms109)** ⏸️ PLANNED
+**Dependencies:** Task 1.5 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-11-17
+**Target Completion:** 2025-11-22
+**Ports:** 4109 (REST), 5109 (gRPC)
+**Database:** lkms109_issues
 
-**Backend Tasks:**
-- [ ] Create FastAPI service structure (REST)
-- [ ] Setup gRPC server (inter-service)
-- [ ] Define Employee model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/employees`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetEmployee(EmployeeId) → Employee`
-  - [ ] `GetEmployeesByIds(EmployeeIds) → Employees`
-  - [ ] `ValidateEmployee(EmployeeId) → ValidationResult`
-- [ ] Create .proto file
-- [ ] Add role management
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create employees page
-- [ ] Employee list view
-- [ ] Employee detail/profile view
-- [ ] Add/Edit employee form
-
-**Deliverables**: Employee management system with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Issue model + database migration
+- ⏸️ REST API: CRUD /api/v1/issues
+- ⏸️ gRPC API: GetIssue, GetIssuesByAssignee
+- ⏸️ Status workflow
+- ⏸️ Frontend: Issues page + list + detail + form
 
 ---
 
-#### 0.6 Issues Service (lkms109-issues)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.5
-**Port**: 4109 (REST), 5109 (gRPC)
-**Database**: lkms109_issues
+### **1.7 Customers Service (lkms103)** ⏸️ PLANNED
+**Dependencies:** Task 1.6 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-11-23
+**Target Completion:** 2025-11-28
+**Ports:** 4103 (REST), 5103 (gRPC)
+**Database:** lkms103_customers
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Issue model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/issues`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetIssue(IssueId) → Issue`
-  - [ ] `GetIssuesByAssignee(EmployeeId) → Issues`
-- [ ] Create .proto file
-- [ ] Implement status workflow
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create issues page
-- [ ] Issue list with filters
-- [ ] Issue detail view
-- [ ] Create/Edit issue form
-
-**Deliverables**: Issue tracking system with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Customer model + migration
+- ⏸️ REST API: CRUD /api/v1/customers
+- ⏸️ gRPC API: GetCustomer, ValidateCustomer
+- ⏸️ Frontend: Customers page + list + detail
 
 ---
 
-#### 0.7 Customers Service (lkms103-customers)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.6
-**Port**: 4103 (REST), 5103 (gRPC)
-**Database**: lkms103_customers
+### **1.8 Parts Library Service (lkms104)** ⏸️ PLANNED
+**Dependencies:** Task 1.7 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-11-29
+**Target Completion:** 2025-12-04
+**Ports:** 4104 (REST), 5104 (gRPC)
+**Database:** lkms104_parts
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Customer model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/customers`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetCustomer(CustomerId) → Customer`
-  - [ ] `GetCustomersByIds(CustomerIds) → Customers`
-  - [ ] `ValidateCustomer(CustomerId) → ValidationResult`
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create customers page
-- [ ] Customer list view
-- [ ] Customer detail/profile view
-
-**Deliverables**: Customer management system with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Part model + migration
+- ⏸️ REST API: CRUD /api/v1/parts
+- ⏸️ gRPC API: GetPart, CheckPartAvailability
+- ⏸️ Frontend: Parts library page + list + detail
 
 ---
 
-#### 0.8 Parts Library Service (lkms104-parts)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.7
-**Port**: 4104 (REST), 5104 (gRPC)
-**Database**: lkms104_parts
+### **1.9 Orders Service (lkms102)** ⏸️ PLANNED
+**Dependencies:** Task 1.8 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2025-12-05
+**Target Completion:** 2025-12-11
+**Ports:** 4102 (REST), 5102 (gRPC)
+**Database:** lkms102_orders
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Part model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/parts`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetPart(PartId) → Part`
-  - [ ] `GetPartsByIds(PartIds) → Parts`
-  - [ ] `CheckPartAvailability(PartId) → AvailabilityStatus`
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create parts library page
-- [ ] Parts list with filters
-- [ ] Part detail view
-
-**Deliverables**: Parts catalog with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Order model + migration
+- ⏸️ REST API: CRUD /api/v1/orders
+- ⏸️ gRPC API: GetOrder, GetOrdersByCustomer, UpdateOrderStatus
+- ⏸️ **gRPC calls:** lkms103-customers (validate), lkms104-parts (check availability)
+- ⏸️ Status workflow
+- ⏸️ Frontend: Orders page + list + detail + form
 
 ---
 
-#### 0.9 Orders Service (lkms102-orders)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.8
-**Port**: 4102 (REST), 5102 (gRPC)
-**Database**: lkms102_orders
+### **1.10 Logistics Service (lkms105)** ⏸️ PLANNED
+**Dependencies:** Task 1.9 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-12-12
+**Target Completion:** 2025-12-17
+**Ports:** 4105 (REST), 5105 (gRPC)
+**Database:** lkms105_logistics
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Order model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/orders`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetOrder(OrderId) → Order`
-  - [ ] `GetOrdersByCustomer(CustomerId) → Orders`
-  - [ ] `UpdateOrderStatus(OrderId, Status) → Order`
-  - [ ] *Call lkms103-customers via gRPC to validate customer*
-  - [ ] *Call lkms104-parts via gRPC to check parts availability*
-- [ ] Create .proto file
-- [ ] Implement status workflow
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create orders page
-- [ ] Order list with filters
-- [ ] Order detail view
-- [ ] Create/Edit order form
-
-**Deliverables**: Order management with REST + gRPC + inter-service calls
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Shipment model + migration
+- ⏸️ REST API: CRUD /api/v1/shipments
+- ⏸️ gRPC API: GetShipment, GetShipmentsByOrder
+- ⏸️ **gRPC call:** lkms102-orders (get order details)
+- ⏸️ Frontend: Logistics page + shipment list + tracking
 
 ---
 
-#### 0.10 Logistics Service (lkms105-logistics)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.9
-**Port**: 4105 (REST), 5105 (gRPC)
-**Database**: lkms105_logistics
+### **1.11 Suppliers Service (lkms106)** ⏸️ PLANNED
+**Dependencies:** Task 1.10 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2025-12-18
+**Target Completion:** 2025-12-23
+**Ports:** 4106 (REST), 5106 (gRPC)
+**Database:** lkms106_suppliers
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Shipment model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/shipments`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetShipment(ShipmentId) → Shipment`
-  - [ ] `GetShipmentsByOrder(OrderId) → Shipments`
-  - [ ] *Call lkms102-orders via gRPC to get order details*
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create logistics page
-- [ ] Shipment list
-- [ ] Shipment tracking view
-
-**Deliverables**: Logistics tracking with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Supplier model + migration
+- ⏸️ REST API: CRUD /api/v1/suppliers
+- ⏸️ gRPC API: GetSupplier, GetSuppliersByIds
+- ⏸️ Frontend: Suppliers page + list + detail
 
 ---
 
-#### 0.11 Suppliers Service (lkms106-suppliers)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.10
-**Port**: 4106 (REST), 5106 (gRPC)
-**Database**: lkms106_suppliers
+### **1.12 Warehouse Service (lkms111)** ⏸️ PLANNED
+**Dependencies:** Task 1.11 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2025-12-24
+**Target Completion:** 2025-12-30
+**Ports:** 4111 (REST), 5111 (gRPC)
+**Database:** lkms111_warehouse
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Supplier model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/suppliers`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetSupplier(SupplierId) → Supplier`
-  - [ ] `GetSuppliersByIds(SupplierIds) → Suppliers`
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create suppliers page
-- [ ] Supplier list
-- [ ] Supplier detail view
-
-**Deliverables**: Supplier management with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Stock + StockMovement models + migration
+- ⏸️ REST API: /api/v1/stock, /api/v1/stock/movements
+- ⏸️ gRPC API: GetStockLevel, ReserveStock, ReleaseStock
+- ⏸️ **gRPC call:** lkms104-parts (validate parts)
+- ⏸️ Low stock alerts
+- ⏸️ Frontend: Warehouse page + stock overview + movements log
 
 ---
 
-#### 0.12 Warehouse Service (lkms111-warehouse)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.11
-**Port**: 4111 (REST), 5111 (gRPC)
-**Database**: lkms111_warehouse
+### **1.13 Mail Client Service (lkms113)** ⏸️ PLANNED
+**Dependencies:** Task 1.12 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2025-12-31
+**Target Completion:** 2026-01-06
+**Ports:** 4113 (REST), 5113 (gRPC)
+**Database:** lkms113_mailclient
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Stock and StockMovement models
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/stock`, `/api/v1/stock/movements`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetStockLevel(PartId) → StockLevel`
-  - [ ] `ReserveStock(PartId, Quantity) → ReservationResult`
-  - [ ] `ReleaseStock(PartId, Quantity) → ReleaseResult`
-  - [ ] *Call lkms104-parts via gRPC to validate parts*
-- [ ] Create .proto file
-- [ ] Add low stock alerts
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create warehouse page
-- [ ] Stock overview
-- [ ] Stock movements log
-
-**Deliverables**: Warehouse/Inventory with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Email model + migration
+- ⏸️ REST API: /api/v1/emails
+- ⏸️ gRPC API: SendEmail
+- ⏸️ SMTP/IMAP integration
+- ⏸️ Frontend: Mail client page + inbox/sent + compose form
 
 ---
 
-#### 0.13 Mail Client Service (lkms113-mailclient)
-**Priority**: MEDIUM
-**Status**: ⏳ Planned
-**Dependencies**: 0.12
-**Port**: 4113 (REST), 5113 (gRPC)
-**Database**: lkms113_mailclient
+### **1.14 Documents Service (lkms114)** ⏸️ PLANNED
+**Dependencies:** Task 1.13 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2026-01-07
+**Target Completion:** 2026-01-13
+**Ports:** 4114 (REST), 5114 (gRPC)
+**Database:** lkms114_documents
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Email model
-- [ ] Create database migration
-- [ ] **REST API**: Implement endpoints (`/api/v1/emails`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `SendEmail(EmailRequest) → SendResult`
-- [ ] Create .proto file
-- [ ] Implement SMTP/IMAP integration
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create mail client page
-- [ ] Inbox/Sent folders
-- [ ] Compose email form
-
-**Deliverables**: Mail client with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Document model + migration
+- ⏸️ REST API: CRUD /api/v1/documents
+- ⏸️ gRPC API: GetDocument
+- ⏸️ **gRPC call:** lkms106-suppliers (get supplier details)
+- ⏸️ File upload/download
+- ⏸️ Frontend: Documents page + list + upload/download
 
 ---
 
-#### 0.14 Received Documents Service (lkms114-documents)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.13
-**Port**: 4114 (REST), 5114 (gRPC)
-**Database**: lkms114_documents
+### **1.15 Invoices & Delivery Notes (lkms115)** ⏸️ PLANNED
+**Dependencies:** Task 1.14 complete
+**Estimated:** 25-30 hours (6-7 days)
+**Target Start:** 2026-01-14
+**Target Completion:** 2026-01-21
+**Ports:** 4115 (REST), 5115 (gRPC)
+**Database:** lkms115_invoicing
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Document model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/documents`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetDocument(DocumentId) → Document`
-  - [ ] *Call lkms106-suppliers via gRPC to get supplier details*
-- [ ] Create .proto file
-- [ ] Add file upload/download
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create documents page
-- [ ] Document list
-- [ ] Upload/download
-
-**Deliverables**: Document management with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Invoice + DeliveryNote models + migration
+- ⏸️ REST API: /api/v1/invoices, /api/v1/delivery-notes
+- ⏸️ gRPC API: GetInvoice, GenerateInvoiceFromOrder
+- ⏸️ **gRPC calls:** lkms102-orders, lkms103-customers
+- ⏸️ PDF generation
+- ⏸️ Frontend: Invoicing page + invoice list + generation
 
 ---
 
-#### 0.15 Invoices & Delivery Notes Service (lkms115-invoicing)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.14
-**Port**: 4115 (REST), 5115 (gRPC)
-**Database**: lkms115_invoicing
+### **1.16 Inquiries Service (lkms110)** ⏸️ PLANNED
+**Dependencies:** Task 1.15 complete
+**Estimated:** 15-20 hours (4-5 days)
+**Target Start:** 2026-01-22
+**Target Completion:** 2026-01-27
+**Ports:** 4110 (REST), 5110 (gRPC)
+**Database:** lkms110_inquiries
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Invoice and DeliveryNote models
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/invoices`, `/api/v1/delivery-notes`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetInvoice(InvoiceId) → Invoice`
-  - [ ] `GenerateInvoiceFromOrder(OrderId) → Invoice`
-  - [ ] *Call lkms102-orders via gRPC to get order details*
-  - [ ] *Call lkms103-customers via gRPC to get customer details*
-- [ ] Create .proto file
-- [ ] Add PDF generation
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create invoicing page
-- [ ] Invoice list
-- [ ] Invoice generation
-
-**Deliverables**: Invoicing with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Inquiry model + migration
+- ⏸️ REST API: CRUD /api/v1/inquiries
+- ⏸️ gRPC API: GetInquiry
+- ⏸️ **gRPC call:** lkms103-customers
+- ⏸️ Frontend: Inquiries page + list + response form
 
 ---
 
-#### 0.16 Inquiries Service (lkms110-inquiries)
-**Priority**: MEDIUM
-**Status**: ⏳ Planned
-**Dependencies**: 0.15
-**Port**: 4110 (REST), 5110 (gRPC)
-**Database**: lkms110_inquiries
+### **1.17 Operations & Jobs (lkms112)** ⏸️ PLANNED
+**Dependencies:** Task 1.16 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2026-01-28
+**Target Completion:** 2026-02-03
+**Ports:** 4112 (REST), 5112 (gRPC)
+**Database:** lkms112_operations
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Inquiry model
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/inquiries`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetInquiry(InquiryId) → Inquiry`
-  - [ ] *Call lkms103-customers via gRPC to get customer details*
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create inquiries page
-- [ ] Inquiry list
-- [ ] Response form
-
-**Deliverables**: Inquiries management with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ Operation + Job models + migration
+- ⏸️ REST API: /api/v1/operations, /api/v1/jobs
+- ⏸️ gRPC API: GetOperationsByOrder, AssignJob
+- ⏸️ **gRPC calls:** lkms102-orders, lkms108-employees
+- ⏸️ Frontend: Operations page + dashboard + job management
 
 ---
 
-#### 0.17 Operations & Jobs Service (lkms112-operations)
-**Priority**: HIGH
-**Status**: ⏳ Planned
-**Dependencies**: 0.16
-**Port**: 4112 (REST), 5112 (gRPC)
-**Database**: lkms112_operations
+### **1.18 Authentication Service (lkms107)** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.17 complete
+**Estimated:** 25-30 hours (6-7 days)
+**Target Start:** 2026-02-04
+**Target Completion:** 2026-02-11
+**Ports:** 4107 (REST), 5107 (gRPC)
+**Database:** lkms107_auth
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define Operation and Job models
-- [ ] Create database migration
-- [ ] **REST API**: Implement CRUD endpoints (`/api/v1/operations`, `/api/v1/jobs`)
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `GetOperationsByOrder(OrderId) → Operations`
-  - [ ] `AssignJob(JobId, EmployeeId) → Job`
-  - [ ] *Call lkms102-orders via gRPC to get order details*
-  - [ ] *Call lkms108-employees via gRPC to get employee details*
-- [ ] Create .proto file
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create operations page
-- [ ] Operations dashboard
-- [ ] Job management
-
-**Deliverables**: Operations tracking with REST + gRPC
+- ⏸️ Backend: FastAPI + gRPC
+- ⏸️ User model + migration
+- ⏸️ REST API: register, login, logout, refresh, /me
+- ⏸️ gRPC API: ValidateToken, GetUserByToken
+- ⏸️ JWT generation/validation
+- ⏸️ Password hashing (bcrypt)
+- ⏸️ Tests
+- ⏸️ Frontend: Login page + auth context + protected routes
+- ⏸️ API Client: @l-kern/api-client + auth interceptor + token refresh
 
 ---
 
-#### 0.18 Authentication Service (lkms107-auth)
-**Priority**: CRITICAL
-**Status**: ⏳ Planned
-**Dependencies**: 0.17
-**Port**: 4107 (REST), 5107 (gRPC)
-**Database**: lkms107_auth
+### **1.19 Testing & QA** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.18 complete
+**Estimated:** 40-60 hours (10-14 days)
+**Target Start:** 2026-02-12
+**Target Completion:** 2026-02-26
 
-**Backend Tasks:**
-- [ ] Create FastAPI service (REST)
-- [ ] Setup gRPC server
-- [ ] Define User model
-- [ ] Create database migration
-- [ ] **REST API**: Implement endpoints:
-  - [ ] `POST /api/v1/auth/register`
-  - [ ] `POST /api/v1/auth/login`
-  - [ ] `POST /api/v1/auth/logout`
-  - [ ] `POST /api/v1/auth/refresh`
-  - [ ] `GET /api/v1/auth/me`
-- [ ] **gRPC API**: Implement methods:
-  - [ ] `ValidateToken(Token) → ValidationResult`
-  - [ ] `GetUserByToken(Token) → User`
-- [ ] Create .proto file
-- [ ] Implement JWT generation/validation
-- [ ] Add password hashing (bcrypt)
-- [ ] Write tests
-
-**Frontend Tasks:**
-- [ ] Create login page
-- [ ] Auth context provider
-- [ ] Protected routes
-- [ ] API client auth interceptor
-
-**API Client:**
-- [ ] Create @l-kern/api-client package
-- [ ] Implement auth interceptor
-- [ ] Add token refresh logic
-
-**Deliverables**: Authentication with REST + gRPC
+- ⏸️ **Backend Testing:**
+  - Unit tests for all services (pytest)
+  - Integration tests for REST APIs
+  - gRPC client/server tests
+  - Inter-service communication tests
+  - Test coverage >80%
+- ⏸️ **Frontend Testing:**
+  - Component tests (Vitest + RTL)
+  - E2E tests (Playwright)
+  - Test coverage >70%
+- ⏸️ **Integration Testing:**
+  - Complete business workflows
+  - gRPC communication reliability
+  - Performance testing
+  - Security testing
+- ⏸️ **CI/CD:**
+  - GitHub Actions setup
+  - Automated linting (ruff, mypy)
 
 ---
 
-#### 0.19 Testing & Quality Assurance
-**Priority**: CRITICAL
-**Status**: ⏳ Planned
-**Dependencies**: 0.18
+### **1.20 Production Deployment Prep** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.19 complete
+**Estimated:** 30-40 hours (7-10 days)
+**Target Start:** 2026-02-27
+**Target Completion:** 2026-03-09
 
-**Backend Testing:**
-- [ ] Write unit tests for all services (pytest)
-- [ ] Write integration tests for REST APIs
-- [ ] Write gRPC client/server tests
-- [ ] Test inter-service communication via gRPC
-- [ ] Add test coverage reporting (target: >80%)
-- [ ] Setup CI/CD pipeline (GitHub Actions)
-- [ ] Add linting (ruff, mypy)
-
-**Frontend Testing:**
-- [ ] Write component tests (Vitest + React Testing Library)
-- [ ] Write E2E tests (Playwright)
-- [ ] Add test coverage reporting (target: >70%)
-- [ ] Setup CI/CD for frontend
-
-**Integration Testing:**
-- [ ] Test complete business workflows
-- [ ] Test gRPC communication reliability
-- [ ] Performance testing
-- [ ] Security testing
-
-**Deliverables**: Comprehensive test coverage
-
----
-
-#### 0.20 Production Deployment Preparation
-**Priority**: CRITICAL
-**Status**: ⏳ Planned
-**Dependencies**: 0.19
-
-**Server Setup:**
-- [ ] Prepare production servers
-- [ ] Install Docker and Docker Compose
-- [ ] Configure firewall rules (REST ports 41XX, gRPC ports 51XX, Nginx 443, Envoy 8080)
-- [ ] Setup SSL certificates (Let's Encrypt)
-- [ ] **Configure Nginx** (REST API + static files):
-  - [ ] Create Nginx configuration for REST reverse proxy
-  - [ ] Setup SSL/TLS termination
-  - [ ] Configure static file serving for React build
-  - [ ] Add proxy rules for `/api/*` → microservices (ports 41XX)
-  - [ ] Setup compression and caching
-- [ ] **Configure Envoy** (gRPC inter-service communication):
-  - [ ] Create Envoy configuration for gRPC proxy
-  - [ ] Setup service discovery
-  - [ ] Configure circuit breaking and retry policies
-  - [ ] Add health checks for gRPC endpoints (ports 51XX)
-  - [ ] Setup gRPC load balancing
-
-**Production Configurations:**
-- [ ] Create production Dockerfiles
-- [ ] Setup multi-stage builds
-- [ ] Create production docker-compose.yml (expose both REST and gRPC ports)
-- [ ] Configure production .env files
-- [ ] Setup database backups
-
-**Monitoring & Logging:**
-- [ ] Setup structured logging
-- [ ] Add health check endpoints
-- [ ] Setup error tracking
-- [ ] Monitor gRPC connection health
-- [ ] Create monitoring dashboard
-
-**Deliverables**: Production-ready infrastructure
+- ⏸️ **Server Setup:**
+  - Prepare production servers
+  - Install Docker + Docker Compose
+  - Configure firewall rules (REST 41XX, gRPC 51XX, Nginx 443, Envoy 8080)
+  - Setup SSL certificates (Let's Encrypt)
+- ⏸️ **Nginx Configuration (REST + static):**
+  - REST reverse proxy
+  - SSL/TLS termination
+  - Static file serving (React build)
+  - Proxy rules /api/* → microservices
+  - Compression + caching
+- ⏸️ **Envoy Configuration (gRPC):**
+  - gRPC proxy
+  - Service discovery
+  - Circuit breaking + retry policies
+  - Health checks (ports 51XX)
+  - gRPC load balancing
+- ⏸️ **Production Configurations:**
+  - Production Dockerfiles
+  - Multi-stage builds
+  - Production docker-compose.yml (REST + gRPC ports)
+  - Production .env files
+  - Database backups
+- ⏸️ **Monitoring & Logging:**
+  - Structured logging
+  - Health check endpoints
+  - Error tracking
+  - gRPC connection health monitoring
+  - Monitoring dashboard
 
 ---
 
-#### 0.21 Deployment to Test Environment 🚀
-**Priority**: CRITICAL
-**Status**: ⏳ Planned
-**Dependencies**: 0.20
+### **1.21 Deploy MVP to Production** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.20 complete
+**Estimated:** 10-20 hours (3-5 days)
+**Target Start:** 2026-03-10
+**Target Completion:** 2026-03-15
 
-**Deployment Steps:**
-- [ ] Deploy all services to test servers
-- [ ] Verify REST API accessibility
-- [ ] Verify gRPC connectivity between services
-- [ ] Run smoke tests
-- [ ] Monitor logs for errors
-- [ ] Test all workflows with real users
-- [ ] Collect user feedback
-- [ ] Fix critical bugs
-- [ ] Performance optimization
-- [ ] Security audit
+- ⏸️ Deploy all services to production
+- ⏸️ Verify REST API accessibility
+- ⏸️ Verify gRPC connectivity
+- ⏸️ Run smoke tests
+- ⏸️ Monitor logs for errors
+- ⏸️ Test all workflows with real users
+- ⏸️ Collect user feedback
+- ⏸️ Fix critical bugs
+- ⏸️ Performance optimization
+- ⏸️ Security audit
 
 **Success Criteria:**
-- [ ] All services running and accessible
-- [ ] gRPC inter-service communication working
-- [ ] No critical bugs
-- [ ] Performance acceptable
-- [ ] Users can complete all core workflows
-- [ ] System stable for 1 week
+- ✅ All services running and accessible
+- ✅ gRPC inter-service communication working
+- ✅ No critical bugs
+- ✅ Performance acceptable
+- ✅ Users can complete all core workflows
+- ✅ System stable for 1 week
 
-**Deliverables**: ✅ **Phase 0 Complete** - System deployed to test environment
+**→ When complete: Upgrade to v4.1.0 and start Phase 2**
 
 ---
 
-## Phase 1: Extended Functionality
+## 📋 PHASE 2: Security & Stability (v4.1.x)
 
-**Status**: ⏳ **PLANNED**
-**Start Condition**: Phase 0 successfully deployed and validated
-**Goal**: Expand system with additional functionality
+**Goal:** Harden security, fix bugs, stabilize for production
+**Start:** After Phase 1 complete (target: Mar 2026)
+**Target End:** TBD
+**Status:** ⏸️ PLANNED
 
-**Future Development:**
-Phase 1 roadmap will be expanded based on:
-- User feedback from test environment
+### **Phase 2 Tasks (To Be Defined Based on Production Feedback):**
+- Security patches (dependency updates)
+- Bug fixes from production feedback
+- Performance optimizations
+- Database query optimization
+- Load testing
+- Security audit (penetration testing)
+- Error handling improvements
+- Logging improvements
+- Monitoring improvements
+- Documentation updates
+- User feedback implementation
+- Critical bug fixes
+- Performance tuning
+
+**→ When complete: Upgrade to v4.2.0 and start Phase 3**
+
+---
+
+## 📋 PHASE 3: Production Hardening (v4.2.x)
+
+**Goal:** Create stable foundation for future development
+**Start:** After Phase 2 complete
+**Target End:** TBD
+**Status:** ⏸️ PLANNED
+
+### **Phase 3 Tasks (Infrastructure & Stability):**
+- High availability setup
+- Database replication
+- Load balancing
+- Automated backups
+- Disaster recovery procedures
+- Advanced monitoring
+- Performance tuning
+- Code refactoring
+- Technical debt reduction
+- Documentation refinement
+- Team training materials
+- Deployment automation
+- Rollback procedures
+
+**→ When complete: Upgrade to v4.3.0 and start Phase 4**
+
+---
+
+## 📋 PHASE 4+: Feature Development (v4.3.x+)
+
+**Goal:** Add competitive features and expand functionality
+**Start:** After Phase 3 complete
+**Status:** ⏸️ PLANNED
+
+### **Potential Features (To Be Prioritized Based on Business Needs):**
+
+**Advanced Reporting & Analytics:**
+- Custom report builder
+- Data visualization dashboards
+- Export to Excel/PDF
+- Scheduled reports
+- Real-time analytics
+- KPI tracking
+
+**Mobile Application:**
+- React Native mobile app
+- Offline mode support
+- Push notifications
+- Mobile-optimized workflows
+- Camera integration (document scanning)
+
+**External API Integrations:**
+- Accounting software (e.g., Pohoda, Money S3)
+- CRM systems
+- E-commerce platforms
+- Payment gateways
+- Shipping providers
+- Email marketing tools
+
+**Advanced Automation:**
+- Workflow automation engine
+- Email templates & triggers
+- Notification system
+- Scheduled tasks
+- Batch operations
+- Data import/export automation
+
+**AI/ML Features:**
+- Predictive analytics
+- Anomaly detection
+- Intelligent search
+- Document classification
+- OCR for invoices/documents
+- Chatbot support
+
+**Business Intelligence:**
+- Executive dashboard
+- Trend analysis
+- Forecasting
+- Inventory optimization
+- Sales pipeline analytics
+
+**Customer & Supplier Portals:**
+- Self-service portal
+- Order tracking
+- Invoice downloads
+- Support tickets
+- Document uploads
+
+**Multi-tenancy:**
+- Support multiple companies
+- Isolated data per tenant
+- Shared infrastructure
+- Custom branding per tenant
+
+**Advanced Features:**
+- Multi-language support (DE, HU, PL, etc.)
+- Multi-currency support
+- Tax compliance (VAT, invoicing rules)
+- Audit logging
+- Version history
+- Data archiving
+
+**Collaboration Tools:**
+- Comments & mentions
+- Task assignments
+- Team chat
+- File sharing
+- Notifications
+
+**Note:** Exact features will be defined based on:
+- User feedback from production
 - Business priorities
-- Performance analysis
-- New requirements
-
-**Potential Areas:**
-- Advanced reporting and analytics
-- Mobile application
-- External API integrations
-- Advanced automation workflows
-- AI/ML features
+- Market analysis
+- Competitor analysis
+- ROI evaluation
 
 ---
 
-## Communication Architecture
-
-### REST API (External)
-- **Purpose**: Frontend → Backend communication
-- **Protocol**: HTTP/JSON
-- **Port Range**: 41XX (e.g., 4101, 4102, ...)
-- **Usage**: All user-facing operations (CRUD, search, file upload)
-- **Documentation**: OpenAPI/Swagger
-
-### gRPC API (Internal)
-- **Purpose**: Backend ↔ Backend inter-service communication
-- **Protocol**: gRPC/Protobuf
-- **Port Range**: 51XX (e.g., 5101, 5102, ...)
-- **Usage**: Service-to-service data exchange, validation, synchronization
-- **Documentation**: .proto files
-
-### Example Communication Flow:
-```
-Frontend (React)
-    ↓ REST (HTTP/JSON)
-lkms102-orders (FastAPI)
-    ↓ gRPC
-lkms103-customers (get customer details)
-lkms104-parts (check availability)
-    ↓ gRPC response
-lkms102-orders
-    ↓ REST response
-Frontend (React)
-```
-
----
-
-## Microservices Overview
-
-### Phase 0 Services:
-
-| LKMS | Service | REST Port | gRPC Port | Database | Status |
-|------|---------|-----------|-----------|----------|--------|
-| lkms201 | web-ui | 4201 | - | - | ✅ Running |
-| lkms107 | auth | 4107 | 5107 | lkms107_auth | ⏳ Planned |
-| lkms101 | contacts | 4101 | 5101 | lkms101_contacts | ⏳ Planned |
-| lkms108 | employees | 4108 | 5108 | lkms108_employees | ⏳ Planned |
-| lkms109 | issues | 4109 | 5109 | lkms109_issues | ⏳ Planned |
-| lkms103 | customers | 4103 | 5103 | lkms103_customers | ⏳ Planned |
-| lkms104 | parts | 4104 | 5104 | lkms104_parts | ⏳ Planned |
-| lkms102 | orders | 4102 | 5102 | lkms102_orders | ⏳ Planned |
-| lkms105 | logistics | 4105 | 5105 | lkms105_logistics | ⏳ Planned |
-| lkms106 | suppliers | 4106 | 5106 | lkms106_suppliers | ⏳ Planned |
-| lkms111 | warehouse | 4111 | 5111 | lkms111_warehouse | ⏳ Planned |
-| lkms113 | mailclient | 4113 | 5113 | lkms113_mailclient | ⏳ Planned |
-| lkms114 | documents | 4114 | 5114 | lkms114_documents | ⏳ Planned |
-| lkms115 | invoicing | 4115 | 5115 | lkms115_invoicing | ⏳ Planned |
-| lkms110 | inquiries | 4110 | 5110 | lkms110_inquiries | ⏳ Planned |
-| lkms112 | operations | 4112 | 5112 | lkms112_operations | ⏳ Planned |
-
-### Infrastructure Services:
-
-| LKMS | Service | Port | Status |
-|------|---------|------|--------|
-| lkms501 | postgres | 4501 | ⏳ Planned |
-| lkms901 | adminer | 4901 | ⏳ Planned |
-
----
-
-## Technology Stack
+## 🛠️ Technology Stack
 
 **Frontend:**
 - React 19 + TypeScript 5.7 + Vite 6
-- REST API communication (axios)
+- @l-kern/config (constants, translations, theme, hooks, utils)
+- @l-kern/ui-components (17+ production components)
 
 **Backend:**
 - Python 3.11 + FastAPI
-- REST API (external)
-- gRPC (inter-service)
-- SQLAlchemy + Alembic
-- Pydantic
-
-**Database:**
-- PostgreSQL 15 (one database per service)
-
-**Inter-service Communication:**
-- gRPC + Protocol Buffers
+- PostgreSQL 15 (one DB per service)
+- REST API (external communication)
+- gRPC (inter-service communication)
+- SQLAlchemy + Alembic (ORM + migrations)
+- Pydantic (validation)
 
 **DevOps:**
-- Docker + Docker Compose
+- Docker + Docker Compose (development)
 - Nginx (REST reverse proxy)
 - Envoy (gRPC proxy - optional)
-
-**Monorepo:**
-- Nx + Yarn 4
+- Nx + Yarn 4 (monorepo)
 
 ---
 
-## Next Steps
+## 📊 Quick Progress Overview
 
-**Immediate Priorities:**
-1. ⏳ Create coding standards documentation (including gRPC patterns)
-2. ⏳ Build @l-kern/ui-components package
-3. ⏳ Setup PostgreSQL + gRPC infrastructure
-4. ⏳ Start lkms101-contacts service (first REST + gRPC implementation)
+**Phase 1 Progress:** 2.7/21 tasks complete (~12%)
+
+| Task | Status | Target Completion |
+|------|--------|-------------------|
+| 1.0 Infrastructure | ✅ COMPLETED | 2025-10-15 |
+| 1.1 Coding Standards | ✅ COMPLETED | 2025-10-15 |
+| 1.2 UI Infrastructure | ⏳ IN PROGRESS | 2025-10-27 |
+| 1.3 Backend Infrastructure | ⏸️ PLANNED | 2025-11-02 |
+| 1.4 Contacts Service | ⏸️ PLANNED | 2025-11-10 |
+| 1.5 Employees Service | ⏸️ PLANNED | 2025-11-16 |
+| 1.6 Issues Service | ⏸️ PLANNED | 2025-11-22 |
+| 1.7 Customers Service | ⏸️ PLANNED | 2025-11-28 |
+| 1.8 Parts Service | ⏸️ PLANNED | 2025-12-04 |
+| 1.9 Orders Service | ⏸️ PLANNED | 2025-12-11 |
+| 1.10 Logistics | ⏸️ PLANNED | 2025-12-17 |
+| 1.11 Suppliers | ⏸️ PLANNED | 2025-12-23 |
+| 1.12 Warehouse | ⏸️ PLANNED | 2025-12-30 |
+| 1.13 Mail Client | ⏸️ PLANNED | 2026-01-06 |
+| 1.14 Documents | ⏸️ PLANNED | 2026-01-13 |
+| 1.15 Invoicing | ⏸️ PLANNED | 2026-01-21 |
+| 1.16 Inquiries | ⏸️ PLANNED | 2026-01-27 |
+| 1.17 Operations | ⏸️ PLANNED | 2026-02-03 |
+| 1.18 Authentication | ⏸️ PLANNED | 2026-02-11 |
+| 1.19 Testing & QA | ⏸️ PLANNED | 2026-02-26 |
+| 1.20 Production Prep | ⏸️ PLANNED | 2026-03-09 |
+| 1.21 Deploy to Production | ⏸️ PLANNED | 2026-03-15 |
 
 ---
 
-**Last Updated**: 2025-10-18 19:50:00
-**Maintainer**: BOSSystems s.r.o.
-**Project**: L-KERN v4 (BOSS)
+**Last Updated:** 2025-10-22
+**Maintainer:** BOSSystems s.r.o.
+**Current Version:** 4.0.0 (Phase 1 - MVP Development)
+**Next Milestone:** Complete Modal System v3.0 (Phase 2-5) by 2025-10-27
