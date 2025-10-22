@@ -2,15 +2,15 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 5.0.0
+# Version: 4.3.0
 # Created: 2025-10-13
-# Updated: 2025-10-22
+# Updated: 2025-10-21
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
-#   High-level project overview showing CURRENT status only.
-#   Historical achievements archived to conversation_history.
+#   High-level project overview, goals, architecture summary,
+#   current status, and progress tracker for L-KERN v4.
 # ================================================================
 
 ---
@@ -38,9 +38,14 @@ L-KERN v4 principles:
 
 **Phase 0: Foundation & Core System** - ⏳ IN PROGRESS
 
-**Current Task:** Task 0.2 - UI Infrastructure (~70% complete)
+**Completed**:
+- Task 0.0 (Infrastructure Setup) ✅
+- Task 0.1 (Coding Standards) ✅
+- Task 0.2 (Phase 1 - Core form components) ✅ 100% (6/6 done)
 
-**See:** [roadmap.md](roadmap.md) for complete phase plan
+**Next**: Task 0.3 (Backend Infrastructure - PostgreSQL, gRPC)
+
+**Full Roadmap**: [ROADMAP.md](ROADMAP.md)
 
 ---
 
@@ -53,29 +58,27 @@ L-KERN v4/
 ├── apps/
 │   └── web-ui/                    # React 19 frontend (lkms201, port 4201)
 ├── packages/
-│   ├── config/                    # @l-kern/config (hooks, utils, theme, translations)
-│   └── ui-components/             # @l-kern/ui-components (17 production components)
-├── services/                      # Backend microservices (planned - Task 0.3+)
+│   └── config/                    # @l-kern/config (constants, translations, theme)
+├── services/                      # Backend microservices (lkms10X)
 ├── infrastructure/
 │   └── docker/                    # Dockerfiles, docker-compose.yml
 ├── tools/                         # Dev tools
 └── docs/
     ├── README.md                  # Documentation hub
-    ├── project/
-    │   ├── overview.md            # This file
-    │   └── roadmap.md             # Development roadmap
+    ├── PROJECT-OVERVIEW.md        # This file
+    ├── ROADMAP.md                 # Development roadmap
     ├── architecture/              # Architecture docs
-    ├── programming/               # Coding standards, testing guides
-    └── packages/                  # Package-specific docs
+    ├── packages/                  # Package-specific docs
+    └── programming/               # Coding standards (planned)
 ```
 
 ### **Tech Stack:**
 
 **Frontend:**
 - React 19 + TypeScript 5.7 + Vite 6
-- REST API communication (planned)
+- REST API communication
 
-**Backend:** (Planned - Task 0.3+)
+**Backend:**
 - Python 3.11 + FastAPI
 - PostgreSQL 15 (one DB per service)
 - REST API (external) + gRPC (inter-service)
@@ -105,89 +108,357 @@ L-KERN v4/
 
 ---
 
-## ✅ Last Completed Task
+## ✅ Completed Tasks
 
-### **Task 0.2 Phase 1.3: Validation Utilities**
+### **Task 0.0: Infrastructure Setup** ✅
 
-**Completed**: 2025-10-21
-**Duration**: 3 hours
+**Development Environment:**
+- ✅ Nx workspace (Yarn 4 + TypeScript 5.7)
+- ✅ Docker Compose with hot-reload (CHOKIDAR_USEPOLLING)
+- ✅ React 19 app (lkms201-web-ui on port 4201)
+- ✅ Vite 6 with HMR working
 
-**What was delivered:**
-- ✅ `debounce()` function - Generic delay utility
-- ✅ `validateField()` function - Universal field validation
-- ✅ Complete testing (150+ tests for dateUtils, phoneUtils, validation)
-- ✅ Bug fixes (2 critical bugs in dateUtils)
-- ✅ All 394/394 tests passing (100%)
-- ✅ Complete documentation (validation.md - 957 lines)
+**@l-kern/config Package:**
+- ✅ Constants (PORTS, API_ENDPOINTS, COLORS, SPACING)
+- ✅ Translations (SK/EN with useTranslation hook)
+- ✅ Theme system (light/dark with useTheme hook)
+- ✅ Dynamic CSS generation from design tokens
+- ✅ Tested and verified in web-ui
 
-**Files created:**
-- `packages/config/src/utils/validation/validation.ts` (142 lines)
-- `packages/config/src/utils/validation/validation.test.ts` (40 tests)
-- `packages/config/src/utils/validation/validation.md` (957 lines)
+**Documentation:**
+- ✅ PROJECT-OVERVIEW.md
+- ✅ ROADMAP.md (Phase 0 with 21 tasks)
+- ✅ docs/README.md (documentation hub)
+- ✅ docs/packages/config.md
+- ✅ docs/architecture/port-mapping.md
+
+**Git:**
+- ✅ Initial commit (60 files, 42,456 insertions)
+- ✅ Pushed to repository
 
 ---
 
-## ⏳ Current Task
+### **Task 0.1: Coding Standards** ✅
 
-### **Task 0.2 Phase 4: Advanced Components**
+**Completed**: 2025-10-15
 
-**Status**: ⏳ IN PROGRESS (~70% complete)
+**Coding Standards (2235 lines):**
+- ✅ Language & communication guidelines
+- ✅ Development workflow (educational approach)
+- ✅ File headers & code structure
+- ✅ Constants management with documentation
+- ✅ TypeScript/React 19 conventions
+- ✅ Python/FastAPI conventions
+- ✅ SQLAlchemy + Alembic patterns
+- ✅ gRPC service patterns (.proto, server, client)
+- ✅ REST API standards (endpoints, error handling)
+- ✅ Retry logic with exponential backoff
+- ✅ Kafka/message broker patterns
+- ✅ Testing standards (pytest + Vitest)
+- ✅ Docker & DevOps best practices
+- ✅ DRY principle & code reuse
+- ✅ UI standards (notifications)
+- ✅ Backup workflow
+- ✅ Git standards
+
+**Code Examples (1700 lines):**
+- ✅ React components (basic, with API, custom hooks)
+- ✅ REST API client (Axios setup, interceptors, API services)
+- ✅ gRPC server & client (Python implementation)
+- ✅ FastAPI routers (complete CRUD operations)
+- ✅ Database operations (SQLAlchemy models, Pydantic schemas, Alembic migrations)
+- ✅ Form handling (validation, error handling, submission)
+- ✅ Testing (pytest backend tests + Vitest frontend tests)
+
+---
+
+### **Task 0.2: @l-kern/ui-components** ✅
+
+**Status**: Phase 1 COMPLETED
 **Started**: 2025-10-18
+**Completed**: 2025-10-18
 
-**What's Done:**
-- ✅ 17 production components (Button, Input, FormField, Select, Checkbox, Radio/RadioGroup, Card, Badge, Spinner, EmptyState, Modal, WizardProgress, WizardNavigation, DebugBar, Toast, ToastContainer, DashboardCard)
-- ✅ 6 hooks (useModal, useModalWizard, usePageAnalytics, useToast, useFormDirty, useConfirm)
-- ✅ 22 utility functions (phone, email, date, validation)
-- ✅ 394/394 tests passing (100%)
-- ✅ Toast notification system complete
-- ✅ Form dirty tracking complete
-- ✅ Confirmation dialogs complete
+**Completed Components (Phase 1 - 6/6):**
+- ✅ **Button** (v1.0.0) - 16 tests, 100% coverage
+  - 5 variants, 3 sizes, loading state, icon support
+  - 121 lines TS + 184 lines CSS
+- ✅ **Input** (v1.0.0) - 15 tests, 100% coverage
+  - Error/helper text, fullWidth, all HTML input types
+  - 92 lines TS + 114 lines CSS
+- ✅ **FormField** (v1.0.0) - 11 tests, 100% coverage
+  - Label wrapper, required indicator, error display
+  - 103 lines TS + 72 lines CSS
+- ✅ **Select** (v1.0.0) - 21 tests, 100% coverage
+  - Native select, options array, placeholder, error handling
+  - 134 lines TS + 144 lines CSS
+- ✅ **Checkbox** (v1.0.0) - 19 tests, 100% coverage
+  - Label, error/helper text, indeterminate state
+  - 113 lines TS + 143 lines CSS
+- ✅ **Radio/RadioGroup** (v1.0.0) - 33 tests, 100% coverage
+  - Single selection, vertical/horizontal layout, error states
+  - 177 lines TS (2 files) + 169 lines CSS (2 files)
 
-**What's Missing:**
-- [ ] Table/DataGrid component (CRITICAL - needed for contacts page)
-- [ ] FilterAndSearch component
-- [ ] Page layout templates (BasePageLayout, TableTemplate, DashboardTemplate)
+**Test Results:**
+- ✅ **115 tests total** - 100% passing
+- ✅ 7 test suites - all green
+- ✅ 100% code coverage on all components
 
-**Next Action:** Complete Table/DataGrid component (4-6 hours)
+**Test Infrastructure Setup:**
+- ✅ Vitest + React Testing Library
+- ✅ @testing-library/jest-dom matchers
+- ✅ @testing-library/user-event
+- ✅ vitest.setup.ts configuration
+- ✅ CSS Modules test patterns
+- ✅ Docker container testing workflow
+
+**Testing Documentation:**
+- ✅ [testing.md](setup/testing.md) - Complete testing guide
+- ✅ Docker volume troubleshooting
+- ✅ Test dependency setup instructions
+- ✅ Common issues & solutions
+
+**Completed Components (Phase 2 - 4/4):**
+- ✅ **Card** (v1.0.0) - 18 tests, 100% coverage
+  - 3 variants (default, outlined, elevated), clickable, hover effects
+  - 84 lines TS + 162 lines CSS
+- ✅ **Badge** (v1.0.0) - 19 tests, 100% coverage
+  - 7 variants (default, primary, success, warning, error, info, neutral)
+  - 88 lines TS + 158 lines CSS
+- ✅ **Spinner** (v1.0.0) - 14 tests, 100% coverage
+  - 4 sizes (sm, md, lg, xl), customizable color
+  - 74 lines TS + 89 lines CSS
+- ✅ **EmptyState** (v1.0.0) - 16 tests, 100% coverage
+  - Icon, title, description, action button, 3 sizes
+  - 88 lines TS + 146 lines CSS
+
+**Total Components:** 10/10 (Phase 1 + Phase 2 complete)
+**Total Tests:** 182 tests, 100% passing
+**Total Test Suites:** 11 suites, all green
+
+---
+
+### **Task 0.2 Phase 3: Utility Functions** ✅
+
+**Status**: COMPLETED
+**Completed**: 2025-10-18
+
+**Phone Utilities (SK, CZ, PL support):**
+- ✅ `validateMobile()` - Multi-country mobile validation
+- ✅ `validateLandlineOrFax()` - Landline/fax validation
+- ✅ `formatPhoneNumber()` - International formatting
+- ✅ `detectPhoneType()` - Auto-detect mobile/landline
+- ✅ `cleanPhoneNumber()` - Remove formatting chars
+- ✅ Phone config system for easy country additions
+- **35 tests, 100% coverage**
+
+**Email Utilities:**
+- ✅ `validateEmail()` - RFC 5322 compliant
+- ✅ `normalizeEmail()` - Lowercase + trim
+- ✅ `getEmailDomain()` - Extract domain
+- ✅ `getEmailLocal()` - Extract username
+- ✅ `isEmailFromDomain()` - Domain matching
+- **43 tests, 100% coverage**
+
+**Date Utilities (SK/EN locales):**
+- ✅ `formatDate()` - SK: DD.MM.YYYY, EN: YYYY-MM-DD
+- ✅ `formatDateTime()` - With time formatting
+- ✅ `parseDate()` - String to Date object
+- ✅ `validateDate()` - Format validation
+- ✅ `convertDateLocale()` - SK ↔ EN conversion
+- ✅ `getToday()` - Current date formatted
+- ✅ `isToday()` - Check if date is today
+- ✅ `addDays()` - Date arithmetic
+- ✅ `getDaysDifference()` - Calculate day diff
+- **45 tests, 100% coverage**
+
+**Total Utilities:** 20 functions (6 phone + 5 email + 9 date)
+**Total Tests:** 123 tests, 100% passing
+
+---
+
+### **Task 0.2 Phase 4: Modal & Wizard System** ⚠️
+
+**Status**: ⚠️ **PARTIAL** - Basic Modal completed, but drawer/fullscreen variants NOT in production
+**Started**: 2025-10-18
+**Note**: Modal simplified - only centered variant in production package
+
+**✅ Completed Components (4/4 core):**
+- ✅ **Modal** (v3.4.0) - Production modal with v3 enhancements
+  - Portal rendering, focus trap, hybrid keyboard handling
+  - 3 sizes: sm (400px), md (600px), lg (800px)
+  - Drag & drop support, nested modals, enhanced footer
+  - ESC/Enter handled locally (bubble phase for nested modals)
+  - Loading state, custom footer, alignment options
+  - 26 tests passing
+  - **Location**: `packages/ui-components/src/components/Modal/Modal.tsx`
+  - **Updated**: 2025-10-19 (keyboard handling refactor)
+- ✅ **DebugBar** (v2.0.0) - Debug analytics bar (migrated from v3)
+  - Theme indicator (🌙 Dark / ☀️ Light)
+  - Language indicator (🌐 SK / EN)
+  - Emoji counters (🖱️ clicks, ⌨️ keyboard events)
+  - Dual timer box (total time + time since activity)
+  - Copy modal name to clipboard
+  - **Location**: `packages/ui-components/src/components/DebugBar/DebugBar.tsx`
+  - **Created**: 2025-10-19 (v3 ModalDebugHeader migration)
+- ✅ **WizardProgress** (v1.0.0) - Progress indicators
+  - 3 variants: dots, bar, numbers
+  - Current step highlighting
+  - 15 tests passing
+- ✅ **WizardNavigation** (v1.0.0) - Navigation buttons
+  - Previous/Next/Complete buttons
+  - Disabled state logic
+
+**✅ Completed Hooks & Context:**
+- ✅ **useModalWizard** - Multi-step workflow logic
+  - Step management, validation, navigation
+  - 19 tests passing
+  - **Location**: `packages/config/src/hooks/useModalWizard.ts`
+- ✅ **ModalContext** - Centralized modal registry
+  - z-index management, multiple modals
+
+**✅ Completed Page Wrappers:**
+- ✅ **BasePage** (v3.0.0) - Global keyboard shortcuts wrapper
+  - Ctrl+D (toggle dark mode), Ctrl+L (toggle language)
+  - Simplified - modal shortcuts moved to Modal component (hybrid approach)
+  - **Location**: `packages/ui-components/src/components/BasePage/BasePage.tsx`
+  - **Updated**: 2025-10-19 (hybrid keyboard handling refactor)
+  - **Location**: `packages/config/src/contexts/ModalContext.tsx`
+
+**⚠️ MISSING from Production:**
+- ❌ **Modal drawer variant** - Side panel modal (right/left)
+- ❌ **Modal fullscreen variant** - Full viewport takeover
+- ❌ **Table/DataGrid** - Sortable table with pagination
+- ❌ **DataGridDetail** - Expanded row detail
+- ❌ **FilterAndSearch** - Filter toolbar
+- ❌ **ThemeCustomizer** - Theme switcher
+- ❌ **KeyboardShortcuts** - Shortcuts panel
+- ❌ **DebugBar** - Developer debug panel
+- ❌ **Analytics** - Analytics widget
+- ❌ **Report** - Report container
+- ❌ **HeaderCard** - Page header
+- ❌ **CustomPalette** - Color picker
+- ❌ **BasePageLayout** - Master layout
+- ❌ **DashboardTemplate** - Dashboard page
+- ❌ **TableTemplate** - Table page template
+
+**Note**: Test variants exist in `apps/web-ui/src/__tests__/components/Modal3Variants.tsx` but not exported to production package.
+
+**Stats (Phase 4 Completed):**
+- TypeScript: ~580 lines
+- CSS: ~420 lines
+- Tests: 60 passing (26 Modal + 15 WizardProgress + 19 useModalWizard)
+- Production components: 3/17 (18%)
+- Test-only variants: 2 (drawer, fullscreen)
+
+---
+
+## ⏳ Next Steps
+
+**Immediate Priorities (from ROADMAP.md):**
+
+1. **Task 0.2 (Phase 4)**: Complete UI Components ⏳ **CURRENT**
+   - ⚠️ Modal drawer/fullscreen variants (if needed for production)
+   - ❌ Table/DataGrid (CRITICAL - needed for contacts page)
+   - ❌ FilterAndSearch component
+   - ❌ Page layout templates (BasePageLayout, TableTemplate)
+
+2. **Task 0.3**: Backend infrastructure ⏳ **NEXT**
+   - PostgreSQL setup
+   - gRPC infrastructure
+   - Alembic migrations
+
+3. **Task 0.4**: First microservice (lkms101-contacts)
+   - REST + gRPC APIs
+   - Database setup
+   - Frontend integration
+
+**See [ROADMAP.md](ROADMAP.md) for complete Phase 0 plan (21 tasks).**
 
 ---
 
 ## 📊 Progress Tracker
 
-**Phase 0 Progress**: 2.7/21 tasks completed (~12%)
+**Phase 0 Progress**: 2.5/21 tasks completed (12%)
 
 | Task | Status | Description |
 |------|--------|-------------|
 | 0.0 | ✅ Done | Infrastructure Setup |
 | 0.1 | ✅ Done | Coding Standards |
-| 0.2 | ⏳ In Progress | @l-kern/ui-components (~70% done) |
+| 0.2 | ⚠️ Partial | @l-kern/ui-components (13 components done, Table/DataGrid/Templates missing) |
 | 0.3 | ⏳ Planned | Backend Infrastructure |
 | 0.4-0.17 | ⏳ Planned | Microservices Development |
 | 0.18 | ⏳ Planned | Authentication Service |
 | 0.19 | ⏳ Planned | Testing & QA |
-| 0.20 | ⏳ Planned | Production Prep |
+| 0.20 | ⏳ Planned | Production Prep (Nginx + Envoy) |
 | 0.21 | ⏳ Planned | Deploy to Test Environment |
 
----
-
-## 📝 Project Stats
-
-**Current Stats:**
-- **Components**: 17 production ✅
-- **Hooks**: 6 ✅
-- **Utilities**: 22 functions ✅
-- **Tests**: 394/394 passing (100%) ✅
-- **Build**: Zero TypeScript errors ✅
-- **Documentation**: 29/29 items documented (100%) ✅
-
-**Code Quality:**
-- DRY Compliance: 100% ✅
-- Translation Coverage: 100% ✅
-- Test Coverage: 100% ✅
-- Accessibility: WCAG AA compliant ✅
+**Task 0.2 Breakdown:**
+- ✅ Phase 1: Form Components (6/6) - 100%
+- ✅ Phase 2: Layout Components (4/4) - 100%
+- ✅ Phase 3: Utility Functions (20/20) - 100%
+- ⚠️ Phase 4: Advanced Components (3/17) - 18%
+  - ✅ Modal (centered only), WizardProgress, WizardNavigation
+  - ❌ Table, DataGrid, ThemeCustomizer, Layouts, etc.
 
 ---
 
-**Last Updated**: 2025-10-22 10:00:00
-**Maintainer**: BOSSystems s.r.o.
-**See**: [roadmap.md](roadmap.md) for detailed development plan
+---
+
+## 📝 Recent Changes
+
+### 2025-10-21: Utility Functions Testing & Documentation
+- ✅ **Complete Test Coverage**: Added 150+ tests for utility functions
+  - dateUtils: 74 tests total (formatDateTimeFull, parseDateTime, extractDateComponents, UTC)
+  - phoneUtils: 41 tests total (getPhoneCountryCode for SK/CZ/PL support)
+  - validation: 26 tests total (debounce, validateField with metadata)
+- ✅ **Bug Fixes**: Fixed 2 test failures in dateUtils
+  - parseDateTime: Returns `null` for invalid time (was returning date without time)
+  - toUTC: Consistent `''` return for invalid dates
+- ✅ **Documentation Review**: All utility functions verified with complete JSDoc
+- ✅ **Test Results**: 394/394 passing (100%) across 15 test suites
+
+### 2025-10-19: Testing Documentation Restructure
+- ✅ **Modular Testing Docs**: Created 6 comprehensive testing guides
+  - testing-overview.md - Main hub (strategy, tools, pyramid)
+  - testing-unit.md - Unit testing (Vitest + RTL, pytest)
+  - testing-integration.md - Integration testing (MSW, API stubs)
+  - testing-e2e.md - E2E testing (Playwright)
+  - testing-best-practices.md - Flaky tests, isolation, coverage
+  - testing-visual.md - Visual regression (OPTIONAL, not implemented)
+- ✅ **Integration Testing Analysis**: Readiness assessment complete
+  - MSW setup recommended for preparation
+  - Real integration tests after Task 0.3 (backend infrastructure)
+  - E2E tests after Task 0.4 (first microservice)
+- ✅ **Documentation Updates**: docs/README.md v2.2.0
+  - Added 6 testing documentation links
+  - Archived old testing-guide.md → temp/
+
+### 2025-10-19: Modal System Refactoring
+- ✅ **Modal v3.6.0**: Enhanced keyboard handling + Multi-step Wizard
+  - ESC/Enter with focused input: Blur input (don't close modal)
+  - Enter without onConfirm: Close modal (smart default)
+  - Test 8: Multi-step Wizard integration (3-step composable pattern)
+- ✅ **DebugBar v2.0.0**: Migrated from v3 ModalDebugHeader
+  - Theme indicator (🌙 Dark / ☀️ Light)
+  - Language indicator (🌐 SK / EN)
+  - Emoji counters (🖱️ clicks, ⌨️ keyboard events)
+- ✅ **BasePage v3.0.0**: Simplified to global shortcuts only
+  - Hybrid keyboard handling (Modal owns ESC/Enter)
+
+### 2025-10-19: Toast Notification System
+- ✅ **Toast System v1.0.0**: Complete implementation
+  - toastManager.ts - Global event emitter (27 unit tests)
+  - ToastContext + useToast hook - React integration
+  - Toast + ToastContainer UI components
+  - 4 variants (success, error, warning, info)
+  - 11 translation keys (SK + EN)
+
+### 2025-10-18: Modal & Wizard Components
+- ✅ Modal v2.0.0 - Basic centered modal
+- ✅ WizardProgress v1.0.0 - Progress indicators
+- ✅ WizardNavigation v1.0.0 - Navigation buttons
+- ✅ useModalWizard hook - Multi-step workflow logic
+
+---
+
+**Last Updated**: 2025-10-19 15:30:00
