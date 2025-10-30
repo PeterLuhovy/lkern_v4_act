@@ -9,38 +9,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, waitFor, fireEvent, userEvent } from '../../test-utils';
 import { DebugBar } from './DebugBar';
 import type { UsePageAnalyticsReturn } from '@l-kern/config';
-
-// Mock translation hook
-vi.mock('@l-kern/config', () => ({
-  useTranslation: () => ({
-    language: 'sk',
-    t: (key: string) => {
-      // Return actual English translations for tests
-      const translations: Record<string, string> = {
-        'debugBar.copyModalName': 'Copy modal name to clipboard',
-      };
-      return translations[key] || key;
-    },
-  }),
-  useTheme: () => ({
-    theme: 'light',
-    setTheme: vi.fn(),
-  }),
-  usePageAnalytics: (pageName: string) => ({
-    session: null,
-    totalTime: '0.0s',
-    timeSinceLastActivity: '0.0s',
-    clicks: 0,
-    keys: 0,
-    startSession: vi.fn(),
-    endSession: vi.fn(),
-    trackClick: vi.fn(),
-  }),
-}));
 
 // Clipboard mock
 const clipboardWriteSpy = vi.fn();
@@ -89,7 +60,7 @@ describe('DebugBar', () => {
 
   describe('rendering', () => {
     it('should render modal name', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="edit-contact"
           isDarkMode={false}
@@ -101,7 +72,7 @@ describe('DebugBar', () => {
     });
 
     it('should render click count', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -113,7 +84,7 @@ describe('DebugBar', () => {
     });
 
     it('should render keyboard count', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -125,7 +96,7 @@ describe('DebugBar', () => {
     });
 
     it('should render theme indicator for light mode', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -137,7 +108,7 @@ describe('DebugBar', () => {
     });
 
     it('should render theme indicator for dark mode', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={true}
@@ -149,7 +120,7 @@ describe('DebugBar', () => {
     });
 
     it('should render language indicator', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -161,7 +132,7 @@ describe('DebugBar', () => {
     });
 
     it('should render total time', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -173,7 +144,7 @@ describe('DebugBar', () => {
     });
 
     it('should render time since last activity', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -185,7 +156,7 @@ describe('DebugBar', () => {
     });
 
     it('should not render when show is false', () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -200,7 +171,7 @@ describe('DebugBar', () => {
 
   describe('copy functionality', () => {
     it('should copy modal name to clipboard when copy button clicked', async () => {
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="edit-contact"
           isDarkMode={false}
@@ -208,7 +179,7 @@ describe('DebugBar', () => {
         />
       );
 
-      const copyButton = screen.getByTitle('Copy modal name to clipboard');
+      const copyButton = screen.getByTitle('Skopírovať názov modalu');
 
       // Use fireEvent for synchronous click
       fireEvent.click(copyButton);
@@ -224,7 +195,7 @@ describe('DebugBar', () => {
     it('should track click analytics when copy button clicked', async () => {
       const user = userEvent.setup();
 
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="edit-contact"
           isDarkMode={false}
@@ -232,7 +203,7 @@ describe('DebugBar', () => {
         />
       );
 
-      const copyButton = screen.getByTitle('Copy modal name to clipboard');;
+      const copyButton = screen.getByTitle('Skopírovať názov modalu');;
       await user.click(copyButton);
 
       expect(mockAnalytics.trackClick).toHaveBeenCalledWith(
@@ -251,7 +222,7 @@ describe('DebugBar', () => {
         new Error('Clipboard access denied')
       );
 
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="edit-contact"
           isDarkMode={false}
@@ -259,14 +230,14 @@ describe('DebugBar', () => {
         />
       );
 
-      const copyButton = screen.getByTitle('Copy modal name to clipboard');
+      const copyButton = screen.getByTitle('Skopírovať názov modalu');
       await user.click(copyButton);
 
       // Give async error handler time to execute
       await new Promise(resolve => setTimeout(resolve, 50));
 
       // Component should still be rendered (no crash)
-      expect(screen.getByTitle('Copy modal name to clipboard')).toBeInTheDocument();
+      expect(screen.getByTitle('Skopírovať názov modalu')).toBeInTheDocument();
 
       consoleError.mockRestore();
     });
@@ -276,7 +247,7 @@ describe('DebugBar', () => {
     it('should track clicks on debug header area', async () => {
       const user = userEvent.setup();
 
-      const { container } = render(
+      const { container } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -297,7 +268,7 @@ describe('DebugBar', () => {
     it('should not track analytics when clicking copy button', async () => {
       const user = userEvent.setup();
 
-      render(
+      renderWithTranslation(
         <DebugBar
           modalName="edit-contact"
           isDarkMode={false}
@@ -305,7 +276,7 @@ describe('DebugBar', () => {
         />
       );
 
-      const copyButton = screen.getByTitle('Copy modal name to clipboard');
+      const copyButton = screen.getByTitle('Skopírovať názov modalu');
       await user.click(copyButton);
 
       // Should only track CopyModalName, not DebugHeader
@@ -320,7 +291,7 @@ describe('DebugBar', () => {
 
   describe('metrics updates', () => {
     it('should display updated click count', () => {
-      const { rerender } = render(
+      let { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -333,7 +304,8 @@ describe('DebugBar', () => {
       // Update metrics
       mockAnalytics.metrics.clickCount = 15;
 
-      rerender(
+      unmount();
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -345,7 +317,7 @@ describe('DebugBar', () => {
     });
 
     it('should display updated keyboard count', () => {
-      const { rerender } = render(
+      let { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -358,7 +330,8 @@ describe('DebugBar', () => {
       // Update metrics
       mockAnalytics.metrics.keyboardCount = 25;
 
-      rerender(
+      unmount();
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -370,7 +343,7 @@ describe('DebugBar', () => {
     });
 
     it('should display updated time values', () => {
-      const { rerender } = render(
+      let { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -383,7 +356,8 @@ describe('DebugBar', () => {
       // Update metrics
       mockAnalytics.metrics.totalTime = '3.2s';
 
-      rerender(
+      unmount();
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -397,7 +371,7 @@ describe('DebugBar', () => {
 
   describe('theme switching', () => {
     it('should update theme indicator when theme changes', () => {
-      const { rerender } = render(
+      const { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -408,7 +382,8 @@ describe('DebugBar', () => {
       // Text "Light" without emoji (emoji is in separate span)
       expect(screen.getByText('Light')).toBeInTheDocument();
 
-      rerender(
+      unmount();
+      renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={true}

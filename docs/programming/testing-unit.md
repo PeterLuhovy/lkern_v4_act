@@ -2,9 +2,9 @@
 # L-KERN v4 - Unit Testing Guide
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\testing-unit.md
-# Version: 1.0.0
+# Version: 2.0.0
 # Created: 2025-10-19
-# Updated: 2025-10-19
+# Updated: 2025-10-30
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -777,56 +777,371 @@ class TestContactCreate:
 
 ## 🎯 Translation Testing (L-KERN Specific)
 
-**L-KERN enforces 100% translation coverage. Every UI component MUST test language switching.**
+**CRITICAL RULE:** L-KERN enforces **100% translation coverage**. Every UI component MUST test language switching.
 
-**Example:**
+**Two Approaches:**
+1. **Mock Translations** (Unit Tests) - Fast, but doesn't catch hardcoded text ⚠️
+2. **Real Translations** (Integration Tests) - Slower, but CATCHES hardcoded text ✅ **RECOMMENDED**
+
+---
+
+### ❌ WRONG: Using Mock Translations
+
+**Problem:** Mock allows hardcoded text to pass tests!
 
 ```typescript
-import { render, screen, act } from '@testing-library/react';
-import { useTranslation } from '@l-kern/config';
+// ❌ DON'T DO THIS - Mock approach
+vi.mock('@l-kern/config', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,  // Returns translation key as-is
+  }),
+}));
+
+describe('Button', () => {
+  it('renders button text', () => {
+    render(<Button>Save</Button>);
+    expect(screen.getByText('Save')).toBeInTheDocument();  // ✅ PASSES
+  });
+});
+
+// Component code (BAD - hardcoded text)
+export const Button = ({ children }) => {
+  return <button>Save</button>;  // ❌ HARDCODED - should use t('common.save')
+};
+
+// Result: Test PASSES even with hardcoded text! ⚠️
+```
+
+**Why This is Bad:**
+- ❌ Doesn't verify component uses `t()` function
+- ❌ Hardcoded text passes tests
+- ❌ Translation keys might not exist in sk.ts/en.ts
+- ❌ Language switching not tested
+
+---
+
+### ✅ CORRECT: Using Real Translations with TranslationProvider
+
+**Solution:** Wrap component in TranslationProvider to use REAL translations from sk.ts/en.ts.
+
+**Step 1: Create test-utils.tsx (ONE TIME SETUP)**
+
+```typescript
+// packages/ui-components/src/test-utils.tsx
+import { render, RenderOptions } from '@testing-library/react';
+import { ReactElement } from 'react';
+import { TranslationProvider } from '@l-kern/config';
+
+interface CustomRenderOptions extends RenderOptions {
+  initialLanguage?: 'sk' | 'en';
+}
+
+/**
+ * Render component with TranslationProvider wrapper.
+ * Uses REAL translations from sk.ts and en.ts.
+ *
+ * @param ui - Component to render
+ * @param initialLanguage - Starting language (default: 'sk')
+ */
+export function renderWithTranslation(
+  ui: ReactElement,
+  { initialLanguage = 'sk', ...renderOptions }: CustomRenderOptions = {}
+) {
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <TranslationProvider initialLanguage={initialLanguage}>
+        {children}
+      </TranslationProvider>
+    );
+  }
+
+  return {
+    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
+  };
+}
+
+// Export for use in tests
+export { screen, fireEvent, waitFor, within } from '@testing-library/react';
+```
+
+**Step 2: Use renderWithTranslation in Tests**
+
+```typescript
+// Button.test.tsx
+import { describe, it, expect } from 'vitest';
+import { renderWithTranslation, screen } from '../test-utils';
+import { Button } from './Button';
 
 describe('Button Translation', () => {
   it('displays Slovak text by default', () => {
-    render(<Button loading>Save</Button>);
-    expect(screen.getByText('Načítava sa...')).toBeInTheDocument();
+    // ✅ Uses REAL Slovak translations from sk.ts
+    renderWithTranslation(<Button>common.save</Button>);
+
+    expect(screen.getByText('Uložiť')).toBeInTheDocument();  // ✅ Real SK text
   });
 
   it('switches to English when language changes', () => {
-    const { rerender } = render(<Button loading>Save</Button>);
+    // Start with Slovak
+    const { rerender } = renderWithTranslation(<Button>common.save</Button>);
 
-    // Slovak by default
-    expect(screen.getByText('Načítava sa...')).toBeInTheDocument();
+    // Verify Slovak text
+    expect(screen.getByText('Uložiť')).toBeInTheDocument();
 
-    // Change language to English
+    // Change to English (re-render with different language)
+    const { rerender: rerenderEN } = renderWithTranslation(
+      <Button>common.save</Button>,
+      { initialLanguage: 'en' }
+    );
+
+    // Verify English text
+    expect(screen.getByText('Save')).toBeInTheDocument();
+    expect(screen.queryByText('Uložiť')).not.toBeInTheDocument();  // SK removed
+  });
+
+  it('catches hardcoded text', () => {
+    // If Button has hardcoded "Save" instead of t('common.save')
+    renderWithTranslation(<Button>Save</Button>);
+
+    // This will FAIL because "Uložiť" won't be found
+    expect(screen.getByText('Uložiť')).toBeInTheDocument();  // ❌ FAILS with hardcoded text
+  });
+});
+```
+
+---
+
+### 📋 Translation Testing Checklist
+
+**EVERY component test MUST include:**
+
+```typescript
+describe('ComponentName Translation Tests', () => {
+  // ✅ TEST 1: Slovak text by default
+  it('displays Slovak text by default', () => {
+    renderWithTranslation(<Component />);
+    expect(screen.getByText('Slovak Text')).toBeInTheDocument();
+  });
+
+  // ✅ TEST 2: Language switching to English
+  it('switches to English', () => {
+    renderWithTranslation(<Component />, { initialLanguage: 'en' });
+    expect(screen.getByText('English Text')).toBeInTheDocument();
+  });
+
+  // ✅ TEST 3: Translation keys exist
+  it('all translation keys exist', () => {
+    const { t } = useTranslation();
+
+    // List all keys used in component
+    const keys = ['component.title', 'component.button', 'component.message'];
+
+    keys.forEach(key => {
+      const translation = t(key);
+      expect(translation).not.toBe(key);  // Should NOT return key itself
+      expect(translation).toBeTruthy();   // Should have actual text
+    });
+  });
+
+  // ✅ TEST 4: No hardcoded text (catches violations)
+  it('uses translation keys for all text', () => {
+    renderWithTranslation(<Component />);
+
+    // If component has hardcoded text, this test will FAIL
+    // because translation won't match hardcoded string
+  });
+});
+```
+
+---
+
+### 🔍 Modal Translation Testing Example
+
+**Modals require special handling for ARIA attributes + translations.**
+
+```typescript
+// ConfirmModal.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { renderWithTranslation, screen, fireEvent } from '../test-utils';
+import { ConfirmModal } from './ConfirmModal';
+
+describe('ConfirmModal Translation', () => {
+  const mockOnConfirm = vi.fn();
+  const mockOnCancel = vi.fn();
+
+  it('displays Slovak text by default', () => {
+    renderWithTranslation(
+      <ConfirmModal
+        isOpen={true}
+        onConfirm={mockOnConfirm}
+        onCancel={mockOnCancel}
+        title="modal.confirm.title"
+        message="modal.confirm.message"
+      />
+    );
+
+    // Check Slovak translations from sk.ts
+    expect(screen.getByText('Potvrdiť akciu')).toBeInTheDocument();  // Title
+    expect(screen.getByText('Naozaj chcete pokračovať?')).toBeInTheDocument();  // Message
+    expect(screen.getByRole('button', { name: 'Potvrdiť' })).toBeInTheDocument();  // Button
+  });
+
+  it('switches to English', () => {
+    renderWithTranslation(
+      <ConfirmModal
+        isOpen={true}
+        onConfirm={mockOnConfirm}
+        onCancel={mockOnCancel}
+        title="modal.confirm.title"
+        message="modal.confirm.message"
+      />,
+      { initialLanguage: 'en' }
+    );
+
+    // Check English translations from en.ts
+    expect(screen.getByText('Confirm Action')).toBeInTheDocument();
+    expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
+  });
+
+  it('verifies all translation keys exist', () => {
+    const { t } = useTranslation();
+
+    const keys = [
+      'modal.confirm.title',
+      'modal.confirm.message',
+      'modal.confirm.button',
+      'modal.cancel.button',
+    ];
+
+    // Test Slovak
+    keys.forEach(key => {
+      const sk = t(key);
+      expect(sk).not.toBe(key);
+      expect(sk).toBeTruthy();
+    });
+
+    // Switch to English
     act(() => {
       const { setLanguage } = useTranslation();
       setLanguage('en');
     });
 
-    rerender(<Button loading>Save</Button>);
-
-    // Verify Slovak text removed
-    expect(screen.queryByText('Načítava sa...')).not.toBeInTheDocument();
-
-    // Verify English text present
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // Test English
+    keys.forEach(key => {
+      const en = t(key);
+      expect(en).not.toBe(key);
+      expect(en).toBeTruthy();
+    });
   });
 
-  it('uses translation keys for all text', () => {
-    const { t } = useTranslation();
+  it('tests ARIA attributes with translations', () => {
+    renderWithTranslation(
+      <ConfirmModal
+        isOpen={true}
+        onConfirm={mockOnConfirm}
+        onCancel={mockOnCancel}
+        title="modal.confirm.title"
+        message="modal.confirm.message"
+      />
+    );
 
-    // Verify translation key exists
-    expect(t('common.loading')).toBe('Loading...');  // EN
-    expect(t('common.loading')).toBe('Načítava sa...');  // SK
+    const dialog = screen.getByRole('dialog');
+
+    // ✅ ARIA attributes
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-labelledby');
+
+    // ✅ Accessible name uses translation
+    const titleId = dialog.getAttribute('aria-labelledby');
+    const titleElement = document.getElementById(titleId!);
+    expect(titleElement).toHaveTextContent('Potvrdiť akciu');  // Slovak translation
   });
 });
 ```
 
-**Why This is Important:**
-- ✅ Catches hardcoded text (breaks i18n)
-- ✅ Verifies translation keys exist
-- ✅ Tests dynamic language switching (not just static rendering)
-- ✅ Ensures 100% translatable UI
+---
+
+### 🚨 Common Translation Testing Mistakes
+
+**Mistake 1: Using Mocks Instead of Real Translations**
+
+```typescript
+// ❌ WRONG
+vi.mock('@l-kern/config', () => ({
+  useTranslation: () => ({ t: (key) => key })
+}));
+
+// ✅ CORRECT
+import { renderWithTranslation } from '../test-utils';
+```
+
+**Mistake 2: Not Testing Language Switching**
+
+```typescript
+// ❌ WRONG - Only tests default language
+it('renders text', () => {
+  render(<Button>common.save</Button>);
+  expect(screen.getByText('Uložiť')).toBeInTheDocument();
+});
+
+// ✅ CORRECT - Tests both languages
+it('displays Slovak by default', () => {
+  renderWithTranslation(<Button>common.save</Button>);
+  expect(screen.getByText('Uložiť')).toBeInTheDocument();
+});
+
+it('switches to English', () => {
+  renderWithTranslation(<Button>common.save</Button>, { initialLanguage: 'en' });
+  expect(screen.getByText('Save')).toBeInTheDocument();
+});
+```
+
+**Mistake 3: Not Validating Translation Keys Exist**
+
+```typescript
+// ❌ WRONG - Doesn't verify keys exist in sk.ts/en.ts
+it('renders text', () => {
+  renderWithTranslation(<Button>common.save</Button>);
+  expect(screen.getByText('Uložiť')).toBeInTheDocument();
+});
+
+// ✅ CORRECT - Verifies keys exist
+it('translation keys exist', () => {
+  const { t } = useTranslation();
+  expect(t('common.save')).not.toBe('common.save');
+  expect(t('common.save')).toBeTruthy();
+});
+```
+
+---
+
+### 💡 Why Real Translations Matter
+
+**Scenario: Developer Hardcodes Text**
+
+```typescript
+// Component code (BAD)
+export const Button = () => {
+  return <button>Save</button>;  // ❌ HARDCODED
+};
+
+// Test with MOCK (FAILS TO CATCH)
+vi.mock('@l-kern/config', () => ({ useTranslation: () => ({ t: (k) => k }) }));
+it('renders button', () => {
+  render(<Button />);
+  expect(screen.getByText('Save')).toBeInTheDocument();  // ✅ PASSES (BAD!)
+});
+
+// Test with REAL translations (CATCHES ERROR)
+it('renders button', () => {
+  renderWithTranslation(<Button />);
+  expect(screen.getByText('Uložiť')).toBeInTheDocument();  // ❌ FAILS (GOOD!)
+  // Error: Unable to find element with text "Uložiť"
+  // Found: "Save" (hardcoded text)
+});
+```
+
+**Result:** Real translations CATCH hardcoded text, mocks DON'T!
 
 ---
 

@@ -9,8 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, waitFor, userEvent } from '../../test-utils';
 import { Toast } from './Toast';
 import type { Toast as ToastType } from '@l-kern/config';
 
@@ -31,7 +30,7 @@ describe('Toast', () => {
 
   describe('rendering', () => {
     it('should render toast message', () => {
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('Test notification')).toBeInTheDocument();
     });
@@ -39,7 +38,7 @@ describe('Toast', () => {
     it('should render success icon for success toast', () => {
       mockToast.type = 'success';
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('✓')).toBeInTheDocument();
     });
@@ -47,7 +46,7 @@ describe('Toast', () => {
     it('should render error icon for error toast', () => {
       mockToast.type = 'error';
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('✕')).toBeInTheDocument();
     });
@@ -55,7 +54,7 @@ describe('Toast', () => {
     it('should render warning icon for warning toast', () => {
       mockToast.type = 'warning';
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('⚠')).toBeInTheDocument();
     });
@@ -63,20 +62,20 @@ describe('Toast', () => {
     it('should render info icon for info toast', () => {
       mockToast.type = 'info';
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('ℹ')).toBeInTheDocument();
     });
 
     it('should render close button when onClose provided', () => {
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const closeButton = screen.getByLabelText('Close notification');
       expect(closeButton).toBeInTheDocument();
     });
 
     it('should not render close button when onClose not provided', () => {
-      render(<Toast toast={mockToast} />);
+      renderWithTranslation(<Toast toast={mockToast} />);
 
       const closeButton = screen.queryByLabelText('Close notification');
       expect(closeButton).not.toBeInTheDocument();
@@ -85,13 +84,13 @@ describe('Toast', () => {
     it('should render copied content when provided', () => {
       mockToast.copiedContent = 'Copied text content';
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('Copied text content')).toBeInTheDocument();
     });
 
     it('should have proper ARIA attributes', () => {
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = screen.getByRole('alert');
       expect(toastElement).toHaveAttribute('aria-live', 'polite');
@@ -103,7 +102,7 @@ describe('Toast', () => {
     it('should call onClose with toast id when close button clicked', async () => {
       const user = userEvent.setup();
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const closeButton = screen.getByLabelText('Close notification');
       await user.click(closeButton);
@@ -120,7 +119,7 @@ describe('Toast', () => {
     it('should fade out before calling onClose', async () => {
       const user = userEvent.setup();
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const closeButton = screen.getByLabelText('Close notification');
       await user.click(closeButton);
@@ -142,7 +141,7 @@ describe('Toast', () => {
     it('should apply success class for success toast', () => {
       mockToast.type = 'success';
 
-      const { container } = render(<Toast toast={mockToast} onClose={onClose} />);
+      const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = container.querySelector('[class*="toast--success"]');
       expect(toastElement).toBeInTheDocument();
@@ -151,7 +150,7 @@ describe('Toast', () => {
     it('should apply error class for error toast', () => {
       mockToast.type = 'error';
 
-      const { container } = render(<Toast toast={mockToast} onClose={onClose} />);
+      const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = container.querySelector('[class*="toast--error"]');
       expect(toastElement).toBeInTheDocument();
@@ -160,7 +159,7 @@ describe('Toast', () => {
     it('should apply warning class for warning toast', () => {
       mockToast.type = 'warning';
 
-      const { container } = render(<Toast toast={mockToast} onClose={onClose} />);
+      const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = container.querySelector('[class*="toast--warning"]');
       expect(toastElement).toBeInTheDocument();
@@ -169,7 +168,7 @@ describe('Toast', () => {
     it('should apply info class for info toast', () => {
       mockToast.type = 'info';
 
-      const { container } = render(<Toast toast={mockToast} onClose={onClose} />);
+      const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = container.querySelector('[class*="toast--info"]');
       expect(toastElement).toBeInTheDocument();
@@ -178,7 +177,7 @@ describe('Toast', () => {
     it('should default to success type when type not specified', () => {
       mockToast.type = undefined as any;
 
-      render(<Toast toast={mockToast} onClose={onClose} />);
+      renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       expect(screen.getByText('✓')).toBeInTheDocument(); // Success icon
     });
@@ -186,7 +185,7 @@ describe('Toast', () => {
 
   describe('animation', () => {
     it('should start invisible and fade in', async () => {
-      const { container } = render(<Toast toast={mockToast} onClose={onClose} />);
+      const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
       const toastElement = container.querySelector('[class*="toast"]')!;
 
@@ -217,11 +216,12 @@ describe('Toast', () => {
         type: 'error',
       };
 
-      const { rerender } = render(<Toast toast={toast1} onClose={onClose} />);
+      const { unmount } = renderWithTranslation(<Toast toast={toast1} onClose={onClose} />);
 
       expect(screen.getByText('First notification')).toBeInTheDocument();
 
-      rerender(<Toast toast={toast2} onClose={onClose} />);
+      unmount();
+      renderWithTranslation(<Toast toast={toast2} onClose={onClose} />);
 
       expect(screen.getByText('Second notification')).toBeInTheDocument();
     });

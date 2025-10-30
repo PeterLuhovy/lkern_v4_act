@@ -2,9 +2,9 @@
 # Button
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\components\Button.md
-# Version: 1.0.0
+# Version: 1.2.0
 # Created: 2025-10-20
-# Updated: 2025-10-20
+# Updated: 2025-10-30
 # Component Location: packages/ui-components/src/components/Button/Button.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -22,15 +22,15 @@
 **Purpose**: Primary interactive button for user actions across L-KERN v4 applications
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/Button
-**Since**: v1.0.0
+**Since**: v1.0.0 (Current: v1.2.0)
 
-The Button component is L-KERN's foundation for user interactions. It provides 5 visual variants (primary, secondary, danger, ghost, success), 4 size presets (xs, small, medium, large), loading states, icon support, and responsive full-width layout. Built with gradient backgrounds and modern CSS animations for professional UX.
+The Button component is L-KERN's foundation for user interactions. It provides 6 visual variants (primary, secondary, danger, danger-subtle, ghost, success), 4 size presets (xs, small, medium, large), loading states, icon support, and responsive full-width layout. Built with gradient backgrounds and modern CSS animations for professional UX.
 
 ---
 
 ## Features
 
-- ✅ **5 Variants**: primary (purple gradient), secondary (white outline), danger (red gradient), ghost (transparent), success (green gradient), debug (orange gradient)
+- ✅ **6 Variants**: primary (purple gradient), secondary (white outline), danger (red gradient), danger-subtle (muted red), ghost (transparent), success (green gradient), debug (orange gradient)
 - ✅ **4 Sizes**: xs (debug bars, 18px min-height), small (32px), medium (40px, default), large (48px)
 - ✅ **Loading State**: Shows spinning icon (⟳) and disables interaction
 - ✅ **Icon Support**: Icons on left or right side with customizable positioning
@@ -40,6 +40,7 @@ The Button component is L-KERN's foundation for user interactions. It provides 5
 - ✅ **Gradient Design**: Modern gradient backgrounds with hover lift effect
 - ✅ **Translation Ready**: Uses useTranslation for loading text
 - ✅ **TypeScript**: Full type safety with ButtonProps interface
+- ✅ **Theme-Aware**: danger-subtle adapts colors for light/dark mode via CSS variables
 
 ---
 
@@ -185,6 +186,14 @@ interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>
 - Text: White (#ffffff)
 - Hover: Lift effect + red glow
 - Use: Delete, remove, destructive operations
+
+**danger-subtle** - Less critical destructive actions (Clear Form) 🆕 v1.1.0
+- Background: Muted red (light: #c97575, dark: #904040)
+- Text: White (#ffffff)
+- Hover: Slightly lighter (light: #d68585, dark: #a04848)
+- CSS Variables: `var(--button-danger-subtle-bg)`, `var(--button-danger-subtle-hover)`
+- Use: Clear form, soft warnings, reversible destructive actions
+- Note: Often paired with 🧹 emoji for clear actions
 
 **ghost** - Subtle actions (View, Edit)
 - Background: Transparent
@@ -744,6 +753,13 @@ const handleSave = useCallback(() => {
 ---
 
 ## Changelog
+
+### v1.2.0 (2025-10-30)
+- ✅ **NEW VARIANT**: Added `danger-subtle` for less critical destructive actions
+- ✅ Light/dark mode support via CSS variables (`--button-danger-subtle-bg`, `--button-danger-subtle-hover`)
+- ✅ Design tokens integration (colors defined in `design-tokens.ts`)
+- ✅ Theme-aware: Light mode (#c97575), Dark mode (#904040)
+- ✅ Common use case: Clear form buttons with 🧹 emoji
 
 ### v1.1.0 (2025-10-19)
 - ✅ Added `aria-busy` attribute for loading state

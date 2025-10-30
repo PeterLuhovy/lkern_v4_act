@@ -9,41 +9,14 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { renderWithTranslation, screen } from '../../test-utils';
 import { WizardProgress } from './WizardProgress';
-
-// Mock useTranslation hook
-vi.mock('@l-kern/config', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'wizard.step': 'Step',
-      };
-      return translations[key] || key;
-    },
-    language: 'sk',
-  }),
-  useTheme: () => ({
-    theme: 'light',
-    setTheme: vi.fn(),
-  }),
-  usePageAnalytics: (pageName: string) => ({
-    session: null,
-    totalTime: '0.0s',
-    timeSinceLastActivity: '0.0s',
-    clicks: 0,
-    keys: 0,
-    startSession: vi.fn(),
-    endSession: vi.fn(),
-    trackClick: vi.fn(),
-  }),
-}));
 
 describe('WizardProgress', () => {
   // === BASIC RENDERING ===
 
   it('renders dots variant by default', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={3} />
     );
 
@@ -53,7 +26,7 @@ describe('WizardProgress', () => {
   });
 
   it('renders bar variant', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={3} variant="bar" />
     );
 
@@ -63,7 +36,7 @@ describe('WizardProgress', () => {
   });
 
   it('renders numbers variant', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={3} variant="numbers" />
     );
 
@@ -75,7 +48,7 @@ describe('WizardProgress', () => {
   // === DOTS VARIANT ===
 
   it('renders correct number of dots', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} variant="dots" />
     );
 
@@ -84,7 +57,7 @@ describe('WizardProgress', () => {
   });
 
   it('marks current and previous dots as active', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={2} totalSteps={4} variant="dots" />
     );
 
@@ -97,7 +70,7 @@ describe('WizardProgress', () => {
   });
 
   it('handles first step correctly', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={4} variant="dots" />
     );
 
@@ -110,7 +83,7 @@ describe('WizardProgress', () => {
   // === BAR VARIANT ===
 
   it('shows correct progress percentage', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={4} variant="bar" />
     );
 
@@ -120,7 +93,7 @@ describe('WizardProgress', () => {
   });
 
   it('calculates progress for first step', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={3} variant="bar" />
     );
 
@@ -130,7 +103,7 @@ describe('WizardProgress', () => {
   });
 
   it('calculates progress for last step', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={4} totalSteps={5} variant="bar" />
     );
 
@@ -142,16 +115,16 @@ describe('WizardProgress', () => {
   // === STEP INFO ===
 
   it('displays step count', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} />
     );
 
-    // currentStep is 0-based, so currentStep=1 displays as "Step 2/5"
-    expect(screen.getByText(/Step 2\/5/)).toBeInTheDocument();
+    // currentStep is 0-based, so currentStep=1 displays as "Krok 2/5"
+    expect(screen.getByText(/Krok 2\/5/)).toBeInTheDocument();
   });
 
   it('displays step title when provided', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress
         currentStep={0}
         totalSteps={3}
@@ -163,7 +136,7 @@ describe('WizardProgress', () => {
   });
 
   it('hides step title when not provided', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={3} />
     );
 
@@ -174,16 +147,16 @@ describe('WizardProgress', () => {
   // === EDGE CASES ===
 
   it('handles single step wizard', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={1} />
     );
 
-    // currentStep=0 (0-based) displays as "Step 1/1"
-    expect(screen.getByText(/Step 1\/1/)).toBeInTheDocument();
+    // currentStep=0 (0-based) displays as "Krok 1/1"
+    expect(screen.getByText(/Krok 1\/1/)).toBeInTheDocument();
   });
 
   it('handles large number of steps', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={4} totalSteps={10} variant="dots" />
     );
 
@@ -194,20 +167,20 @@ describe('WizardProgress', () => {
   // === ACCESSIBILITY ===
 
   it('renders accessible step information', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={4} />
     );
 
     // Check step info is rendered with correct text
     const stepInfo = container.querySelector('[class*="stepInfo"]');
     expect(stepInfo).toBeTruthy();
-    expect(stepInfo?.textContent).toContain('Step 2/4');
+    expect(stepInfo?.textContent).toContain('Krok 2/4');
   });
 
   // === RESPONSIVE DESIGN ===
 
   it('renders correctly with minimal steps (2 steps)', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={2} variant="dots" />
     );
 
@@ -216,7 +189,7 @@ describe('WizardProgress', () => {
   });
 
   it('handles maximum realistic steps (50 steps)', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={25} totalSteps={50} variant="dots" />
     );
 
@@ -225,7 +198,7 @@ describe('WizardProgress', () => {
   });
 
   it('renders bar variant at different widths (mobile simulation)', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={2} totalSteps={5} variant="bar" />
     );
 
@@ -235,7 +208,7 @@ describe('WizardProgress', () => {
   });
 
   it('numbers variant renders with many steps', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress currentStep={15} totalSteps={20} variant="numbers" />
     );
 
@@ -245,7 +218,7 @@ describe('WizardProgress', () => {
   // === ANIMATION & TRANSITIONS ===
 
   it('applies progress transition on bar variant', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={2} totalSteps={5} variant="bar" />
     );
 
@@ -256,7 +229,7 @@ describe('WizardProgress', () => {
   });
 
   it('updates progress when step changes', () => {
-    const { container, rerender } = render(
+    let { container, unmount } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} variant="bar" />
     );
 
@@ -264,14 +237,15 @@ describe('WizardProgress', () => {
     expect(progressBarFill?.getAttribute('style')).toContain('width: 40%');
 
     // Update to next step
-    rerender(<WizardProgress currentStep={2} totalSteps={5} variant="bar" />);
+    unmount();
+    ({ container } = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="bar" />));
 
     progressBarFill = container.querySelector('[class*="progressBarFill"]');
     expect(progressBarFill?.getAttribute('style')).toContain('width: 60%');
   });
 
   it('handles step transitions in dots variant', () => {
-    const { container, rerender } = render(
+    let { container, unmount } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} variant="dots" />
     );
 
@@ -281,7 +255,8 @@ describe('WizardProgress', () => {
     expect(dots[2].className).not.toContain('Active');
 
     // Move to next step
-    rerender(<WizardProgress currentStep={2} totalSteps={5} variant="dots" />);
+    unmount();
+    ({ container } = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="dots" />));
 
     dots = container.querySelectorAll('[class*="_dot_"]');
     expect(dots[2].className).toContain('Active');
@@ -290,7 +265,7 @@ describe('WizardProgress', () => {
   // === EDGE CASES: EXTREME VALUES ===
 
   it('handles zero total steps gracefully', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={0} />
     );
 
@@ -299,7 +274,7 @@ describe('WizardProgress', () => {
   });
 
   it('handles negative current step gracefully', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={-1} totalSteps={5} variant="bar" />
     );
 
@@ -309,7 +284,7 @@ describe('WizardProgress', () => {
   });
 
   it('handles current step exceeding total steps', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={10} totalSteps={5} variant="bar" />
     );
 
@@ -319,7 +294,7 @@ describe('WizardProgress', () => {
   });
 
   it('renders 100 steps without performance issues', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={50} totalSteps={100} variant="dots" />
     );
 
@@ -330,7 +305,7 @@ describe('WizardProgress', () => {
   // === VARIANT COMBINATIONS WITH STEP TITLE ===
 
   it('renders bar variant with step title', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress
         currentStep={2}
         totalSteps={5}
@@ -343,7 +318,7 @@ describe('WizardProgress', () => {
   });
 
   it('renders numbers variant with step title', () => {
-    render(
+    renderWithTranslation(
       <WizardProgress
         currentStep={1}
         totalSteps={4}
@@ -357,7 +332,7 @@ describe('WizardProgress', () => {
 
   it('renders dots variant with very long step title', () => {
     const longTitle = 'This is an extremely long step title that should be handled gracefully without breaking the layout';
-    render(
+    renderWithTranslation(
       <WizardProgress
         currentStep={0}
         totalSteps={3}
@@ -372,7 +347,7 @@ describe('WizardProgress', () => {
   // === PERCENTAGE CALCULATION EDGE CASES ===
 
   it('calculates 0% progress correctly (first step)', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={0} totalSteps={10} variant="bar" />
     );
 
@@ -381,7 +356,7 @@ describe('WizardProgress', () => {
   });
 
   it('calculates 100% progress correctly (last step)', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={9} totalSteps={10} variant="bar" />
     );
 
@@ -390,7 +365,7 @@ describe('WizardProgress', () => {
   });
 
   it('handles fractional progress percentages', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <WizardProgress currentStep={2} totalSteps={7} variant="bar" />
     );
 

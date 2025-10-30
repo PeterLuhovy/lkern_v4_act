@@ -66,3 +66,9 @@ export type { ToastProps } from './components/Toast';
 
 export { ToastContainer } from './components/ToastContainer';
 export type { ToastContainerProps } from './components/ToastContainer';
+
+export { ConfirmModal } from './components/ConfirmModal';
+export type { ConfirmModalProps } from './components/ConfirmModal';
+
+export { EditItemModal } from './components/EditItemModal';
+export type { EditItemModalProps } from './components/EditItemModal';

@@ -9,33 +9,8 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { WizardNavigation } from './WizardNavigation';
-
-// Mock translation hook
-vi.mock('@l-kern/config', () => ({
-  useTranslation: () => ({
-    t: (key: string) => `mock_${key}`, // Generic mock - no hardcoded translations
-    language: 'sk',
-  }),
-  useTheme: () => ({
-    theme: 'light',
-    setTheme: vi.fn(),
-  }),
-  usePageAnalytics: (pageName: string) => ({
-    session: null,
-    totalTime: '0.0s',
-    timeSinceLastActivity: '0.0s',
-    clicks: 0,
-    keys: 0,
-    startSession: vi.fn(),
-    endSession: vi.fn(),
-    resetSession: vi.fn(),
-    trackClick: vi.fn(),
-    isSessionActive: false,
-  }),
-}));
 
 describe('WizardNavigation', () => {
   describe('button rendering', () => {
@@ -43,7 +18,7 @@ describe('WizardNavigation', () => {
       const onPrevious = vi.fn();
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           onNext={onNext}
@@ -59,7 +34,7 @@ describe('WizardNavigation', () => {
     it('should render complete button on last step', () => {
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onComplete={onComplete}
           isLastStep={true}
@@ -74,7 +49,7 @@ describe('WizardNavigation', () => {
     it('should not render previous button when onPrevious not provided', () => {
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onNext={onNext}
           canGoNext={true}
@@ -87,7 +62,7 @@ describe('WizardNavigation', () => {
     it('should not render next button when onNext not provided', () => {
       const onPrevious = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           canGoPrevious={true}
@@ -103,7 +78,7 @@ describe('WizardNavigation', () => {
       const user = userEvent.setup();
       const onPrevious = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           canGoPrevious={true}
@@ -119,7 +94,7 @@ describe('WizardNavigation', () => {
       const user = userEvent.setup();
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onNext={onNext}
           canGoNext={true}
@@ -135,7 +110,7 @@ describe('WizardNavigation', () => {
       const user = userEvent.setup();
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onComplete={onComplete}
           isLastStep={true}
@@ -153,7 +128,7 @@ describe('WizardNavigation', () => {
     it('should disable previous button when canGoPrevious is false', () => {
       const onPrevious = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           canGoPrevious={false}
@@ -167,7 +142,7 @@ describe('WizardNavigation', () => {
     it('should disable next button when canGoNext is false', () => {
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onNext={onNext}
           canGoNext={false}
@@ -181,7 +156,7 @@ describe('WizardNavigation', () => {
     it('should disable complete button when canGoNext is false', () => {
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onComplete={onComplete}
           isLastStep={true}
@@ -197,7 +172,7 @@ describe('WizardNavigation', () => {
       const onPrevious = vi.fn();
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           onNext={onNext}
@@ -217,7 +192,7 @@ describe('WizardNavigation', () => {
     it('should show loading state on complete button when submitting', () => {
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onComplete={onComplete}
           isLastStep={true}
@@ -236,7 +211,7 @@ describe('WizardNavigation', () => {
     it('should use custom previous label when provided', () => {
       const onPrevious = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           canGoPrevious={true}
@@ -250,7 +225,7 @@ describe('WizardNavigation', () => {
     it('should use custom next label when provided', () => {
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onNext={onNext}
           canGoNext={true}
@@ -264,7 +239,7 @@ describe('WizardNavigation', () => {
     it('should use custom complete label when provided', () => {
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onComplete={onComplete}
           isLastStep={true}
@@ -281,7 +256,7 @@ describe('WizardNavigation', () => {
     it('should handle first step (no previous, has next)', () => {
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onNext={onNext}
           canGoPrevious={false}
@@ -297,7 +272,7 @@ describe('WizardNavigation', () => {
       const onPrevious = vi.fn();
       const onNext = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           onNext={onNext}
@@ -314,7 +289,7 @@ describe('WizardNavigation', () => {
       const onPrevious = vi.fn();
       const onComplete = vi.fn();
 
-      render(
+      renderWithTranslation(
         <WizardNavigation
           onPrevious={onPrevious}
           onComplete={onComplete}

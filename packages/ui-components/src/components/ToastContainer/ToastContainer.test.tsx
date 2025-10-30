@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { renderWithTranslation, screen } from '../../test-utils';
 import { ToastContainer } from './ToastContainer';
 import type { Toast } from '@l-kern/config';
 
@@ -17,30 +17,16 @@ import type { Toast } from '@l-kern/config';
 const mockToasts: Toast[] = [];
 const mockHideToast = vi.fn();
 
-vi.mock('@l-kern/config', () => ({
-  useToastContext: () => ({
-    toasts: mockToasts,
-    hideToast: mockHideToast,
-  }),
-  useTranslation: () => ({
-    t: (key: string) => key,
-    language: 'sk',
-  }),
-  useTheme: () => ({
-    theme: 'light',
-    setTheme: vi.fn(),
-  }),
-  usePageAnalytics: (pageName: string) => ({
-    session: null,
-    totalTime: '0.0s',
-    timeSinceLastActivity: '0.0s',
-    clicks: 0,
-    keys: 0,
-    startSession: vi.fn(),
-    endSession: vi.fn(),
-    trackClick: vi.fn(),
-  }),
-}));
+vi.mock('@l-kern/config', async () => {
+  const actual = await vi.importActual('@l-kern/config');
+  return {
+    ...actual,
+    useToastContext: () => ({
+      toasts: mockToasts,
+      hideToast: mockHideToast,
+    }),
+  };
+});
 
 // Mock Toast component
 vi.mock('../Toast', () => ({
@@ -60,7 +46,7 @@ describe('ToastContainer', () => {
 
   describe('rendering', () => {
     it('should render nothing when no toasts', () => {
-      render(<ToastContainer />);
+      renderWithTranslation(<ToastContainer />);
 
       expect(screen.queryByTestId('toast-container')).not.toBeInTheDocument();
     });
@@ -72,7 +58,7 @@ describe('ToastContainer', () => {
         type: 'success',
       });
 
-      render(<ToastContainer />);
+      renderWithTranslation(<ToastContainer />);
 
       expect(screen.getByTestId('toast-container')).toBeInTheDocument();
       expect(screen.getByTestId('toast-toast-1')).toBeInTheDocument();
@@ -97,7 +83,7 @@ describe('ToastContainer', () => {
         }
       );
 
-      render(<ToastContainer />);
+      renderWithTranslation(<ToastContainer />);
 
       expect(screen.getByTestId('toast-toast-1')).toBeInTheDocument();
       expect(screen.getByTestId('toast-toast-2')).toBeInTheDocument();
@@ -126,7 +112,7 @@ describe('ToastContainer', () => {
         }
       );
 
-      render(<ToastContainer position="bottom-center" />);
+      renderWithTranslation(<ToastContainer position="bottom-center" />);
 
       expect(screen.getByTestId('toast-toast-1')).toBeInTheDocument();
       expect(screen.queryByTestId('toast-toast-2')).not.toBeInTheDocument();
@@ -148,7 +134,7 @@ describe('ToastContainer', () => {
         }
       );
 
-      render(<ToastContainer position="top-right" />);
+      renderWithTranslation(<ToastContainer position="top-right" />);
 
       expect(screen.queryByTestId('toast-toast-1')).not.toBeInTheDocument();
       expect(screen.getByTestId('toast-toast-2')).toBeInTheDocument();
@@ -162,7 +148,7 @@ describe('ToastContainer', () => {
         // No position specified
       });
 
-      render(<ToastContainer position="bottom-center" />);
+      renderWithTranslation(<ToastContainer position="bottom-center" />);
 
       expect(screen.getByTestId('toast-toast-1')).toBeInTheDocument();
     });
@@ -186,7 +172,7 @@ describe('ToastContainer', () => {
           position,
         });
 
-        const { unmount } = render(<ToastContainer position={position} />);
+        const { unmount } = renderWithTranslation(<ToastContainer position={position} />);
 
         expect(screen.getByTestId(`toast-toast-${position}`)).toBeInTheDocument();
 
@@ -203,7 +189,7 @@ describe('ToastContainer', () => {
         type: 'success',
       });
 
-      render(<ToastContainer />);
+      renderWithTranslation(<ToastContainer />);
 
       const closeButton = screen.getByText('Close');
       closeButton.click();
@@ -222,7 +208,7 @@ describe('ToastContainer', () => {
     });
 
     it('should apply bottom-center class by default', () => {
-      const { container } = render(<ToastContainer />);
+      const { container } = renderWithTranslation(<ToastContainer />);
 
       const containerElement = container.querySelector('[class*="toastContainer--bottom-center"]');
       expect(containerElement).toBeInTheDocument();
@@ -231,7 +217,7 @@ describe('ToastContainer', () => {
     it('should apply correct class for top-right position', () => {
       mockToasts[0].position = 'top-right';
 
-      const { container } = render(<ToastContainer position="top-right" />);
+      const { container } = renderWithTranslation(<ToastContainer position="top-right" />);
 
       const containerElement = container.querySelector('[class*="toastContainer--top-right"]');
       expect(containerElement).toBeInTheDocument();
@@ -240,7 +226,7 @@ describe('ToastContainer', () => {
     it('should apply correct class for bottom-left position', () => {
       mockToasts[0].position = 'bottom-left';
 
-      const { container } = render(<ToastContainer position="bottom-left" />);
+      const { container } = renderWithTranslation(<ToastContainer position="bottom-left" />);
 
       const containerElement = container.querySelector('[class*="toastContainer--bottom-left"]');
       expect(containerElement).toBeInTheDocument();
@@ -256,7 +242,7 @@ describe('ToastContainer', () => {
         position: 'top-right',
       });
 
-      render(<ToastContainer position="bottom-center" />);
+      renderWithTranslation(<ToastContainer position="bottom-center" />);
 
       expect(screen.queryByTestId('toast-container')).not.toBeInTheDocument();
     });
@@ -268,14 +254,15 @@ describe('ToastContainer', () => {
         type: 'success',
       });
 
-      const { rerender } = render(<ToastContainer />);
+      const { unmount } = renderWithTranslation(<ToastContainer />);
 
       expect(screen.getByTestId('toast-container')).toBeInTheDocument();
 
       // Remove toast
       mockToasts.length = 0;
 
-      rerender(<ToastContainer />);
+      unmount();
+      renderWithTranslation(<ToastContainer />);
 
       expect(screen.queryByTestId('toast-container')).not.toBeInTheDocument();
     });

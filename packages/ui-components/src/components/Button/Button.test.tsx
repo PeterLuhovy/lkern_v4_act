@@ -7,15 +7,9 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { TranslationProvider } from '@l-kern/config';
 import { Button } from './Button';
-
-// Helper function to render with TranslationProvider
-const renderWithTranslation = (ui: React.ReactElement) => {
-  return render(<TranslationProvider>{ui}</TranslationProvider>);
-};
 
 describe('Button', () => {
   it('renders button with text', () => {
@@ -49,6 +43,12 @@ describe('Button', () => {
     renderWithTranslation(<Button variant="danger">Danger</Button>);
     const button = screen.getByRole('button');
     expect(button.className).toContain('button--danger');
+  });
+
+  it('applies danger-subtle variant class', () => {
+    renderWithTranslation(<Button variant="danger-subtle">Danger Subtle</Button>);
+    const button = screen.getByRole('button');
+    expect(button.className).toContain('button--danger-subtle');
   });
 
   it('applies small size class', () => {
@@ -142,16 +142,18 @@ describe('Button', () => {
     });
 
     it('re-renders when children prop changes', () => {
-      // ✅ CORRECT: Test that button updates, not what it updates to
-      const { rerender } = renderWithTranslation(<Button data-testid="dynamic-button">Initial</Button>);
+      // ✅ CORRECT: Test that button updates when text changes
+      const { unmount } = renderWithTranslation(<Button data-testid="dynamic-button">Initial</Button>);
 
-      const button = screen.getByTestId('dynamic-button');
+      let button = screen.getByTestId('dynamic-button');
       const initialText = button.textContent;
       expect(initialText).toBe('Initial');
 
-      // Simulate language change - parent passes new text from t()
-      rerender(<TranslationProvider><Button data-testid="dynamic-button">Updated</Button></TranslationProvider>);
+      // Unmount and re-render with new text (simulates language change)
+      unmount();
+      renderWithTranslation(<Button data-testid="dynamic-button">Updated</Button>);
 
+      button = screen.getByTestId('dynamic-button');
       const newText = button.textContent;
       expect(newText).toBe('Updated');
       expect(newText).not.toBe(initialText); // Verify it changed

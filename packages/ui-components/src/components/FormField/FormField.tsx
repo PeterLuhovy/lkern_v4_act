@@ -3,8 +3,13 @@
  * FILE: FormField.tsx
  * PATH: /packages/ui-components/src/components/FormField/FormField.tsx
  * DESCRIPTION: Form field with built-in real-time validation
- * VERSION: v3.0.0
- * UPDATED: 2025-10-19 20:00:00
+ * VERSION: v3.1.0
+ * UPDATED: 2025-10-30 12:15:00
+ *
+ * CHANGES (v3.1.0):
+ *   - ADDED: Controlled mode support (value + onChange props)
+ *   - ENHANCED: Now supports both controlled and uncontrolled modes
+ *   - FIXED: Parent components can now manage FormField value externally
  *
  * CHANGES (v3.0.0):
  *   - ADDED: validate prop - Real-time validation function
@@ -89,10 +94,22 @@ export interface FormFieldProps {
   onValidChange?: (isValid: boolean) => void;
 
   /**
-   * Initial value for the input field
+   * Initial value for the input field (uncontrolled mode)
    * @default ''
    */
   initialValue?: string;
+
+  /**
+   * Controlled value from parent (controlled mode)
+   * If provided, FormField operates in controlled mode and won't manage internal state
+   */
+  value?: string;
+
+  /**
+   * Controlled onChange handler from parent (controlled mode)
+   * Called when input value changes
+   */
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 
   /**
    * Tooltip text for input (HTML title attribute)
@@ -114,18 +131,47 @@ export interface FormFieldProps {
 }
 
 /**
- * FormField Component (v3.0.0)
+ * FormField Component (v3.1.0)
  *
  * Enhanced form field with built-in real-time validation.
- * Automatically manages input value, validation errors, and touched state.
+ * Supports both controlled and uncontrolled modes.
  *
- * **New in v3.0.0:**
+ * **Controlled Mode** (when `value` + `onChange` props provided):
+ * - Parent component manages the value state
+ * - FormField forwards onChange events to parent
+ * - Use when you need external state management (e.g., complex modals)
+ *
+ * **Uncontrolled Mode** (when `value` + `onChange` NOT provided):
+ * - FormField manages its own internal state
+ * - Uses `initialValue` prop for default value
+ * - Use for simple forms where FormField can manage state independently
+ *
+ * **New in v3.1.0:**
+ * - Added controlled mode support (value + onChange props)
+ * - Can now be used in controlled parent components
+ *
+ * **Features from v3.0.0:**
  * - Built-in validation with `validate` prop
  * - Real-time error messages as you type
  * - `onValidChange` callback for form-level validation
  * - Automatic Input prop injection (value, onChange, hasError)
  *
- * @example With validation
+ * @example Controlled mode (parent manages state)
+ * ```tsx
+ * const [keyword, setKeyword] = useState('');
+ *
+ * <FormField
+ *   label="Keyword"
+ *   error={showError ? 'Wrong keyword' : undefined}
+ *   value={keyword}
+ *   onChange={(e) => setKeyword(e.target.value)}
+ *   reserveMessageSpace
+ * >
+ *   <Input placeholder="Type keyword" />
+ * </FormField>
+ * ```
+ *
+ * @example Uncontrolled mode with validation
  * ```tsx
  * <FormField
  *   label="Email"
@@ -144,7 +190,7 @@ export interface FormFieldProps {
  * </FormField>
  * ```
  *
- * @example Simple usage
+ * @example Simple uncontrolled usage
  * ```tsx
  * <FormField
  *   label="Name"
@@ -168,14 +214,22 @@ export const FormField: React.FC<FormFieldProps> = ({
   validate,
   onValidChange,
   initialValue = '',
+  value: controlledValue,
+  onChange: controlledOnChange,
   inputTitle,
   successMessage,
   children,
 }) => {
-  // Internal state
-  const [value, setValue] = useState<string>(initialValue);
+  // Determine if component is controlled or uncontrolled
+  const isControlled = controlledValue !== undefined;
+
+  // Internal state (only used in uncontrolled mode)
+  const [internalValue, setInternalValue] = useState<string>(initialValue);
   const [internalError, setInternalError] = useState<string | undefined>(undefined);
   const [touched, setTouched] = useState(false);
+
+  // Use controlled value if provided, otherwise use internal state
+  const value = isControlled ? controlledValue : internalValue;
 
   // Determine which error to show (external overrides internal)
   // If field is required, show error even if not touched (show validation from start)
@@ -199,8 +253,17 @@ export const FormField: React.FC<FormFieldProps> = ({
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setValue(newValue);
-    setTouched(true);
+
+    if (isControlled) {
+      // Controlled mode - call parent's onChange
+      if (controlledOnChange) {
+        controlledOnChange(e);
+      }
+    } else {
+      // Uncontrolled mode - update internal state
+      setInternalValue(newValue);
+      setTouched(true);
+    }
   };
 
   // Clone child Input and inject props

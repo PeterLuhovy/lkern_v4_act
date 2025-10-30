@@ -1,0 +1,22 @@
+/*
+ * ================================================================
+ * FILE: ConfirmModal.module.css
+ * PATH: /packages/ui-components/src/components/ConfirmModal/ConfirmModal.module.css
+ * DESCRIPTION: Confirmation modal styles (simple + danger modes)
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-30 10:45:00
+ * ================================================================
+ */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg, 16px);
+}
+
+.message {
+  margin: 0;
+  color: var(--theme-text, #212121);
+  font-size: var(--font-size-base, 14px);
+  line-height: var(--line-height-base, 1.5);
+}

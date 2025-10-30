@@ -2,9 +2,9 @@
 # Modal
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\components\Modal.md
-# Version: 3.8.0
+# Version: 3.8.1
 # Created: 2025-10-20
-# Updated: 2025-10-20
+# Updated: 2025-10-30
 # Component Location: packages/ui-components/src/components/Modal/Modal.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -22,7 +22,7 @@
 **Purpose**: Enterprise-grade modal dialog for L-KERN v4 with drag-and-drop, nested modals, and advanced keyboard handling
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/Modal
-**Since**: v1.0.0 (Current: v3.8.0)
+**Since**: v1.0.0 (Current: v3.8.1)
 
 The Modal component is L-KERN's most advanced UI component, providing a powerful dialog system with drag-and-drop repositioning, nested modal support via modalStack, enhanced footer layout with separate left/right action slots, vertical alignment options (top/center/bottom), keyboard shortcuts (ESC/Enter), focus trap, body scroll lock, and full accessibility support. Designed for complex enterprise workflows requiring sophisticated modal interactions.
 
@@ -1271,6 +1271,13 @@ return (
 ---
 
 ## Changelog
+
+### v3.8.1 (2025-10-30)
+- 🐛 **CRITICAL**: Fixed useEffect dependencies in modalStack registration (line 361)
+- ✅ Removed `onClose` and `onConfirm` from dependencies array
+- ✅ Prevents unmount/remount cycles when parent re-renders with new function references
+- ✅ modalStack stores functions internally and uses latest versions when called
+- ✅ Improves performance and prevents stale closure bugs in EditItemModal integration
 
 ### v3.8.0 (2025-10-19)
 - 🐛 **CRITICAL**: Fixed 2 memory leaks (drag listeners + keyboard listener churn)

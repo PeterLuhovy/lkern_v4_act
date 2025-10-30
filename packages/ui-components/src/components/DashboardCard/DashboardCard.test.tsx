@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { renderWithTranslation, screen } from '../../test-utils';
 import { BrowserRouter } from 'react-router-dom';
 import { DashboardCard } from './DashboardCard';
 
@@ -24,14 +24,15 @@ describe('DashboardCard', () => {
   // ================================================================
 
   it('renders with all props', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Test Card"
-        description="This is a test card"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test Card"
+          description="This is a test card"
+        />
+      </RouterWrapper>
     );
 
     expect(screen.getByText('🧪')).toBeInTheDocument();
@@ -40,28 +41,30 @@ describe('DashboardCard', () => {
   });
 
   it('renders icon as emoji', () => {
-    render(
-      <DashboardCard
-        path="/forms"
-        icon="📝"
-        title="Forms"
-        description="Form components"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/forms"
+          icon="📝"
+          title="Forms"
+          description="Form components"
+        />
+      </RouterWrapper>
     );
 
     expect(screen.getByText('📝')).toBeInTheDocument();
   });
 
   it('renders icon as React element', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon={<span data-testid="custom-icon">🎨</span>}
-        title="Custom Icon"
-        description="Test"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon={<span data-testid="custom-icon">🎨</span>}
+          title="Custom Icon"
+          description="Test"
+        />
+      </RouterWrapper>
     );
 
     expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
@@ -72,14 +75,15 @@ describe('DashboardCard', () => {
   // ================================================================
 
   it('creates Link with correct path', () => {
-    const { container } = render(
-      <DashboardCard
-        path="/testing/forms"
-        icon="📝"
-        title="Forms"
-        description="Form components"
-      />,
-      { wrapper: RouterWrapper }
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/testing/forms"
+          icon="📝"
+          title="Forms"
+          description="Form components"
+        />
+      </RouterWrapper>
     );
 
     const link = container.querySelector('a');
@@ -88,14 +92,15 @@ describe('DashboardCard', () => {
   });
 
   it('renders as clickable link', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Test"
-        description="Test card"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test card"
+        />
+      </RouterWrapper>
     );
 
     const link = screen.getByRole('link');
@@ -107,14 +112,15 @@ describe('DashboardCard', () => {
   // ================================================================
 
   it('renders title as h3 heading', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Test Heading"
-        description="Description"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test Heading"
+          description="Description"
+        />
+      </RouterWrapper>
     );
 
     const heading = screen.getByRole('heading', { level: 3 });
@@ -123,14 +129,15 @@ describe('DashboardCard', () => {
   });
 
   it('renders description text', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Title"
-        description="This is a long description text"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Title"
+          description="This is a long description text"
+        />
+      </RouterWrapper>
     );
 
     expect(screen.getByText('This is a long description text')).toBeInTheDocument();
@@ -141,15 +148,16 @@ describe('DashboardCard', () => {
   // ================================================================
 
   it('applies custom className when provided', () => {
-    const { container } = render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Test"
-        description="Test"
-        className="custom-class"
-      />,
-      { wrapper: RouterWrapper }
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test"
+          className="custom-class"
+        />
+      </RouterWrapper>
     );
 
     const card = container.querySelector('.custom-class');
@@ -157,14 +165,15 @@ describe('DashboardCard', () => {
   });
 
   it('uses elevated variant for Card', () => {
-    const { container } = render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Test"
-        description="Test"
-      />,
-      { wrapper: RouterWrapper }
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test"
+        />
+      </RouterWrapper>
     );
 
     // Card component should be rendered with elevated variant
@@ -177,14 +186,15 @@ describe('DashboardCard', () => {
   // ================================================================
 
   it('maintains semantic HTML structure', () => {
-    render(
-      <DashboardCard
-        path="/test"
-        icon="🧪"
-        title="Accessible Card"
-        description="Description"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Accessible Card"
+          description="Description"
+        />
+      </RouterWrapper>
     );
 
     // Should have link
@@ -195,14 +205,15 @@ describe('DashboardCard', () => {
   });
 
   it('renders complete content for screen readers', () => {
-    render(
-      <DashboardCard
-        path="/testing/forms"
-        icon="📝"
-        title="Form Components"
-        description="Test form inputs and validation"
-      />,
-      { wrapper: RouterWrapper }
+    renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/testing/forms"
+          icon="📝"
+          title="Form Components"
+          description="Test form inputs and validation"
+        />
+      </RouterWrapper>
     );
 
     const link = screen.getByRole('link');

@@ -354,7 +354,11 @@ export const Modal: React.FC<ModalProps> = ({
         modalStack.pop(modalId);
       }
     };
-  }, [isOpen, modalId, parentModalId, onClose, onConfirm]);
+    // CRITICAL: onClose and onConfirm are intentionally excluded from dependencies
+    // to prevent unmount/remount cycles when parent component re-renders with new function references.
+    // modalStack stores these functions internally and uses the latest version when called.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, modalId, parentModalId]);
 
   // ================================================================
   // KEYBOARD SHORTCUTS (HYBRID APPROACH)

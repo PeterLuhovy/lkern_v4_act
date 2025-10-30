@@ -3,42 +3,42 @@
  * FILE: Card.test.tsx
  * PATH: /packages/ui-components/src/components/Card/Card.test.tsx
  * DESCRIPTION: Unit tests for Card component
- * VERSION: v1.0.0
+ * VERSION: v1.1.0
  * CREATED: 2025-10-18
+ * UPDATED: 2025-10-30
  * ================================================================
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { Card } from './Card';
 
 describe('Card', () => {
   it('renders children correctly', () => {
-    render(<Card>Test Content</Card>);
+    renderWithTranslation(<Card>Test Content</Card>);
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
   it('applies default variant class', () => {
-    const { container } = render(<Card>Content</Card>);
+    const { container } = renderWithTranslation(<Card>Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--default');
   });
 
   it('applies outlined variant class', () => {
-    const { container } = render(<Card variant="outlined">Content</Card>);
+    const { container } = renderWithTranslation(<Card variant="outlined">Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--outlined');
   });
 
   it('applies elevated variant class', () => {
-    const { container } = render(<Card variant="elevated">Content</Card>);
+    const { container } = renderWithTranslation(<Card variant="elevated">Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--elevated');
   });
 
   it('applies custom className', () => {
-    const { container } = render(<Card className="custom-class">Content</Card>);
+    const { container } = renderWithTranslation(<Card className="custom-class">Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('custom-class');
   });
@@ -46,7 +46,7 @@ describe('Card', () => {
   it('calls onClick when clicked', async () => {
     const user = userEvent.setup();
     const handleClick = vi.fn();
-    render(<Card onClick={handleClick}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={handleClick}>Clickable</Card>);
 
     const card = screen.getByRole('button');
     await user.click(card);
@@ -55,25 +55,25 @@ describe('Card', () => {
   });
 
   it('applies clickable class when onClick provided', () => {
-    const { container } = render(<Card onClick={() => {}}>Content</Card>);
+    const { container } = renderWithTranslation(<Card onClick={() => {}}>Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--clickable');
   });
 
   it('sets role="button" when clickable', () => {
-    render(<Card onClick={() => {}}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={() => {}}>Clickable</Card>);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('does not set role when not clickable', () => {
-    render(<Card>Not Clickable</Card>);
+    renderWithTranslation(<Card>Not Clickable</Card>);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('is keyboard accessible with Enter key', async () => {
     const user = userEvent.setup();
     const handleClick = vi.fn();
-    render(<Card onClick={handleClick}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={handleClick}>Clickable</Card>);
 
     const card = screen.getByRole('button');
     card.focus();
@@ -85,7 +85,7 @@ describe('Card', () => {
   it('is keyboard accessible with Space key', async () => {
     const user = userEvent.setup();
     const handleClick = vi.fn();
-    render(<Card onClick={handleClick}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={handleClick}>Clickable</Card>);
 
     const card = screen.getByRole('button');
     card.focus();
@@ -95,7 +95,7 @@ describe('Card', () => {
   });
 
   it('applies no-hover class when disableHover is true', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <Card onClick={() => {}} disableHover>
         Content
       </Card>
@@ -105,7 +105,7 @@ describe('Card', () => {
   });
 
   it('does not apply no-hover class when disableHover is false', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <Card onClick={() => {}} disableHover={false}>
         Content
       </Card>
@@ -116,18 +116,18 @@ describe('Card', () => {
 
   it('forwards ref correctly', () => {
     const ref = vi.fn();
-    render(<Card ref={ref}>Content</Card>);
+    renderWithTranslation(<Card ref={ref}>Content</Card>);
     expect(ref).toHaveBeenCalled();
   });
 
   it('renders with tabIndex when clickable', () => {
-    render(<Card onClick={() => {}}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={() => {}}>Clickable</Card>);
     const card = screen.getByRole('button');
     expect(card).toHaveAttribute('tabIndex', '0');
   });
 
   it('does not set tabIndex when not clickable', () => {
-    const { container } = render(<Card>Not Clickable</Card>);
+    const { container } = renderWithTranslation(<Card>Not Clickable</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card).not.toHaveAttribute('tabIndex');
   });
@@ -135,7 +135,7 @@ describe('Card', () => {
   // CSS Variables Tests
   describe('CSS Variables', () => {
     it('uses theme CSS variables (not hardcoded colors)', () => {
-      const { container } = render(<Card>Content</Card>);
+      const { container } = renderWithTranslation(<Card>Content</Card>);
       const card = container.firstChild as HTMLElement;
       const styles = getComputedStyle(card);
 
@@ -148,9 +148,9 @@ describe('Card', () => {
     });
 
     it('applies correct variant classes that use theme variables', () => {
-      const { container: container1 } = render(<Card variant="default">Default</Card>);
-      const { container: container2 } = render(<Card variant="outlined">Outlined</Card>);
-      const { container: container3 } = render(<Card variant="elevated">Elevated</Card>);
+      const { container: container1 } = renderWithTranslation(<Card variant="default">Default</Card>);
+      const { container: container2 } = renderWithTranslation(<Card variant="outlined">Outlined</Card>);
+      const { container: container3 } = renderWithTranslation(<Card variant="elevated">Elevated</Card>);
 
       // CSS Modules add hash suffix, so we check if className contains the variant
       const card1 = container1.firstChild as HTMLElement;

@@ -1,0 +1,23 @@
+/*
+ * ================================================================
+ * FILE: EditItemModal.module.css
+ * PATH: /packages/ui-components/src/components/EditItemModal/EditItemModal.module.css
+ * DESCRIPTION: Styles for EditItemModal component (minimal - inherits from Modal)
+ * VERSION: v1.0.0
+ * UPDATED: 2025-10-30 12:00:00
+ * ================================================================
+ */
+
+/*
+ * NOTA BENE: EditItemModal je wrapper okolo Modal komponenty.
+ * Väčšina štýlov sa dedí z Modal.module.css.
+ * Tento súbor obsahuje len EditItemModal-specific štýly (ak potrebné).
+ */
+
+/**
+ * Container for modal content
+ * (Currently empty - EditItemModal uses Modal's default content styles)
+ */
+.content {
+  /* Placeholder for future EditItemModal-specific content styles */
+}

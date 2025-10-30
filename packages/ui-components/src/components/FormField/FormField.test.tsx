@@ -7,14 +7,13 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { FormField } from './FormField';
 import { Input } from '../Input';
 
 describe('FormField', () => {
   it('renders label and input', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Username" htmlFor="username">
         <Input id="username" />
       </FormField>
@@ -24,7 +23,7 @@ describe('FormField', () => {
   });
 
   it('displays required asterisk when required prop is true', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Email" required>
         <Input />
       </FormField>
@@ -33,7 +32,7 @@ describe('FormField', () => {
   });
 
   it('does not display asterisk when required prop is false', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Email">
         <Input />
       </FormField>
@@ -42,7 +41,7 @@ describe('FormField', () => {
   });
 
   it('displays error message when error prop is provided', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Email" error="Invalid email format">
         <Input />
       </FormField>
@@ -51,7 +50,7 @@ describe('FormField', () => {
   });
 
   it('displays helper text when no error', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Password" helperText="Min 8 characters">
         <Input />
       </FormField>
@@ -60,7 +59,7 @@ describe('FormField', () => {
   });
 
   it('hides helper text when error is present', () => {
-    render(
+    renderWithTranslation(
       <FormField
         label="Password"
         helperText="Min 8 characters"
@@ -74,7 +73,7 @@ describe('FormField', () => {
   });
 
   it('applies fullWidth class when fullWidth prop is true', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <FormField label="Email" fullWidth>
         <Input />
       </FormField>
@@ -84,7 +83,7 @@ describe('FormField', () => {
   });
 
   it('links label to input via htmlFor/id', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Email">
         <Input id="email-input" data-testid="email-input" />
       </FormField>
@@ -94,7 +93,7 @@ describe('FormField', () => {
   });
 
   it('applies custom className', () => {
-    const { container } = render(
+    const { container } = renderWithTranslation(
       <FormField label="Email" className="custom-field">
         <Input />
       </FormField>
@@ -104,7 +103,7 @@ describe('FormField', () => {
   });
 
   it('renders error with role="alert" for accessibility', () => {
-    render(
+    renderWithTranslation(
       <FormField label="Email" error="Error message">
         <Input />
       </FormField>
@@ -114,21 +113,23 @@ describe('FormField', () => {
   });
 
   it('can wrap different input types', () => {
-    const { rerender } = render(
+    let { unmount } = renderWithTranslation(
       <FormField label="Text">
         <Input type="text" data-testid="input" />
       </FormField>
     );
     expect(screen.getByTestId('input')).toHaveAttribute('type', 'text');
 
-    rerender(
+    unmount();
+    ({ unmount } = renderWithTranslation(
       <FormField label="Email">
         <Input type="email" data-testid="input" />
       </FormField>
-    );
+    ));
     expect(screen.getByTestId('input')).toHaveAttribute('type', 'email');
 
-    rerender(
+    unmount();
+    renderWithTranslation(
       <FormField label="Select">
         <select data-testid="select">
           <option>Option 1</option>
@@ -141,7 +142,7 @@ describe('FormField', () => {
   describe('v3.0.0 features - Real-time validation', () => {
     it('validates input and shows error message', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => {
@@ -169,7 +170,7 @@ describe('FormField', () => {
 
     it('clears error when input becomes valid', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => {
@@ -203,7 +204,7 @@ describe('FormField', () => {
     it('calls onValidChange when validation state changes', async () => {
       const user = userEvent.setup();
       const mockCallback = vi.fn();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => (!value ? 'Required' : undefined)}
@@ -227,7 +228,7 @@ describe('FormField', () => {
     });
 
     it('shows required error immediately when required=true', () => {
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           required
@@ -244,7 +245,7 @@ describe('FormField', () => {
 
     it('hides error until touched when required=false', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => (!value ? 'Email is required' : undefined)}
@@ -269,7 +270,7 @@ describe('FormField', () => {
 
     it('displays success message when valid', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => {
@@ -298,7 +299,7 @@ describe('FormField', () => {
 
     it('prioritizes external error over internal validation error', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           error="Server error: Email already exists"
@@ -322,7 +323,7 @@ describe('FormField', () => {
 
   describe('v3.0.0 features - Layout & UX', () => {
     it('reserves space for message when reserveMessageSpace=true', () => {
-      const { container } = render(
+      const { container } = renderWithTranslation(
         <FormField label="Email" reserveMessageSpace>
           <Input />
         </FormField>
@@ -334,7 +335,7 @@ describe('FormField', () => {
     });
 
     it('does not reserve space when reserveMessageSpace=false', () => {
-      const { container } = render(
+      const { container } = renderWithTranslation(
         <FormField label="Email">
           <Input />
         </FormField>
@@ -346,7 +347,7 @@ describe('FormField', () => {
     });
 
     it('uses initialValue prop', () => {
-      render(
+      renderWithTranslation(
         <FormField label="Name" initialValue="John Doe">
           <Input data-testid="name-input" />
         </FormField>
@@ -357,7 +358,7 @@ describe('FormField', () => {
     });
 
     it('applies inputTitle as tooltip', () => {
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           inputTitle="Enter your work email address"
@@ -374,7 +375,7 @@ describe('FormField', () => {
   describe('v3.0.0 features - Input prop injection', () => {
     it('injects value prop to child Input', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField label="Name">
           <Input data-testid="name-input" />
         </FormField>
@@ -390,7 +391,7 @@ describe('FormField', () => {
     });
 
     it('injects hasError prop when field has error', () => {
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => (!value ? 'Required' : undefined)}
@@ -409,7 +410,7 @@ describe('FormField', () => {
 
     it('injects isValid prop when field is valid', async () => {
       const user = userEvent.setup();
-      render(
+      renderWithTranslation(
         <FormField
           label="Email"
           validate={(value) => {
@@ -434,7 +435,7 @@ describe('FormField', () => {
     });
 
     it('injects fullWidth prop to child Input', () => {
-      render(
+      renderWithTranslation(
         <FormField label="Name" fullWidth>
           <Input data-testid="name-input" />
         </FormField>
@@ -443,6 +444,167 @@ describe('FormField', () => {
       const input = screen.getByTestId('name-input');
       // CSS Modules hash
       expect(input.className).toContain('input--fullWidth');
+    });
+  });
+
+  describe('v3.1.0 features - Controlled mode', () => {
+    it('uses controlled value from parent', () => {
+      renderWithTranslation(
+        <FormField
+          label="Keyword"
+          value="test-value"
+          onChange={vi.fn()}
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      const input = screen.getByTestId('keyword-input') as HTMLInputElement;
+      expect(input.value).toBe('test-value');
+    });
+
+    it('calls parent onChange handler in controlled mode', async () => {
+      const user = userEvent.setup();
+      const mockOnChange = vi.fn();
+
+      renderWithTranslation(
+        <FormField
+          label="Keyword"
+          value=""
+          onChange={mockOnChange}
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      const input = screen.getByTestId('keyword-input');
+      await user.type(input, 'a');
+
+      expect(mockOnChange).toHaveBeenCalled();
+    });
+
+    it('does not manage internal state in controlled mode', () => {
+      const { rerender } = renderWithTranslation(
+        <FormField
+          label="Keyword"
+          value="initial"
+          onChange={vi.fn()}
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      const input = screen.getByTestId('keyword-input') as HTMLInputElement;
+      expect(input.value).toBe('initial');
+
+      // Update controlled value
+      rerender(
+        <FormField
+          label="Keyword"
+          value="updated"
+          onChange={vi.fn()}
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      // Value should update immediately (no internal state)
+      expect(input.value).toBe('updated');
+    });
+
+    it('uncontrolled mode still works (backward compatibility)', async () => {
+      const user = userEvent.setup();
+
+      renderWithTranslation(
+        <FormField label="Name" initialValue="John">
+          <Input data-testid="name-input" />
+        </FormField>
+      );
+
+      const input = screen.getByTestId('name-input') as HTMLInputElement;
+      expect(input.value).toBe('John');
+
+      // Type more text
+      await user.type(input, ' Doe');
+      expect(input.value).toBe('John Doe');
+    });
+
+    it('controlled mode with validation works correctly', async () => {
+      const user = userEvent.setup();
+      const mockOnChange = vi.fn();
+
+      // Note: In controlled mode, validation runs but doesn't show error until touched
+      // Need to use required prop or provide external error to show immediately
+      renderWithTranslation(
+        <FormField
+          label="Email"
+          value="invalid"
+          onChange={mockOnChange}
+          validate={(value) => {
+            if (!value) return 'Required';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+              return 'Invalid email';
+            }
+            return undefined;
+          }}
+          required  // Make field show error immediately
+          reserveMessageSpace
+        >
+          <Input data-testid="email-input" />
+        </FormField>
+      );
+
+      // Should show validation error (because required=true)
+      expect(screen.getByText('Invalid email')).toBeInTheDocument();
+    });
+
+    it('controlled mode with external error shows error correctly', () => {
+      renderWithTranslation(
+        <FormField
+          label="Keyword"
+          value="wrong"
+          onChange={vi.fn()}
+          error="Incorrect keyword"
+          reserveMessageSpace
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      expect(screen.getByText('Incorrect keyword')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    it('controlled mode clears error when external error removed', () => {
+      const { rerender } = renderWithTranslation(
+        <FormField
+          label="Keyword"
+          value="test"
+          onChange={vi.fn()}
+          error="Wrong keyword"
+          reserveMessageSpace
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      expect(screen.getByText('Wrong keyword')).toBeInTheDocument();
+
+      // Remove error
+      rerender(
+        <FormField
+          label="Keyword"
+          value="test"
+          onChange={vi.fn()}
+          error={undefined}
+          reserveMessageSpace
+        >
+          <Input data-testid="keyword-input" />
+        </FormField>
+      );
+
+      expect(screen.queryByText('Wrong keyword')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 });

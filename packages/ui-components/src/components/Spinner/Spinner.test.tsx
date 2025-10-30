@@ -3,21 +3,15 @@
  * FILE: Spinner.test.tsx
  * PATH: /packages/ui-components/src/components/Spinner/Spinner.test.tsx
  * DESCRIPTION: Unit tests for Spinner component
- * VERSION: v1.1.0
+ * VERSION: v1.2.0
  * CREATED: 2025-10-18
- * UPDATED: 2025-10-19
+ * UPDATED: 2025-10-30
  * ================================================================
  */
 
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { TranslationProvider } from '@l-kern/config';
+import { renderWithTranslation, screen } from '../../test-utils';
 import { Spinner } from './Spinner';
-
-// Helper function to render with TranslationProvider
-const renderWithTranslation = (ui: React.ReactElement) => {
-  return render(<TranslationProvider>{ui}</TranslationProvider>);
-};
 
 describe('Spinner Component', () => {
   // ================================================

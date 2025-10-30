@@ -31,6 +31,16 @@ export const COLORS = {
     muted: '#9E9E9E',        // Gray for disabled
   },
 
+  // Button variant colors
+  button: {
+    dangerSubtle: {
+      light: '#c97575',      // Light mode - softer pink-red
+      lightHover: '#d68585', // Light mode hover
+      dark: '#904040',       // Dark mode - muted dark red
+      darkHover: '#a04848',  // Dark mode hover
+    },
+  },
+
   // Priority colors
   priority: {
     nizka: '#9E9E9E',        // Gray - low priority

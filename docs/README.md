@@ -2,9 +2,9 @@
 # L-KERN v4 - Documentation Map
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\README.md
-# Version: 3.0.0
+# Version: 4.0.0
 # Created: 2025-10-13
-# Updated: 2025-10-20
+# Updated: 2025-10-30
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -68,6 +68,7 @@ System architecture, design decisions, infrastructure.
 
 | File | Description | Path |
 |------|-------------|------|
+| **Microservices Architecture** | ⭐ Complete microservices specification (domain-driven design, Kafka events, GDPR) | [architecture/microservices-architecture.md](architecture/microservices-architecture.md) |
 | **Port Mapping** | LKMS port mapping strategy (service ports) | [architecture/port-mapping.md](architecture/port-mapping.md) |
 | **Main Architecture** | Overall system architecture (planned) | [architecture/main-architecture.md](architecture/main-architecture.md) |
 
@@ -247,6 +248,7 @@ Work-in-progress documentation, planning notes, TODO files.
 | Understand design system | [design/component-design-system.md](design/component-design-system.md) |
 | Use @l-kern/config package | [packages/config.md](packages/config.md) |
 | Use UI components | [packages/ui-components.md](packages/ui-components.md) |
+| Understand microservices architecture | [architecture/microservices-architecture.md](architecture/microservices-architecture.md) |
 | Check service ports | [architecture/port-mapping.md](architecture/port-mapping.md) |
 
 ---
@@ -312,6 +314,7 @@ Work-in-progress documentation, planning notes, TODO files.
 - **Code Style** → [programming/coding-standards.md](programming/coding-standards.md)
 - **Examples** → [programming/code-examples.md](programming/code-examples.md)
 - **Roadmap** → [project/roadmap.md](project/roadmap.md)
+- **Microservices** → [architecture/microservices-architecture.md](architecture/microservices-architecture.md)
 - **Ports** → [architecture/port-mapping.md](architecture/port-mapping.md)
 
 ### By Package
@@ -345,6 +348,7 @@ L:\system\lkern_codebase_v4_act\docs\
 │   └── troubleshooting.md                 # Known issues and solutions ⭐
 │
 ├── architecture/                          # System architecture
+│   ├── microservices-architecture.md      # ⭐ Complete microservices spec
 │   ├── port-mapping.md                    # Port mapping strategy
 │   └── main-architecture.md               # Overall architecture (planned)
 │
@@ -381,8 +385,8 @@ L:\system\lkern_codebase_v4_act\docs\
 
 ---
 
-**Last Updated:** 2025-10-20
+**Last Updated:** 2025-10-30
 **Maintainer:** BOSSystems s.r.o.
 **Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\`
-**Documentation Version:** 3.0.0
+**Documentation Version:** 4.0.0
 **Documentation Status:** ✅ 100% COMPLETE (29/29 items documented)

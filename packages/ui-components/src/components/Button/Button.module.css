@@ -99,6 +99,26 @@
               0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
+/* Danger Subtle - Muted red for less critical destructive actions */
+.button--danger-subtle {
+  background: var(--button-danger-subtle-bg);
+  color: var(--theme-button-text-on-color);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.button--danger-subtle:hover:not(:disabled) {
+  background: var(--button-danger-subtle-hover);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button--danger-subtle:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 /* Ghost */
 .button--ghost {
   background: transparent;

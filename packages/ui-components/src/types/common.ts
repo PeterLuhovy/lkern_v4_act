@@ -13,7 +13,7 @@ export type Size = 'xs' | 'small' | 'medium' | 'large';
 /**
  * Component variants for styling
  */
-export type Variant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
+export type Variant = 'primary' | 'secondary' | 'danger' | 'danger-subtle' | 'ghost' | 'success';
 
 /**
  * Status variants for badges and indicators

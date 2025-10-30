@@ -2,11 +2,21 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 3.0.0
+# Version: 4.0.0
 # Created: 2025-10-13
-# Updated: 2025-10-22
+# Updated: 2025-10-30
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
+#
+# Architecture: Domain-Driven Microservices (Bounded Context)
+# Previous Version: v3.0.0 (archived to docs/temp/roadmap-v3.0.0-obsolete.md)
+#
+# Key Changes from v3.0.0:
+# - ✅ Microservices reorganized: Sales (AR), Purchasing (AP), Finance (GL)
+# - ✅ Added: Production Planning & Quality (PPQ), Operations (BPM)
+# - ✅ Added: Configuration service, Event-Driven Architecture (Kafka)
+# - ✅ GDPR compliance: Sensitive data strategy defined
+# - ✅ Architecture reference: docs/architecture/microservices-architecture.md
 # ================================================================
 
 ---
@@ -20,7 +30,7 @@
 2. **Complete task** - Change status to ✅ COMPLETED, add completion date
 3. **Move to next** - Change next task from ⏸️ PLANNED to ⏳ IN PROGRESS
 4. **Add new tasks** - When bugs/features arise, add under appropriate phase
-5. **Update version** - Increment version (3.0.0 → 3.1.0) after changes
+5. **Update version** - Increment version (4.0.0 → 4.1.0) after changes
 6. **Update dates** - Adjust target dates when delays occur
 
 **Status symbols:**
@@ -33,11 +43,13 @@
 
 **Quick scan tip:** Čítaj len názvy taskov a statusy - za 5 sekúnd vidíš čo je hotové a čo ďalej!
 
+**Architecture Reference:** See [microservices-architecture.md](../architecture/microservices-architecture.md) for complete design
+
 ---
 
 ## 🎯 CURRENT PRIORITY: Modal System v3.0 Implementation
 
-**⚠️ ACTIVE WORK:** Modal System má PRIORITU pred Table/DataGrid!
+**⚠️ ACTIVE WORK:** Modal System má PRIORITU pred backend mikroservismi!
 
 **Status**: ⏳ IN PROGRESS (Phase 1.3 ✅ DONE, Phase 2 NEXT)
 **Started**: 2025-10-20
@@ -63,26 +75,34 @@
 | Phase 6 | Supporting Components (4) | 8-12h | ⏸️ Pending | 2025-11-10 |
 | Phase 7 | Testing & Validation | 8-12h | ⏸️ Pending | 2025-11-12 |
 
-### **Phase 2 Details: Core Modals (3 components)** ⏳ NEXT
+### **Phase 2 Details: Core Modals (3 components)** ⏳ IN PROGRESS
 
 **What to build:**
 
-**1. ConfirmModal** (5-6h) - 🔴 FIRST
-- Replaces MiniConfirmModal from v3
-- Reusable confirmation dialog component
-- Uses Modal + useConfirm hook internally
-- SK/EN translations support
-- Variants: delete, warning, info, success
-- 15 unit tests
-- Complete documentation (ConfirmModal.md)
+**1. ConfirmModal** (5-6h) - ✅ FULLY COMPLETED (2025-10-30)
+- ✅ Replaces MiniConfirmModal from v3
+- ✅ Reusable confirmation dialog component with two modes (simple + danger)
+- ✅ Uses Modal component internally
+- ✅ SK/EN translations support with localized keyword validation
+- ✅ Variants: simple (yes/no), danger (keyword confirmation)
+- ✅ Fixed danger mode validation (FormField controlled mode support added)
+- ✅ Dark mode compatibility fixed
+- ✅ **15/15 unit tests passing (100%)** - All tests fixed and enhanced
+- ✅ **useConfirm hook: 26/26 tests passing** - Enhanced with v2.0.0 API
+- ✅ **FormField v3.1.0: 33/33 tests passing** - Added controlled mode tests
+- ✅ Complete documentation (ConfirmModal.md)
+- ✅ Tested on TestModalV3Page (http://localhost:4201/testing/modal-v3)
 
-**2. EditItemModal** (4-6h)
-- Generic add/edit wrapper from v3
-- Form validation integration
-- useFormDirty integration (unsaved changes detection)
-- Customizable fields via props
-- 15 unit tests
-- Documentation (EditItemModal.md)
+**2. EditItemModal** (4-6h) - ✅ **COMPLETED (2025-10-30)**
+- ✅ Generic add/edit wrapper with controlled FormField integration
+- ✅ Form validation integration (real-time validation)
+- ✅ useFormDirty integration (unsaved changes detection with confirmation)
+- ✅ Optional clear button with danger-subtle variant (🧹 emoji)
+- ✅ Customizable footer buttons (save/cancel/clear)
+- ✅ SK/EN translations support
+- ✅ 20/20 unit tests passing (100%)
+- ✅ Complete documentation (EditItemModal.md)
+- ✅ Tested on TestModalV3Page (Test 12: Add/Edit Item)
 
 **3. ManagementModal** (4-6h)
 - List management wrapper from v3
@@ -93,13 +113,36 @@
 - Documentation (ManagementModal.md)
 
 **Deliverables:**
-- 3 production-ready modal components ✅
-- Complete documentation for each ✅
-- 42 tests passing (15+15+12) ✅
+- 3 production-ready modal components (2/3 done ✅)
+- Complete documentation for each (2/3 done ✅)
+- 55 tests passing (15+20+20) - **35/55 done ✅** (ConfirmModal + EditItemModal complete)
 - Export from @l-kern/ui-components ✅
 
+**Additional Improvements (Phase 2.1):**
+- ✅ **FormField v3.1.0** - Added controlled mode support (value + onChange props)
+  - Supports both controlled and uncontrolled modes
+  - Enables parent components to manage FormField state (critical for ConfirmModal danger mode)
+  - Updated documentation with controlled mode examples
+  - 33/33 tests passing (added 7 new controlled mode tests)
+- ✅ **Button v1.2.0** - Added danger-subtle variant (2025-10-30)
+  - New danger-subtle variant for less critical destructive actions
+  - Theme-aware colors (light: #c97575, dark: #904040) via design tokens
+  - Used in EditItemModal clear button with 🧹 emoji
+  - Updated Button.md documentation with examples
+  - 20/20 tests passing (added danger-subtle test)
+- ✅ **Modal v3.8.1** - Fixed useEffect dependencies (2025-10-30)
+  - Removed onClose/onConfirm from dependencies array (line 361)
+  - Prevents unmount/remount cycles when parent re-renders
+  - Improves performance and prevents stale closure bugs
+  - Updated Modal.md documentation with changelog
+- ✅ **Test Refactoring Specialist Agent v1.2.0** - Updated (2025-10-30)
+  - Added communication rules (write before/after every tool use)
+  - Added "NO unnecessary mocks" rule
+  - Check for real components before creating mocks
+  - Use real components from @l-kern/ui-components instead of mocking
+
 **After Phase 2 → Continue to Phase 3 (Advanced Modals)**
-**After Modal System complete (Phase 7) → Resume Table/DataGrid**
+**After Modal System complete (Phase 7) → Resume Backend Development (Task 1.3)**
 
 ---
 
@@ -109,7 +152,7 @@
 
 | Version | Phase | Goal | Target Date | Status |
 |---------|-------|------|-------------|--------|
-| **4.0.x** | Phase 1 | MVP - Core functionality | 2026-03-10 | ⏳ IN PROGRESS |
+| **4.0.x** | Phase 1 | MVP - Core functionality | 2026-06-30 | ⏳ IN PROGRESS |
 | **4.1.x** | Phase 2 | Security, bug fixes | TBD | ⏸️ PLANNED |
 | **4.2.x** | Phase 3 | Production hardening | TBD | ⏸️ PLANNED |
 | **4.3.x+** | Phase 4+ | Features, competitiveness | TBD | ⏸️ PLANNED |
@@ -125,10 +168,13 @@
 ## 📋 PHASE 1: MVP Development (v4.0.x)
 
 **Goal:** Build minimum viable product and deploy to production
-**Timeline:** Oct 2025 - Mar 2026
-**Progress:** 2.7/21 tasks (~12%)
+**Timeline:** Oct 2025 - Jun 2026 (extended due to PPQ and Operations additions)
+**Progress:** 2.7/19 tasks (~14%)
+**Architecture:** Domain-Driven Microservices (see [microservices-architecture.md](../architecture/microservices-architecture.md))
 
 ---
+
+## ✅ COMPLETED TASKS
 
 ### **1.0 Infrastructure Setup** ✅ COMPLETED (2025-10-15)
 - ✅ Nx workspace (Yarn 4 + TypeScript 5.7)
@@ -152,7 +198,7 @@
 
 ### **1.2 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~75%)
 **Started:** 2025-10-18
-**Target Completion:** 2025-10-27 (~5 days - Modal System v3.0 complete)
+**Target Completion:** 2025-11-12 (Modal System v3.0 complete)
 
 #### **1.2.1 Form Components** ✅ COMPLETED (2025-10-18)
 - ✅ Button (primary, secondary, danger, ghost, success)
@@ -202,70 +248,16 @@
 **Next (Modal System v3.0 - Complete Port from v3):**
 
 **Phase 2: Core Modals** (15-20h, target: 2025-10-25)
-- ⏳ **ConfirmModal** - 🔴 NEXT (5-6h)
-  - Replaces MiniConfirmModal from v3
-  - Variants: delete, warning, info, success
-  - SK/EN translations
-  - 15 unit tests
-- ⏸️ **EditItemModal** (4-6h)
-  - Generic add/edit wrapper from v3
-  - Form validation integration
-  - useFormDirty integration
-  - 15 unit tests
+- ✅ **ConfirmModal** - COMPLETED (2025-10-30) - 15/15 tests passing (100%), docs complete
+- ⏳ **EditItemModal** - 🔴 IN PROGRESS (4-6h) - **CURRENT TASK**
 - ⏸️ **ManagementModal** (4-6h)
-  - List management wrapper from v3
-  - CRUD operations support
-  - 12 unit tests
 
-**Phase 3: Advanced Modals** (30-40h, target: 2025-11-01)
-- ⏸️ **SectionEditModal** (12-16h)
-  - Form builder with FieldDefinition system from v3
-  - Dynamic field rendering
-  - Validation framework
-  - 20 unit tests
-- ⏸️ **ModalDetailContact** (15-20h)
-  - 3-level contact detail modal from v3
-  - Section-based editing
-  - Multi-value fields (emails, phones, addresses)
-  - Backend API integration required
-  - 25+ unit tests
-
-**Phase 4: List Editors** (20-25h, target: 2025-11-05)
-- ⏸️ **EmailListEditor** (3-4h) - Multi-email management
-- ⏸️ **PhoneListEditor** (3-4h) - Multi-phone management
-- ⏸️ **AddressListEditor** (4-5h) - Multi-address management
-- ⏸️ **RoleListEditor** (2-3h) - Role management
-- ⏸️ **WebsiteListEditor** (2-3h) - Website management
-- ⏸️ **SocialNetworkListEditor** (3-4h) - Social media links
-- Each with validation, uniqueness checks, tests
-
-**Phase 5: Smart Autocomplete Components** (15-20h, target: 2025-11-08)
-- ⏸️ **CountrySelect** (2-3h) - Country autocomplete with flags
-- ⏸️ **LanguageSelect** (2-3h) - Language selection
-- ⏸️ **TitleSelect** (2h) - Person title (Mr., Mrs., Dr., etc.)
-- ⏸️ **RoleSelect** (2-3h) - Role/position autocomplete
-- ⏸️ **CompanyAutocomplete** (3-4h) - Company search with API
-- ⏸️ **AddressAutocomplete** (4-5h) - Address autofill integration
-
-**Phase 6: Supporting Components** (8-12h, target: 2025-11-10)
-- ⏸️ **ValidatedInput** (3-4h) - Universal validated input
-- ⏸️ **ListManager** (3-4h) - Generic list management component
-- ⏸️ **ModalButton** (2-3h) - Styled modal buttons from v3
-- ⏸️ **ModalDebugHeader** (1-2h) - Development debug header
-
-**Phase 7: Testing & Validation** (8-12h, target: 2025-11-12)
-- ⏸️ Integration tests (15+)
-- ⏸️ E2E scenarios
-- ⏸️ Performance testing
-- ⏸️ Accessibility audit
-
-**Total Effort:** 100-130 hours (20-26 days @ 5h/day)
-**Components to Port:** 22 modal components from v3
+**Phase 3-7:** See CURRENT PRIORITY section above
 
 **1.2.4.2 Data Display** ⏸️ DEFERRED (After Modal System v3.0)
 **Priority:** 🔴 CRITICAL - Next after modals
 
-- ⏸️ **Table/DataGrid** - 🔴 CRITICAL (4-6h, target: 2025-10-28)
+- ⏸️ **Table/DataGrid** - 🔴 CRITICAL (4-6h, target: 2025-11-15)
   - Sortable columns (ASC/DESC toggle)
   - Pagination (prev/next/page size)
   - Row selection (single/multi checkboxes)
@@ -273,19 +265,11 @@
   - Responsive (horizontal scroll)
   - **Blocks:** ContactList page, all CRUD list pages
 
-- ⏸️ **FilterAndSearch** - ⚠️ IMPORTANT (2-3h, target: 2025-10-29)
+- ⏸️ **FilterAndSearch** - ⚠️ IMPORTANT (2-3h, target: 2025-11-16)
   - Search input with debounce
   - Filter dropdowns (status, category, date)
   - Clear filters button
   - Filter count badge
-
-**1.2.4.3 Page Templates** ⏸️ DEFERRED
-**Priority:** 💡 NICE TO HAVE
-
-- ⏸️ **Page Layout Templates** (3-4h, target: 2025-10-30)
-  - BasePageLayout (sidebar + header + content)
-  - TableTemplate (header + filters + grid)
-  - DashboardTemplate (widget grid)
 
 **Current Stats:**
 - Components: 17 production ✅
@@ -295,11 +279,25 @@
 
 ---
 
-### **1.3 Backend Infrastructure** ⏸️ PLANNED
+## 🏗️ BACKEND MICROSERVICES ARCHITECTURE
+
+**Architecture Change (v4.0.0):**
+- ❌ **OLD (v3.0.0):** Data-centric services (Customers, Suppliers, Orders, Invoices)
+- ✅ **NEW (v4.0.0):** Domain-centric services (Sales AR, Purchasing AP, Finance GL)
+
+**Reference:** See [microservices-architecture.md](../architecture/microservices-architecture.md) for:
+- Bounded Context principles
+- Sensitive data strategy (GDPR)
+- Event-driven architecture (Kafka)
+- Complete API specifications
+
+---
+
+### **1.3 Backend Infrastructure** ⏸️ PLANNED - 🔴 CRITICAL
 **Dependencies:** Task 1.2 complete
-**Estimated:** 8-12 hours (2-3 days)
-**Target Start:** 2025-10-31
-**Target Completion:** 2025-11-02
+**Estimated:** 12-16 hours (3-4 days)
+**Target Start:** 2025-11-13
+**Target Completion:** 2025-11-17
 
 #### **1.3.1 PostgreSQL Setup**
 - ⏸️ Add PostgreSQL 15 to docker-compose.yml
@@ -307,6 +305,7 @@
 - ⏸️ Setup database volume
 - ⏸️ Configure health checks
 - ⏸️ Test connection
+- ⏸️ Create database per service strategy
 
 #### **1.3.2 Alembic Migrations**
 - ⏸️ Install Alembic
@@ -321,36 +320,149 @@
 - ⏸️ Create base gRPC service template
 - ⏸️ Document gRPC patterns
 
-#### **1.3.4 Adminer UI**
+#### **1.3.4 Apache Kafka Setup** ✨ NEW
+- ⏸️ Add Kafka + Zookeeper to docker-compose.yml
+- ⏸️ Configure Kafka on port 9092
+- ⏸️ Setup Kafka topics (ContactUpdated, InvoiceIssued, etc.)
+- ⏸️ Create Python Kafka producer/consumer utilities
+- ⏸️ Document event-driven patterns
+
+#### **1.3.5 Adminer UI**
 - ⏸️ Add Adminer to docker-compose.yml
 - ⏸️ Configure on port 4901
 - ⏸️ Test database access
 
 ---
 
-### **1.4 Contacts Service (lkms101)** ⏸️ PLANNED
+### **1.3.6 System Health & Backup API** ⏸️ PLANNED - ⚠️ IMPORTANT
+**Dependencies:** Task 1.3.1-1.3.5 complete
+**Estimated:** 2-3 hours
+**Target Start:** 2025-11-17
+**Target Completion:** 2025-11-17
+**Purpose:** API endpoints for StatusBar monitoring
+
+#### **Health Monitoring Endpoint**
+- ⏸️ Create GET /api/v1/system/health endpoint
+- ⏸️ Return ServiceStatus[] (name, status, critical, response_time)
+- ⏸️ Check PostgreSQL connection health
+- ⏸️ Check Kafka connection health
+- ⏸️ Check Adminer availability
+- ⏸️ Mark critical vs non-critical services
+
+#### **Backup Management Endpoints**
+- ⏸️ Create POST /api/v1/system/backup endpoint
+- ⏸️ Create GET /api/v1/system/backup/status endpoint
+- ⏸️ Implement database backup logic (pg_dump)
+- ⏸️ Return BackupInfo (completed_at, files, status)
+- ⏸️ Document backup restore procedure
+
+---
+
+### **1.4 Page Templates (StatusBar)** ⏸️ PLANNED - ⚠️ IMPORTANT
+**Dependencies:** Task 1.3.6 complete (Health & Backup API)
+**Estimated:** 5-7 hours
+**Target Start:** 2025-11-18
+**Target Completion:** 2025-11-20
+**Analysis Document:** [statusbar-analysis-v3-to-v4.md](../temp/statusbar-analysis-v3-to-v4.md)
+
+**Purpose:** System monitoring UI at bottom of every page
+
+#### **1.4.1 StatusBar Component** (3-4h)
+- ⏸️ Port StatusBar.tsx from v3 (v2.1.0)
+  - Source: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBar\StatusBar.tsx`
+- ⏸️ Port StatusBar.css with DRY compliance (CSS Modules)
+  - Source: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBar\StatusBar.css`
+- ⏸️ System service monitoring display (healthy/unhealthy/down/unknown)
+- ⏸️ Database backup management UI (one-click backup with progress)
+- ⏸️ Theme/language toggle controls (light/dark, SK/EN)
+- ⏸️ Drag-resize capability (150-600px height range)
+- ⏸️ LocalStorage persistence (expanded height)
+- ⏸️ Integration with real backend services (health API)
+- ⏸️ Critical vs non-critical service categorization
+- ⏸️ Current user info display (avatar, name, position)
+- ⏸️ Data source indicator (orchestrator/mock/error modes)
+- ⏸️ Click outside to collapse
+- ⏸️ Response time metrics display
+- ⏸️ 20 unit tests
+- ⏸️ Documentation (StatusBar.md)
+
+#### **1.4.2 StatusBadge Component** (1h)
+- ⏸️ Port StatusBadge.tsx from v3 (v1.0.0)
+  - Source: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBadge\StatusBadge.tsx`
+- ⏸️ Order/item status inline badges
+- ⏸️ Color-coded status display (PENDING/IN_PRODUCTION/COMPLETED/etc.)
+- ⏸️ Compact and default variants
+- ⏸️ Translation support
+- ⏸️ 8 unit tests
+- ⏸️ Documentation (StatusBadge.md)
+
+#### **1.4.3 BaseLayout Integration** (1-2h)
+- ⏸️ Create BaseLayout component (extends BasePage)
+  - Reference: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\layouts\BaseLayout.tsx`
+- ⏸️ Integrate StatusBar at bottom of layout
+- ⏸️ Create BaseLayoutDataContext for StatusBar data
+  - Reference: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\contexts\BaseLayoutDataContext.tsx`
+- ⏸️ Wire up service health API (GET /api/v1/system/health)
+- ⏸️ Wire up backup API (POST /api/v1/system/backup)
+- ⏸️ Add error handling for API failures
+- ⏸️ Add loading states
+- ⏸️ 10 integration tests
+- ⏸️ Update app to use BaseLayout
+
+**Deliverables:**
+- 2 production-ready components (StatusBar + StatusBadge)
+- BaseLayout template with StatusBar integrated
+- Complete documentation for each
+- 38 tests passing (20+8+10)
+- Export from @l-kern/ui-components
+
+**API Endpoints Required:**
+- ✅ GET /api/v1/system/health → ServiceStatus[] (Task 1.3.6)
+- ✅ POST /api/v1/system/backup → BackupInfo (Task 1.3.6)
+- ✅ GET /api/v1/system/backup/status → BackupInfo (Task 1.3.6)
+
+**V3 Source Files:**
+- StatusBar.tsx: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBar\StatusBar.tsx` (v2.1.0, 651 lines)
+- StatusBar.css: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBar\StatusBar.css` (v2.0.0, ~300 lines)
+- StatusBadge.tsx: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\components\StatusBadge\StatusBadge.tsx` (v1.0.0, ~150 lines)
+- BaseLayout.tsx: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\layouts\BaseLayout.tsx` (v2.3.0)
+- statusHelpers.ts: `l:\system\lkern_codebase_v3_act\packages\page-templates\src\utils\statusHelpers.ts` (v2.0.0)
+
+---
+
+## 📦 PHASE I: Foundation Services (Master Data & Configuration)
+
+These services MUST be completed FIRST - they provide reference data for all other services.
+
+---
+
+### **1.5 Contact (MDM) Service** ⏸️ PLANNED - 🔴 CRITICAL
 **Dependencies:** Task 1.3 complete
-**Estimated:** 20-30 hours (5-7 days)
-**Target Start:** 2025-11-03
-**Target Completion:** 2025-11-10
+**Estimated:** 25-30 hours (6-7 days)
+**Target Start:** 2025-11-18
+**Target Completion:** 2025-11-25
 **Ports:** 4101 (REST), 5101 (gRPC)
 **Database:** lkms101_contacts
+
+**Architecture Note:** Master Data Management - Single Source of Truth for identity
 
 #### **1.4.1 Backend**
 - ⏸️ Create FastAPI service structure
 - ⏸️ Setup gRPC server
-- ⏸️ Define Contact model
+- ⏸️ Define Contact model (UUID v4, Name, Address, Tax ID)
+- ⏸️ **IMPORTANT:** ONLY non-sensitive data (NO bank accounts, NO salaries)
 - ⏸️ Create database migration
 - ⏸️ REST API: POST/GET/PUT/DELETE /api/v1/contacts
 - ⏸️ REST API: GET /api/v1/contacts/search
 - ⏸️ gRPC API: GetContact, GetContactsByIds, ValidateContact
 - ⏸️ Create .proto file
+- ⏸️ **Kafka integration:** Emit ContactCreated, ContactUpdated, ContactDeleted events
 - ⏸️ Validation (Pydantic schemas)
 - ⏸️ Unit tests (pytest)
 
 #### **1.4.2 Frontend**
-- ⏸️ Contacts page
-- ⏸️ Contact list view (with Table component)
+- ⏸️ Contacts page (with Table component)
+- ⏸️ Contact list view
 - ⏸️ Contact detail view
 - ⏸️ Contact form (add/edit)
 - ⏸️ Search functionality
@@ -358,270 +470,573 @@
 - ⏸️ Loading states
 - ⏸️ Error handling
 
+**GDPR Compliance:**
+- ✅ NO bank accounts stored here
+- ✅ NO personal employee data (salaries, personal IDs)
+- ✅ ONLY public business information
+
 ---
 
-### **1.5 Employees Service (lkms108)** ⏸️ PLANNED
-**Dependencies:** Task 1.4 complete
+### **1.6 Configuration Service** ⏸️ PLANNED - 🔴 CRITICAL ✨ NEW
+**Dependencies:** Task 1.3 complete
 **Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-11-11
-**Target Completion:** 2025-11-16
+**Target Start:** 2025-11-18 (parallel with 1.5)
+**Target Completion:** 2025-11-23
+**Ports:** 4199 (REST), 5199 (gRPC)
+**Database:** lkms199_config
+
+**Architecture Note:** Global and localized settings for all services
+
+#### **Backend**
+- ⏸️ Create FastAPI service structure
+- ⏸️ Setup gRPC server
+- ⏸️ Define Configuration models:
+  - Chart of Accounts (COA) - localized (SK/CZ/PL)
+  - VAT codes and rates
+  - Currency exchange rates
+  - Accounting periods (fiscal year)
+  - Document numbering sequences
+  - Country-specific regulations
+- ⏸️ Create database migration
+- ⏸️ REST API: GET /api/v1/config/coa, /api/v1/config/vat, /api/v1/config/currencies
+- ⏸️ gRPC API: GetCOA, GetVATCodes, GetExchangeRate
+- ⏸️ Create .proto file
+- ⏸️ Validation (Pydantic schemas)
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Configuration settings page
+- ⏸️ COA management
+- ⏸️ VAT rate configuration
+- ⏸️ Currency exchange rate updates
+- ⏸️ Accounting period setup
+
+**Provides For:** Finance, Sales, Purchasing
+
+---
+
+### **1.7 HR / Payroll Service** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.5 complete (Contact MDM)
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2025-11-26
+**Target Completion:** 2025-12-02
 **Ports:** 4108 (REST), 5108 (gRPC)
 **Database:** lkms108_employees
 
-#### **1.5.1 Backend**
+**Architecture Note:** GDPR-protected sensitive employee data
+
+#### **1.6.1 Backend**
 - ⏸️ FastAPI service
 - ⏸️ gRPC server
-- ⏸️ Employee model
+- ⏸️ Employee model (UUID reference to Contact MDM)
+- ⏸️ **SENSITIVE DATA (GDPR protected):**
+  - ✅ Salaries
+  - ✅ Personal IDs (rodné číslo)
+  - ✅ Bank accounts of EMPLOYEES
+  - ✅ Personal contracts
+- ⏸️ **Production Planning data:** ✨ NEW
+  - ✅ Work roles (for Operations job assignment)
+  - ✅ Qualification levels (for PPQ optimization)
+  - ✅ Quality metrics (accuracy, speed, error rate)
+  - ✅ Employee availability calendar
 - ⏸️ Database migration
 - ⏸️ REST API: CRUD /api/v1/employees
-- ⏸️ gRPC API: GetEmployee, GetEmployeesByIds
+- ⏸️ REST API: GET /api/v1/employees/by-role (for Operations)
+- ⏸️ gRPC API: GetEmployee, GetEmployeesByIds, GetEmployeesByRole
+- ⏸️ **Kafka integration:** Emit EmployeeCreated, EmployeeRoleChanged, EmployeeAbsent, EmployeeAvailable
 - ⏸️ Role management
-- ⏸️ Tests
+- ⏸️ Tests (pytest)
 
-#### **1.5.2 Frontend**
+#### **1.6.2 Frontend**
 - ⏸️ Employees page
 - ⏸️ Employee list view
 - ⏸️ Employee detail view
 - ⏸️ Add/Edit employee form
+- ⏸️ Role assignment interface
+- ⏸️ Qualification tracking
+
+**Security:**
+- ✅ STRICT access control (HR Manager, Finance Director only)
+- ✅ GDPR audit logging
+- ✅ Encrypted at rest
+
+**Provides For:**
+- Operations (job assignment)
+- Production Planning & Quality (resource allocation)
+- Finance (payroll accounting)
 
 ---
 
-### **1.6 Issues Service (lkms109)** ⏸️ PLANNED
-**Dependencies:** Task 1.5 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-11-17
-**Target Completion:** 2025-11-22
-**Ports:** 4109 (REST), 5109 (gRPC)
-**Database:** lkms109_issues
+## 📦 PHASE II: Core Operations (Transactional Services)
 
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Issue model + database migration
-- ⏸️ REST API: CRUD /api/v1/issues
-- ⏸️ gRPC API: GetIssue, GetIssuesByAssignee
-- ⏸️ Status workflow
-- ⏸️ Frontend: Issues page + list + detail + form
+These modules manage main business transactions and create source documents.
 
 ---
 
-### **1.7 Customers Service (lkms103)** ⏸️ PLANNED
-**Dependencies:** Task 1.6 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-11-23
-**Target Completion:** 2025-11-28
-**Ports:** 4103 (REST), 5103 (gRPC)
-**Database:** lkms103_customers
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Customer model + migration
-- ⏸️ REST API: CRUD /api/v1/customers
-- ⏸️ gRPC API: GetCustomer, ValidateCustomer
-- ⏸️ Frontend: Customers page + list + detail
-
----
-
-### **1.8 Parts Library Service (lkms104)** ⏸️ PLANNED
-**Dependencies:** Task 1.7 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-11-29
-**Target Completion:** 2025-12-04
-**Ports:** 4104 (REST), 5104 (gRPC)
-**Database:** lkms104_parts
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Part model + migration
-- ⏸️ REST API: CRUD /api/v1/parts
-- ⏸️ gRPC API: GetPart, CheckPartAvailability
-- ⏸️ Frontend: Parts library page + list + detail
-
----
-
-### **1.9 Orders Service (lkms102)** ⏸️ PLANNED
-**Dependencies:** Task 1.8 complete
-**Estimated:** 20-25 hours (5-6 days)
-**Target Start:** 2025-12-05
-**Target Completion:** 2025-12-11
-**Ports:** 4102 (REST), 5102 (gRPC)
-**Database:** lkms102_orders
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Order model + migration
-- ⏸️ REST API: CRUD /api/v1/orders
-- ⏸️ gRPC API: GetOrder, GetOrdersByCustomer, UpdateOrderStatus
-- ⏸️ **gRPC calls:** lkms103-customers (validate), lkms104-parts (check availability)
-- ⏸️ Status workflow
-- ⏸️ Frontend: Orders page + list + detail + form
-
----
-
-### **1.10 Logistics Service (lkms105)** ⏸️ PLANNED
-**Dependencies:** Task 1.9 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-12-12
-**Target Completion:** 2025-12-17
-**Ports:** 4105 (REST), 5105 (gRPC)
-**Database:** lkms105_logistics
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Shipment model + migration
-- ⏸️ REST API: CRUD /api/v1/shipments
-- ⏸️ gRPC API: GetShipment, GetShipmentsByOrder
-- ⏸️ **gRPC call:** lkms102-orders (get order details)
-- ⏸️ Frontend: Logistics page + shipment list + tracking
-
----
-
-### **1.11 Suppliers Service (lkms106)** ⏸️ PLANNED
-**Dependencies:** Task 1.10 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2025-12-18
-**Target Completion:** 2025-12-23
-**Ports:** 4106 (REST), 5106 (gRPC)
-**Database:** lkms106_suppliers
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Supplier model + migration
-- ⏸️ REST API: CRUD /api/v1/suppliers
-- ⏸️ gRPC API: GetSupplier, GetSuppliersByIds
-- ⏸️ Frontend: Suppliers page + list + detail
-
----
-
-### **1.12 Warehouse Service (lkms111)** ⏸️ PLANNED
-**Dependencies:** Task 1.11 complete
-**Estimated:** 20-25 hours (5-6 days)
-**Target Start:** 2025-12-24
-**Target Completion:** 2025-12-30
+### **1.8 Inventory / Logistics Service** ⏸️ PLANNED - ⚠️ IMPORTANT
+**Dependencies:** Tasks 1.5, 1.6, 1.7 complete
+**Estimated:** 25-30 hours (6-7 days)
+**Target Start:** 2025-12-03
+**Target Completion:** 2025-12-10
 **Ports:** 4111 (REST), 5111 (gRPC)
 **Database:** lkms111_warehouse
 
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Stock + StockMovement models + migration
-- ⏸️ REST API: /api/v1/stock, /api/v1/stock/movements
-- ⏸️ gRPC API: GetStockLevel, ReserveStock, ReleaseStock
-- ⏸️ **gRPC call:** lkms104-parts (validate parts)
+**Architecture Note:** Merged Parts + Warehouse + Logistics from v3.0.0
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - Product catalog (SKU)
+  - Warehouse locations
+  - Stock levels (physical quantity)
+  - Goods receipts (príjem tovaru)
+  - Goods issues (výdaj tovaru)
+  - **Delivery notes** ✅ (NOT accounting documents!)
+  - Product characteristics (precision requirements, etc.)
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/products, /api/v1/stock, /api/v1/stock/movements
+- ⏸️ REST API: /api/v1/delivery-notes
+- ⏸️ gRPC API: GetStockLevel, ReserveStock, ReleaseStock, GetProduct
+- ⏸️ **Kafka integration:** Emit GoodsReceived, GoodsIssued, StockLevelCritical
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Inventory page (with Table component)
+- ⏸️ Product catalog management
+- ⏸️ Stock overview
+- ⏸️ Goods receipt/issue forms
+- ⏸️ Delivery note generation
 - ⏸️ Low stock alerts
-- ⏸️ Frontend: Warehouse page + stock overview + movements log
+
+**Provides For:**
+- Purchasing (3-way match)
+- Sales (stock availability)
+- Manufacturing (BOM)
+- Finance (inventory valuation)
 
 ---
 
-### **1.13 Mail Client Service (lkms113)** ⏸️ PLANNED
-**Dependencies:** Task 1.12 complete
-**Estimated:** 20-25 hours (5-6 days)
-**Target Start:** 2025-12-31
-**Target Completion:** 2026-01-06
-**Ports:** 4113 (REST), 5113 (gRPC)
-**Database:** lkms113_mailclient
+### **1.9 Purchasing (AP) Service** ⏸️ PLANNED - 🔴 CRITICAL ✨ NEW ARCHITECTURE
+**Dependencies:** Tasks 1.5, 1.6, 1.8 complete
+**Estimated:** 35-40 hours (8-10 days)
+**Target Start:** 2025-12-11
+**Target Completion:** 2025-12-21
+**Ports:** 4106 (REST), 5106 (gRPC)
+**Database:** lkms106_purchasing
 
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Email model + migration
-- ⏸️ REST API: /api/v1/emails
-- ⏸️ gRPC API: SendEmail
-- ⏸️ SMTP/IMAP integration
-- ⏸️ Frontend: Mail client page + inbox/sent + compose form
+**Architecture Note:** Replaces Suppliers + Orders + Invoices (AP part) from v3.0.0
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - **Vendor data** (business context):
+    - Approval status (Qualified, Preferred, Blocked)
+    - Payment terms
+    - **Bank account of VENDOR** ✅ (stored HERE, not in Contact!)
+    - Gamification data (supplier loyalty program)
+  - **Received RFQ** (Request for Quote - prijatý dopyt) ✅
+  - **Purchase Orders (PO)** (prijatá objednávka) ✅
+  - **Received Invoices (AP)** ✅
+  - 3-Way Match logic (PO → Goods Receipt → Invoice)
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/vendors, /api/v1/rfq, /api/v1/purchase-orders, /api/v1/invoices/received
+- ⏸️ gRPC API: GetVendor, GetPO, ValidateVendor, Get3WayMatchStatus
+- ⏸️ **Kafka integration:**
+  - Emit: PurchaseOrderCreated, PurchaseOrderApprovalRequired, InvoiceReceived, VendorPaymentSent
+  - Consume: GoodsReceived (from Inventory for 3-way match)
+- ⏸️ **3-Way Match implementation:** ✨ NEW
+  - Step 1: PO created
+  - Step 2: Goods Receipt received (from Inventory)
+  - Step 3: Invoice received
+  - Validation: Amount, quantity, vendor match
+  - If match → Approve payment, If mismatch → Alert
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Purchasing page (with Table component)
+- ⏸️ Vendor management
+- ⏸️ RFQ tracking
+- ⏸️ Purchase order creation/approval
+- ⏸️ Received invoice tracking
+- ⏸️ 3-Way match dashboard
+- ⏸️ Payment scheduling
+
+**GDPR Compliance:**
+- ✅ Bank accounts of VENDORS stored HERE (used for payments)
+- ✅ NOT in Contact (MDM)
+
+**Provides For:**
+- Finance (AP entries)
+- Cash & Bank (payment processing)
+- Operations (approval workflows)
 
 ---
 
-### **1.14 Documents Service (lkms114)** ⏸️ PLANNED
-**Dependencies:** Task 1.13 complete
-**Estimated:** 20-25 hours (5-6 days)
-**Target Start:** 2026-01-07
-**Target Completion:** 2026-01-13
-**Ports:** 4114 (REST), 5114 (gRPC)
-**Database:** lkms114_documents
+### **1.10 Sales (AR) Service** ⏸️ PLANNED - 🔴 CRITICAL ✨ NEW ARCHITECTURE
+**Dependencies:** Tasks 1.5, 1.6, 1.8 complete
+**Estimated:** 35-40 hours (8-10 days)
+**Target Start:** 2025-12-22
+**Target Completion:** 2026-01-02
+**Ports:** 4103 (REST), 5103 (gRPC)
+**Database:** lkms103_sales
 
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Document model + migration
-- ⏸️ REST API: CRUD /api/v1/documents
-- ⏸️ gRPC API: GetDocument
-- ⏸️ **gRPC call:** lkms106-suppliers (get supplier details)
-- ⏸️ File upload/download
-- ⏸️ Frontend: Documents page + list + upload/download
+**Architecture Note:** Replaces Customers + Orders + Invoices (AR part) from v3.0.0
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - **Customer data** (business context):
+    - Credit limits
+    - Approval status (Approved, Blocked)
+    - Payment terms
+    - **Bank account of CUSTOMER** ✅ (stored HERE, not in Contact!)
+    - Gamification data (customer loyalty program)
+  - **Issued Quotations** (vydaný dopyt) ✅
+  - **Sales Orders (SO)** (vydaná objednávka) ✅
+  - **Issued Invoices (AR)** ✅
+  - Pricing rules, discounts
+  - **Overdue tracking** (invoices past due date) ✨ NEW
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/customers, /api/v1/quotations, /api/v1/sales-orders, /api/v1/invoices/issued
+- ⏸️ REST API: GET /api/v1/invoices/overdue (for Operations triggers)
+- ⏸️ gRPC API: GetCustomer, GetSO, ValidateCustomer, CheckCreditLimit
+- ⏸️ **Kafka integration:**
+  - Emit: CustomerRequestReceived, QuotationIssued, SalesOrderCreated, InvoiceIssued, InvoiceOverdue, CustomerPaymentReceived, CreditLimitBreached
+  - Consume: GoodsIssued (from Inventory for order fulfillment)
+- ⏸️ **Overdue tracking implementation:** ✨ NEW
+  - Scheduled job (daily): Check invoices where DueDate < CurrentDate
+  - If overdue: Emit InvoiceOverdue event
+  - Operations consumes event → Creates reminder job
+  - If overdue > 7 days: Emit CreditLimitBreached → Block new orders
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Sales page (with Table component)
+- ⏸️ Customer management
+- ⏸️ Quotation tracking
+- ⏸️ Sales order creation
+- ⏸️ Issued invoice tracking
+- ⏸️ Overdue invoices dashboard
+- ⏸️ Payment tracking
+
+**GDPR Compliance:**
+- ✅ Bank accounts of CUSTOMERS stored HERE (used for direct debit)
+- ✅ NOT in Contact (MDM)
+
+**Provides For:**
+- Finance (AR entries)
+- Cash & Bank (payment tracking)
+- Operations (order fulfillment workflows)
+- Production Planning (order requirements)
 
 ---
 
-### **1.15 Invoices & Delivery Notes (lkms115)** ⏸️ PLANNED
-**Dependencies:** Task 1.14 complete
+### **1.11 Manufacturing Service** ⏸️ PLANNED - ⚠️ IMPORTANT
+**Dependencies:** Tasks 1.8, 1.10 complete
 **Estimated:** 25-30 hours (6-7 days)
-**Target Start:** 2026-01-14
-**Target Completion:** 2026-01-21
-**Ports:** 4115 (REST), 5115 (gRPC)
-**Database:** lkms115_invoicing
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Invoice + DeliveryNote models + migration
-- ⏸️ REST API: /api/v1/invoices, /api/v1/delivery-notes
-- ⏸️ gRPC API: GetInvoice, GenerateInvoiceFromOrder
-- ⏸️ **gRPC calls:** lkms102-orders, lkms103-customers
-- ⏸️ PDF generation
-- ⏸️ Frontend: Invoicing page + invoice list + generation
-
----
-
-### **1.16 Inquiries Service (lkms110)** ⏸️ PLANNED
-**Dependencies:** Task 1.15 complete
-**Estimated:** 15-20 hours (4-5 days)
-**Target Start:** 2026-01-22
-**Target Completion:** 2026-01-27
-**Ports:** 4110 (REST), 5110 (gRPC)
-**Database:** lkms110_inquiries
-
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Inquiry model + migration
-- ⏸️ REST API: CRUD /api/v1/inquiries
-- ⏸️ gRPC API: GetInquiry
-- ⏸️ **gRPC call:** lkms103-customers
-- ⏸️ Frontend: Inquiries page + list + response form
-
----
-
-### **1.17 Operations & Jobs (lkms112)** ⏸️ PLANNED
-**Dependencies:** Task 1.16 complete
-**Estimated:** 20-25 hours (5-6 days)
-**Target Start:** 2026-01-28
-**Target Completion:** 2026-02-03
+**Target Start:** 2026-01-03
+**Target Completion:** 2026-01-10
 **Ports:** 4112 (REST), 5112 (gRPC)
-**Database:** lkms112_operations
+**Database:** lkms112_manufacturing
 
-- ⏸️ Backend: FastAPI + gRPC
-- ⏸️ Operation + Job models + migration
-- ⏸️ REST API: /api/v1/operations, /api/v1/jobs
-- ⏸️ gRPC API: GetOperationsByOrder, AssignJob
-- ⏸️ **gRPC calls:** lkms102-orders, lkms108-employees
-- ⏸️ Frontend: Operations page + dashboard + job management
+**Architecture Note:** Enhanced with machine characteristics for PPQ
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - Bills of Materials (BOM) (kusovník)
+  - Work centers (pracovné centrá - machines/stations)
+  - **Machine characteristics:** ✨ NEW (for PPQ)
+    - Precision level (e.g., ±5 microns)
+    - Speed (units/hour)
+    - Error rate / defect history
+    - Current utilization (vyťaženie)
+    - Maintenance status
+  - Work orders (pracovné príkazy)
+  - Production capacity planning
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/bom, /api/v1/work-centers, /api/v1/work-orders, /api/v1/machines
+- ⏸️ REST API: GET /api/v1/machines/availability (for PPQ)
+- ⏸️ gRPC API: GetBOM, GetWorkCenter, GetMachineCapabilities
+- ⏸️ **Kafka integration:**
+  - Emit: WorkOrderCreated, WorkOrderCompleted, MachineDown, MachineAvailable, ProductionCapacityChanged
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Manufacturing page (with Table component)
+- ⏸️ BOM management
+- ⏸️ Work center tracking
+- ⏸️ Machine status dashboard
+- ⏸️ Work order scheduling
+- ⏸️ Production capacity overview
+
+**Provides For:**
+- Production Planning & Quality (resource allocation)
+- Finance (production costing)
+- Operations (work order tracking)
 
 ---
 
-### **1.18 Authentication Service (lkms107)** ⏸️ PLANNED - 🔴 CRITICAL
-**Dependencies:** Task 1.17 complete
-**Estimated:** 25-30 hours (6-7 days)
+## 📦 PHASE III: Planning, Process Management & Finance (Orchestration)
+
+These services process data from Phase II to generate financial data and optimized work plans.
+
+---
+
+### **1.12 Production Planning & Quality (PPQ)** ⏸️ PLANNED - 🔴 CRITICAL ✨ NEW SERVICE
+**Dependencies:** Tasks 1.7, 1.10, 1.11 complete
+**Estimated:** 40-50 hours (10-12 days) - Complex optimization logic
+**Target Start:** 2026-01-11
+**Target Completion:** 2026-01-23
+**Ports:** 4XXX (REST), 5XXX (gRPC) - TBD
+**Database:** lkms_ppq
+
+**Architecture Note:** Advanced Planning & Scheduling with quality/speed optimization
+
+**See:** [microservices-architecture.md](../architecture/microservices-architecture.md) section "Production Planning & Quality" for complete specification
+
+#### **Backend - Phase 1 (MVP):**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ **Simple priority rules** (start here, NOT full optimization):
+  - IF order.priority === 'Quality' → Assign best accuracy machine + qualified employee
+  - IF order.priority === 'Speed' → Assign fastest machine + fastest employee
+  - IF order.priority === 'Balanced' → Average selection
+- ⏸️ Models:
+  - Production calendar (schedule entries)
+  - Resource assignments (employee + machine + timeslot)
+  - Contingency plans (backup resources)
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/schedule, /api/v1/resource-allocation
+- ⏸️ gRPC API: ScheduleJob, RescheduleJob, GetOptimalResources
+- ⏸️ **Kafka integration:**
+  - Consume: SalesOrderCreated (from Sales) → Trigger scheduling
+  - Consume: MachineDown (from Manufacturing) → Trigger rescheduling
+  - Consume: EmployeeAbsent (from HR) → Trigger contingency
+  - Emit: JobScheduled, JobRescheduled, ResourceOverloaded
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Backend - Phase 2 (Advanced):** ⏸️ DEFERRED to v4.1.x
+- Multi-criteria optimization (quality + speed + cost)
+- Constraint-based scheduling
+- Machine learning predictions
+- Real-time rescheduling algorithms
+
+#### **Frontend**
+- ⏸️ Production planning dashboard
+- ⏸️ Resource allocation interface
+- ⏸️ Production calendar view
+- ⏸️ Contingency plan viewer
+- ⏸️ Utilization analytics
+
+**Provides For:**
+- Operations - optimized job assignments
+- Manufacturing - production schedule
+- Sales - realistic delivery dates
+
+**Complexity Warning:** This is the MOST complex service. Start with simple rules, enhance later.
+
+---
+
+### **1.13 Operations (Workflow Orchestration / BPM)** ⏸️ PLANNED - 🔴 CRITICAL ✨ NEW SERVICE
+**Dependencies:** Tasks 1.7, 1.9, 1.10, 1.11, 1.12 complete
+**Estimated:** 35-40 hours (8-10 days)
+**Target Start:** 2026-01-24
+**Target Completion:** 2026-02-03
+**Ports:** 4XXX (REST), 5XXX (gRPC) - TBD
+**Database:** lkms_operations
+
+**Architecture Note:** Business Process Management (BPM) - orchestrates end-to-end workflows
+
+**See:** [microservices-architecture.md](../architecture/microservices-architecture.md) section "Operations" for complete specification
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ **Workflow definitions:**
+  - ProcessCustomerQuote (dopyt from customer)
+  - ApprovalWorkflow_PO (purchase order approval)
+  - MonthEndAccounting (internal scheduled)
+  - OrderFulfillment (production workflow)
+- ⏸️ Models:
+  - Workflow definitions
+  - Job queue
+  - Job assignments (employee + task + status)
+  - Operation status (for customer visibility)
+  - Approval history
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/workflows, /api/v1/jobs, /api/v1/operations
+- ⏸️ REST API: GET /api/v1/operations/customer/:customerId (for customer portal)
+- ⏸️ gRPC API: CreateJob, AssignJob, CompleteJob, GetOperationStatus
+- ⏸️ **Kafka integration:**
+  - Consume: CustomerRequestReceived (Sales) → Create quote job
+  - Consume: PurchaseOrderApprovalRequired (Purchasing) → Create approval job
+  - Consume: JobScheduled (PPQ) → Create production job
+  - Consume: InvoiceOverdue (Sales) → Create reminder job
+  - Emit: JobCreated, JobAssigned, JobCompleted, ApprovalRequired
+- ⏸️ **Dynamic job assignment:**
+  - Query HR: getEmployeesByRole(roleName)
+  - Assign job to qualified employee
+  - Track job status
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Operations dashboard (for managers)
+- ⏸️ My Jobs page (for employees)
+- ⏸️ Workflow designer (define new workflows)
+- ⏸️ Operation status tracking (for customers)
+- ⏸️ Approval interface
+
+**Provides For:**
+- Customer portal (status tracking)
+- Employee dashboard (my jobs)
+- Management (process monitoring)
+
+---
+
+### **1.14 Finance (GL) Service** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Tasks 1.6, 1.9, 1.10, 1.11 complete
+**Estimated:** 35-40 hours (8-10 days)
 **Target Start:** 2026-02-04
-**Target Completion:** 2026-02-11
+**Target Completion:** 2026-02-14
+**Ports:** 4XXX (REST), 5XXX (gRPC) - TBD
+**Database:** lkms_finance
+
+**Architecture Note:** Accounting backbone - consolidates all financial transactions
+
+**See:** [microservices-architecture.md](../architecture/microservices-architecture.md) section "Finance / General Ledger" for complete specification
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - Chart of Accounts (from Configuration)
+  - GL entries (journal) - Debit/Credit
+  - Account balances
+  - Accounting periods (open/closed)
+  - Financial statements (P&L, Balance Sheet)
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/gl/entries, /api/v1/gl/accounts, /api/v1/reports
+- ⏸️ REST API: GET /api/v1/reports/balance-sheet, /api/v1/reports/profit-loss
+- ⏸️ gRPC API: CreateGLEntry, GetAccountBalance, ClosePeriod
+- ⏸️ **Kafka integration (automatic posting):**
+  - Consume: InvoiceIssued (Sales) → Create GL entry (Debit: AR, Credit: Revenue)
+  - Consume: InvoiceReceived (Purchasing) → Create GL entry (Debit: Expense, Credit: AP)
+  - Consume: GoodsIssued (Inventory) → Create GL entry (Debit: COGS, Credit: Inventory)
+  - Consume: PaymentReceived (Cash & Bank) → Create GL entry (Debit: Bank, Credit: AR)
+- ⏸️ **Tax compliance:**
+  - VAT reporting (Kontrolný výkaz DPH - SK)
+  - Tax calculations
+  - Audit trail
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Finance dashboard
+- ⏸️ GL entries viewer
+- ⏸️ Account balances
+- ⏸️ Financial reports (P&L, Balance Sheet)
+- ⏸️ Period closing interface
+- ⏸️ VAT return generation
+
+**Provides For:**
+- Management (financial reports)
+- Tax authorities (VAT returns, financial statements)
+- Auditors (audit trail)
+
+---
+
+### **1.15 Cash & Bank Service** ⏸️ PLANNED - ⚠️ IMPORTANT
+**Dependencies:** Tasks 1.8, 1.9, 1.13 complete
+**Estimated:** 20-25 hours (5-6 days)
+**Target Start:** 2026-02-15
+**Target Completion:** 2026-02-21
+**Ports:** 4XXX (REST), 5XXX (gRPC) - TBD
+**Database:** lkms_cash_bank
+
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
+- ⏸️ Models:
+  - Bank accounts
+  - Bank statements
+  - Payment orders (SEPA)
+  - Payment matching (AR/AP)
+  - Cash register movements
+- ⏸️ Database migration
+- ⏸️ REST API: /api/v1/bank-accounts, /api/v1/payments, /api/v1/bank-statements
+- ⏸️ gRPC API: CreatePayment, MatchPayment, GetBankBalance
+- ⏸️ **Kafka integration:**
+  - Emit: PaymentReceived, PaymentSent, BankStatementImported, PaymentMatched
+- ⏸️ **Payment matching logic:**
+  - Import bank statement
+  - Match with open AR invoices (by amount, reference)
+  - Match with open AP invoices
+  - Auto-notify Finance on match
+- ⏸️ Create .proto file
+- ⏸️ Unit tests (pytest)
+
+#### **Frontend**
+- ⏸️ Cash & Bank dashboard
+- ⏸️ Bank account overview
+- ⏸️ Payment creation
+- ⏸️ Bank statement import
+- ⏸️ Payment matching interface
+
+---
+
+## 📦 PHASE IV: Final MVP Steps
+
+---
+
+### **1.16 Authentication Service (lkms107)** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.14 complete (all core services running)
+**Estimated:** 25-30 hours (6-7 days)
+**Target Start:** 2026-02-22
+**Target Completion:** 2026-03-01
 **Ports:** 4107 (REST), 5107 (gRPC)
 **Database:** lkms107_auth
 
-- ⏸️ Backend: FastAPI + gRPC
+#### **Backend**
+- ⏸️ FastAPI service
+- ⏸️ gRPC server
 - ⏸️ User model + migration
 - ⏸️ REST API: register, login, logout, refresh, /me
 - ⏸️ gRPC API: ValidateToken, GetUserByToken
 - ⏸️ JWT generation/validation
 - ⏸️ Password hashing (bcrypt)
-- ⏸️ Tests
-- ⏸️ Frontend: Login page + auth context + protected routes
+- ⏸️ Role-based access control (RBAC)
+- ⏸️ Tests (pytest)
+
+#### **Frontend**
+- ⏸️ Login page
+- ⏸️ Auth context + protected routes
 - ⏸️ API Client: @l-kern/api-client + auth interceptor + token refresh
 
 ---
 
-### **1.19 Testing & QA** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.17 Testing & QA** ⏸️ PLANNED - 🔴 CRITICAL
 **Dependencies:** Task 1.18 complete
-**Estimated:** 40-60 hours (10-14 days)
-**Target Start:** 2026-02-12
-**Target Completion:** 2026-02-26
+**Estimated:** 50-70 hours (12-17 days) - More services = more tests
+**Target Start:** 2026-03-02
+**Target Completion:** 2026-03-19
 
 - ⏸️ **Backend Testing:**
   - Unit tests for all services (pytest)
   - Integration tests for REST APIs
   - gRPC client/server tests
   - Inter-service communication tests
+  - Kafka event flow tests ✨ NEW
   - Test coverage >80%
 - ⏸️ **Frontend Testing:**
   - Component tests (Vitest + RTL)
@@ -629,6 +1044,10 @@
   - Test coverage >70%
 - ⏸️ **Integration Testing:**
   - Complete business workflows
+  - 3-Way match validation ✨ NEW
+  - Overdue tracking workflow ✨ NEW
+  - Production planning scenarios ✨ NEW
+  - Operations job assignment ✨ NEW
   - gRPC communication reliability
   - Performance testing
   - Security testing
@@ -638,68 +1057,75 @@
 
 ---
 
-### **1.20 Production Deployment Prep** ⏸️ PLANNED - 🔴 CRITICAL
-**Dependencies:** Task 1.19 complete
-**Estimated:** 30-40 hours (7-10 days)
-**Target Start:** 2026-02-27
-**Target Completion:** 2026-03-09
+### **1.18 Production Deployment Prep** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.18 complete
+**Estimated:** 35-45 hours (8-11 days) - More services = more config
+**Target Start:** 2026-03-20
+**Target Completion:** 2026-03-31
 
 - ⏸️ **Server Setup:**
   - Prepare production servers
   - Install Docker + Docker Compose
-  - Configure firewall rules (REST 41XX, gRPC 51XX, Nginx 443, Envoy 8080)
+  - Configure firewall rules (REST 41XX, gRPC 51XX, Kafka 9092, Nginx 443)
   - Setup SSL certificates (Let's Encrypt)
+- ⏸️ **Kafka Production Setup:** ✨ NEW
+  - Kafka cluster configuration
+  - Topic replication
+  - Consumer group management
 - ⏸️ **Nginx Configuration (REST + static):**
   - REST reverse proxy
   - SSL/TLS termination
   - Static file serving (React build)
   - Proxy rules /api/* → microservices
   - Compression + caching
-- ⏸️ **Envoy Configuration (gRPC):**
-  - gRPC proxy
-  - Service discovery
-  - Circuit breaking + retry policies
-  - Health checks (ports 51XX)
-  - gRPC load balancing
 - ⏸️ **Production Configurations:**
   - Production Dockerfiles
   - Multi-stage builds
-  - Production docker-compose.yml (REST + gRPC ports)
+  - Production docker-compose.yml (all 14+ services)
   - Production .env files
   - Database backups
 - ⏸️ **Monitoring & Logging:**
   - Structured logging
   - Health check endpoints
   - Error tracking
-  - gRPC connection health monitoring
+  - Kafka monitoring ✨ NEW
   - Monitoring dashboard
 
 ---
 
-### **1.21 Deploy MVP to Production** ⏸️ PLANNED - 🔴 CRITICAL
-**Dependencies:** Task 1.20 complete
-**Estimated:** 10-20 hours (3-5 days)
-**Target Start:** 2026-03-10
-**Target Completion:** 2026-03-15
+### **1.19 Deploy MVP to Production** ⏸️ PLANNED - 🔴 CRITICAL
+**Dependencies:** Task 1.18 complete
+**Estimated:** 15-25 hours (4-6 days)
+**Target Start:** 2026-04-01
+**Target Completion:** 2026-04-07
 
-- ⏸️ Deploy all services to production
+- ⏸️ Deploy all 14+ microservices to production
 - ⏸️ Verify REST API accessibility
 - ⏸️ Verify gRPC connectivity
+- ⏸️ Verify Kafka event flow ✨ NEW
 - ⏸️ Run smoke tests
 - ⏸️ Monitor logs for errors
-- ⏸️ Test all workflows with real users
+- ⏸️ Test workflows:
+  - ✅ Customer quote → Order → Production → Invoice → Payment
+  - ✅ PO approval workflow → 3-Way match → Payment
+  - ✅ Overdue invoice → Reminder job → Credit block
+  - ✅ Production planning → Job scheduling → Contingency
 - ⏸️ Collect user feedback
 - ⏸️ Fix critical bugs
 - ⏸️ Performance optimization
 - ⏸️ Security audit
 
 **Success Criteria:**
-- ✅ All services running and accessible
+- ✅ All 14+ services running and accessible
 - ✅ gRPC inter-service communication working
+- ✅ Kafka event flow verified
+- ✅ 3-Way match working
+- ✅ Production planning functional
+- ✅ Operations workflows active
 - ✅ No critical bugs
 - ✅ Performance acceptable
 - ✅ Users can complete all core workflows
-- ✅ System stable for 1 week
+- ✅ System stable for 2 weeks
 
 **→ When complete: Upgrade to v4.1.0 and start Phase 2**
 
@@ -708,7 +1134,7 @@
 ## 📋 PHASE 2: Security & Stability (v4.1.x)
 
 **Goal:** Harden security, fix bugs, stabilize for production
-**Start:** After Phase 1 complete (target: Mar 2026)
+**Start:** After Phase 1 complete (target: Apr 2026)
 **Target End:** TBD
 **Status:** ⏸️ PLANNED
 
@@ -724,8 +1150,18 @@
 - Monitoring improvements
 - Documentation updates
 - User feedback implementation
+- **Kafka optimization** ✨ NEW
+- **PPQ advanced algorithms** ✨ NEW (multi-criteria optimization)
 - Critical bug fixes
 - Performance tuning
+
+**Potential Additions:**
+- ⏸️ Notification Service (email/SMS/push)
+- ⏸️ Gamification / Loyalty Service
+- ⏸️ Issues Service (internal ticketing)
+- ⏸️ Inquiries Service (customer quotes tracking)
+- ⏸️ Mail Client Service (SMTP/IMAP)
+- ⏸️ Documents Service (file upload/download)
 
 **→ When complete: Upgrade to v4.2.0 and start Phase 3**
 
@@ -741,6 +1177,7 @@
 ### **Phase 3 Tasks (Infrastructure & Stability):**
 - High availability setup
 - Database replication
+- Kafka cluster HA ✨ NEW
 - Load balancing
 - Automated backups
 - Disaster recovery procedures
@@ -803,6 +1240,7 @@
 - Document classification
 - OCR for invoices/documents
 - Chatbot support
+- **PPQ machine learning** ✨ (predict optimal resources)
 
 **Business Intelligence:**
 - Executive dashboard
@@ -813,7 +1251,7 @@
 
 **Customer & Supplier Portals:**
 - Self-service portal
-- Order tracking
+- Order tracking (from Operations service)
 - Invoice downloads
 - Support tickets
 - Document uploads
@@ -858,6 +1296,7 @@
 **Backend:**
 - Python 3.11 + FastAPI
 - PostgreSQL 15 (one DB per service)
+- **Apache Kafka** ✨ NEW (event-driven architecture)
 - REST API (external communication)
 - gRPC (inter-service communication)
 - SQLAlchemy + Alembic (ORM + migrations)
@@ -866,43 +1305,82 @@
 **DevOps:**
 - Docker + Docker Compose (development)
 - Nginx (REST reverse proxy)
-- Envoy (gRPC proxy - optional)
+- Kafka + Zookeeper ✨ NEW
 - Nx + Yarn 4 (monorepo)
 
 ---
 
 ## 📊 Quick Progress Overview
 
-**Phase 1 Progress:** 2.7/21 tasks complete (~12%)
+**Phase 1 Progress:** 2.7/18 tasks complete (~15%)
 
-| Task | Status | Target Completion |
-|------|--------|-------------------|
-| 1.0 Infrastructure | ✅ COMPLETED | 2025-10-15 |
-| 1.1 Coding Standards | ✅ COMPLETED | 2025-10-15 |
-| 1.2 UI Infrastructure | ⏳ IN PROGRESS | 2025-10-27 |
-| 1.3 Backend Infrastructure | ⏸️ PLANNED | 2025-11-02 |
-| 1.4 Contacts Service | ⏸️ PLANNED | 2025-11-10 |
-| 1.5 Employees Service | ⏸️ PLANNED | 2025-11-16 |
-| 1.6 Issues Service | ⏸️ PLANNED | 2025-11-22 |
-| 1.7 Customers Service | ⏸️ PLANNED | 2025-11-28 |
-| 1.8 Parts Service | ⏸️ PLANNED | 2025-12-04 |
-| 1.9 Orders Service | ⏸️ PLANNED | 2025-12-11 |
-| 1.10 Logistics | ⏸️ PLANNED | 2025-12-17 |
-| 1.11 Suppliers | ⏸️ PLANNED | 2025-12-23 |
-| 1.12 Warehouse | ⏸️ PLANNED | 2025-12-30 |
-| 1.13 Mail Client | ⏸️ PLANNED | 2026-01-06 |
-| 1.14 Documents | ⏸️ PLANNED | 2026-01-13 |
-| 1.15 Invoicing | ⏸️ PLANNED | 2026-01-21 |
-| 1.16 Inquiries | ⏸️ PLANNED | 2026-01-27 |
-| 1.17 Operations | ⏸️ PLANNED | 2026-02-03 |
-| 1.18 Authentication | ⏸️ PLANNED | 2026-02-11 |
-| 1.19 Testing & QA | ⏸️ PLANNED | 2026-02-26 |
-| 1.20 Production Prep | ⏸️ PLANNED | 2026-03-09 |
-| 1.21 Deploy to Production | ⏸️ PLANNED | 2026-03-15 |
+**Architecture:** Domain-Driven Microservices (Bounded Context)
+
+| Task | Status | Target Completion | Architecture |
+|------|--------|-------------------|--------------|
+| 1.0 Infrastructure | ✅ COMPLETED | 2025-10-15 | Foundation |
+| 1.1 Coding Standards | ✅ COMPLETED | 2025-10-15 | Foundation |
+| 1.2 UI Infrastructure | ⏳ IN PROGRESS | 2025-11-12 | Frontend |
+| 1.3 Backend Infrastructure | ⏸️ PLANNED | 2025-11-17 | Backend + Kafka |
+| **PHASE I: Foundation** | | | |
+| 1.4 Contact (MDM) | ⏸️ PLANNED | 2025-11-25 | Master Data |
+| 1.5 Configuration | ⏸️ PLANNED | 2025-11-23 | Settings |
+| 1.6 HR / Payroll | ⏸️ PLANNED | 2025-12-02 | GDPR Protected |
+| **PHASE II: Core Operations** | | | |
+| 1.7 Inventory / Logistics | ⏸️ PLANNED | 2025-12-10 | Physical Stock |
+| 1.8 Purchasing (AP) | ⏸️ PLANNED | 2025-12-21 | ✨ NEW: Vendors + PO + Invoices AP |
+| 1.9 Sales (AR) | ⏸️ PLANNED | 2026-01-02 | ✨ NEW: Customers + SO + Invoices AR |
+| 1.10 Manufacturing | ⏸️ PLANNED | 2026-01-10 | Production |
+| **PHASE III: Planning & Finance** | | | |
+| 1.11 PPQ | ⏸️ PLANNED | 2026-01-23 | ✨ NEW: Quality vs Speed Optimization |
+| 1.12 Operations (BPM) | ⏸️ PLANNED | 2026-02-03 | ✨ NEW: Workflow Orchestration |
+| 1.13 Finance (GL) | ⏸️ PLANNED | 2026-02-14 | Accounting Backbone |
+| 1.14 Cash & Bank | ⏸️ PLANNED | 2026-02-21 | Payment Processing |
+| **PHASE IV: Final Steps** | | | |
+| 1.15 Authentication | ⏸️ PLANNED | 2026-03-01 | Security |
+| 1.16 Testing & QA | ⏸️ PLANNED | 2026-03-19 | Quality Assurance |
+| 1.17 Production Prep | ⏸️ PLANNED | 2026-03-31 | Deployment |
+| 1.18 Deploy MVP | ⏸️ PLANNED | 2026-04-07 | Production Launch |
 
 ---
 
-**Last Updated:** 2025-10-22
+## 🎯 Key Architectural Changes (v4.0.0)
+
+**From v3.0.0 (OBSOLETE) → v4.0.0 (CURRENT):**
+
+| Old Architecture (v3.0.0) | New Architecture (v4.0.0) | Reason |
+|---------------------------|---------------------------|---------|
+| ❌ Customers Service | ✅ **Sales (AR) Service** | Bounded Context - complete sales domain |
+| ❌ Suppliers Service | ✅ **Purchasing (AP) Service** | Bounded Context - complete purchasing domain |
+| ❌ Orders Service | ✅ Split: PO → Purchasing, SO → Sales | Domain separation |
+| ❌ Invoices Service | ✅ Split: AR → Sales, AP → Purchasing | Domain separation |
+| ❌ Issues Service | ⏸️ **Moved to Phase 2** | Not core MVP |
+| ❌ Inquiries Service | ⏸️ **Moved to Phase 2** | Not core MVP |
+| ❌ Mail Client | ⏸️ **Moved to Phase 2** | Not core MVP |
+| ❌ Documents | ⏸️ **Moved to Phase 2** | Not core MVP |
+| - | ✅ **Configuration Service** ✨ NEW | Global settings (COA, VAT, currencies) |
+| - | ✅ **PPQ Service** ✨ NEW | Production planning & optimization |
+| - | ✅ **Operations (BPM)** ✨ NEW | Workflow orchestration |
+| - | ✅ **Kafka Integration** ✨ NEW | Event-driven architecture |
+
+**Total Services:**
+- v3.0.0: 17 services (fragmented)
+- v4.0.0: 14 services (cohesive, domain-driven)
+
+**Key Improvements:**
+- ✅ GDPR compliance (sensitive data strategy)
+- ✅ Event-driven architecture (Kafka)
+- ✅ Production planning optimization
+- ✅ Workflow orchestration
+- ✅ 3-Way match (PO → GR → Invoice)
+- ✅ Overdue tracking automation
+- ✅ Customer operation visibility
+
+---
+
+**Last Updated:** 2025-10-30
 **Maintainer:** BOSSystems s.r.o.
 **Current Version:** 4.0.0 (Phase 1 - MVP Development)
-**Next Milestone:** Complete Modal System v3.0 (Phase 2-5) by 2025-10-27
+**Architecture Document:** [microservices-architecture.md](../architecture/microservices-architecture.md)
+**Next Milestone:** Complete Modal System v3.0 by 2025-11-12
+**Next Backend Start:** Task 1.3 Backend Infrastructure (after Modal System complete)

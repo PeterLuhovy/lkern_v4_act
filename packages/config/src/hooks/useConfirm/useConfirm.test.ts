@@ -23,13 +23,13 @@ describe('useConfirm', () => {
     it('should initialize with modal closed', () => {
       const { result } = renderHook(() => useConfirm());
 
-      expect(result.current.isOpen).toBe(false);
+      expect(result.current.state.isOpen).toBe(false);
     });
 
     it('should initialize with empty message', () => {
       const { result } = renderHook(() => useConfirm());
 
-      expect(result.current.message).toBe('');
+      expect(result.current.state.message).toBe('');
     });
   });
 
@@ -41,7 +41,7 @@ describe('useConfirm', () => {
         result.current.confirm('Test message');
       });
 
-      expect(result.current.isOpen).toBe(true);
+      expect(result.current.state.isOpen).toBe(true);
     });
 
     it('should display custom message', async () => {
@@ -51,17 +51,7 @@ describe('useConfirm', () => {
         result.current.confirm('Delete this record?');
       });
 
-      expect(result.current.message).toBe('Delete this record?');
-    });
-
-    it('should use default message when empty string passed', async () => {
-      const { result } = renderHook(() => useConfirm());
-
-      act(() => {
-        result.current.confirm('');
-      });
-
-      expect(result.current.message).toBe('Naozaj chceš pokračovať?');
+      expect(result.current.state.message).toBe('Delete this record?');
     });
 
     it('should return Promise', () => {
@@ -152,13 +142,13 @@ describe('useConfirm', () => {
         result.current.confirm('Test');
       });
 
-      expect(result.current.isOpen).toBe(true);
+      expect(result.current.state.isOpen).toBe(true);
 
       act(() => {
         result.current.handleConfirm();
       });
 
-      expect(result.current.isOpen).toBe(false);
+      expect(result.current.state.isOpen).toBe(false);
     });
 
     it('should close modal after handleCancel', () => {
@@ -168,13 +158,13 @@ describe('useConfirm', () => {
         result.current.confirm('Test');
       });
 
-      expect(result.current.isOpen).toBe(true);
+      expect(result.current.state.isOpen).toBe(true);
 
       act(() => {
         result.current.handleCancel();
       });
 
-      expect(result.current.isOpen).toBe(false);
+      expect(result.current.state.isOpen).toBe(false);
     });
   });
 
@@ -225,7 +215,7 @@ describe('useConfirm', () => {
       act(() => {
         result.current.confirm('First message');
       });
-      expect(result.current.message).toBe('First message');
+      expect(result.current.state.message).toBe('First message');
 
       act(() => {
         result.current.handleConfirm();
@@ -234,7 +224,7 @@ describe('useConfirm', () => {
       act(() => {
         result.current.confirm('Second message');
       });
-      expect(result.current.message).toBe('Second message');
+      expect(result.current.state.message).toBe('Second message');
     });
   });
 
@@ -271,6 +261,167 @@ describe('useConfirm', () => {
       const confirmRef2 = result.current.confirm;
 
       expect(confirmRef1).toBe(confirmRef2);
+    });
+  });
+
+  describe('v2.0.0 features - ConfirmOptions object', () => {
+    it('should handle ConfirmOptions object with message', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          message: 'Delete this record?',
+        });
+      });
+
+      expect(result.current.state.isOpen).toBe(true);
+      expect(result.current.state.message).toBe('Delete this record?');
+    });
+
+    it('should support isDanger flag', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          message: 'Dangerous action',
+          isDanger: true,
+        });
+      });
+
+      expect(result.current.state.isDanger).toBe(true);
+    });
+
+    it('should support confirmKeyword option', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          message: 'Type "ano" to confirm',
+          confirmKeyword: 'ano',
+          isDanger: true,
+        });
+      });
+
+      expect(result.current.state.confirmKeyword).toBe('ano');
+      expect(result.current.state.isDanger).toBe(true);
+    });
+
+    it('should support custom button labels', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          message: 'Proceed?',
+          confirmButtonLabel: 'Yes, proceed',
+          cancelButtonLabel: 'No, cancel',
+        });
+      });
+
+      expect(result.current.state.confirmButtonLabel).toBe('Yes, proceed');
+      expect(result.current.state.cancelButtonLabel).toBe('No, cancel');
+    });
+
+    it('should support custom title', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          title: 'Delete Contact',
+          message: 'Are you sure?',
+        });
+      });
+
+      expect(result.current.state.title).toBe('Delete Contact');
+      expect(result.current.state.message).toBe('Are you sure?');
+    });
+
+    it('should maintain backward compatibility with string argument', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm('Simple message');
+      });
+
+      expect(result.current.state.isOpen).toBe(true);
+      expect(result.current.state.message).toBe('Simple message');
+      expect(result.current.state.isDanger).toBe(false);
+      expect(result.current.state.confirmKeyword).toBeUndefined();
+    });
+
+    it('should handle full danger mode options', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          title: 'Delete All Records',
+          message: 'This cannot be undone. Type "ano" to confirm.',
+          confirmKeyword: 'ano',
+          isDanger: true,
+          confirmButtonLabel: 'Delete All',
+          cancelButtonLabel: 'Cancel',
+        });
+      });
+
+      expect(result.current.state.title).toBe('Delete All Records');
+      expect(result.current.state.message).toBe('This cannot be undone. Type "ano" to confirm.');
+      expect(result.current.state.confirmKeyword).toBe('ano');
+      expect(result.current.state.isDanger).toBe(true);
+      expect(result.current.state.confirmButtonLabel).toBe('Delete All');
+      expect(result.current.state.cancelButtonLabel).toBe('Cancel');
+    });
+
+    it('should set isDanger to false by default', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({
+          message: 'Continue?',
+        });
+      });
+
+      expect(result.current.state.isDanger).toBe(false);
+    });
+
+    it('should resolve Promise correctly in danger mode', async () => {
+      const { result } = renderHook(() => useConfirm());
+
+      let confirmResult: boolean | undefined;
+
+      act(() => {
+        result.current.confirm({
+          message: 'Delete?',
+          confirmKeyword: 'delete',
+          isDanger: true,
+        }).then((res) => {
+          confirmResult = res;
+        });
+      });
+
+      expect(result.current.state.isOpen).toBe(true);
+
+      // Confirm action
+      act(() => {
+        result.current.handleConfirm();
+      });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(confirmResult).toBe(true);
+      expect(result.current.state.isOpen).toBe(false);
+    });
+
+    it('should handle empty options object', () => {
+      const { result } = renderHook(() => useConfirm());
+
+      act(() => {
+        result.current.confirm({});
+      });
+
+      expect(result.current.state.isOpen).toBe(true);
+      expect(result.current.state.message).toBe('');
+      expect(result.current.state.isDanger).toBe(false);
     });
   });
 });

@@ -3,13 +3,14 @@
  * FILE: Badge.test.tsx
  * PATH: /packages/ui-components/src/components/Badge/Badge.test.tsx
  * DESCRIPTION: Unit tests for Badge component
- * VERSION: v1.0.0
+ * VERSION: v1.1.0
  * CREATED: 2025-10-18
+ * UPDATED: 2025-10-30
  * ================================================================
  */
 
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { renderWithTranslation as render, screen } from '../../test-utils';
 import { Badge } from './Badge';
 
 describe('Badge Component', () => {

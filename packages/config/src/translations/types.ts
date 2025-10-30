@@ -414,32 +414,83 @@ export interface TranslationKeys {
         hint: string;
         completeMessage: string;
       };
+      test9: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+        modalTitle: string;
+        modalMessage: string;
+      };
+      test10: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+        modalTitle: string;
+        modalMessage: string;
+      };
+      test11: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+      };
+      test12: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+        modalTitle: string;
+        nameLabel: string;
+        namePlaceholder: string;
+        emailLabel: string;
+        emailPlaceholder: string;
+        savedMessage: string;
+        clearedMessage: string;
+        closedWithChanges: string;
+        closedWithoutChanges: string;
+        instructions: {
+          unsavedChanges: string;
+          formValid: string;
+          clearButton: string;
+          tryClosing: string;
+          changeLanguage: string;
+          yes: string;
+          no: string;
+        };
+      };
       common: {
         confirmDelete: string;
         deleted: string;
         submitted: string;
         inputEmptyError: string;
       };
-    };
-    confirmModal: {
-      simple: {
-        defaultTitle: string;
-        defaultMessage: string;
-        defaultConfirm: string;
-        defaultCancel: string;
+      confirmModal: {
+        simple: {
+          defaultTitle: string;
+          defaultMessage: string;
+          defaultConfirm: string;
+          defaultCancel: string;
+        };
+        danger: {
+          defaultTitle: string;
+          defaultMessage: string;
+          defaultConfirm: string;
+          defaultCancel: string;
+          keywordLabel: string;
+          keywordPlaceholder: string;
+          keywordError: string;
+          confirmKeyword: string;
+        };
+        unsavedChanges: {
+          title: string;
+          message: string;
+        };
       };
-      danger: {
-        defaultTitle: string;
-        defaultMessage: string;
-        defaultConfirm: string;
+      editItemModal: {
+        defaultSave: string;
         defaultCancel: string;
-        keywordLabel: string;
-        keywordPlaceholder: string;
-        keywordError: string;
-      };
-      unsavedChanges: {
-        title: string;
-        message: string;
+        defaultClear: string;
+        clearConfirmTitle: string;
+        clearConfirmMessage: string;
+        clearConfirmButton: string;
       };
     };
   };

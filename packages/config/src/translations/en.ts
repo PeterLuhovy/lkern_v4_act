@@ -3,8 +3,8 @@
  * FILE: en.ts
  * PATH: packages/config/src/translations/en.ts
  * DESCRIPTION: English translations for L-KERN v4
- * VERSION: v1.3.0
- * UPDATED: 2025-10-19 13:00:00
+ * VERSION: v1.4.0
+ * UPDATED: 2025-10-30 10:30:00
  * ================================================================
  */
 
@@ -372,6 +372,48 @@ export const en: TranslationKeys = {
         hint: '💡 Use "Previous" and "Next" buttons for navigation, or Enter/ESC keys.',
         completeMessage: 'Wizard completed! Data has been saved.',
       },
+      test9: {
+        title: '✅ Test 9: ConfirmModal - Simple Mode',
+        description: 'Test simple yes/no confirmation dialog',
+        buttonLabel: 'Open Simple Confirm',
+        modalTitle: 'Delete Item?',
+        modalMessage: 'Are you sure you want to delete this item? This action cannot be undone.',
+      },
+      test10: {
+        title: '⚠️ Test 10: ConfirmModal - Danger Mode',
+        description: 'Test dangerous action with keyword confirmation (type "ano")',
+        buttonLabel: 'Delete Account (Danger)',
+        modalTitle: 'Delete Account',
+        modalMessage: 'This will permanently delete your account and all associated data.',
+      },
+      test11: {
+        title: '💾 Test 11: ConfirmModal - Unsaved Changes',
+        description: 'Test unsaved changes warning (using preset from translations)',
+        buttonLabel: 'Close Without Saving',
+      },
+      test12: {
+        title: '📝 Test 12: EditItemModal',
+        description: 'Generic add/edit wrapper with unsaved changes and clear button',
+        buttonLabel: 'Open EditItemModal',
+        modalTitle: 'Edit Contact',
+        nameLabel: 'Name',
+        namePlaceholder: 'Enter name...',
+        emailLabel: 'Email',
+        emailPlaceholder: 'user@example.com',
+        savedMessage: 'Data saved!',
+        clearedMessage: 'Form cleared!',
+        closedWithChanges: 'Closed with unsaved changes',
+        closedWithoutChanges: 'Closed without changes',
+        instructions: {
+          unsavedChanges: 'Unsaved changes',
+          formValid: 'Form valid',
+          clearButton: 'Clear button in footer left slot',
+          tryClosing: 'Try closing with changes - confirmation appears',
+          changeLanguage: 'Change language to test translations',
+          yes: 'YES',
+          no: 'NO',
+        },
+      },
       featureSummary: {
         title: '✅ Modal v3.0.0 Features Summary',
         dragDrop: 'Drag & Drop:',
@@ -394,6 +436,36 @@ export const en: TranslationKeys = {
         deleted: 'Deleted!',
         submitted: 'Submitted',
         inputEmptyError: 'Input cannot be empty',
+      },
+      confirmModal: {
+        simple: {
+          defaultTitle: 'Confirm Action',
+          defaultMessage: 'Do you really want to proceed?',
+          defaultConfirm: 'Yes',
+          defaultCancel: 'Cancel',
+        },
+        danger: {
+          defaultTitle: 'Dangerous Action',
+          defaultMessage: 'This action cannot be undone. Enter "{keyword}" to confirm.',
+          defaultConfirm: 'Delete',
+          defaultCancel: 'Cancel',
+          keywordLabel: 'Confirm by entering "{keyword}"',
+          keywordPlaceholder: 'Enter "{keyword}"',
+          keywordError: 'Incorrect keyword. Enter "{keyword}" to confirm.',
+          confirmKeyword: 'yes',
+        },
+        unsavedChanges: {
+          title: 'Unsaved Changes',
+          message: 'You have unsaved changes. Do you really want to close without saving?',
+        },
+      },
+      editItemModal: {
+        defaultSave: 'Save',
+        defaultCancel: 'Cancel',
+        defaultClear: '🧹 Clear Form',
+        clearConfirmTitle: 'Clear Form?',
+        clearConfirmMessage: 'Do you really want to clear all entered data?',
+        clearConfirmButton: 'Clear',
       },
     },
   },

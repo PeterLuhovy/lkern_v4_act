@@ -2,13 +2,12 @@
  * @file Select.test.tsx
  * @package @l-kern/ui-components
  * @description Unit tests for Select component
- * @version 1.0.0
- * @date 2025-10-18
+ * @version 1.1.0
+ * @date 2025-10-30
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { Select } from './Select';
 import type { SelectOption } from './Select';
 
@@ -21,7 +20,7 @@ describe('Select', () => {
 
   describe('Rendering', () => {
     it('renders select with options', () => {
-      render(<Select options={mockOptions} />);
+      renderWithTranslation(<Select options={mockOptions} />);
       const select = screen.getByRole('combobox');
       expect(select).toBeInTheDocument();
       expect(screen.getByText('Slovakia')).toBeInTheDocument();
@@ -30,22 +29,22 @@ describe('Select', () => {
     });
 
     it('renders with placeholder', () => {
-      render(<Select options={mockOptions} placeholder="Choose country" />);
+      renderWithTranslation(<Select options={mockOptions} placeholder="Choose country" />);
       expect(screen.getByText('Choose country')).toBeInTheDocument();
     });
 
     it('renders helper text when provided', () => {
-      render(<Select options={mockOptions} helperText="Select your country" />);
+      renderWithTranslation(<Select options={mockOptions} helperText="Select your country" />);
       expect(screen.getByText('Select your country')).toBeInTheDocument();
     });
 
     it('renders error message when provided', () => {
-      render(<Select options={mockOptions} error="Country is required" />);
+      renderWithTranslation(<Select options={mockOptions} error="Country is required" />);
       expect(screen.getByText('Country is required')).toBeInTheDocument();
     });
 
     it('shows error instead of helper text when both provided', () => {
-      render(
+      renderWithTranslation(
         <Select
           options={mockOptions}
           error="Country is required"
@@ -59,14 +58,14 @@ describe('Select', () => {
 
   describe('Options', () => {
     it('renders all options from array', () => {
-      render(<Select options={mockOptions} />);
+      renderWithTranslation(<Select options={mockOptions} />);
       const options = screen.getAllByRole('option');
       // 3 options total (no placeholder)
       expect(options).toHaveLength(3);
     });
 
     it('renders placeholder as first option', () => {
-      render(<Select options={mockOptions} placeholder="Choose" />);
+      renderWithTranslation(<Select options={mockOptions} placeholder="Choose" />);
       const options = screen.getAllByRole('option');
       // 4 options: 1 placeholder + 3 countries
       expect(options).toHaveLength(4);
@@ -78,7 +77,7 @@ describe('Select', () => {
         { value: 'sk', label: 'Slovakia' },
         { value: 'cz', label: 'Czech Republic', disabled: true },
       ];
-      render(<Select options={optionsWithDisabled} />);
+      renderWithTranslation(<Select options={optionsWithDisabled} />);
       const czechOption = screen.getByText('Czech Republic');
       expect(czechOption).toBeDisabled();
     });
@@ -88,7 +87,7 @@ describe('Select', () => {
     it('calls onChange when option selected', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<Select options={mockOptions} onChange={handleChange} />);
+      renderWithTranslation(<Select options={mockOptions} onChange={handleChange} />);
 
       const select = screen.getByRole('combobox');
       await user.selectOptions(select, 'sk');
@@ -98,7 +97,7 @@ describe('Select', () => {
 
     it('updates selected value', async () => {
       const user = userEvent.setup();
-      render(<Select options={mockOptions} />);
+      renderWithTranslation(<Select options={mockOptions} />);
 
       const select = screen.getByRole('combobox') as HTMLSelectElement;
       await user.selectOptions(select, 'cz');
@@ -109,7 +108,7 @@ describe('Select', () => {
     it('respects disabled state', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<Select options={mockOptions} onChange={handleChange} disabled />);
+      renderWithTranslation(<Select options={mockOptions} onChange={handleChange} disabled />);
 
       const select = screen.getByRole('combobox');
       expect(select).toBeDisabled();
@@ -122,31 +121,31 @@ describe('Select', () => {
 
   describe('Accessibility', () => {
     it('sets aria-invalid when error present', () => {
-      render(<Select options={mockOptions} error="Error message" />);
+      renderWithTranslation(<Select options={mockOptions} error="Error message" />);
       const select = screen.getByRole('combobox');
       expect(select).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('sets aria-invalid to false when no error', () => {
-      render(<Select options={mockOptions} />);
+      renderWithTranslation(<Select options={mockOptions} />);
       const select = screen.getByRole('combobox');
       expect(select).toHaveAttribute('aria-invalid', 'false');
     });
 
     it('links error message with aria-describedby', () => {
-      render(<Select options={mockOptions} id="country" error="Error message" />);
+      renderWithTranslation(<Select options={mockOptions} id="country" error="Error message" />);
       const select = screen.getByRole('combobox');
       expect(select).toHaveAttribute('aria-describedby', 'country-error');
     });
 
     it('links helper text with aria-describedby', () => {
-      render(<Select options={mockOptions} id="country" helperText="Helper text" />);
+      renderWithTranslation(<Select options={mockOptions} id="country" helperText="Helper text" />);
       const select = screen.getByRole('combobox');
       expect(select).toHaveAttribute('aria-describedby', 'country-helper');
     });
 
     it('supports required attribute', () => {
-      render(<Select options={mockOptions} required />);
+      renderWithTranslation(<Select options={mockOptions} required />);
       const select = screen.getByRole('combobox');
       expect(select).toBeRequired();
     });
@@ -154,7 +153,7 @@ describe('Select', () => {
 
   describe('Styling', () => {
     it('applies fullWidth class when fullWidth prop is true', () => {
-      const { container } = render(<Select options={mockOptions} fullWidth />);
+      const { container } = renderWithTranslation(<Select options={mockOptions} fullWidth />);
       const wrapper = container.firstChild as HTMLElement;
       // CSS Modules generate hashed class names, so check className string contains pattern
       expect(wrapper.className).toContain('wrapper');
@@ -162,13 +161,13 @@ describe('Select', () => {
     });
 
     it('applies custom className', () => {
-      render(<Select options={mockOptions} className="custom-class" />);
+      renderWithTranslation(<Select options={mockOptions} className="custom-class" />);
       const select = screen.getByRole('combobox');
       expect(select).toHaveClass('custom-class');
     });
 
     it('applies error class when error present', () => {
-      render(<Select options={mockOptions} error="Error" />);
+      renderWithTranslation(<Select options={mockOptions} error="Error" />);
       const select = screen.getByRole('combobox');
       // CSS Modules generate hashed class names, so check className string contains pattern
       expect(select.className).toContain('select');
@@ -179,14 +178,14 @@ describe('Select', () => {
   describe('Forward Ref', () => {
     it('forwards ref to select element', () => {
       const ref = vi.fn();
-      render(<Select options={mockOptions} ref={ref} />);
+      renderWithTranslation(<Select options={mockOptions} ref={ref} />);
       expect(ref).toHaveBeenCalled();
       expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLSelectElement);
     });
 
     it('allows ref to access select value', () => {
       const ref = { current: null as HTMLSelectElement | null };
-      render(<Select options={mockOptions} ref={ref} value="sk" onChange={() => {}} />);
+      renderWithTranslation(<Select options={mockOptions} ref={ref} value="sk" onChange={() => {}} />);
       expect(ref.current).toBeInstanceOf(HTMLSelectElement);
       expect(ref.current?.value).toBe('sk');
     });

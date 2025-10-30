@@ -47,6 +47,8 @@ export function setupTheme(): void {
       --button-danger-to: #d32f2f;
       --button-success-from: #66bb6a;
       --button-success-to: #388E3C;
+      --button-danger-subtle-bg: ${COLORS.button.dangerSubtle.light};
+      --button-danger-subtle-hover: ${COLORS.button.dangerSubtle.lightHover};
 
       /* Border colors */
       --color-border: ${COLORS.neutral.gray300};
@@ -212,6 +214,10 @@ export function setupTheme(): void {
       --color-info: ${COLORS.status.info};
       --color-status-error: #ef5350;
       --color-status-error-light: #ff6659;
+
+      /* Button danger-subtle - dark mode override */
+      --button-danger-subtle-bg: ${COLORS.button.dangerSubtle.dark};
+      --button-danger-subtle-hover: ${COLORS.button.dangerSubtle.darkHover};
     }
 
     /* Global Styles */

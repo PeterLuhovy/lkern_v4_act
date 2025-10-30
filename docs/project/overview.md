@@ -2,9 +2,9 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 6.0.0
+# Version: 7.0.0
 # Created: 2025-10-13
-# Updated: 2025-10-22
+# Updated: 2025-10-30
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -36,9 +36,10 @@
 ## 📊 Current Status
 
 **Version:** 4.0.0 (Phase 1 - MVP Development)
-**Progress:** 2.7/21 tasks complete (~12%)
+**Roadmap:** v4.0.0 (Restructured 2025-10-30 - Domain-driven microservices)
+**Progress:** 2.7/18 tasks complete (~15%)
 **Started:** 2025-10-13
-**Target MVP Completion:** 2026-03-10
+**Target MVP Completion:** 2026-06-30
 
 **Current Task:** 1.2 UI Infrastructure (~70% complete)
 **Next Milestone:** Complete Task 1.2 by 2025-10-25
@@ -67,7 +68,21 @@ L-KERN v4/
 └── tools/                         # Dev tools
 ```
 
-### **Communication Architecture:**
+### **Microservices Architecture:**
+
+**Architecture Style:** Domain-Driven Design (Bounded Context)
+**Event Bus:** Apache Kafka (async communication)
+**Data Strategy:** One PostgreSQL DB per service
+
+**14 Microservices in 4 Phases:**
+- PHASE I Foundation: Contact (MDM), Configuration, HR/Payroll
+- PHASE II Core Operations: Inventory/Logistics, Purchasing (AP), Sales (AR), Manufacturing
+- PHASE III Planning & Finance: PPQ, Operations (BPM), Finance (GL), Cash & Bank
+- PHASE IV Supporting: Authentication, Mail Client
+
+**See full specification:** [architecture/microservices-architecture.md](../architecture/microservices-architecture.md)
+
+**Communication Architecture:**
 
 **REST API (External):**
 - Frontend → Backend
@@ -78,6 +93,11 @@ L-KERN v4/
 - Backend ↔ Backend
 - gRPC/Protobuf
 - Ports: 51XX (e.g., 5101, 5102)
+
+**Kafka Events (Async):**
+- Service → Event Bus → Consumers
+- Event-driven workflows
+- GDPR-compliant data propagation
 
 ---
 
@@ -91,6 +111,7 @@ L-KERN v4/
 **Backend** (Planned - Task 1.3+):
 - Python 3.11 + FastAPI
 - PostgreSQL 15 (one DB per service)
+- Apache Kafka (event-driven architecture)
 - REST API (external) + gRPC (inter-service)
 - SQLAlchemy + Alembic (ORM + migrations)
 - Pydantic (validation)
@@ -106,34 +127,45 @@ L-KERN v4/
 ## 📝 Phase 1 Progress (MVP Development)
 
 **Goal:** Build MVP and deploy to production
-**Timeline:** Oct 2025 - Mar 2026
+**Timeline:** Oct 2025 - Jun 2026
+**Architecture:** Domain-driven microservices (v4.0.0 roadmap)
+
+**Key Changes from v3.0.0 → v4.0.0:**
+- Reduced from 17 fragmented services → 14 cohesive services
+- Bounded Context pattern (Sales, Purchasing domains)
+- Apache Kafka event-driven architecture
+- GDPR-compliant sensitive data strategy
+- Reduced tasks: 21 → 18 (more efficient structure)
 
 | Task | Status | Target Completion |
 |------|--------|-------------------|
 | 1.0 Infrastructure | ✅ COMPLETED | 2025-10-15 |
 | 1.1 Coding Standards | ✅ COMPLETED | 2025-10-15 |
 | 1.2 UI Infrastructure | ⏳ IN PROGRESS | 2025-10-25 |
-| 1.3 Backend Infrastructure | ⏸️ PLANNED | 2025-10-28 |
-| 1.4 Contacts Service | ⏸️ PLANNED | 2025-11-05 |
-| 1.5 Employees Service | ⏸️ PLANNED | 2025-11-11 |
-| 1.6 Issues Service | ⏸️ PLANNED | 2025-11-17 |
-| 1.7 Customers Service | ⏸️ PLANNED | 2025-11-23 |
-| 1.8 Parts Service | ⏸️ PLANNED | 2025-11-29 |
-| 1.9 Orders Service | ⏸️ PLANNED | 2025-12-06 |
-| 1.10 Logistics | ⏸️ PLANNED | 2025-12-12 |
-| 1.11 Suppliers | ⏸️ PLANNED | 2025-12-18 |
-| 1.12 Warehouse | ⏸️ PLANNED | 2025-12-25 |
-| 1.13 Mail Client | ⏸️ PLANNED | 2026-01-01 |
-| 1.14 Documents | ⏸️ PLANNED | 2026-01-08 |
-| 1.15 Invoicing | ⏸️ PLANNED | 2026-01-16 |
-| 1.16 Inquiries | ⏸️ PLANNED | 2026-01-22 |
-| 1.17 Operations | ⏸️ PLANNED | 2026-01-29 |
-| 1.18 Authentication | ⏸️ PLANNED | 2026-02-06 |
-| 1.19 Testing & QA | ⏸️ PLANNED | 2026-02-21 |
-| 1.20 Production Prep | ⏸️ PLANNED | 2026-03-04 |
-| 1.21 Deploy to Production | ⏸️ PLANNED | 2026-03-10 |
+| 1.3 Backend Infrastructure + Kafka | ⏸️ PLANNED | 2025-11-05 |
+| 1.4 Contact (MDM) | ⏸️ PLANNED | 2025-11-26 |
+| 1.5 Configuration | ⏸️ PLANNED | 2025-12-10 |
+| 1.6 HR/Payroll | ⏸️ PLANNED | 2026-01-07 |
+| 1.7 Inventory/Logistics | ⏸️ PLANNED | 2026-01-28 |
+| 1.8 Purchasing (AP) | ⏸️ PLANNED | 2026-02-18 |
+| 1.9 Sales (AR) | ⏸️ PLANNED | 2026-03-11 |
+| 1.10 Manufacturing | ⏸️ PLANNED | 2026-04-01 |
+| 1.11 PPQ (Production Planning) | ⏸️ PLANNED | 2026-04-15 |
+| 1.12 Operations (BPM) | ⏸️ PLANNED | 2026-04-29 |
+| 1.13 Finance (GL) | ⏸️ PLANNED | 2026-05-13 |
+| 1.14 Cash & Bank | ⏸️ PLANNED | 2026-05-27 |
+| 1.15 Authentication | ⏸️ PLANNED | 2026-06-03 |
+| 1.16 Testing & QA | ⏸️ PLANNED | 2026-06-10 |
+| 1.17 Production Prep | ⏸️ PLANNED | 2026-06-17 |
+| 1.18 Deploy to Production | ⏸️ PLANNED | 2026-06-30 |
 
-**Progress:** 2.7/21 tasks (~12%)
+**Progress:** 2.7/18 tasks (~15%)
+
+**Deferred to Phase 2 (v4.1.x):**
+- Issues Service
+- Inquiries Service
+- Mail Client (partial - authentication remains)
+- Documents Service
 
 ---
 
@@ -194,13 +226,27 @@ L-KERN v4/
 
 ## 📞 Quick Links
 
-- **Roadmap:** [roadmap.md](roadmap.md) - Complete phase plan with dates
+- **Roadmap:** [roadmap.md](roadmap.md) - v4.0.0 Domain-driven microservices plan
+- **Microservices Architecture:** [architecture/microservices-architecture.md](../architecture/microservices-architecture.md) - Complete specification
 - **Documentation Map:** [docs/README.md](../README.md) - All documentation indexed
 - **Coding Standards:** [programming/coding-standards.md](../programming/coding-standards.md)
 - **Testing Guide:** [programming/testing-overview.md](../programming/testing-overview.md)
 
 ---
 
-**Last Updated:** 2025-10-22
+## 🔄 Recent Changes
+
+**v7.0.0 (2025-10-30):**
+- Updated to reflect roadmap v4.0.0 restructuring
+- Added microservices architecture overview (14 services in 4 phases)
+- Updated task count: 21 → 18 tasks
+- Extended MVP timeline: Mar 2026 → Jun 2026
+- Added Kafka event-driven architecture
+- Added deferred services list (Phase 2)
+- Added architecture comparison (v3.0.0 → v4.0.0)
+
+---
+
+**Last Updated:** 2025-10-30
 **Maintainer:** BOSSystems s.r.o.
 **Next Review:** After Task 1.2 completion (2025-10-25)
