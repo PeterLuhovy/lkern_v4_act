@@ -122,22 +122,13 @@
 - ✅ EditItemModal (20 tests, useFormDirty, clear button 🧹)
 - ⏸️ ManagementModal (4-6h) - NEXT
 
-**Phase 3-7:** See [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md)
-
-**Component Improvements:**
-- ✅ FormField v3.1.0 - Controlled mode
-- ✅ Button v1.2.0 - danger-subtle variant
-- ✅ Modal v3.8.1 - Fixed unmount/remount
-
-**Stats:** 19 components, 6 hooks, 22 utils, 409/409 tests ✅
-
 #### **1.3.5 Data Display** ⏸️ DEFERRED (After modals)
 - ⏸️ Table/DataGrid (4-6h)
 - ⏸️ FilterAndSearch (2-3h)
 
 ---
 
-### **1.4 Backend Infrastructure** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.4 Backend Infrastructure** ⏸️ PLANNED
 **Dependencies:** 1.3 complete
 **Estimated:** 12-16h (3-4 days)
 **Target:** 2025-11-13 - 2025-11-17
@@ -196,7 +187,7 @@
 
 ---
 
-### **1.7 Contact (MDM) Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.7 Contact (MDM) Service** ⏸️ PLANNED
 **Dependencies:** 1.4 complete
 **Estimated:** 25-30h (6-7 days)
 **Target:** 2025-11-18 - 2025-11-25
@@ -218,7 +209,7 @@
 
 ---
 
-### **1.8 Configuration Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.8 Configuration Service** ⏸️ PLANNED
 **Dependencies:** 1.4 complete
 **Estimated:** 15-20h (4-5 days)
 **Target:** 2025-11-18 - 2025-11-23 (parallel with 1.7)
@@ -236,7 +227,7 @@
 
 ---
 
-### **1.9 HR / Payroll Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.9 HR / Payroll Service** ⏸️ PLANNED
 **Dependencies:** 1.7 complete
 **Estimated:** 20-25h (5-6 days)
 **Target:** 2025-11-26 - 2025-12-02
@@ -274,7 +265,7 @@
 
 ---
 
-### **1.11 Purchasing (AP) Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.11 Purchasing (AP) Service** ⏸️ PLANNED
 **Dependencies:** 1.7, 1.8, 1.10 complete
 **Estimated:** 35-40h (8-10 days)
 **Target:** 2025-12-11 - 2025-12-21
@@ -295,7 +286,7 @@
 
 ---
 
-### **1.12 Sales (AR) Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.12 Sales (AR) Service** ⏸️ PLANNED
 **Dependencies:** 1.7, 1.8, 1.10 complete
 **Estimated:** 35-40h (8-10 days)
 **Target:** 2025-12-22 - 2026-01-02
@@ -332,7 +323,7 @@
 
 ---
 
-### **1.14 Production Planning & Quality (PPQ)** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.14 Production Planning & Quality (PPQ)** ⏸️ PLANNED
 **Dependencies:** 1.9, 1.12, 1.13 complete
 **Estimated:** 40-50h (10-12 days)
 **Target:** 2026-01-11 - 2026-01-23
@@ -351,7 +342,7 @@
 
 ---
 
-### **1.15 Operations (BPM)** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.15 Operations (BPM)** ⏸️ PLANNED
 **Dependencies:** 1.9, 1.11, 1.12, 1.13, 1.14 complete
 **Estimated:** 35-40h (8-10 days)
 **Target:** 2026-01-24 - 2026-02-03
@@ -372,7 +363,7 @@
 
 ---
 
-### **1.16 Finance (GL) Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.16 Finance (GL) Service** ⏸️ PLANNED
 **Dependencies:** 1.8, 1.11, 1.12, 1.13 complete
 **Estimated:** 35-40h (8-10 days)
 **Target:** 2026-02-04 - 2026-02-14
@@ -410,7 +401,7 @@
 
 ---
 
-### **1.18 Authentication Service** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.18 Authentication Service** ⏸️ PLANNED
 **Dependencies:** 1.16 complete
 **Estimated:** 25-30h (6-7 days)
 **Target:** 2026-02-22 - 2026-03-01
@@ -427,7 +418,7 @@
 
 ---
 
-### **1.19 Testing & QA** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.19 Testing & QA** ⏸️ PLANNED
 **Dependencies:** 1.18 complete
 **Estimated:** 50-70h (12-17 days)
 **Target:** 2026-03-02 - 2026-03-19
@@ -439,7 +430,7 @@
 
 ---
 
-### **1.20 Production Deployment Prep** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.20 Production Deployment Prep** ⏸️ PLANNED
 **Dependencies:** 1.19 complete
 **Estimated:** 35-45h (8-11 days)
 **Target:** 2026-03-20 - 2026-03-31
@@ -451,7 +442,7 @@
 
 ---
 
-### **1.21 Deploy MVP to Production** ⏸️ PLANNED - 🔴 CRITICAL
+### **1.21 Deploy MVP to Production** ⏸️ PLANNED
 **Dependencies:** 1.20 complete
 **Estimated:** 15-25h (4-6 days)
 **Target:** 2026-04-01 - 2026-04-07
@@ -745,39 +736,3 @@
 **Phase 2:** 2.1-2.5 (Security & Stability)
 **Phase 3:** 3.1-3.5 (Production Hardening)
 **Phase 4:** 4.1-4.9 (Feature Development)
-
----
-
-## 🎯 Key Architectural Changes (v4.0.0)
-
-**From v3.0.0 (OBSOLETE) → v4.0.0 (CURRENT):**
-
-| Old (v3.0.0) | New (v4.0.0) | Reason |
-|--------------|--------------|---------|
-| ❌ Customers | ✅ Sales (AR) | Bounded Context |
-| ❌ Suppliers | ✅ Purchasing (AP) | Bounded Context |
-| ❌ Orders | ✅ Split: PO → Purchasing, SO → Sales | Domain separation |
-| ❌ Invoices | ✅ Split: AR → Sales, AP → Purchasing | Domain separation |
-| - | ✅ Configuration | Global settings (COA, VAT) |
-| - | ✅ PPQ | Production planning |
-| - | ✅ Operations (BPM) | Workflow orchestration |
-| - | ✅ Kafka | Event-driven architecture |
-
-**Total Services:** v3: 17 fragmented → v4: 14 cohesive
-
-**Key Improvements:**
-- ✅ GDPR compliance (sensitive data strategy)
-- ✅ Event-driven architecture (Kafka)
-- ✅ 3-Way match (PO → GR → Invoice)
-- ✅ Overdue tracking automation
-- ✅ Production planning optimization
-- ✅ Customer operation visibility
-
----
-
-**Last Updated:** 2025-10-30
-**Maintainer:** BOSSystems s.r.o.
-**Current Version:** 4.0.0 (Phase 1 - MVP Development)
-**Architecture Document:** [microservices-architecture.md](../architecture/microservices-architecture.md)
-**Next Milestone:** Complete Modal System v3.0 by 2025-11-12
-**Next Backend Start:** Task 1.4 Backend Infrastructure (after Modal System complete)
