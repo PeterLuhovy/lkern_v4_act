@@ -457,15 +457,17 @@ ManagementModal automatically opens ConfirmModal for delete all:
 
 ## Testing
 
-ManagementModal has comprehensive test coverage (25 tests):
+ManagementModal has comprehensive test coverage (33 tests):
 
 **Tested scenarios:**
 - ✅ Renders when open/closed
 - ✅ Shows EmptyState when items empty
 - ✅ Shows children when items exist
 - ✅ Delete All button enabled/disabled based on items
-- ✅ Done button always present
-- ✅ Calls onClose when Done clicked
+- ✅ Save/Cancel buttons functionality
+- ✅ Calls onSave when Save clicked
+- ✅ Calls onClose when Cancel clicked
+- ✅ Unsaved changes confirmation (v2.0.0)
 - ✅ Opens ConfirmModal on Delete All (with items)
 - ✅ Calls onDeleteAll after confirmation
 - ✅ Does not call onDeleteAll when cancelled
@@ -473,10 +475,15 @@ ManagementModal has comprehensive test coverage (25 tests):
 - ✅ Custom empty state message/icon
 - ✅ Custom maxWidth/maxHeight
 - ✅ Nested modal support (parentModalId)
+- ✅ RenderItem API (custom item rendering)
+- ✅ Primary item support (onSetPrimary, star marking, sorting)
+- ✅ Add button in empty state
+- ✅ Bottom content slot
+- ✅ SK/EN translation support
 
 **Run tests:**
 ```bash
-npm test -- ManagementModal
+docker exec lkms201-web-ui yarn nx test ui-components -- ManagementModal.test.tsx
 ```
 
 ---
@@ -488,6 +495,16 @@ None
 ---
 
 ## Changelog
+
+### v2.0.1 (2025-11-01)
+- ✅ **TEST**: Comprehensive test suite refactored (33 tests, 100% passing)
+  - Added tests for v2.0.0 features (dirty tracking, Save/Cancel workflow)
+  - Added renderItem API tests (custom item rendering)
+  - Added primary item support tests (onSetPrimary, sorting)
+  - Added empty state add button tests
+  - Added bottom content slot tests
+  - All translation tests (SK/EN)
+  - All integration tests (nested modals, ConfirmModal)
 
 ### v2.0.0 (2025-11-01)
 - ⚠️ **BREAKING**: Changed footer from "Done" button to "Cancel + Save" buttons
