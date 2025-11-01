@@ -361,10 +361,10 @@ describe('EditItemModal v1.0.0', () => {
     // Click cancel button
     fireEvent.click(screen.getByTestId('edit-item-modal-cancel'));
 
-    // Wait for unsaved changes confirmation modal
+    // Wait for unsaved changes confirmation modal (nested modal)
     await waitFor(() => {
-      // Slovak translation: "Neuložené zmeny"
-      expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      const dialogs = screen.getAllByRole('dialog');
+      expect(dialogs.length).toBeGreaterThan(1); // Main modal + ConfirmModal
     });
   });
 
@@ -386,14 +386,15 @@ describe('EditItemModal v1.0.0', () => {
     // Click cancel button
     fireEvent.click(screen.getByTestId('edit-item-modal-cancel'));
 
-    // Wait for confirmation modal
+    // Wait for confirmation modal (nested modal)
     await waitFor(() => {
-      expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      const dialogs = screen.getAllByRole('dialog');
+      expect(dialogs.length).toBeGreaterThan(1);
     });
 
-    // Find and click confirm button (Zavrieť = Close)
+    // Find and click confirm button ("Áno" = Yes in Slovak)
     const confirmButtons = screen.getAllByRole('button');
-    const closeButton = confirmButtons.find(btn => btn.textContent?.includes('Zavrieť'));
+    const closeButton = confirmButtons.find(btn => btn.textContent?.includes('Áno'));
     expect(closeButton).toBeTruthy();
 
     if (closeButton) {

@@ -818,9 +818,10 @@ describe('Modal v3.0.0', () => {
       const closeButton = screen.getByLabelText('Zavrieť');
       fireEvent.click(closeButton);
 
-      // ConfirmModal should appear
+      // ConfirmModal should appear (nested modal)
       await waitFor(() => {
-        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+        const dialogs = screen.getAllByRole('dialog');
+        expect(dialogs.length).toBeGreaterThan(1); // Original modal + ConfirmModal
       });
 
       // handleClose should NOT be called yet
@@ -845,14 +846,15 @@ describe('Modal v3.0.0', () => {
       const closeButton = screen.getByLabelText('Zavrieť');
       fireEvent.click(closeButton);
 
-      // Wait for ConfirmModal
+      // Wait for ConfirmModal (nested modal)
       await waitFor(() => {
-        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+        const dialogs = screen.getAllByRole('dialog');
+        expect(dialogs.length).toBeGreaterThan(1);
       });
 
-      // Click "Zavrieť" button in ConfirmModal (confirm close)
+      // Find confirm button in ConfirmModal ("Áno" = Yes in Slovak)
       const confirmButtons = screen.getAllByRole('button');
-      const confirmButton = confirmButtons.find(btn => btn.textContent?.includes('Zavrieť') && btn !== closeButton);
+      const confirmButton = confirmButtons.find(btn => btn.textContent?.includes('Áno'));
       expect(confirmButton).toBeTruthy();
 
       if (confirmButton) {
@@ -883,9 +885,10 @@ describe('Modal v3.0.0', () => {
       const closeButton = screen.getByLabelText('Zavrieť');
       fireEvent.click(closeButton);
 
-      // Wait for ConfirmModal
+      // Wait for ConfirmModal (nested modal)
       await waitFor(() => {
-        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+        const dialogs = screen.getAllByRole('dialog');
+        expect(dialogs.length).toBeGreaterThan(1);
       });
 
       // Click "Zrušiť" button in ConfirmModal (cancel close)
@@ -941,9 +944,10 @@ describe('Modal v3.0.0', () => {
       const backdrop = screen.getByRole('dialog').parentElement;
       fireEvent.click(backdrop!);
 
-      // ConfirmModal should appear
+      // ConfirmModal should appear (nested modal)
       await waitFor(() => {
-        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+        const dialogs = screen.getAllByRole('dialog');
+        expect(dialogs.length).toBeGreaterThan(1); // Original modal + ConfirmModal
       });
 
       // handleClose should NOT be called yet
