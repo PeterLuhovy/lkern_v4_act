@@ -1,11 +1,11 @@
 # ================================================================
 # DebugBar
 # ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\components\DebugBar.md
-# Version: 2.0.0
+# File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\DebugBar\DebugBar.md
+# Version: 2.1.0
 # Created: 2025-10-20
-# Updated: 2025-10-20
-# Component Location: packages/ui-components/src/components/DebugBar/DebugBar.tsx
+# Updated: 2025-11-01
+# Source: packages/ui-components/src/components/DebugBar/DebugBar.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
@@ -19,10 +19,10 @@
 
 ## Overview
 
-**Purpose**: Developer-focused analytics debugging toolbar for modal/page interaction tracking
+**Purpose**: Developer-focused analytics debugging toolbar for modal/page interaction tracking with responsive height
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/DebugBar
-**Since**: v1.0.0 (Current: v2.0.0)
+**Since**: v1.0.0 (Current: v2.1.0)
 
 The DebugBar component is L-KERN's developer tool for real-time analytics debugging. It displays modal/page metrics including click counts (🖱️), keyboard events (⌨️), theme indicator (🌙/☀️), language indicator (🌐), and dual timers (total time + time since last activity). Features orange gradient background, copy-to-clipboard functionality for formatted modal names, and seamless integration with usePageAnalytics hook. Based on v3 ModalDebugHeader design, now refactored as standalone component for v4.
 
@@ -861,6 +861,22 @@ return (
 ---
 
 ## Changelog
+
+### v2.1.0 (2025-11-01)
+- ✅ **NEW**: Responsive height for narrow modals
+  - `height: 28px` → `min-height: 28px` (allows growth)
+  - Added `flex-wrap: wrap` (elements wrap to new line on narrow modals)
+  - Added `gap: 4px 8px` for wrapped elements spacing
+  - Increased vertical padding to `4px 12px`
+- ✅ **NEW**: Rearranged section order for better UX
+  - Center section: Theme 🌙 + Language 🌐 + Timers ⏱️ (was clicks+keyboard)
+  - Right section: Clicks 🖱️ + Keyboard ⌨️ (was theme+language+timers)
+  - Center wraps to new line first on narrow modals (order: 3)
+  - Right stays on first row with Left (order: 2)
+- ✅ **IMPROVEMENT**: Refactored to forwardRef
+  - Component now exports via `React.forwardRef<HTMLDivElement, DebugBarProps>`
+  - Allows parent (Modal) to measure height via ref
+  - Added `displayName = 'DebugBar'` for React DevTools
 
 ### v2.0.0 (2025-10-19)
 - 🎉 Migrated to v3 ModalDebugHeader design (orange gradient, emoji counters, dual timer)

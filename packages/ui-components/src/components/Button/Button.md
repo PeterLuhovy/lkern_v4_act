@@ -1,11 +1,11 @@
 # ================================================================
 # Button
 # ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\components\Button.md
+# File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\Button\Button.md
 # Version: 1.2.0
 # Created: 2025-10-20
 # Updated: 2025-10-30
-# Component Location: packages/ui-components/src/components/Button/Button.tsx
+# Source: packages/ui-components/src/components/Button/Button.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.

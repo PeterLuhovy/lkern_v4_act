@@ -94,3 +94,142 @@
 .featureSummaryList strong {
   font-weight: 700;
 }
+
+/* === COMMON UTILITIES === */
+.fontWeight600 {
+  font-weight: 600;
+}
+
+.marginBottom20 {
+  margin-bottom: 20px;
+}
+
+.marginBottom16 {
+  margin-bottom: 16px;
+}
+
+.marginTop8 {
+  margin-top: 8px;
+}
+
+.marginTop16 {
+  margin-top: 16px;
+}
+
+.fontSize14 {
+  font-size: 14px;
+}
+
+/* === FORM LAYOUTS === */
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.listColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instructionsList {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* === RESULT MESSAGES === */
+.resultMessage {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-success-bg, #e8f5e9);
+  color: var(--color-status-success-text, #1b5e20);
+  border: 1px solid var(--color-status-success, #4caf50);
+  border-radius: 4px;
+}
+
+.resultConfirmed {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-success-bg, #e8f5e9);
+  color: var(--color-status-success-text, #1b5e20);
+  border: 1px solid var(--color-status-success, #4caf50);
+  border-radius: 4px;
+}
+
+.resultCancelled {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-warning-bg, #fff3e0);
+  color: var(--color-status-warning-text, #e65100);
+  border: 1px solid var(--color-status-warning, #ff9800);
+  border-radius: 4px;
+}
+
+.resultStay {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-info-bg, #e3f2fd);
+  color: var(--color-status-info-text, #0d47a1);
+  border: 1px solid var(--color-status-info, #2196F3);
+  border-radius: 4px;
+}
+
+.resultSaved {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-success-bg, #e8f5e9);
+  color: var(--color-status-success-text, #1b5e20);
+  border: 1px solid var(--color-status-success, #4caf50);
+  border-radius: 4px;
+}
+
+.resultCleared {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-info-bg, #e3f2fd);
+  color: var(--color-status-info-text, #0d47a1);
+  border: 1px solid var(--color-status-info, #2196F3);
+  border-radius: 4px;
+}
+
+.resultWarning {
+  padding: 12px;
+  margin-top: 12px;
+  background: var(--color-status-warning-bg, #fff3e0);
+  color: var(--color-status-warning-text, #e65100);
+  border: 1px solid var(--color-status-warning, #ff9800);
+  border-radius: 4px;
+}
+
+/* === PHONE LIST ITEM === */
+.phoneListItem {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--theme-input-border, #e0e0e0);
+  border-radius: 4px;
+  background: var(--theme-input-background, #ffffff);
+}
+
+.phoneContent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phoneNumber {
+  font-weight: 600;
+  color: var(--theme-text, #212121);
+}
+
+.phoneType {
+  font-size: 12px;
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+.phoneActions {
+  display: contents;
+}

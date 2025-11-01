@@ -15,7 +15,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: var(--spacing-lg, 28px);
+  min-height: var(--spacing-lg, 28px); /* Changed from fixed height to min-height */
 
   /* Background - orange gradient (from v3) */
   background: linear-gradient(90deg, rgba(255,152,0,0.95), rgba(255,193,7,0.95));
@@ -24,11 +24,13 @@
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(255,152,0,0.4);
 
-  /* Layout */
+  /* Layout - flexbox with wrap for narrow modals */
   display: flex;
+  flex-wrap: wrap; /* Allow wrapping on narrow modals */
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  gap: 4px 8px; /* Vertical and horizontal gap between wrapped items */
+  padding: 4px 12px; /* Increased vertical padding for wrapped content */
 
   /* Typography */
   font-size: 11px;
@@ -45,17 +47,26 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm, 8px);
+  order: 1; /* Keep left side first */
+  flex-shrink: 0; /* Don't shrink modal name */
 }
 
 .debugBar__modalName {
   font-size: 12px;
 }
 
-/* === CENTER (Event counts with emoji) === */
+/* === CENTER (Theme + Language + Timers) === */
 .debugBar__center {
   display: flex;
   align-items: center;
   gap: calc(var(--spacing-sm, 8px) + 2px);
+
+  /* Wrap to new line first on narrow modals */
+  order: 3; /* Last in order, so wraps first */
+  flex-shrink: 1; /* Allow shrinking when space is tight */
+
+  /* When it wraps to new line, take full width and center content */
+  min-width: 200px; /* Minimum width before wrapping */
 }
 
 .debugBar__counter {
@@ -67,11 +78,13 @@
   font-weight: 700;
 }
 
-/* === RIGHT SIDE (Theme + Language + Timers) === */
+/* === RIGHT SIDE (Event counts - clicks + keyboard) === */
 .debugBar__right {
   display: flex;
   align-items: center;
   gap: calc(var(--spacing-sm, 8px) + 2px);
+  order: 2; /* Keep on first row with left side */
+  flex-shrink: 0; /* Don't shrink counters */
 }
 
 .debugBar__indicator {

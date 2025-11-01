@@ -35,8 +35,9 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, useTheme, modalStack, usePageAnalytics } from '@l-kern/config';
+import { useTranslation, useTheme, modalStack, usePageAnalytics, useConfirm } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
+import { ConfirmModal } from '../ConfirmModal';
 import styles from './Modal.module.css';
 
 // === TYPES ===
@@ -74,6 +75,14 @@ export interface ModalProps {
    * @example () => handleSaveContact()
    */
   onConfirm?: () => void;
+
+  /**
+   * Indicates if there are unsaved changes (opt-in dirty tracking)
+   * When true, closing modal will show unsaved changes confirmation
+   * @default false
+   * @example hasUnsavedChanges={isDirty}
+   */
+  hasUnsavedChanges?: boolean;
 
   /**
    * Unique modal identifier (required for nested modals and keyboard handling)
@@ -273,6 +282,7 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  hasUnsavedChanges = false,
   modalId,
   parentModalId,
   size = 'md',
@@ -292,8 +302,10 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const unsavedConfirm = useConfirm();
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const debugBarRef = useRef<HTMLDivElement>(null);
 
   // Drag & Drop state
   const [isDragging, setIsDragging] = useState(false);
@@ -304,11 +316,54 @@ export const Modal: React.FC<ModalProps> = ({
   // Auto z-index from modalStack
   const [calculatedZIndex, setCalculatedZIndex] = useState<number>(1000);
 
+  // Debug bar height (dynamic, measured from actual rendered height)
+  const [debugBarHeight, setDebugBarHeight] = useState<number>(0);
+
   // Analytics for DebugBar (modal context)
   const analytics = usePageAnalytics(pageName || modalId, 'modal');
 
   // Check if dark mode is active
   const isDarkMode = theme === 'dark';
+
+  // DEBUG: Log when Modal component mounts/updates with hasUnsavedChanges (DISABLED - too noisy)
+  // console.log('[Modal] Component render, modalId:', modalId, 'hasUnsavedChanges:', hasUnsavedChanges);
+
+  // ================================================================
+  // CLOSE WITH UNSAVED CHANGES CONFIRMATION
+  // ================================================================
+
+  /**
+   * Handles close with optional unsaved changes confirmation
+   * If hasUnsavedChanges is true, shows confirmation dialog first
+   * NOTE: Cannot be async - React onClick handlers don't wait for Promises
+   */
+  const handleCloseWithConfirm = useCallback(() => {
+    console.log('[Modal] handleCloseWithConfirm called, hasUnsavedChanges:', hasUnsavedChanges);
+    if (hasUnsavedChanges) {
+      console.log('[Modal] Showing unsaved changes confirmation...');
+      // Use empty object so ConfirmModal loads default unsavedChanges translations
+      // This returns a Promise, but we don't await it - instead we handle result in .then()
+      unsavedConfirm.confirm({}).then((confirmed) => {
+        console.log('[Modal] Confirmation result:', confirmed);
+        if (confirmed) {
+          console.log('[Modal] User confirmed - closing modal');
+          onClose();
+        } else {
+          console.log('[Modal] User cancelled - staying in modal');
+        }
+      });
+      // Modal stays open until user responds to confirmation
+    } else {
+      console.log('[Modal] No unsaved changes - closing directly');
+      onClose();
+    }
+  }, [hasUnsavedChanges, unsavedConfirm, onClose]);
+
+  /**
+   * Intercepted onClose callback that children (footer buttons) should use
+   * This ensures dirty tracking confirmation is triggered even when footer buttons call onClose
+   */
+  const interceptedOnClose = handleCloseWithConfirm;
 
   // ================================================================
   // DEBUG BAR ANALYTICS SESSION
@@ -338,13 +393,42 @@ export const Modal: React.FC<ModalProps> = ({
   }, [isOpen, showDebugBar, pageName, modalId]);
 
   // ================================================================
+  // DEBUG BAR HEIGHT MEASUREMENT
+  // ================================================================
+
+  useEffect(() => {
+    if (isOpen && showDebugBar && debugBarRef.current) {
+      // Measure debug bar height after render
+      const measureHeight = () => {
+        if (debugBarRef.current) {
+          const height = debugBarRef.current.offsetHeight;
+          setDebugBarHeight(height);
+          console.log('[Modal] Debug bar height measured:', height);
+        }
+      };
+
+      // Initial measurement
+      measureHeight();
+
+      // Re-measure on window resize (debug bar may wrap to multiple lines)
+      window.addEventListener('resize', measureHeight);
+
+      return () => {
+        window.removeEventListener('resize', measureHeight);
+      };
+    } else {
+      setDebugBarHeight(0);
+    }
+  }, [isOpen, showDebugBar]);
+
+  // ================================================================
   // MODAL STACK REGISTRATION
   // ================================================================
 
   useEffect(() => {
     if (isOpen) {
       // Register in modalStack and get z-index
-      const zIndex = modalStack.push(modalId, parentModalId, onClose, onConfirm);
+      const zIndex = modalStack.push(modalId, parentModalId, handleCloseWithConfirm, onConfirm);
       setCalculatedZIndex(zIndex);
     }
 
@@ -403,15 +487,18 @@ export const Modal: React.FC<ModalProps> = ({
 
       // ESC key handling
       if (e.key === 'Escape') {
+        console.log('[Modal] ESC key pressed, isInputField:', isInputField);
         e.preventDefault();
         e.stopPropagation();
 
         if (isInputField) {
           // Input field is focused → blur it (remove focus)
+          console.log('[Modal] Input field focused - blurring');
           target.blur();
         } else {
-          // No input focused → close modal
-          onClose();
+          // No input focused → close modal (with unsaved changes check)
+          console.log('[Modal] No input focused - calling handleCloseWithConfirm');
+          handleCloseWithConfirm();
         }
         return;
       }
@@ -430,8 +517,8 @@ export const Modal: React.FC<ModalProps> = ({
             // Modal has onConfirm → submit
             onConfirm();
           } else {
-            // Modal has NO onConfirm → close (same as ESC)
-            onClose();
+            // Modal has NO onConfirm → close (same as ESC, with unsaved changes check)
+            handleCloseWithConfirm();
           }
         }
         return;
@@ -588,9 +675,11 @@ export const Modal: React.FC<ModalProps> = ({
   // === HANDLERS ===
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('[Modal] handleBackdropClick called, closeOnBackdropClick:', closeOnBackdropClick);
     // Only close if clicking directly on backdrop (not on modal content)
     if (e.target === e.currentTarget && closeOnBackdropClick) {
-      onClose();
+      console.log('[Modal] Backdrop clicked - calling handleCloseWithConfirm');
+      handleCloseWithConfirm();
     }
   };
 
@@ -706,6 +795,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Debug Bar - Top of modal */}
         {showDebugBar && (
           <DebugBar
+            ref={debugBarRef}
             modalName={pageName || modalId}
             isDarkMode={isDarkMode}
             analytics={analytics}
@@ -754,7 +844,7 @@ export const Modal: React.FC<ModalProps> = ({
             style={{
               cursor: disableDrag ? 'default' : isDragging ? 'grabbing' : 'grab',
               userSelect: 'none',
-              paddingTop: showDebugBar ? '48px' : undefined,
+              paddingTop: showDebugBar && debugBarHeight > 0 ? `${debugBarHeight + 4}px` : undefined,
             }}
           >
             {title && (
@@ -765,7 +855,10 @@ export const Modal: React.FC<ModalProps> = ({
             {showCloseButton && (
               <button
                 className={styles.modalCloseButton}
-                onClick={onClose}
+                onClick={() => {
+                  console.log('[Modal] Close button (X) clicked');
+                  handleCloseWithConfirm();
+                }}
                 aria-label={t('common.close')}
                 title={`${t('common.close')} (ESC)`}
                 type="button"
@@ -813,7 +906,21 @@ export const Modal: React.FC<ModalProps> = ({
   );
 
   // Portal render - wrap in fragment to satisfy React.FC return type
-  return <>{createPortal(modalContent, document.body)}</>;
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+
+      {/* Unsaved Changes Confirmation Modal */}
+      <ConfirmModal
+        isOpen={unsavedConfirm.state.isOpen}
+        onClose={unsavedConfirm.handleCancel}
+        onConfirm={unsavedConfirm.handleConfirm}
+        title={unsavedConfirm.state.title}
+        message={unsavedConfirm.state.message}
+        parentModalId={modalId}
+      />
+    </>
+  );
 };
 
 export default Modal;

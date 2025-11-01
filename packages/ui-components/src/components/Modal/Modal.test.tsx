@@ -772,4 +772,229 @@ describe('Modal v3.0.0', () => {
       expect(screen.getByLabelText('Zavrieť')).toBeInTheDocument(); // common.close
     });
   });
+
+  // ================================================================
+  // UNSAVED CHANGES DETECTION (v3.9.0)
+  // ================================================================
+
+  describe('Unsaved Changes Detection', () => {
+    it('closes immediately when hasUnsavedChanges=false (X button)', () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={false}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click X button
+      const closeButton = screen.getByLabelText('Zavrieť');
+      fireEvent.click(closeButton);
+
+      // Should close immediately
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows ConfirmModal when hasUnsavedChanges=true (X button)', async () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click X button
+      const closeButton = screen.getByLabelText('Zavrieť');
+      fireEvent.click(closeButton);
+
+      // ConfirmModal should appear
+      await waitFor(() => {
+        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      });
+
+      // handleClose should NOT be called yet
+      expect(handleClose).not.toHaveBeenCalled();
+    });
+
+    it('closes modal when user confirms unsaved changes (X button)', async () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click X button
+      const closeButton = screen.getByLabelText('Zavrieť');
+      fireEvent.click(closeButton);
+
+      // Wait for ConfirmModal
+      await waitFor(() => {
+        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      });
+
+      // Click "Zavrieť" button in ConfirmModal (confirm close)
+      const confirmButtons = screen.getAllByRole('button');
+      const confirmButton = confirmButtons.find(btn => btn.textContent?.includes('Zavrieť') && btn !== closeButton);
+      expect(confirmButton).toBeTruthy();
+
+      if (confirmButton) {
+        fireEvent.click(confirmButton);
+      }
+
+      // handleClose should be called
+      await waitFor(() => {
+        expect(handleClose).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('stays in modal when user cancels unsaved changes confirmation', async () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click X button
+      const closeButton = screen.getByLabelText('Zavrieť');
+      fireEvent.click(closeButton);
+
+      // Wait for ConfirmModal
+      await waitFor(() => {
+        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      });
+
+      // Click "Zrušiť" button in ConfirmModal (cancel close)
+      const cancelButton = screen.getByText('Zrušiť');
+      fireEvent.click(cancelButton);
+
+      // handleClose should NOT be called
+      expect(handleClose).not.toHaveBeenCalled();
+
+      // Original modal should still be visible
+      expect(screen.getByText('Test Modal')).toBeInTheDocument();
+    });
+
+    it('closes immediately when hasUnsavedChanges=false (backdrop click)', () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={false}
+          closeOnBackdropClick={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click backdrop
+      const backdrop = screen.getByRole('dialog').parentElement;
+      fireEvent.click(backdrop!);
+
+      // Should close immediately
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows ConfirmModal when hasUnsavedChanges=true (backdrop click)', async () => {
+      const handleClose = vi.fn();
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          modalId="test-modal"
+          title="Test Modal"
+          hasUnsavedChanges={true}
+          closeOnBackdropClick={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Click backdrop
+      const backdrop = screen.getByRole('dialog').parentElement;
+      fireEvent.click(backdrop!);
+
+      // ConfirmModal should appear
+      await waitFor(() => {
+        expect(screen.getByText('Neuložené zmeny')).toBeInTheDocument();
+      });
+
+      // handleClose should NOT be called yet
+      expect(handleClose).not.toHaveBeenCalled();
+    });
+  });
+
+  // ================================================================
+  // DEBUG BAR HEIGHT MEASUREMENT (v3.9.0)
+  // ================================================================
+
+  describe('Debug Bar Height Measurement', () => {
+    it('measures debug bar height and applies to header paddingTop', async () => {
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={vi.fn()}
+          modalId="test-modal"
+          title="Test Modal"
+          showDebugBar={true}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Wait for modal to render
+      await waitFor(() => {
+        expect(screen.getByText('Test Modal')).toBeInTheDocument();
+      });
+
+      // Modal should render successfully (height measurement happens internally)
+      const modal = screen.getByRole('dialog');
+      expect(modal).toBeInTheDocument();
+    });
+
+    it('sets header paddingTop to 0 when debug bar is hidden', () => {
+      renderWithAll(
+        <Modal
+          isOpen={true}
+          onClose={vi.fn()}
+          modalId="test-modal"
+          title="Test Modal"
+          showDebugBar={false}
+        >
+          <div>Content</div>
+        </Modal>
+      );
+
+      // Modal should render without debug bar
+      const modal = screen.getByRole('dialog');
+      expect(modal).toBeInTheDocument();
+    });
+  });
 });

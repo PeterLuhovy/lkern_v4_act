@@ -66,12 +66,14 @@ export interface DebugBarProps {
  * - Absolute positioning at top of modal
  * - Real-time metrics (updates every 100ms)
  * - Click tracking on debug header area
+ * - Responsive height (wraps on narrow modals)
  *
  * @example
  * ```tsx
  * const analytics = usePageAnalytics('edit-contact');
  *
  * <DebugBar
+ *   ref={debugBarRef}
  *   modalName="edit-contact"
  *   isDarkMode={theme === 'dark'}
  *   analytics={analytics}
@@ -79,44 +81,40 @@ export interface DebugBarProps {
  * />
  * ```
  */
-export const DebugBar: React.FC<DebugBarProps> = ({
-  modalName,
-  isDarkMode,
-  analytics,
-  show = true,
-  contextType = 'modal',
-}) => {
-  const { t, language } = useTranslation();
-  const currentLanguage = language || 'sk';
+export const DebugBar = React.forwardRef<HTMLDivElement, DebugBarProps>(
+  ({ modalName, isDarkMode, analytics, show = true, contextType = 'modal' }, ref) => {
+    const { t, language } = useTranslation();
+    const currentLanguage = language || 'sk';
 
-  // Don't render if show is false
-  if (!show) {
-    return null;
-  }
-
-  // === COPY FORMATTED NAME ===
-  const handleCopyModalName = async () => {
-    try {
-      // Format: [Analytics][Page|Modal][pageName]
-      const contextLabel = contextType.charAt(0).toUpperCase() + contextType.slice(1);
-      const formattedName = `[Analytics][${contextLabel}][${modalName}]`;
-
-      await navigator.clipboard.writeText(formattedName);
-      console.log('[DebugBar] Copied formatted name:', formattedName);
-    } catch (err) {
-      console.error('[DebugBar] Copy failed:', err);
+    // Don't render if show is false
+    if (!show) {
+      return null;
     }
-  };
 
-  // === CLICK TRACKING ===
-  const handleAnalyticsClick = (id: string, type: string, event: React.MouseEvent) => {
-    analytics.trackClick(id, type, event);
-  };
+    // === COPY FORMATTED NAME ===
+    const handleCopyModalName = async () => {
+      try {
+        // Format: [Analytics][Page|Modal][pageName]
+        const contextLabel = contextType.charAt(0).toUpperCase() + contextType.slice(1);
+        const formattedName = `[Analytics][${contextLabel}][${modalName}]`;
 
-  return (
-    <div
-      className={styles.debugBar}
-      onClick={(e) => {
+        await navigator.clipboard.writeText(formattedName);
+        console.log('[DebugBar] Copied formatted name:', formattedName);
+      } catch (err) {
+        console.error('[DebugBar] Copy failed:', err);
+      }
+    };
+
+    // === CLICK TRACKING ===
+    const handleAnalyticsClick = (id: string, type: string, event: React.MouseEvent) => {
+      analytics.trackClick(id, type, event);
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={styles.debugBar}
+        onClick={(e) => {
         // Track clicks on debug header (but not button - it has its own handler)
         if (!(e.target as HTMLElement).closest('button')) {
           handleAnalyticsClick('DebugHeader', 'debug-header', e);
@@ -145,18 +143,8 @@ export const DebugBar: React.FC<DebugBarProps> = ({
         </Button>
       </div>
 
-      {/* Center - Event counts (emoji) */}
+      {/* Center - Theme + Language + Dual Timers */}
       <div className={styles.debugBar__center}>
-        <span className={styles.debugBar__counter}>
-          <span role="img" aria-label="mouse">🖱️</span> <strong>{analytics.metrics.clickCount}</strong>
-        </span>
-        <span className={styles.debugBar__counter}>
-          <span role="img" aria-label="keyboard">⌨️</span> <strong>{analytics.metrics.keyboardCount}</strong>
-        </span>
-      </div>
-
-      {/* Right side - Theme + Language + Dual Timers */}
-      <div className={styles.debugBar__right}>
         {/* Theme indicator */}
         <span className={styles.debugBar__indicator}>
           {isDarkMode ? (
@@ -184,8 +172,21 @@ export const DebugBar: React.FC<DebugBarProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Right side - Event counts (clicks + keyboard) */}
+      <div className={styles.debugBar__right}>
+        <span className={styles.debugBar__counter}>
+          <span role="img" aria-label="mouse">🖱️</span> <strong>{analytics.metrics.clickCount}</strong>
+        </span>
+        <span className={styles.debugBar__counter}>
+          <span role="img" aria-label="keyboard">⌨️</span> <strong>{analytics.metrics.keyboardCount}</strong>
+        </span>
+      </div>
     </div>
   );
-};
+});
+
+// Display name for React DevTools
+DebugBar.displayName = 'DebugBar';
 
 export default DebugBar;

@@ -2,17 +2,23 @@
  * ================================================================
  * FILE: EditItemModal.tsx
  * PATH: /packages/ui-components/src/components/EditItemModal/EditItemModal.tsx
- * DESCRIPTION: Generic add/edit modal wrapper with unsaved changes detection
- * VERSION: v1.0.0
- * UPDATED: 2025-10-30 12:00:00
+ * DESCRIPTION: Generic add/edit modal wrapper using base Modal dirty tracking
+ * VERSION: v2.0.0
+ * UPDATED: 2025-10-31 18:00:00
  *
  * FEATURES:
  *   - Generic add/edit wrapper (configurable via props)
- *   - Unsaved changes detection + confirmation modal
+ *   - Unsaved changes detection (delegated to base Modal)
  *   - Optional clear button (with confirmation)
  *   - Customizable footer buttons
  *   - Integration with useFormDirty hook
  *   - Full translation support (SK/EN)
+ *
+ * CHANGES v2.0.0:
+ *   - Removed duplicate unsaved changes logic
+ *   - Delegated dirty tracking to base Modal component
+ *   - Simplified: no more handleClose wrapper or showUnsavedConfirm state
+ *   - Removed unsavedChangesTitle/Message props (base Modal handles it)
  *
  * USAGE:
  *   <EditItemModal
@@ -35,11 +41,11 @@
  * ================================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { ConfirmModal } from '../ConfirmModal';
-import { useTranslation } from '@l-kern/config';
+import { useTranslation, useConfirm } from '@l-kern/config';
 
 // ================================================================
 // TYPES
@@ -121,21 +127,10 @@ export interface EditItemModalProps {
 
   /**
    * Whether form has unsaved changes (triggers confirmation on close)
+   * Delegated to base Modal component
    * @default false
    */
   hasUnsavedChanges?: boolean;
-
-  /**
-   * Custom unsaved changes confirmation title
-   * @default "Neuložené zmeny" (from translations)
-   */
-  unsavedChangesTitle?: string;
-
-  /**
-   * Custom unsaved changes confirmation message
-   * @default "Máte neuložené zmeny..." (from translations)
-   */
-  unsavedChangesMessage?: string;
 
   /**
    * Modal size
@@ -217,14 +212,12 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
   clearButtonText,
   onClear,
   hasUnsavedChanges = false,
-  unsavedChangesTitle,
-  unsavedChangesMessage,
   size = 'md',
 }) => {
   const { t } = useTranslation();
+  const unsavedConfirm = useConfirm();
 
-  // State for confirmation modals
-  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
+  // State for clear confirmation modal only
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   // ================================================================
@@ -232,39 +225,27 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
   // ================================================================
 
   /**
-   * Handle modal close request
-   * Shows unsaved changes confirmation if needed
+   * Handle close with dirty tracking
+   * If hasUnsavedChanges, shows confirmation before closing
    */
-  const handleClose = () => {
-    console.log('[EditItemModal] handleClose called');
-    console.log('[EditItemModal] hasUnsavedChanges:', hasUnsavedChanges);
+  const handleCloseWithConfirm = useCallback(() => {
+    console.log('[EditItemModal] handleCloseWithConfirm called, hasUnsavedChanges:', hasUnsavedChanges);
     if (hasUnsavedChanges) {
-      console.log('[EditItemModal] Showing unsaved changes confirmation');
-      setShowUnsavedConfirm(true);
-      return;
+      console.log('[EditItemModal] Showing unsaved changes confirmation...');
+      unsavedConfirm.confirm({}).then((confirmed) => {
+        console.log('[EditItemModal] Confirmation result:', confirmed);
+        if (confirmed) {
+          console.log('[EditItemModal] User confirmed - closing modal');
+          onClose();
+        } else {
+          console.log('[EditItemModal] User cancelled - staying in modal');
+        }
+      });
+    } else {
+      console.log('[EditItemModal] No unsaved changes - closing directly');
+      onClose();
     }
-    console.log('[EditItemModal] No unsaved changes, calling onClose');
-    onClose();
-  };
-
-  /**
-   * Handle unsaved changes confirmation
-   * User confirmed - close without saving
-   */
-  const handleUnsavedConfirm = () => {
-    console.log('[EditItemModal] User confirmed unsaved changes - closing');
-    setShowUnsavedConfirm(false);
-    onClose();
-  };
-
-  /**
-   * Handle unsaved changes cancellation
-   * User cancelled - stay in modal
-   */
-  const handleUnsavedCancel = () => {
-    console.log('[EditItemModal] User cancelled unsaved changes - staying in modal');
-    setShowUnsavedConfirm(false);
-  };
+  }, [hasUnsavedChanges, unsavedConfirm, onClose]);
 
   /**
    * Handle clear button click
@@ -328,7 +309,7 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
       <>
         <Button
           variant="ghost"
-          onClick={handleClose}
+          onClick={handleCloseWithConfirm}
           data-testid="edit-item-modal-cancel"
         >
           {cancelText || t('components.modalV3.editItemModal.defaultCancel')}
@@ -354,8 +335,9 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
       {/* Main Edit Modal */}
       <Modal
         isOpen={isOpen}
-        onClose={handleClose}
+        onClose={onClose}
         onConfirm={onSave}
+        hasUnsavedChanges={hasUnsavedChanges}
         modalId={modalId}
         parentModalId={parentModalId}
         title={title}
@@ -364,18 +346,6 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
       >
         {children}
       </Modal>
-
-      {/* Unsaved Changes Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showUnsavedConfirm}
-        onClose={handleUnsavedCancel}
-        onConfirm={handleUnsavedConfirm}
-        title={unsavedChangesTitle || t('components.modalV3.confirmModal.unsavedChanges.title')}
-        message={unsavedChangesMessage || t('components.modalV3.confirmModal.unsavedChanges.message')}
-        confirmButtonLabel={t('common.close')}
-        cancelButtonLabel={t('common.cancel')}
-        parentModalId={modalId}
-      />
 
       {/* Clear Form Confirmation Modal */}
       {showClearButton && (
@@ -390,6 +360,16 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({
           parentModalId={modalId}
         />
       )}
+
+      {/* Unsaved Changes Confirmation Modal */}
+      <ConfirmModal
+        isOpen={unsavedConfirm.state.isOpen}
+        onClose={unsavedConfirm.handleCancel}
+        onConfirm={unsavedConfirm.handleConfirm}
+        title={unsavedConfirm.state.title}
+        message={unsavedConfirm.state.message}
+        parentModalId={modalId}
+      />
     </>
   );
 };

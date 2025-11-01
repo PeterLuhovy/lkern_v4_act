@@ -72,3 +72,6 @@ export type { ConfirmModalProps } from './components/ConfirmModal';
 
 export { EditItemModal } from './components/EditItemModal';
 export type { EditItemModalProps } from './components/EditItemModal';
+
+export { ManagementModal, managementModalStyles } from './components/ManagementModal';
+export type { ManagementModalProps } from './components/ManagementModal';

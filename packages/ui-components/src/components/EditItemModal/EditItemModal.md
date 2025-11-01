@@ -2,10 +2,10 @@
 # EditItemModal
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\EditItemModal\EditItemModal.md
-# Version: 1.0.0
+# Version: 2.0.0
 # Created: 2025-10-30
-# Updated: 2025-10-30
-# Component Location: packages/ui-components/src/components/EditItemModal/EditItemModal.tsx
+# Updated: 2025-11-01
+# Source: packages/ui-components/src/components/EditItemModal/EditItemModal.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
@@ -526,11 +526,24 @@ No known issues at this time.
 
 ---
 
-## Version History
+## Changelog
 
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0.0 | 2025-10-30 | Initial implementation - Generic wrapper with unsaved changes + clear button |
+### v2.0.0 (2025-11-01)
+- ✅ **IMPROVEMENT**: Enhanced dirty tracking implementation
+  - Added own `useConfirm` hook instance in EditItemModal
+  - Added `handleCloseWithConfirm()` function for Cancel button
+  - Cancel button now properly triggers unsaved changes confirmation
+  - Added unsaved changes ConfirmModal at end of render tree
+  - Removed dependency on base Modal dirty tracking (custom footers need own logic)
+- ✅ **BUGFIX**: Fixed Cancel button not showing unsaved changes confirmation
+  - Previously called `onClose()` directly, bypassing confirmation
+  - Now calls `handleCloseWithConfirm()` which checks `hasUnsavedChanges`
+
+### v1.0.0 (2025-10-30)
+- 🎉 Initial implementation
+- Generic wrapper with unsaved changes detection
+- Clear button functionality
+- Save/Cancel buttons
 
 ---
 

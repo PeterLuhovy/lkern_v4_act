@@ -19,14 +19,24 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card, ConfirmModal, EditItemModal } from '@l-kern/ui-components';
+import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card, ConfirmModal, EditItemModal, ManagementModal, managementModalStyles } from '@l-kern/ui-components';
 import type { ModalFooterConfig } from '@l-kern/ui-components';
-import { useModal, useModalWizard, useConfirm, useFormDirty, EMAIL_REGEX } from '@l-kern/config';
+import { useModal, useModalWizard, useConfirm, useFormDirty, EMAIL_REGEX, formatPhoneNumber } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import styles from './TestModalV3Page.module.css';
 
 export function TestModalV3Page() {
   const { t } = useTranslation();
+
+  // Helper function for result message styling
+  const getResultClass = (result: string) => {
+    if (result.includes('uložené') || result.includes('saved')) return styles.resultSaved;
+    if (result.includes('vyčistený') || result.includes('cleared')) return styles.resultCleared;
+    if (result === 'confirmed') return styles.resultConfirmed;
+    if (result === 'cancelled') return styles.resultCancelled;
+    if (result === 'stay') return styles.resultStay;
+    return styles.resultWarning;
+  };
 
   // Test 1: Basic drag & drop
   const dragModal = useModal();
@@ -96,6 +106,75 @@ export function TestModalV3Page() {
   const { isDirty } = useFormDirty(initialEditData, editFormData);
   const [editNameValid, setEditNameValid] = useState(false);
   const [editEmailValid, setEditEmailValid] = useState(false);
+
+  // Test 12: ManagementModal (NEW)
+  const managementModal = useModal();
+  // Initial saved state
+  const [savedPhoneList, setSavedPhoneList] = useState<Array<{ id: number; number: string; type: string }>>([
+    { id: 1, number: '+421 900 123 456', type: 'mobile' },
+    { id: 2, number: '+421 2 1234 5678', type: 'work' },
+  ]);
+  const [savedPrimaryPhoneId, setSavedPrimaryPhoneId] = useState<number | null>(1);
+  // Working state (temporary until saved)
+  const [phoneList, setPhoneList] = useState<Array<{ id: number; number: string; type: string }>>(savedPhoneList);
+  const [primaryPhoneId, setPrimaryPhoneId] = useState<number | null>(savedPrimaryPhoneId);
+  const [managementResult, setManagementResult] = useState<string>('');
+
+  // Dirty tracking - check if working state differs from saved state
+  const { isDirty: isPhoneListDirty } = useFormDirty(
+    { phones: savedPhoneList, primary: savedPrimaryPhoneId },
+    { phones: phoneList, primary: primaryPhoneId }
+  );
+
+  const handleDeleteAllPhones = () => {
+    setPhoneList([]);
+    setPrimaryPhoneId(null);
+    setManagementResult(t('components.modalV3.test13.allDeleted'));
+  };
+
+  const handleAddPhone = () => {
+    const newPhone = {
+      id: Date.now(),
+      number: `+421 ${Math.floor(Math.random() * 900000000 + 100000000)}`,
+      type: 'mobile',
+    };
+    setPhoneList([...phoneList, newPhone]);
+    setManagementResult(t('components.modalV3.test13.phoneAdded'));
+  };
+
+  const handleEditPhone = (id: number) => {
+    const phone = phoneList.find(p => p.id === id);
+    setManagementResult(`Edit: ${phone?.number} (${phone?.type})`);
+  };
+
+  const handleDeletePhone = (id: number) => {
+    setPhoneList(phoneList.filter(p => p.id !== id));
+    if (primaryPhoneId === id) {
+      setPrimaryPhoneId(null); // Clear primary if deleting primary phone
+    }
+    setManagementResult(t('components.modalV3.test13.phoneDeleted'));
+  };
+
+  const handleSetPrimaryPhone = (id: number) => {
+    setPrimaryPhoneId(id);
+    setManagementResult(`Primary: ${phoneList.find(p => p.id === id)?.number}`);
+  };
+
+  const handleSavePhones = () => {
+    // Save working state to saved state
+    setSavedPhoneList(phoneList);
+    setSavedPrimaryPhoneId(primaryPhoneId);
+    setManagementResult(t('components.modalV3.test13.saved'));
+    managementModal.close();
+  };
+
+  // Reset working state to saved state when modal opens
+  useEffect(() => {
+    if (managementModal.isOpen) {
+      setPhoneList(savedPhoneList);
+      setPrimaryPhoneId(savedPrimaryPhoneId);
+    }
+  }, [managementModal.isOpen, savedPhoneList, savedPrimaryPhoneId]);
 
   // Sync editFormData with initialEditData when modal opens
   useEffect(() => {
@@ -285,7 +364,7 @@ export function TestModalV3Page() {
               <p>
                 {t('components.modalV3.test2.parentContent')}
               </p>
-              <p style={{ fontWeight: '600' }}>
+              <p className={styles.fontWeight600}>
                 {t('components.modalV3.test2.parentHint')}
               </p>
               <Button variant="secondary" onClick={childModal.open}>
@@ -305,10 +384,10 @@ export function TestModalV3Page() {
               overlayPadding="80px"
             >
               <div className={styles.modalContent}>
-                <p style={{ fontWeight: '600' }}>
+                <p className={styles.fontWeight600}>
                   <strong>{t('components.modalV3.test2.childTestHeading')}</strong>
                 </p>
-                <ul style={{ marginBottom: '16px' }}>
+                <ul className={styles.marginBottom16}>
                   <li>{t('components.modalV3.test2.childInstruction1')}</li>
                   <li>{t('components.modalV3.test2.childInstruction2')}</li>
                   <li>{t('components.modalV3.test2.childInstruction3')}</li>
@@ -346,7 +425,7 @@ export function TestModalV3Page() {
             footer={enhancedFooter}
           >
             <div className={styles.modalContent}>
-              <p style={{ marginBottom: '20px' }}>
+              <p className={styles.marginBottom20}>
                 <strong>{t('components.modalV3.test3.testValidationHeading')}</strong>
               </p>
 
@@ -399,7 +478,7 @@ export function TestModalV3Page() {
                 />
               </FormField>
 
-              <ul style={{ marginTop: '16px', fontSize: '14px' }}>
+              <ul className={styles.instructionsList}>
                 <li>{t('components.modalV3.test3.instruction1')}</li>
                 <li>{t('components.modalV3.test3.instruction2')}</li>
                 <li>{t('components.modalV3.test3.instruction3')}</li>
@@ -493,7 +572,7 @@ export function TestModalV3Page() {
                 onChange={(e) => setInputValue(e.target.value)}
                 fullWidth
               />
-              <p className={styles.modalHint} style={{ marginTop: '8px' }}>
+              <p className={`${styles.modalHint} ${styles.marginTop8}`}>
                 {t('components.modalV3.test6.hint')}
               </p>
             </div>
@@ -611,14 +690,14 @@ export function TestModalV3Page() {
               {wizard.currentStep === 2 && (
                 <div>
                   <p><strong>{t('components.modalV3.test8.step3Content')}</strong></p>
-                  <ul style={{ marginTop: '16px' }}>
+                  <ul className={styles.marginTop16}>
                     <li>{t('components.modalV3.test8.step1Title')}: {wizardData.step1 || '(prázdne)'}</li>
                     <li>{t('components.modalV3.test8.step2Title')}: {wizardData.step2 || '(prázdne)'}</li>
                   </ul>
                 </div>
               )}
 
-              <p className={styles.modalHint} style={{ marginTop: '16px' }}>
+              <p className={`${styles.modalHint} ${styles.marginTop16}`}>
                 {t('components.modalV3.test8.hint')}
               </p>
             </div>
@@ -636,20 +715,7 @@ export function TestModalV3Page() {
           </Button>
 
           {simpleConfirmResult && (
-            <div style={{
-              padding: '12px',
-              marginTop: '12px',
-              background: simpleConfirmResult === 'confirmed'
-                ? 'var(--color-status-success-bg, #e8f5e9)'
-                : 'var(--color-status-warning-bg, #fff3e0)',
-              color: simpleConfirmResult === 'confirmed'
-                ? 'var(--color-status-success-text, #1b5e20)'
-                : 'var(--color-status-warning-text, #e65100)',
-              border: `1px solid ${simpleConfirmResult === 'confirmed'
-                ? 'var(--color-status-success, #4caf50)'
-                : 'var(--color-status-warning, #ff9800)'}`,
-              borderRadius: '4px'
-            }}>
+            <div className={getResultClass(simpleConfirmResult)}>
               {t('components.modalV3.testConfirm.result')}: {simpleConfirmResult}
             </div>
           )}
@@ -675,20 +741,7 @@ export function TestModalV3Page() {
           </Button>
 
           {dangerConfirmResult && (
-            <div style={{
-              padding: '12px',
-              marginTop: '12px',
-              background: dangerConfirmResult === 'confirmed'
-                ? 'var(--color-status-success-bg, #e8f5e9)'
-                : 'var(--color-status-warning-bg, #fff3e0)',
-              color: dangerConfirmResult === 'confirmed'
-                ? 'var(--color-status-success-text, #1b5e20)'
-                : 'var(--color-status-warning-text, #e65100)',
-              border: `1px solid ${dangerConfirmResult === 'confirmed'
-                ? 'var(--color-status-success, #4caf50)'
-                : 'var(--color-status-warning, #ff9800)'}`,
-              borderRadius: '4px'
-            }}>
+            <div className={getResultClass(dangerConfirmResult)}>
               {t('components.modalV3.testConfirm.result')}: {dangerConfirmResult}
             </div>
           )}
@@ -715,20 +768,7 @@ export function TestModalV3Page() {
           </Button>
 
           {unsavedConfirmResult && (
-            <div style={{
-              padding: '12px',
-              marginTop: '12px',
-              background: unsavedConfirmResult === 'stay'
-                ? 'var(--color-status-info-bg, #e3f2fd)'
-                : 'var(--color-status-warning-bg, #fff3e0)',
-              color: unsavedConfirmResult === 'stay'
-                ? 'var(--color-status-info-text, #0d47a1)'
-                : 'var(--color-status-warning-text, #e65100)',
-              border: `1px solid ${unsavedConfirmResult === 'stay'
-                ? 'var(--color-status-info, #2196F3)'
-                : 'var(--color-status-warning, #ff9800)'}`,
-              borderRadius: '4px'
-            }}>
+            <div className={getResultClass(unsavedConfirmResult)}>
               {t('components.modalV3.testConfirm.result')}: {unsavedConfirmResult}
             </div>
           )}
@@ -754,26 +794,7 @@ export function TestModalV3Page() {
           </Button>
 
           {editItemResult && (
-            <div style={{
-              padding: '12px',
-              marginTop: '12px',
-              background: editItemResult.includes('uložené') || editItemResult.includes('saved')
-                ? 'var(--color-status-success-bg, #e8f5e9)'
-                : editItemResult.includes('vyčistený') || editItemResult.includes('cleared')
-                ? 'var(--color-status-info-bg, #e3f2fd)'
-                : 'var(--color-status-warning-bg, #fff3e0)',
-              color: editItemResult.includes('uložené') || editItemResult.includes('saved')
-                ? 'var(--color-status-success-text, #1b5e20)'
-                : editItemResult.includes('vyčistený') || editItemResult.includes('cleared')
-                ? 'var(--color-status-info-text, #0d47a1)'
-                : 'var(--color-status-warning-text, #e65100)',
-              border: `1px solid ${editItemResult.includes('uložené') || editItemResult.includes('saved')
-                ? 'var(--color-status-success, #4caf50)'
-                : editItemResult.includes('vyčistený') || editItemResult.includes('cleared')
-                ? 'var(--color-status-info, #2196F3)'
-                : 'var(--color-status-warning, #ff9800)'}`,
-              borderRadius: '4px'
-            }}>
+            <div className={getResultClass(editItemResult)}>
               {editItemResult}
             </div>
           )}
@@ -791,7 +812,7 @@ export function TestModalV3Page() {
             showClearButton
             onClear={handleEditItemClear}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className={styles.formColumn}>
               <FormField
                 label={t('components.modalV3.test12.nameLabel')}
                 required
@@ -824,7 +845,7 @@ export function TestModalV3Page() {
                 />
               </FormField>
 
-              <ul style={{ fontSize: '14px', marginTop: '8px' }}>
+              <ul className={styles.instructionsList}>
                 <li>💾 {t('components.modalV3.test12.instructions.unsavedChanges')}: {isDirty ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
                 <li>✅ {t('components.modalV3.test12.instructions.formValid')}: {editNameValid && editEmailValid ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
                 <li>🧹 {t('components.modalV3.test12.instructions.clearButton')}</li>
@@ -833,6 +854,86 @@ export function TestModalV3Page() {
               </ul>
             </div>
           </EditItemModal>
+        </Card>
+
+        {/* Test 12: ManagementModal */}
+        <Card variant="default">
+          <h2 className={styles.testTitle}>🆕 {t('components.modalV3.test13.title')}</h2>
+          <p className={styles.testDescription}>
+            {t('components.modalV3.test13.description')}
+          </p>
+          <Button variant="primary" onClick={managementModal.open}>
+            {t('components.modalV3.test13.buttonLabel')}
+          </Button>
+
+          {managementResult && (
+            <div className={styles.resultMessage}>
+              {managementResult} ({phoneList.length} {t('components.modalV3.test13.itemCount')})
+            </div>
+          )}
+
+          {/* ManagementModal with phone list */}
+          <ManagementModal
+            isOpen={managementModal.isOpen}
+            onClose={managementModal.close}
+            onSave={handleSavePhones}
+            hasUnsavedChanges={isPhoneListDirty}
+            title={t('components.modalV3.test13.modalTitle')}
+            modalId="manage-phones-test"
+            items={phoneList}
+            renderItem={(phone, { onEdit, onDelete, isPrimary, onSetPrimary, editHint, deleteHint, primaryHint }) => (
+              <div key={phone.id} className={styles.phoneListItem}>
+                <span
+                  className={managementModalStyles.primaryStar}
+                  data-primary={isPrimary ? 'true' : 'false'}
+                  onClick={onSetPrimary ? () => onSetPrimary(phone.id) : undefined}
+                  title={primaryHint}
+                  style={{ cursor: onSetPrimary ? 'pointer' : 'default' }}
+                >
+                  {isPrimary ? '⭐' : '☆'}
+                </span>
+                <div>
+                  <div className={styles.phoneNumber}>
+                    {formatPhoneNumber(phone.number, phone.type as any, 'SK')}
+                  </div>
+                  <div className={styles.phoneType}>{t(`phoneTypes.${phone.type}`)}</div>
+                </div>
+                <Button
+                  variant="warning"
+                  onClick={() => onEdit(phone.id)}
+                  title={editHint}
+                >
+                  ✏️
+                </Button>
+                <Button
+                  variant="danger-subtle"
+                  onClick={() => onDelete(phone.id)}
+                  title={deleteHint}
+                >
+                  🗑️
+                </Button>
+              </div>
+            )}
+            enablePrimary={true}
+            primaryItemId={primaryPhoneId}
+            onSetPrimary={handleSetPrimaryPhone}
+            onEdit={handleEditPhone}
+            onDelete={handleDeletePhone}
+            onDeleteAll={handleDeleteAllPhones}
+            emptyStateMessage={t('components.modalV3.test13.emptyMessage')}
+            emptyStateIcon="📱"
+            addButtonText={t('components.modalV3.test13.addButtonText')}
+            onAdd={handleAddPhone}
+            bottomContent={
+              <ul className={styles.instructionsList}>
+                <li>🗑️ {t('components.modalV3.test13.instructions.deleteAll')}</li>
+                <li>➕ {t('components.modalV3.test13.instructions.addPhone')}</li>
+                <li>✏️ {t('components.modalV3.test13.instructions.editPhone')}</li>
+                <li>🗑️ {t('components.modalV3.test13.instructions.deletePhone')}</li>
+                <li>📭 {t('components.modalV3.test13.instructions.emptyState')}</li>
+              </ul>
+            }
+          />
         </Card>
       </div>
 

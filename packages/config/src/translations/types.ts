@@ -456,6 +456,32 @@ export interface TranslationKeys {
           no: string;
         };
       };
+      test13: {
+        title: string;
+        description: string;
+        buttonLabel: string;
+        modalTitle: string;
+        phoneAdded: string;
+        phoneDeleted: string;
+        allDeleted: string;
+        saved: string;
+        itemCount: string;
+        emptyMessage: string;
+        addButtonText: string;
+        deletePhone: {
+          title: string;
+          message: string;
+        };
+        editHint: string;
+        deleteHint: string;
+        instructions: {
+          deleteAll: string;
+          addPhone: string;
+          editPhone: string;
+          deletePhone: string;
+          emptyState: string;
+        };
+      };
       common: {
         confirmDelete: string;
         deleted: string;
@@ -492,7 +518,34 @@ export interface TranslationKeys {
         clearConfirmMessage: string;
         clearConfirmButton: string;
       };
+      managementModal: {
+        deleteAllButton: string;
+        addButton: string;
+        cancelButton: string;
+        doneButton: string;
+        editHint: string;
+        deleteHint: string;
+        primaryHint: string;
+        emptyState: {
+          message: string;
+          action: string;
+        };
+        deleteAll: {
+          title: string;
+          message: string;
+        };
+        deleteItem: {
+          title: string;
+          message: string;
+        };
+      };
     };
+  };
+  phoneTypes: {
+    mobile: string;
+    work: string;
+    home: string;
+    other: string;
   };
   forms: {
     username: string;

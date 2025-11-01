@@ -1,28 +1,29 @@
 # ================================================================
 # Modal
 # ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\components\Modal.md
-# Version: 3.8.1
+# File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\Modal\Modal.md
+# Version: 3.9.0
 # Created: 2025-10-20
-# Updated: 2025-10-30
-# Component Location: packages/ui-components/src/components/Modal/Modal.tsx
+# Updated: 2025-11-01
+# Source: packages/ui-components/src/components/Modal/Modal.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Production modal component with advanced features including drag & drop,
-#   nested modals, enhanced footer layout, alignment options, and keyboard shortcuts.
+#   nested modals, dirty tracking, enhanced footer layout, alignment options,
+#   dynamic debug bar height measurement, and keyboard shortcuts.
 # ================================================================
 
 ---
 
 ## Overview
 
-**Purpose**: Enterprise-grade modal dialog for L-KERN v4 with drag-and-drop, nested modals, and advanced keyboard handling
+**Purpose**: Enterprise-grade modal dialog for L-KERN v4 with drag-and-drop, nested modals, dirty tracking, and advanced keyboard handling
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/Modal
-**Since**: v1.0.0 (Current: v3.8.1)
+**Since**: v1.0.0 (Current: v3.9.0)
 
 The Modal component is L-KERN's most advanced UI component, providing a powerful dialog system with drag-and-drop repositioning, nested modal support via modalStack, enhanced footer layout with separate left/right action slots, vertical alignment options (top/center/bottom), keyboard shortcuts (ESC/Enter), focus trap, body scroll lock, and full accessibility support. Designed for complex enterprise workflows requiring sophisticated modal interactions.
 
@@ -33,6 +34,7 @@ The Modal component is L-KERN's most advanced UI component, providing a powerful
 - ✅ **Portal Rendering**: Renders outside DOM hierarchy using React Portal
 - ✅ **Drag & Drop**: Draggable by header with smooth repositioning
 - ✅ **Nested Modals**: Full modalStack integration with auto z-index management
+- ✅ **Dirty Tracking**: Unsaved changes detection with confirmation dialog (`hasUnsavedChanges` prop)
 - ✅ **Enhanced Footer**: Separate left (delete) and right (cancel/confirm) slots + error message display
 - ✅ **3 Sizes**: sm (480px), md (720px), lg (1000px)
 - ✅ **Alignment Options**: Top, center, bottom vertical positioning
@@ -43,7 +45,8 @@ The Modal component is L-KERN's most advanced UI component, providing a powerful
 - ✅ **Backdrop Click**: Optional close on backdrop click
 - ✅ **Accessibility**: WCAG AA compliant, screen reader friendly
 - ✅ **Analytics Integration**: usePageAnalytics for modal tracking
-- ✅ **Debug Bar**: Built-in analytics debug bar (showDebugBar prop)
+- ✅ **Debug Bar**: Built-in analytics debug bar with dynamic height measurement
+- ✅ **Responsive Debug Bar**: Automatically adjusts header padding based on debug bar height (single or multi-line)
 - ✅ **Dark Mode**: Full dark theme support
 - ✅ **Memory Safe**: Fixed 2 memory leaks in v3.7.0 (drag listeners + keyboard churn)
 
@@ -1271,6 +1274,22 @@ return (
 ---
 
 ## Changelog
+
+### v3.9.0 (2025-11-01)
+- ✅ **NEW**: Dirty tracking (unsaved changes detection)
+  - Added `hasUnsavedChanges` prop (default: false)
+  - Shows confirmation dialog when closing modal with unsaved changes
+  - Applies to X button, ESC key, and backdrop click
+  - Uses useConfirm hook for consistent UX
+- ✅ **NEW**: Dynamic debug bar height measurement
+  - Debug bar height measured automatically after render
+  - Header `paddingTop` adjusts dynamically based on measured height
+  - Supports multi-line debug bar (wraps on narrow modals < 600px)
+  - Window resize listener re-measures height when needed
+  - Fixes issue where multi-line debug bar covered modal header
+- ✅ **IMPROVEMENT**: DebugBar refactored to use forwardRef
+  - Allows parent Modal to measure DebugBar height via ref
+  - Enables dynamic header padding calculation
 
 ### v3.8.1 (2025-10-30)
 - 🐛 **CRITICAL**: Fixed useEffect dependencies in modalStack registration (line 361)
