@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 4.0.0
+# Version: 4.1.0
 # Created: 2025-10-13
-# Updated: 2025-10-30
+# Updated: 2025-11-01
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -67,7 +67,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 2.7/20 tasks (~14%)
+**Progress:** 2.8/21 tasks (~13%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -108,19 +108,48 @@
 - ✅ phoneUtils, emailUtils, dateUtils, validation
 - ✅ 148 tests passing
 
-#### **1.3.4 Modal System v3.0** ⏳ IN PROGRESS (~65%)
-**Base Infrastructure:**
-- ✅ Modal (centered) - 46 tests
+#### **1.3.4 Modal System v3.0** ⏳ IN PROGRESS (~85%)
+**Reference:** See [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md) for detailed specs (6 phases, 60-90h)
+
+**1.3.4.1 Base Infrastructure** ✅ COMPLETED
+- ✅ Modal component (centered, drag & drop, nested modals) - 46 tests
 - ✅ ModalContext, WizardProgress, WizardNavigation
 - ✅ Toast, DashboardCard, DebugBar
+- ✅ modalStack utility (Modal stack management)
 
-**Hooks:**
-- ✅ useModal, useModalWizard, useFormDirty, useConfirm, useToast, usePageAnalytics
+**1.3.4.2 Modal Hooks** ✅ COMPLETED
+- ✅ useModal, useModalWizard (wizard workflows)
+- ✅ useFormDirty (unsaved changes detection) - [See Phase 1](../temp/implementation-plan-modal-system-v3.md#phase-1-core-hooks--utilities-8-10h)
+- ✅ useConfirm (promise-based confirmation API) - [See Phase 1](../temp/implementation-plan-modal-system-v3.md#phase-1-core-hooks--utilities-8-10h)
+- ✅ useToast, usePageAnalytics
 
-**Core Modals (2/3 complete):**
-- ✅ ConfirmModal (15 tests, SK/EN, danger mode)
-- ✅ EditItemModal (20 tests, useFormDirty, clear button 🧹)
-- ⏸️ ManagementModal (4-6h) - NEXT
+**1.3.4.3 Core Modals** ⏳ IN PROGRESS (2/3 complete)
+- ✅ **ConfirmModal** (15 tests, v1.0.0) - [See Phase 2](../temp/implementation-plan-modal-system-v3.md#phase-2-confirmmodal-component-5-6h)
+  - Simple mode (Yes/No confirmation)
+  - Danger mode (keyword confirmation "ano")
+  - SK/EN translations
+- ✅ **EditItemModal** (20 tests, v1.0.0, 2025-10-30) - [See Phase 3.1](../temp/implementation-plan-modal-system-v3.md#31-edititemmodal-template-3-4h)
+  - Generic add/edit wrapper
+  - useFormDirty integration
+  - Clear button (🧹 danger-subtle variant)
+  - Unsaved changes confirmation
+- ✅ **ManagementModal** (23 tests, v2.0.0, 2025-10-31) - [See Phase 3.2](../temp/implementation-plan-modal-system-v3.md#32-managementmodal-template-3-4h)
+  - Generic list management wrapper
+  - Delete all with danger confirmation
+  - Empty state support
+  - Primary item support (star marking + sorting)
+  - Dirty tracking (hasUnsavedChanges prop)
+- ⏸️ **SectionEditModal** (6-8h) - NEXT - [See Phase 3.3](../temp/implementation-plan-modal-system-v3.md#33-sectioneditmodal-template-6-8h)
+  - Form builder with FieldDefinition system
+  - Dynamic field rendering (text, email, number, date, select, textarea)
+  - Field validation (pattern, min, max, custom)
+
+**1.3.4.4 Modal Enhancements** ⏸️ PLANNED (4-6h) - [See Phase 4](../temp/implementation-plan-modal-system-v3.md#phase-4-enhancements-4-6h)
+- ⏸️ Card accent variant (purple border + glow, 2-3h)
+- ⏸️ Toast test page (visual testing UI, 1-2h)
+- ⏸️ Documentation updates (1h)
+
+**Progress:** ~30h done / 60-90h total (~40% complete) | Remaining: SectionEditModal + Enhancements + Integration tests (~15-20h)
 
 #### **1.3.5 Data Display** ⏸️ DEFERRED (After modals)
 - ⏸️ Table/DataGrid (4-6h)
