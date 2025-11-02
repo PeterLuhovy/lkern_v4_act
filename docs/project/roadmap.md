@@ -2,7 +2,7 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 4.3.0
+# Version: 4.4.0
 # Created: 2025-10-13
 # Updated: 2025-11-02
 # Project: BOSS (Business Operating System Service)
@@ -150,12 +150,15 @@
   - Props & variants tests (size, custom text, pattern, min, max)
   - 60 comprehensive tests passing (2025-11-02)
 
-**1.3.4.4 Modal Enhancements** ⏸️ PLANNED (4-6h) - [See Phase 4](../temp/implementation-plan-modal-system-v3.md#phase-4-enhancements-4-6h)
-- ⏸️ Card accent variant (purple border + glow, 2-3h)
-- ⏸️ Toast test page (visual testing UI, 1-2h)
-- ⏸️ Documentation updates (1h)
+**1.3.4.4 Modal Enhancements** ✅ COMPLETED (2025-11-02) - [See Phase 4](../temp/implementation-plan-modal-system-v3.md#phase-4-enhancements-4-6h)
+- ✅ Card accent variant (purple border + glow, v1.2.0)
+- ✅ DashboardCard hover effects (purple glow shadow, v1.0.1)
+- ✅ Toast test page (visual testing UI + translations)
+- ✅ Documentation updates (Card.md, DashboardCard.md updated by agent)
+- ✅ TypeScript fixes (usePageAnalytics, Modal maxWidth)
+- ✅ Tests: 37/37 passing (22 Card + 15 DashboardCard)
 
-**Progress:** ~50h done / 60-90h total (~75% complete) | Remaining: Enhancements (~5-10h)
+**Progress:** ~55h done / 60-90h total (~85% complete) | Remaining: Data Display (~5-10h)
 
 #### **1.3.5 Data Display** ⏸️ DEFERRED (After modals)
 - ⏸️ Table/DataGrid (4-6h)
