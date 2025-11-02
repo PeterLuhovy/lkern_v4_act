@@ -2,20 +2,20 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 4.4.2
+# Version: 5.0.0
 # Created: 2025-10-13
 # Updated: 2025-11-02
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: v3.0.0 (archived to docs/temp/roadmap-v3.0.0-obsolete.md)
+# Previous Version: v4.4.2 (archived to docs/temp/roadmap-v4.4.2-obsolete.md)
 #
-# Key Changes from v3.0.0:
-# - ✅ Microservices reorganized: Sales (AR), Purchasing (AP), Finance (GL)
-# - ✅ Added: Production Planning & Quality (PPQ), Operations (BPM)
-# - ✅ Added: Configuration service, Event-Driven Architecture (Kafka)
-# - ✅ GDPR compliance: Sensitive data strategy defined
+# Key Changes from v4.4.2:
+# - ✅ Numbering changed from 1.1, 1.2, 1.3... to 1.10, 1.20, 1.30... (increments of 10)
+# - ✅ Added: 1.50 Microservice Template (FastAPI + PostgreSQL + Kafka + gRPC)
+# - ✅ Added: 1.60 Issues Service (moved from Phase 2.5, before Contact MDM)
+# - ✅ Renumbered all tasks to allow inserting new tasks between existing ones
 # - ✅ Architecture reference: docs/architecture/microservices-architecture.md
 # ================================================================
 
@@ -29,14 +29,19 @@
 1. **Find current task** - Look for ⏳ IN PROGRESS status (always exactly ONE task)
 2. **Complete task** - Change status to ✅ COMPLETED, add completion date
 3. **Move to next** - Change next task from ⏸️ PLANNED to ⏳ IN PROGRESS
-4. **Add new tasks** - When bugs/features arise, add under appropriate phase
-5. **Update version** - Increment version (4.0.0 → 4.1.0) after changes
+4. **Add new tasks** - Insert between existing tasks (e.g., 1.25 between 1.20 and 1.30)
+5. **Update version** - Increment version (5.0.0 → 5.1.0) after changes
 6. **Update dates** - Adjust target dates when delays occur
 
 **Status symbols:**
 - ✅ COMPLETED - Task finished (with date)
 - ⏳ IN PROGRESS - Currently working (only ONE at a time!)
 - ⏸️ PLANNED - Not started yet
+
+**Numbering system:**
+- Phase 1: 1.10, 1.20, 1.30... (increments of 10)
+- New tasks: Insert with intermediate numbers (e.g., 1.25, 1.35, 1.55)
+- Allows flexibility without renumbering entire roadmap
 
 **Quick scan tip:** Čítaj len názvy taskov a statusy - za 5 sekúnd vidíš čo je hotové a čo ďalej!
 
@@ -67,12 +72,12 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 2.85/21 tasks (~14%)
+**Progress:** 2.85/23 tasks (~12%)
 **Architecture:** Domain-Driven Microservices
 
 ---
 
-### **1.1 Infrastructure Setup** ✅ COMPLETED (2025-10-15)
+### **1.10 Infrastructure Setup** ✅ COMPLETED (2025-10-15)
 - ✅ Nx workspace (Yarn 4 + TypeScript 5.7)
 - ✅ Docker development environment
 - ✅ React 19 web-ui (port 4201)
@@ -82,7 +87,7 @@
 
 ---
 
-### **1.2 Coding Standards** ✅ COMPLETED (2025-10-15)
+### **1.20 Coding Standards** ✅ COMPLETED (2025-10-15)
 - ✅ coding-standards.md (2235 lines)
 - ✅ code-examples.md (1700 lines)
 - ✅ TypeScript, React, Python conventions
@@ -90,67 +95,63 @@
 
 ---
 
-### **1.3 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~85%)
+### **1.30 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~85%)
 **Started:** 2025-10-18
 **Target:** 2025-11-08
 
-#### **1.3.1 Form Components** ✅ COMPLETED
+#### **1.30.1 Form Components** ✅ COMPLETED
 - ✅ Button (primary, secondary, danger, danger-subtle, ghost, success)
 - ✅ Input, FormField (controlled + uncontrolled)
 - ✅ Select, Checkbox, Radio/RadioGroup
 - ✅ 115 tests passing
 
-#### **1.3.2 Layout Components** ✅ COMPLETED
+#### **1.30.2 Layout Components** ✅ COMPLETED
 - ✅ Card, Badge, Spinner, EmptyState
 - ✅ 67 tests passing
 
-#### **1.3.3 Utility Functions** ✅ COMPLETED
+#### **1.30.3 Utility Functions** ✅ COMPLETED
 - ✅ phoneUtils, emailUtils, dateUtils, validation
 - ✅ 148 tests passing
 
-#### **1.3.4 Modal System v3.0** ⏳ IN PROGRESS (~85%)
+#### **1.30.4 Modal System v3.0** ⏳ IN PROGRESS (~85%)
 **Reference:** See [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md) for detailed specs (6 phases, 60-90h)
 
-**1.3.4.1 Base Infrastructure** ✅ COMPLETED
+**1.30.4.1 Base Infrastructure** ✅ COMPLETED
 - ✅ Modal component (centered, drag & drop, nested modals) - 46 tests
 - ✅ ModalContext, WizardProgress, WizardNavigation
 - ✅ Toast, DashboardCard, DebugBar
 - ✅ modalStack utility (Modal stack management)
 
-**1.3.4.2 Modal Hooks** ✅ COMPLETED
+**1.30.4.2 Modal Hooks** ✅ COMPLETED
 - ✅ useModal, useModalWizard (wizard workflows)
-- ✅ useFormDirty (unsaved changes detection) - [See Phase 1](../temp/implementation-plan-modal-system-v3.md#phase-1-core-hooks--utilities-8-10h)
-- ✅ useConfirm (promise-based confirmation API) - [See Phase 1](../temp/implementation-plan-modal-system-v3.md#phase-1-core-hooks--utilities-8-10h)
+- ✅ useFormDirty (unsaved changes detection)
+- ✅ useConfirm (promise-based confirmation API)
 - ✅ useToast, usePageAnalytics
 
-**1.3.4.3 Core Modals** ✅ COMPLETED (4/4 complete)
-- ✅ **ConfirmModal** (15 tests, v1.0.0) - [See Phase 2](../temp/implementation-plan-modal-system-v3.md#phase-2-confirmmodal-component-5-6h)
+**1.30.4.3 Core Modals** ✅ COMPLETED (4/4 complete)
+- ✅ **ConfirmModal** (15 tests, v1.0.0)
   - Simple mode (Yes/No confirmation)
   - Danger mode (keyword confirmation "ano")
   - SK/EN translations
-- ✅ **EditItemModal** (20 tests, v1.0.0, 2025-10-30) - [See Phase 3.1](../temp/implementation-plan-modal-system-v3.md#31-edititemmodal-template-3-4h)
+- ✅ **EditItemModal** (20 tests, v1.0.0, 2025-10-30)
   - Generic add/edit wrapper
   - useFormDirty integration
   - Clear button (🧹 danger-subtle variant)
   - Unsaved changes confirmation
-- ✅ **ManagementModal** (33 tests, v1.0.0, 2025-11-01) - [See Phase 3.2](../temp/implementation-plan-modal-system-v3.md#32-managementmodal-template-3-4h)
+- ✅ **ManagementModal** (33 tests, v1.0.0, 2025-11-01)
   - Generic list management wrapper
   - Delete all with danger confirmation
   - Empty state support
   - Primary item support (star marking + sorting)
   - Dirty tracking (hasUnsavedChanges prop)
-  - Test suite refactored: 33 comprehensive tests (2025-11-01)
-- ✅ **SectionEditModal** (60 tests, v1.0.0, 2025-11-02) - [See Phase 3.3](../temp/implementation-plan-modal-system-v3.md#33-sectioneditmodal-template-6-8h)
+- ✅ **SectionEditModal** (60 tests, v1.0.0, 2025-11-02)
   - Form builder with FieldDefinition system
   - Dynamic field rendering (text, email, number, date, select, textarea)
   - HTML5 validation + custom validation
   - Clear form button with confirmation
   - Unsaved changes detection (useFormDirty + useConfirm)
-  - Translation key validation tests
-  - Props & variants tests (size, custom text, pattern, min, max)
-  - 60 comprehensive tests passing (2025-11-02)
 
-**1.3.4.4 Modal Enhancements** ✅ COMPLETED (2025-11-02) - [See Phase 4](../temp/implementation-plan-modal-system-v3.md#phase-4-enhancements-4-6h)
+**1.30.4.4 Modal Enhancements** ✅ COMPLETED (2025-11-02)
 - ✅ Card accent variant (purple border + glow, v1.2.0)
 - ✅ DashboardCard hover effects (purple glow shadow, v1.0.1)
 - ✅ Toast test page (visual testing UI + translations)
@@ -164,13 +165,13 @@
 
 **Progress:** ~58h done / 60-90h total (~90% complete) | Remaining: Data Display (~5-10h)
 
-#### **1.3.5 Data Display** ⏸️ DEFERRED (After modals)
+#### **1.30.5 Data Display** ⏸️ DEFERRED (After modals)
 - ⏸️ Table/DataGrid (4-6h)
 - ⏸️ FilterAndSearch (2-3h)
 
 ---
 
-### **1.3.6 Navigation Components** ✅ COMPLETED (2025-11-02)
+### **1.30.6 Navigation Components** ✅ COMPLETED (2025-11-02)
 **Estimated:** 8-10h
 **Actual:** ~10h
 
@@ -193,8 +194,8 @@
 
 ---
 
-### **1.3.7 Design System Refactor** ⏸️ PLANNED
-**Dependencies:** None (can run parallel with 1.3.5)
+### **1.30.7 Design System Refactor** ⏸️ PLANNED
+**Dependencies:** None (can run parallel with 1.30.5)
 **Estimated:** 35-40h (1 week full-time)
 **Target:** 2025-11-08 - 2025-11-15
 
@@ -251,300 +252,464 @@
 
 ---
 
-### **1.4 Backend Infrastructure** ⏸️ PLANNED
-**Dependencies:** 1.3 complete
+### **1.40 Backend Infrastructure** ⏸️ PLANNED
+**Dependencies:** 1.30 complete
 **Estimated:** 12-16h (3-4 days)
 **Target:** 2025-11-13 - 2025-11-17
 
-#### **1.4.1 PostgreSQL Setup**
+#### **1.40.1 PostgreSQL Setup**
 - ⏸️ PostgreSQL 15 (port 4501)
 - ⏸️ Database per service strategy
 
-#### **1.4.2 Alembic Migrations**
+#### **1.40.2 Alembic Migrations**
 - ⏸️ Install + configure
 
-#### **1.4.3 gRPC Infrastructure**
+#### **1.40.3 gRPC Infrastructure**
 - ⏸️ grpcio + proto compilation
 
-#### **1.4.4 Apache Kafka**
+#### **1.40.4 Apache Kafka**
 - ⏸️ Kafka + Zookeeper (port 9092)
 - ⏸️ Topic setup
 
-#### **1.4.5 Adminer UI**
+#### **1.40.5 Adminer UI**
 - ⏸️ Add to docker-compose (port 4901)
 
 ---
 
-### **1.5 System Health & Backup API** ⏸️ PLANNED
-**Dependencies:** 1.4 complete
-**Estimated:** 2-3h
-**Target:** 2025-11-17
-
-#### **1.5.1 Health Monitoring**
-- ⏸️ GET /api/v1/system/health
-
-#### **1.5.2 Backup Management**
-- ⏸️ POST /api/v1/system/backup
-- ⏸️ GET /api/v1/system/backup/status
-
----
-
-### **1.6 Page Templates (StatusBar)** ⏸️ PLANNED
-**Dependencies:** 1.5 complete
-**Estimated:** 5-7h
+### **1.50 Microservice Template** ⏸️ PLANNED
+**Dependencies:** 1.40 complete
+**Estimated:** 8-12h (2-3 days)
 **Target:** 2025-11-18 - 2025-11-20
 
-#### **1.6.1 StatusBar Component** (3-4h)
-- ⏸️ Port from v3 (v2.1.0)
-- ⏸️ System monitoring, backup UI
-- ⏸️ Theme/language toggles
-- ⏸️ 20 unit tests
+**Goal:** Reusable template for all microservices - copy, rename, configure, run.
 
-#### **1.6.2 StatusBadge Component** (1h)
-- ⏸️ Port from v3
-- ⏸️ 8 unit tests
+**Template Location:** `services/template/`
 
-#### **1.6.3 BaseLayout Integration** (1-2h)
-- ⏸️ BaseLayout + BaseLayoutDataContext
-- ⏸️ 10 integration tests
+#### **1.50.1 Backend Template Structure**
+- ⏸️ **FastAPI Service Boilerplate**
+  - `main.py` - FastAPI app entry point
+  - `models.py` - SQLAlchemy models template
+  - `schemas.py` - Pydantic schemas template
+  - `crud.py` - CRUD operations template
+  - `api/v1/endpoints/` - REST API endpoints template
+  - `grpc/` - gRPC server template
+  - `kafka/` - Kafka producer/consumer template
+- ⏸️ **Database Setup**
+  - `alembic/` - Migration templates
+  - `database.py` - PostgreSQL connection
+  - `.env.template` - Environment variables template
+- ⏸️ **Docker Configuration**
+  - `Dockerfile` - Python 3.11 + FastAPI
+  - `docker-compose.service.yml` - Service-specific compose
+  - `requirements.txt` - Python dependencies
+- ⏸️ **Testing Templates**
+  - `tests/test_api.py` - REST API test template
+  - `tests/test_grpc.py` - gRPC test template
+  - `tests/test_crud.py` - Database test template
+  - `pytest.ini` - pytest configuration
+- ⏸️ **Documentation**
+  - `README.md` - Setup instructions, port mapping, API docs
+  - `TEMPLATE_INSTRUCTIONS.md` - How to use this template
+
+#### **1.50.2 Copy-Rename-Configure Workflow**
+- ⏸️ **Setup Script:** `scripts/create_microservice.sh`
+  - Input: Service name (e.g., "Issues")
+  - Input: Port numbers (REST, gRPC)
+  - Input: Database name
+  - Actions:
+    1. Copy `services/template/` to `services/lkms{XXX}-{name}/`
+    2. Replace placeholders: `{{SERVICE_NAME}}`, `{{PORT_REST}}`, `{{PORT_GRPC}}`, `{{DB_NAME}}`
+    3. Generate `.env` from `.env.template`
+    4. Update `docker-compose.yml` with new service
+    5. Create database in PostgreSQL
+    6. Run Alembic migrations
+    7. Print: "Service ready! Run: docker-compose up lkms{XXX}-{name}"
+
+#### **1.50.3 Template Features**
+- ⏸️ **REST API:** Health check, CRUD endpoints
+- ⏸️ **gRPC API:** Service definition, server implementation
+- ⏸️ **Kafka:** Producer (emit events), Consumer (listen to events)
+- ⏸️ **Database:** SQLAlchemy models, Alembic migrations
+- ⏸️ **Logging:** Structured logging (JSON format)
+- ⏸️ **Error Handling:** Standardized error responses
+- ⏸️ **Validation:** Pydantic schemas for request/response
+- ⏸️ **Testing:** Unit tests, integration tests, fixtures
+
+**Success Criteria:**
+- ✅ Template tested with dummy service (lkms999-test)
+- ✅ Copy script works end-to-end (< 5 minutes)
+- ✅ Generated service runs without modifications
+- ✅ All tests passing in generated service
+
+**Time Saved:**
+- Without template: 6-8h per microservice (setup + boilerplate)
+- With template: 15-30 minutes (copy + rename + configure)
+- ROI: 10-15x time savings for 14 microservices
 
 ---
 
-### **1.7 Contact (MDM) Service** ⏸️ PLANNED
-**Dependencies:** 1.4 complete
+### **1.60 Issues Service** ⏸️ PLANNED
+**Dependencies:** 1.50 complete (uses microservice template)
+**Estimated:** 12-16h (3-4 days)
+**Target:** 2025-11-21 - 2025-11-24
+**Ports:** 4105 (REST), 5105 (gRPC)
+**Database:** lkms105_issues
+
+**Internal ticketing system - bug reports, feature requests, improvements**
+
+#### **1.60.1 Backend**
+- ⏸️ **Copy from template:** `scripts/create_microservice.sh Issues 4105 5105 lkms105_issues`
+- ⏸️ **Issue Model** (SQLAlchemy):
+  - `id` (UUID, primary key)
+  - `title` (String 200, required)
+  - `description` (Text, optional)
+  - `type` (Enum: bug, feature, improvement, question)
+  - `priority` (Enum: low, medium, high, critical)
+  - `status` (Enum: open, in_progress, resolved, closed, wont_fix)
+  - `reporter_id` (UUID, FK to users)
+  - `assignee_id` (UUID, FK to users, nullable)
+  - `created_at`, `updated_at`, `resolved_at`, `closed_at`
+  - `tags` (Array[String], optional)
+  - `attachments` (JSON, optional)
+- ⏸️ **REST API Endpoints:**
+  - `GET /api/v1/issues` - List issues (with filters)
+  - `GET /api/v1/issues/{id}` - Get issue detail
+  - `POST /api/v1/issues` - Create issue
+  - `PUT /api/v1/issues/{id}` - Update issue
+  - `DELETE /api/v1/issues/{id}` - Delete issue
+  - `POST /api/v1/issues/{id}/assign` - Assign to user
+  - `POST /api/v1/issues/{id}/resolve` - Mark as resolved
+  - `POST /api/v1/issues/{id}/close` - Close issue
+- ⏸️ **gRPC API:** Same operations for inter-service communication
+- ⏸️ **Kafka Events:**
+  - `IssueCreated` - New issue reported
+  - `IssueAssigned` - Assigned to user
+  - `IssueStatusChanged` - Status updated
+  - `IssueResolved` - Marked as resolved
+  - `IssueClosed` - Issue closed
+- ⏸️ **Business Logic:**
+  - Auto-assign to admin if priority = critical
+  - Email notification on issue created (to assignee)
+  - Auto-close if resolved for 7+ days
+
+#### **1.60.2 Frontend**
+- ⏸️ **Issues Page** (`/issues`)
+  - List view with filters (type, priority, status, assignee)
+  - Search by title/description
+  - Sort by created_at, priority
+  - Click → detail view
+- ⏸️ **Issue Detail Modal**
+  - Display all fields
+  - Edit button → EditItemModal
+  - Assign button → dropdown of users
+  - Resolve/Close buttons
+  - Comment section (future Phase 2)
+- ⏸️ **Create Issue Modal**
+  - SectionEditModal with FieldDefinition:
+    - title (text, required)
+    - description (textarea, optional)
+    - type (select: bug/feature/improvement/question)
+    - priority (select: low/medium/high/critical)
+    - tags (text, comma-separated)
+
+#### **1.60.3 Testing**
+- ⏸️ **Backend Tests (pytest):**
+  - 15 unit tests (CRUD operations)
+  - 10 integration tests (REST API endpoints)
+  - 5 gRPC tests (service calls)
+  - 5 Kafka tests (event emission)
+- ⏸️ **Frontend Tests (Vitest):**
+  - 10 component tests (Issues page, detail modal, create modal)
+  - 5 integration tests (API calls, state management)
+
+**Success Criteria:**
+- ✅ All tests passing (50 tests total)
+- ✅ REST API functional (all endpoints work)
+- ✅ gRPC API functional (inter-service calls work)
+- ✅ Kafka events emitted correctly
+- ✅ Frontend connected to backend
+
+---
+
+### **1.70 Contact (MDM) Service** ⏸️ PLANNED
+**Dependencies:** 1.50 complete (uses microservice template)
 **Estimated:** 25-30h (6-7 days)
-**Target:** 2025-11-18 - 2025-11-25
+**Target:** 2025-11-25 - 2025-12-02
 **Ports:** 4101 (REST), 5101 (gRPC)
 **Database:** lkms101_contacts
 
 **Master Data Management - Single Source of Truth**
 
-#### **1.7.1 Backend**
-- ⏸️ FastAPI + gRPC service
+#### **1.70.1 Backend**
+- ⏸️ Copy from template: `scripts/create_microservice.sh Contact 4101 5101 lkms101_contacts`
 - ⏸️ Contact model (UUID, Name, Address, Tax ID)
 - ⏸️ **NO sensitive data** (NO bank accounts, NO salaries)
 - ⏸️ REST + gRPC APIs
 - ⏸️ Kafka: ContactCreated/Updated/Deleted
 
-#### **1.7.2 Frontend**
+#### **1.70.2 Frontend**
 - ⏸️ Contacts page (with Table)
 - ⏸️ List, detail, add/edit views
 
 ---
 
-### **1.8 Configuration Service** ⏸️ PLANNED
-**Dependencies:** 1.4 complete
+### **1.80 Configuration Service** ⏸️ PLANNED
+**Dependencies:** 1.50 complete (uses microservice template)
 **Estimated:** 15-20h (4-5 days)
-**Target:** 2025-11-18 - 2025-11-23 (parallel with 1.7)
+**Target:** 2025-11-25 - 2025-11-30 (parallel with 1.70)
 **Ports:** 4199 (REST), 5199 (gRPC)
 **Database:** lkms199_config
 
 **Global settings (COA, VAT, currencies)**
 
-#### **1.8.1 Backend**
-- ⏸️ FastAPI + gRPC service
+#### **1.80.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: COA, VAT, currencies, periods
 
-#### **1.8.2 Frontend**
+#### **1.80.2 Frontend**
 - ⏸️ Configuration page
 
 ---
 
-### **1.9 HR / Payroll Service** ⏸️ PLANNED
-**Dependencies:** 1.7 complete
+### **1.90 System Health & Backup API** ⏸️ PLANNED
+**Dependencies:** 1.70, 1.80 complete
+**Estimated:** 2-3h
+**Target:** 2025-12-02
+
+#### **1.90.1 Health Monitoring**
+- ⏸️ GET /api/v1/system/health
+
+#### **1.90.2 Backup Management**
+- ⏸️ POST /api/v1/system/backup
+- ⏸️ GET /api/v1/system/backup/status
+
+---
+
+### **1.100 Page Templates (StatusBar)** ⏸️ PLANNED
+**Dependencies:** 1.90 complete
+**Estimated:** 5-7h
+**Target:** 2025-12-03 - 2025-12-05
+
+#### **1.100.1 StatusBar Component** (3-4h)
+- ⏸️ Port from v3 (v2.1.0)
+- ⏸️ System monitoring, backup UI
+- ⏸️ Theme/language toggles
+- ⏸️ 20 unit tests
+
+#### **1.100.2 StatusBadge Component** (1h)
+- ⏸️ Port from v3
+- ⏸️ 8 unit tests
+
+#### **1.100.3 BaseLayout Integration** (1-2h)
+- ⏸️ BaseLayout + BaseLayoutDataContext
+- ⏸️ 10 integration tests
+
+---
+
+### **1.110 HR / Payroll Service** ⏸️ PLANNED
+**Dependencies:** 1.70 complete
 **Estimated:** 20-25h (5-6 days)
-**Target:** 2025-11-26 - 2025-12-02
+**Target:** 2025-12-06 - 2025-12-11
 **Ports:** 4108 (REST), 5108 (gRPC)
 **Database:** lkms108_employees
 
 **GDPR-protected sensitive employee data**
 
-#### **1.9.1 Backend**
-- ⏸️ FastAPI + gRPC service
+#### **1.110.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ **SENSITIVE:** Salaries, Personal IDs, Bank accounts (employees only)
 - ⏸️ **Production data:** Work roles, qualifications
 - ⏸️ Kafka: EmployeeCreated/RoleChanged/Absent/Available
 
-#### **1.9.2 Frontend**
+#### **1.110.2 Frontend**
 - ⏸️ Employees page
 
 **Security:** STRICT access control, GDPR audit logging
 
 ---
 
-### **1.10 Inventory / Logistics Service** ⏸️ PLANNED
-**Dependencies:** 1.7, 1.8, 1.9 complete
+### **1.120 Inventory / Logistics Service** ⏸️ PLANNED
+**Dependencies:** 1.70, 1.80, 1.110 complete
 **Estimated:** 25-30h (6-7 days)
-**Target:** 2025-12-03 - 2025-12-10
+**Target:** 2025-12-12 - 2025-12-18
 **Ports:** 4111 (REST), 5111 (gRPC)
 **Database:** lkms111_warehouse
 
-#### **1.10.1 Backend**
+#### **1.120.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: Products, stock, goods receipts/issues
 - ⏸️ Kafka: GoodsReceived/Issued, StockLevelCritical
 
-#### **1.10.2 Frontend**
+#### **1.120.2 Frontend**
 - ⏸️ Inventory page
 
 ---
 
-### **1.11 Purchasing (AP) Service** ⏸️ PLANNED
-**Dependencies:** 1.7, 1.8, 1.10 complete
+### **1.130 Purchasing (AP) Service** ⏸️ PLANNED
+**Dependencies:** 1.70, 1.80, 1.120 complete
 **Estimated:** 35-40h (8-10 days)
-**Target:** 2025-12-11 - 2025-12-21
+**Target:** 2025-12-19 - 2025-12-29
 **Ports:** 4106 (REST), 5106 (gRPC)
 **Database:** lkms106_purchasing
 
 **Vendors + PO + Invoices AP + 3-Way Match**
 
-#### **1.11.1 Backend**
+#### **1.130.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: Vendor data, RFQ, PO, Received Invoices
 - ⏸️ **Vendor bank accounts stored HERE**
 - ⏸️ **3-Way Match:** PO → Goods Receipt → Invoice
 - ⏸️ Kafka: PO events, Consume GoodsReceived
 
-#### **1.11.2 Frontend**
+#### **1.130.2 Frontend**
 - ⏸️ Purchasing page
 - ⏸️ 3-Way match dashboard
 
 ---
 
-### **1.12 Sales (AR) Service** ⏸️ PLANNED
-**Dependencies:** 1.7, 1.8, 1.10 complete
+### **1.140 Sales (AR) Service** ⏸️ PLANNED
+**Dependencies:** 1.70, 1.80, 1.120 complete
 **Estimated:** 35-40h (8-10 days)
-**Target:** 2025-12-22 - 2026-01-02
+**Target:** 2025-12-30 - 2026-01-09
 **Ports:** 4103 (REST), 5103 (gRPC)
 **Database:** lkms103_sales
 
 **Customers + SO + Invoices AR + Overdue Tracking**
 
-#### **1.12.1 Backend**
+#### **1.140.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: Customer data, Quotations, SO, Issued Invoices
 - ⏸️ **Customer bank accounts stored HERE**
 - ⏸️ **Overdue tracking:** Daily job → InvoiceOverdue event
 - ⏸️ Kafka: SO events, Consume GoodsIssued
 
-#### **1.12.2 Frontend**
+#### **1.140.2 Frontend**
 - ⏸️ Sales page
 - ⏸️ Overdue dashboard
 
 ---
 
-### **1.13 Manufacturing Service** ⏸️ PLANNED
-**Dependencies:** 1.10, 1.12 complete
+### **1.150 Manufacturing Service** ⏸️ PLANNED
+**Dependencies:** 1.120, 1.140 complete
 **Estimated:** 25-30h (6-7 days)
-**Target:** 2026-01-03 - 2026-01-10
+**Target:** 2026-01-10 - 2026-01-16
 **Ports:** 4112 (REST), 5112 (gRPC)
 **Database:** lkms112_manufacturing
 
-#### **1.13.1 Backend**
+#### **1.150.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: BOM, work centers, machines, work orders
 - ⏸️ Kafka: WorkOrderCompleted, MachineDown/Available
 
-#### **1.13.2 Frontend**
+#### **1.150.2 Frontend**
 - ⏸️ Manufacturing page
 
 ---
 
-### **1.14 Production Planning & Quality (PPQ)** ⏸️ PLANNED
-**Dependencies:** 1.9, 1.12, 1.13 complete
+### **1.160 Production Planning & Quality (PPQ)** ⏸️ PLANNED
+**Dependencies:** 1.110, 1.140, 1.150 complete
 **Estimated:** 40-50h (10-12 days)
-**Target:** 2026-01-11 - 2026-01-23
+**Target:** 2026-01-17 - 2026-01-29
 **Ports:** TBD
 **Database:** lkms_ppq
 
 **Simple priority rules first, advanced optimization later**
 
-#### **1.14.1 Backend (MVP)**
+#### **1.160.1 Backend (MVP)**
+- ⏸️ Copy from template
 - ⏸️ **Simple rules:** Quality → best accuracy, Speed → fastest
 - ⏸️ Models: Production calendar, resource assignments
 - ⏸️ Kafka: Consume SalesOrderCreated, MachineDown, EmployeeAbsent
 
-#### **1.14.2 Frontend**
+#### **1.160.2 Frontend**
 - ⏸️ Planning dashboard
 
 ---
 
-### **1.15 Operations (BPM)** ⏸️ PLANNED
-**Dependencies:** 1.9, 1.11, 1.12, 1.13, 1.14 complete
+### **1.170 Operations (BPM)** ⏸️ PLANNED
+**Dependencies:** 1.110, 1.130, 1.140, 1.150, 1.160 complete
 **Estimated:** 35-40h (8-10 days)
-**Target:** 2026-01-24 - 2026-02-03
+**Target:** 2026-01-30 - 2026-02-09
 **Ports:** TBD
 **Database:** lkms_operations
 
 **Workflow orchestration - end-to-end process management**
 
-#### **1.15.1 Backend**
+#### **1.170.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Workflow definitions: CustomerQuote, PO Approval, MonthEnd, OrderFulfillment
 - ⏸️ Models: Workflows, job queue, assignments
 - ⏸️ **Dynamic job assignment:** Query HR by role
 - ⏸️ Kafka: Consume multiple events
 
-#### **1.15.2 Frontend**
+#### **1.170.2 Frontend**
 - ⏸️ Operations dashboard
 - ⏸️ My Jobs page
 
 ---
 
-### **1.16 Finance (GL) Service** ⏸️ PLANNED
-**Dependencies:** 1.8, 1.11, 1.12, 1.13 complete
+### **1.180 Finance (GL) Service** ⏸️ PLANNED
+**Dependencies:** 1.80, 1.130, 1.140, 1.150 complete
 **Estimated:** 35-40h (8-10 days)
-**Target:** 2026-02-04 - 2026-02-14
+**Target:** 2026-02-10 - 2026-02-20
 **Ports:** TBD
 **Database:** lkms_finance
 
 **Accounting backbone - consolidates all transactions**
 
-#### **1.16.1 Backend**
+#### **1.180.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: COA, GL entries, balances, periods
 - ⏸️ **Automatic posting:** Events → GL entries
 - ⏸️ **Tax compliance:** VAT reporting (SK)
 - ⏸️ Kafka: Consume InvoiceIssued/Received, GoodsIssued, PaymentReceived
 
-#### **1.16.2 Frontend**
+#### **1.180.2 Frontend**
 - ⏸️ Finance dashboard
 - ⏸️ GL viewer, reports, VAT returns
 
 ---
 
-### **1.17 Cash & Bank Service** ⏸️ PLANNED
-**Dependencies:** 1.10, 1.11, 1.15 complete
+### **1.190 Cash & Bank Service** ⏸️ PLANNED
+**Dependencies:** 1.120, 1.130, 1.170 complete
 **Estimated:** 20-25h (5-6 days)
-**Target:** 2026-02-15 - 2026-02-21
+**Target:** 2026-02-21 - 2026-02-26
 **Ports:** TBD
 **Database:** lkms_cash_bank
 
-#### **1.17.1 Backend**
+#### **1.190.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ Models: Bank accounts, statements, payment orders
 - ⏸️ **Payment matching:** Auto-match with AR/AP invoices
 - ⏸️ Kafka: PaymentReceived/Sent, PaymentMatched
 
-#### **1.17.2 Frontend**
+#### **1.190.2 Frontend**
 - ⏸️ Cash & Bank dashboard
 
 ---
 
-### **1.18 Authentication Service** ⏸️ PLANNED
-**Dependencies:** 1.16 complete
+### **1.200 Authentication Service** ⏸️ PLANNED
+**Dependencies:** 1.180 complete
 **Estimated:** 25-30h (6-7 days)
-**Target:** 2026-02-22 - 2026-03-01
+**Target:** 2026-02-27 - 2026-03-05
 **Ports:** 4107 (REST), 5107 (gRPC)
 **Database:** lkms107_auth
 
-#### **1.18.1 Backend**
+#### **1.200.1 Backend**
+- ⏸️ Copy from template
 - ⏸️ User model, JWT, bcrypt, RBAC
 - ⏸️ REST + gRPC APIs
 
-#### **1.18.2 Frontend**
+#### **1.200.2 Frontend**
 - ⏸️ Login page
 - ⏸️ Auth context + protected routes
 
 ---
 
-### **1.19 Testing & QA** ⏸️ PLANNED
-**Dependencies:** 1.18 complete
+### **1.210 Testing & QA** ⏸️ PLANNED
+**Dependencies:** 1.200 complete
 **Estimated:** 50-70h (12-17 days)
-**Target:** 2026-03-02 - 2026-03-19
+**Target:** 2026-03-06 - 2026-03-23
 
 - ⏸️ **Backend:** Unit, integration, gRPC, Kafka tests (>80%)
 - ⏸️ **Frontend:** Component, E2E tests (>70%)
@@ -553,10 +718,10 @@
 
 ---
 
-### **1.20 Production Deployment Prep** ⏸️ PLANNED
-**Dependencies:** 1.19 complete
+### **1.220 Production Deployment Prep** ⏸️ PLANNED
+**Dependencies:** 1.210 complete
 **Estimated:** 35-45h (8-11 days)
-**Target:** 2026-03-20 - 2026-03-31
+**Target:** 2026-03-24 - 2026-04-04
 
 - ⏸️ **Server:** Docker, firewall, SSL
 - ⏸️ **Kafka Production:** Cluster config
@@ -565,12 +730,12 @@
 
 ---
 
-### **1.21 Deploy MVP to Production** ⏸️ PLANNED
-**Dependencies:** 1.20 complete
+### **1.230 Deploy MVP to Production** ⏸️ PLANNED
+**Dependencies:** 1.220 complete
 **Estimated:** 15-25h (4-6 days)
-**Target:** 2026-04-01 - 2026-04-07
+**Target:** 2026-04-05 - 2026-04-11
 
-- ⏸️ Deploy all 14+ microservices
+- ⏸️ Deploy all 15+ microservices
 - ⏸️ Verify REST, gRPC, Kafka
 - ⏸️ Run smoke tests
 - ⏸️ Test workflows
@@ -593,7 +758,7 @@
 
 ---
 
-### **2.1 Security Hardening** ⏸️ PLANNED
+### **2.10 Security Hardening** ⏸️ PLANNED
 **Estimated:** 30-40h
 
 - ⏸️ Dependency updates
@@ -605,7 +770,7 @@
 
 ---
 
-### **2.2 Performance Optimization** ⏸️ PLANNED
+### **2.20 Performance Optimization** ⏸️ PLANNED
 **Estimated:** 25-35h
 
 - ⏸️ Database query optimization
@@ -617,7 +782,7 @@
 
 ---
 
-### **2.3 Bug Fixes & Stability** ⏸️ PLANNED
+### **2.30 Bug Fixes & Stability** ⏸️ PLANNED
 **Estimated:** 40-50h
 
 - ⏸️ Production bug fixes
@@ -628,7 +793,7 @@
 
 ---
 
-### **2.4 PPQ Advanced Algorithms** ⏸️ PLANNED
+### **2.40 PPQ Advanced Algorithms** ⏸️ PLANNED
 **Estimated:** 30-40h
 
 - ⏸️ Multi-criteria optimization (quality + speed + cost)
@@ -638,12 +803,13 @@
 
 ---
 
-### **2.5 Optional Services** ⏸️ PLANNED
-**Estimated:** 50-70h
+### **2.50 Optional Services** ⏸️ PLANNED
+**Estimated:** 40-60h
+
+**Note:** Issues Service moved to Phase 1 (task 1.60)
 
 - ⏸️ Notification Service (email/SMS/push)
 - ⏸️ Gamification / Loyalty Service
-- ⏸️ Issues Service (internal ticketing)
 - ⏸️ Inquiries Service (customer quotes tracking)
 - ⏸️ Mail Client Service (SMTP/IMAP)
 - ⏸️ Documents Service (file upload/download)
@@ -660,7 +826,7 @@
 
 ---
 
-### **3.1 High Availability** ⏸️ PLANNED
+### **3.10 High Availability** ⏸️ PLANNED
 **Estimated:** 40-50h
 
 - ⏸️ Database replication
@@ -671,7 +837,7 @@
 
 ---
 
-### **3.2 Disaster Recovery** ⏸️ PLANNED
+### **3.20 Disaster Recovery** ⏸️ PLANNED
 **Estimated:** 30-40h
 
 - ⏸️ Automated backups
@@ -682,7 +848,7 @@
 
 ---
 
-### **3.3 Advanced Monitoring** ⏸️ PLANNED
+### **3.30 Advanced Monitoring** ⏸️ PLANNED
 **Estimated:** 25-35h
 
 - ⏸️ APM (Application Performance Monitoring)
@@ -693,7 +859,7 @@
 
 ---
 
-### **3.4 Technical Debt Reduction** ⏸️ PLANNED
+### **3.40 Technical Debt Reduction** ⏸️ PLANNED
 **Estimated:** 40-60h
 
 - ⏸️ Code refactoring
@@ -704,7 +870,7 @@
 
 ---
 
-### **3.5 Team Training** ⏸️ PLANNED
+### **3.50 Team Training** ⏸️ PLANNED
 **Estimated:** 20-30h
 
 - ⏸️ Training materials
@@ -724,7 +890,7 @@
 
 ---
 
-### **4.1 Advanced Reporting & Analytics** ⏸️ PLANNED
+### **4.10 Advanced Reporting & Analytics** ⏸️ PLANNED
 - Custom report builder
 - Data visualization dashboards
 - Export to Excel/PDF
@@ -734,7 +900,7 @@
 
 ---
 
-### **4.2 Mobile Application** ⏸️ PLANNED
+### **4.20 Mobile Application** ⏸️ PLANNED
 - React Native mobile app
 - Offline mode support
 - Push notifications
@@ -743,7 +909,7 @@
 
 ---
 
-### **4.3 External Integrations** ⏸️ PLANNED
+### **4.30 External Integrations** ⏸️ PLANNED
 - Accounting software (Pohoda, Money S3)
 - CRM systems
 - E-commerce platforms
@@ -752,7 +918,7 @@
 
 ---
 
-### **4.4 AI/ML Features** ⏸️ PLANNED
+### **4.40 AI/ML Features** ⏸️ PLANNED
 - Predictive analytics
 - Anomaly detection
 - Document classification
@@ -762,7 +928,7 @@
 
 ---
 
-### **4.5 Business Intelligence** ⏸️ PLANNED
+### **4.50 Business Intelligence** ⏸️ PLANNED
 - Executive dashboard
 - Trend analysis
 - Forecasting
@@ -771,7 +937,7 @@
 
 ---
 
-### **4.6 Customer & Supplier Portals** ⏸️ PLANNED
+### **4.60 Customer & Supplier Portals** ⏸️ PLANNED
 - Self-service portal
 - Order tracking (from Operations service)
 - Invoice downloads
@@ -780,7 +946,7 @@
 
 ---
 
-### **4.7 Multi-tenancy** ⏸️ PLANNED
+### **4.70 Multi-tenancy** ⏸️ PLANNED
 - Support multiple companies
 - Isolated data per tenant
 - Shared infrastructure
@@ -788,7 +954,7 @@
 
 ---
 
-### **4.8 Advanced Features** ⏸️ PLANNED
+### **4.80 Advanced Features** ⏸️ PLANNED
 - Multi-language support (DE, HU, PL)
 - Multi-currency support
 - Audit logging
@@ -797,7 +963,7 @@
 
 ---
 
-### **4.9 Collaboration Tools** ⏸️ PLANNED
+### **4.90 Collaboration Tools** ⏸️ PLANNED
 - Comments & mentions
 - Task assignments
 - Team chat
@@ -830,32 +996,40 @@
 
 ## 📊 Quick Progress Overview
 
-**Phase 1 Progress:** 2.7/21 tasks complete (~13%)
+**Phase 1 Progress:** 2.85/23 tasks complete (~12%)
 
 | Task | Status | Target | Architecture |
 |------|--------|--------|--------------|
-| 1.1 Infrastructure | ✅ COMPLETED | 2025-10-15 | Foundation |
-| 1.2 Coding Standards | ✅ COMPLETED | 2025-10-15 | Foundation |
-| 1.3 UI Infrastructure | ⏳ IN PROGRESS | 2025-11-12 | Frontend |
-| 1.4 Backend Infrastructure | ⏸️ PLANNED | 2025-11-17 | Backend + Kafka |
-| 1.5 System Health API | ⏸️ PLANNED | 2025-11-17 | Monitoring |
-| 1.6 Page Templates | ⏸️ PLANNED | 2025-11-20 | Frontend |
-| 1.7 Contact (MDM) | ⏸️ PLANNED | 2025-11-25 | Master Data |
-| 1.8 Configuration | ⏸️ PLANNED | 2025-11-23 | Settings |
-| 1.9 HR / Payroll | ⏸️ PLANNED | 2025-12-02 | GDPR Protected |
-| 1.10 Inventory | ⏸️ PLANNED | 2025-12-10 | Physical Stock |
-| 1.11 Purchasing (AP) | ⏸️ PLANNED | 2025-12-21 | Vendors + PO + AP |
-| 1.12 Sales (AR) | ⏸️ PLANNED | 2026-01-02 | Customers + SO + AR |
-| 1.13 Manufacturing | ⏸️ PLANNED | 2026-01-10 | Production |
-| 1.14 PPQ | ⏸️ PLANNED | 2026-01-23 | Planning + Quality |
-| 1.15 Operations (BPM) | ⏸️ PLANNED | 2026-02-03 | Workflow Orchestration |
-| 1.16 Finance (GL) | ⏸️ PLANNED | 2026-02-14 | Accounting |
-| 1.17 Cash & Bank | ⏸️ PLANNED | 2026-02-21 | Payment Processing |
-| 1.18 Authentication | ⏸️ PLANNED | 2026-03-01 | Security |
-| 1.19 Testing & QA | ⏸️ PLANNED | 2026-03-19 | Quality Assurance |
-| 1.20 Production Prep | ⏸️ PLANNED | 2026-03-31 | Deployment |
-| 1.21 Deploy MVP | ⏸️ PLANNED | 2026-04-07 | Production Launch |
+| 1.10 Infrastructure | ✅ COMPLETED | 2025-10-15 | Foundation |
+| 1.20 Coding Standards | ✅ COMPLETED | 2025-10-15 | Foundation |
+| 1.30 UI Infrastructure | ⏳ IN PROGRESS | 2025-11-08 | Frontend |
+| 1.40 Backend Infrastructure | ⏸️ PLANNED | 2025-11-17 | Backend + Kafka |
+| **1.50 Microservice Template** | ⏸️ PLANNED | 2025-11-20 | **Template System** |
+| **1.60 Issues Service** | ⏸️ PLANNED | 2025-11-24 | **Internal Ticketing** |
+| 1.70 Contact (MDM) | ⏸️ PLANNED | 2025-12-02 | Master Data |
+| 1.80 Configuration | ⏸️ PLANNED | 2025-11-30 | Settings |
+| 1.90 System Health API | ⏸️ PLANNED | 2025-12-02 | Monitoring |
+| 1.100 Page Templates | ⏸️ PLANNED | 2025-12-05 | Frontend |
+| 1.110 HR / Payroll | ⏸️ PLANNED | 2025-12-11 | GDPR Protected |
+| 1.120 Inventory | ⏸️ PLANNED | 2025-12-18 | Physical Stock |
+| 1.130 Purchasing (AP) | ⏸️ PLANNED | 2025-12-29 | Vendors + PO + AP |
+| 1.140 Sales (AR) | ⏸️ PLANNED | 2026-01-09 | Customers + SO + AR |
+| 1.150 Manufacturing | ⏸️ PLANNED | 2026-01-16 | Production |
+| 1.160 PPQ | ⏸️ PLANNED | 2026-01-29 | Planning + Quality |
+| 1.170 Operations (BPM) | ⏸️ PLANNED | 2026-02-09 | Workflow Orchestration |
+| 1.180 Finance (GL) | ⏸️ PLANNED | 2026-02-20 | Accounting |
+| 1.190 Cash & Bank | ⏸️ PLANNED | 2026-02-26 | Payment Processing |
+| 1.200 Authentication | ⏸️ PLANNED | 2026-03-05 | Security |
+| 1.210 Testing & QA | ⏸️ PLANNED | 2026-03-23 | Quality Assurance |
+| 1.220 Production Prep | ⏸️ PLANNED | 2026-04-04 | Deployment |
+| 1.230 Deploy MVP | ⏸️ PLANNED | 2026-04-11 | Production Launch |
 
-**Phase 2:** 2.1-2.5 (Security & Stability)
-**Phase 3:** 3.1-3.5 (Production Hardening)
-**Phase 4:** 4.1-4.9 (Feature Development)
+**Phase 2:** 2.10-2.50 (Security & Stability)
+**Phase 3:** 3.10-3.50 (Production Hardening)
+**Phase 4:** 4.10-4.90 (Feature Development)
+
+---
+
+**Last Updated:** 2025-11-02
+**Version:** 5.0.0
+**Next Review:** After Task 1.30 completion (UI Infrastructure)
