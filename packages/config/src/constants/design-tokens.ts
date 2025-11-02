@@ -245,17 +245,36 @@ export const ANIMATIONS = {
 /**
  * HOVER EFFECTS TOKENS
  * Unified hover effect system for interactive elements
+ *
+ * Čo to je: 3-úrovňový hover systém (subtle, normal, strong) pre Cards a clickable elementy
+ * Prečo: Konzistentné hover efekty naprieč celou aplikáciou
+ * Kedy použiť:
+ *   - subtle (-2px): Card default/outlined, subtle interactions
+ *   - normal (-4px): DashboardCard, Card elevated/accent, standard interactions
+ *   - strong (-8px): Hero sections, call-to-action elements
  */
 export const HOVER_EFFECTS = {
-  // Transform effects
-  transform: {
-    translateY: '-1px',
-    scale: '1.005',
+  // Card & Button lift effects (3 levels)
+  lift: {
+    subtle: '-2px',    // Card default, outlined
+    normal: '-4px',    // DashboardCard, Card elevated/accent
+    strong: '-8px',    // Hero cards, CTA elements
+  },
+
+  // Scale effects
+  scale: {
+    subtle: '1.002',   // Barely noticeable
+    normal: '1.005',   // Standard (Card default)
+    strong: '1.01',    // Prominent
+  },
+
+  // DataGrid specific (legacy - keep for compatibility)
+  dataGrid: {
     cellScale: '0.995',
     cellTranslateY: '1.005px',
   },
 
-  // Light mode hover effects
+  // Light mode hover effects (DataGrid specific)
   lightMode: {
     overlay: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0.5) 100%)',
     shadow: '0 10px 30px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 25px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.4)',
@@ -264,7 +283,7 @@ export const HOVER_EFFECTS = {
     textShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 0 6px rgba(0, 0, 0, 0.3)',
   },
 
-  // Dark mode hover effects
+  // Dark mode hover effects (DataGrid specific)
   darkMode: {
     overlay: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.25) 100%)',
     shadow: '0 10px 30px rgba(255, 255, 255, 0.2), 0 5px 15px rgba(255, 255, 255, 0.1), 0 0 30px rgba(255, 255, 255, 0.4), 0 0 15px rgba(255, 255, 255, 0.3)',
@@ -273,7 +292,7 @@ export const HOVER_EFFECTS = {
     textShadow: 'none',
   },
 
-  // Layout properties
+  // Layout properties (DataGrid specific)
   layout: {
     position: 'relative',
     zIndex: 10,

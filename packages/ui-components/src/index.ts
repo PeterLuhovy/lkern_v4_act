@@ -46,6 +46,9 @@ export type { CardProps, CardVariant } from './components/Card';
 export { DashboardCard } from './components/DashboardCard';
 export type { DashboardCardProps } from './components/DashboardCard';
 
+export { Sidebar } from './components/Sidebar';
+export type { SidebarProps, SidebarNavItem } from './components/Sidebar';
+
 export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 

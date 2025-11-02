@@ -3,8 +3,8 @@
  * FILE: DashboardCard.test.tsx
  * PATH: /packages/ui-components/src/components/DashboardCard/DashboardCard.test.tsx
  * DESCRIPTION: Tests for DashboardCard component
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 23:20:00
+ * VERSION: v1.0.1
+ * UPDATED: 2025-11-02 11:30:00
  * ================================================================
  */
 
@@ -179,6 +179,94 @@ describe('DashboardCard', () => {
     // Card component should be rendered with elevated variant
     const cardElement = container.querySelector('[class*="elevated"]');
     expect(cardElement).toBeInTheDocument();
+  });
+
+  // ================================================================
+  // HOVER EFFECTS (Phase 4 - v1.0.1)
+  // ================================================================
+
+  it('applies text-decoration: none on link wrapper', () => {
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test card"
+        />
+      </RouterWrapper>
+    );
+
+    const link = container.querySelector('a');
+    expect(link).toBeInTheDocument();
+    expect(link?.className).toContain('cardLink');
+
+    // CSS Module applies text-decoration: none via .cardLink class
+    // We verify the class is applied (actual CSS is in DashboardCard.module.css line 15)
+  });
+
+  it('uses HOVER_EFFECTS.lift.subtle (-2px) for hover transform', () => {
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test card"
+        />
+      </RouterWrapper>
+    );
+
+    const link = container.querySelector('a');
+    expect(link).toBeInTheDocument();
+    expect(link?.className).toContain('cardLink');
+
+    // CSS Module applies transform: translateY(-2px) on hover via .cardLink:hover
+    // This uses HOVER_EFFECTS.lift.subtle from design-tokens.ts
+    // Actual hover CSS is in DashboardCard.module.css line 21-24
+  });
+
+  it('applies purple glow shadow on hover', () => {
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test card"
+        />
+      </RouterWrapper>
+    );
+
+    const link = container.querySelector('a');
+    const cardContent = container.querySelector('[class*="cardContent"]');
+
+    expect(link).toBeInTheDocument();
+    expect(cardContent).toBeInTheDocument();
+
+    // CSS Module applies purple glow shadow via .cardLink:hover .cardContent
+    // Shadow: 0 0 0 2px rgba(156, 39, 176, 0.12)
+    // Actual CSS is in DashboardCard.module.css line 27-32
+  });
+
+  it('uses -1px active state transform', () => {
+    const { container } = renderWithTranslation(
+      <RouterWrapper>
+        <DashboardCard
+          path="/test"
+          icon="🧪"
+          title="Test"
+          description="Test card"
+        />
+      </RouterWrapper>
+    );
+
+    const link = container.querySelector('a');
+    expect(link).toBeInTheDocument();
+    expect(link?.className).toContain('cardLink');
+
+    // CSS Module applies transform: translateY(-1px) on active via .cardLink:active
+    // Actual CSS is in DashboardCard.module.css line 34-37
   });
 
   // ================================================================

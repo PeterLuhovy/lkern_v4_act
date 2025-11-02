@@ -9,6 +9,8 @@
  */
 
 /* Card Link Wrapper */
+/* Hover effect for Link-wrapped Card (Card doesn't have onClick, so no automatic hover) */
+/* Uses HOVER_EFFECTS.lift.subtle (-2px) from design-tokens.ts */
 .cardLink {
   text-decoration: none;
   color: inherit;
@@ -17,11 +19,27 @@
 }
 
 .cardLink:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
+  text-decoration: none; /* Explicit: no underline on hover */
+}
+
+/* Hover effect on Card inside Link - add shadow glow for visibility */
+.cardLink:hover .cardContent {
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.16),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 0 0 2px rgba(156, 39, 176, 0.12); /* Purple glow */
 }
 
 .cardLink:active {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.cardLink:active .cardContent {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* Card Content */
@@ -34,6 +52,7 @@
   gap: var(--spacing-md, 12px);
   height: 100%;
   min-height: var(--spacing-xhuge, 180px);
+  transition: box-shadow 0.2s ease; /* Smooth shadow transition */
 }
 
 /* Icon */

@@ -152,6 +152,8 @@ export interface TranslationKeys {
       wizardDescription: string;
       modalV3Title: string;
       modalV3Description: string;
+      toastTitle: string;
+      toastDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -200,6 +202,20 @@ export interface TranslationKeys {
           glassInputs: string;
           purpleGlow: string;
         };
+      };
+      toastTest: {
+        title: string;
+        variants: string;
+        queue: string;
+        showSuccess: string;
+        showError: string;
+        showWarning: string;
+        showInfo: string;
+        showMultiple: string;
+        successMessage: string;
+        errorMessage: string;
+        warningMessage: string;
+        infoMessage: string;
       };
     };
     card: {
@@ -546,6 +562,25 @@ export interface TranslationKeys {
         clearConfirmMessage: string;
         clearConfirmButton: string;
       };
+    };
+    sidebar: {
+      navigation: string;
+      expand: string;
+      collapse: string;
+      expandAll: string;
+      collapseAll: string;
+      home: string;
+      dashboard: string;
+      contacts: string;
+      orders: string;
+      settings: string;
+      uploadNewImage: string;
+      dragAndDrop: string;
+      lightMode: string;
+      darkMode: string;
+      switchToLight: string;
+      switchToDark: string;
+      newAction: string;
     };
   };
   phoneTypes: {

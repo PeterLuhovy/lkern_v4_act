@@ -184,6 +184,12 @@ export interface ModalProps {
    * @default true
    */
   isFormValid?: boolean;
+
+  /**
+   * Maximum width for modal content
+   * @example '600px', '80vw', '50rem'
+   */
+  maxWidth?: string;
 }
 
 // === HELPER FUNCTIONS ===

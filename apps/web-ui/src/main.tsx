@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
-import { TranslationProvider, ThemeProvider } from '@l-kern/config';
+import { TranslationProvider, ThemeProvider, ToastProvider } from '@l-kern/config';
 import { setupTheme } from './theme-setup';
 import App from './app/app';
 
@@ -16,14 +16,16 @@ root.render(
   <StrictMode>
     <ThemeProvider defaultTheme="light">
       <TranslationProvider defaultLanguage="sk">
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <App />
-        </BrowserRouter>
+        <ToastProvider maxToasts={5}>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <App />
+          </BrowserRouter>
+        </ToastProvider>
       </TranslationProvider>
     </ThemeProvider>
   </StrictMode>,

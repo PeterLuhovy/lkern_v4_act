@@ -14,9 +14,10 @@
  * ================================================================
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
+import { Sidebar, SidebarNavItem } from '../Sidebar';
 
 /**
  * Props for BasePage component
@@ -49,6 +50,28 @@ export interface BasePageProps {
    * @default true
    */
   showDebugBar?: boolean;
+
+  /**
+   * Show sidebar navigation
+   * @default true
+   */
+  showSidebar?: boolean;
+
+  /**
+   * Optional sidebar navigation items (if provided and showSidebar=true, sidebar will be shown)
+   */
+  sidebarItems?: SidebarNavItem[];
+
+  /**
+   * Current active path for sidebar highlighting
+   */
+  activePath?: string;
+
+  /**
+   * Default collapsed state for sidebar
+   * @default false
+   */
+  sidebarDefaultCollapsed?: boolean;
 }
 
 /**
@@ -85,10 +108,45 @@ export const BasePage: React.FC<BasePageProps> = ({
   className,
   pageName = 'page',
   showDebugBar = true,
+  showSidebar = true,
+  sidebarItems,
+  activePath,
+  sidebarDefaultCollapsed = false,
 }) => {
   const { toggleTheme, theme } = useTheme();
   const { language, setLanguage } = useTranslation();
   const analytics = usePageAnalytics(pageName);
+
+  // Sidebar collapsed state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
+
+  // Default sidebar items (tree structure matching L-KERN project)
+  const defaultSidebarItems: SidebarNavItem[] = [
+    { path: '/', labelKey: 'components.sidebar.home', icon: '🏠' },
+    { path: '/dashboard', labelKey: 'components.sidebar.dashboard', icon: '📊' },
+    {
+      path: '/testing',
+      labelKey: 'dashboard.testing',
+      icon: '🧪',
+      children: [
+        { path: '/test-badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️' },
+        { path: '/test-card', labelKey: 'components.testing.cardTitle', icon: '🃏' },
+        { path: '/test-empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭' },
+        { path: '/test-modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟' },
+        { path: '/test-toast', labelKey: 'components.testing.toastTitle', icon: '🍞' },
+        { path: '/test-utilities', labelKey: 'pages.utilityTest.title', icon: '🔧' },
+      ],
+    },
+    { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' },
+    { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦' },
+    { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' },
+  ];
+
+  // Use provided items or default
+  const effectiveSidebarItems = sidebarItems || defaultSidebarItems;
+
+  // Check if sidebar should be shown (showSidebar=true AND has items)
+  const isSidebarVisible = showSidebar && effectiveSidebarItems && effectiveSidebarItems.length > 0;
 
   // Analytics session lifecycle (ALWAYS runs, showDebugBar only controls visualization)
   useEffect(() => {
@@ -225,6 +283,11 @@ export const BasePage: React.FC<BasePageProps> = ({
     }
   };
 
+  // Calculate content padding based on sidebar visibility
+  const contentPaddingLeft = isSidebarVisible
+    ? (sidebarCollapsed ? '24px' : '240px')
+    : '0';
+
   return (
     <div
       className={className}
@@ -232,6 +295,16 @@ export const BasePage: React.FC<BasePageProps> = ({
       onMouseDown={handleMouseEvent}
       onMouseUp={handleMouseEvent}
     >
+      {/* Sidebar Navigation (showSidebar=true and has items) */}
+      {isSidebarVisible && (
+        <Sidebar
+          items={effectiveSidebarItems}
+          activePath={activePath}
+          collapsed={sidebarCollapsed}
+          onCollapseChange={setSidebarCollapsed}
+        />
+      )}
+
       {/* Debug Bar - Visual indicator only (analytics run independently) */}
       {showDebugBar && (
         <div style={{
@@ -239,7 +312,7 @@ export const BasePage: React.FC<BasePageProps> = ({
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 9999
+          zIndex: 9999,
         }}>
           <DebugBar
             modalName={pageName}
@@ -251,8 +324,12 @@ export const BasePage: React.FC<BasePageProps> = ({
         </div>
       )}
 
-      {/* Page content - add padding-top if debug bar is visible */}
-      <div style={showDebugBar ? { paddingTop: '48px' } : undefined}>
+      {/* Page content - add padding-top if debug bar is visible, padding-left for sidebar */}
+      <div style={{
+        paddingTop: showDebugBar ? '48px' : '0',
+        paddingLeft: contentPaddingLeft,
+        transition: 'padding-left 220ms cubic-bezier(0.4, 0, 0.2, 1)',
+      }}>
         {children}
       </div>
     </div>

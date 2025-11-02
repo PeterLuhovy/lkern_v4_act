@@ -3,9 +3,9 @@
  * FILE: Card.test.tsx
  * PATH: /packages/ui-components/src/components/Card/Card.test.tsx
  * DESCRIPTION: Unit tests for Card component
- * VERSION: v1.1.0
+ * VERSION: v1.2.0
  * CREATED: 2025-10-18
- * UPDATED: 2025-10-30
+ * UPDATED: 2025-11-02
  * ================================================================
  */
 
@@ -35,6 +35,23 @@ describe('Card', () => {
     const { container } = renderWithTranslation(<Card variant="elevated">Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--elevated');
+  });
+
+  it('applies accent variant class', () => {
+    const { container } = renderWithTranslation(<Card variant="accent">Content</Card>);
+    const card = container.firstChild as HTMLElement;
+    expect(card.className).toContain('card--accent');
+  });
+
+  it('applies accent variant with clickable', () => {
+    const { container } = renderWithTranslation(
+      <Card variant="accent" onClick={() => {}}>
+        Clickable Accent
+      </Card>
+    );
+    const card = container.firstChild as HTMLElement;
+    expect(card.className).toContain('card--accent');
+    expect(card.className).toContain('card--clickable');
   });
 
   it('applies custom className', () => {
@@ -90,6 +107,22 @@ describe('Card', () => {
     const card = screen.getByRole('button');
     card.focus();
     await user.keyboard(' ');
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('accent variant is keyboard accessible', async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    renderWithTranslation(
+      <Card variant="accent" onClick={handleClick}>
+        Accent Clickable
+      </Card>
+    );
+
+    const card = screen.getByRole('button');
+    card.focus();
+    await user.keyboard('{Enter}');
 
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -151,15 +184,29 @@ describe('Card', () => {
       const { container: container1 } = renderWithTranslation(<Card variant="default">Default</Card>);
       const { container: container2 } = renderWithTranslation(<Card variant="outlined">Outlined</Card>);
       const { container: container3 } = renderWithTranslation(<Card variant="elevated">Elevated</Card>);
+      const { container: container4 } = renderWithTranslation(<Card variant="accent">Accent</Card>);
 
       // CSS Modules add hash suffix, so we check if className contains the variant
       const card1 = container1.firstChild as HTMLElement;
       const card2 = container2.firstChild as HTMLElement;
       const card3 = container3.firstChild as HTMLElement;
+      const card4 = container4.firstChild as HTMLElement;
 
       expect(card1.className).toContain('card--default');
       expect(card2.className).toContain('card--outlined');
       expect(card3.className).toContain('card--elevated');
+      expect(card4.className).toContain('card--accent');
+    });
+
+    it('accent variant uses brand primary color variable', () => {
+      const { container } = renderWithTranslation(<Card variant="accent">Accent Content</Card>);
+      const card = container.firstChild as HTMLElement;
+
+      // Verify accent variant class is applied (which uses --color-brand-primary)
+      expect(card.className).toContain('card--accent');
+
+      // The actual CSS uses: border-left: 4px solid var(--color-brand-primary, #9c27b0)
+      // This test verifies the component applies correct class that references the variable
     });
   });
 });

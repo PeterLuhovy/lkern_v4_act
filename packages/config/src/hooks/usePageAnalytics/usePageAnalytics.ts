@@ -76,6 +76,8 @@ export interface UsePageAnalyticsReturn {
   // Event tracking
   trackClick: (element: string, elementType: string, event?: React.MouseEvent) => void;
   trackKeyboard: (event: React.KeyboardEvent | globalThis.KeyboardEvent) => void;
+  trackDragStart: (selectedText: string, coordinates: { x: number; y: number }) => void;
+  trackDragEnd: (endCoordinates: { x: number; y: number }) => void;
 
   // Metrics (real-time)
   metrics: PageAnalyticsMetrics;

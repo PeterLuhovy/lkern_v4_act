@@ -11,7 +11,7 @@
 import React from 'react';
 import styles from './Card.module.css';
 
-export type CardVariant = 'default' | 'outlined' | 'elevated';
+export type CardVariant = 'default' | 'outlined' | 'elevated' | 'accent';
 
 export interface CardProps {
   /**

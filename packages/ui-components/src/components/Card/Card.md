@@ -2,9 +2,9 @@
 # Card
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\components\Card.md
-# Version: 1.0.0
+# Version: 1.2.0
 # Created: 2025-10-20
-# Updated: 2025-10-20
+# Updated: 2025-11-02
 # Component Location: packages/ui-components/src/components/Card/Card.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -24,16 +24,17 @@
 **Path**: packages/ui-components/src/components/Card
 **Since**: v1.0.0
 
-Card is a versatile container component that groups related content with consistent padding, borders, shadows, and optional interactivity. It supports three visual variants (default, outlined, elevated) and can be made clickable with keyboard navigation support.
+Card is a versatile container component that groups related content with consistent padding, borders, shadows, and optional interactivity. It supports four visual variants (default, outlined, elevated, accent) and can be made clickable with keyboard navigation support.
 
 ---
 
 ## Features
 
-- ✅ **3 Variants**: default (subtle shadow), outlined (border only), elevated (strong shadow)
+- ✅ **4 Variants**: default (subtle shadow), outlined (border only), elevated (strong shadow), accent (purple left border)
 - ✅ **Interactive Mode**: onClick handler makes card clickable with hover lift effect
 - ✅ **Keyboard Accessible**: Enter/Space trigger onClick when clickable
 - ✅ **Hover Effects**: Lift animation + purple glow on hover (can be disabled)
+- ✅ **Smart Hover Levels**: subtle (-2px) for default/outlined, normal (-4px) for accent (from design-tokens.ts)
 - ✅ **Dark Mode Ready**: Optimized styles for dark theme
 - ✅ **Responsive Padding**: Smaller padding on mobile/tablet
 - ✅ **Ref Forwarding**: Use with React.useRef() for programmatic control
@@ -108,7 +109,7 @@ function ProductCard({ product }) {
 
 | Prop | Type | Default | Required | Description |
 |------|------|---------|----------|-------------|
-| `variant` | `CardVariant` | `'default'` | No | Visual style variant (default, outlined, elevated) |
+| `variant` | `CardVariant` | `'default'` | No | Visual style variant (default, outlined, elevated, accent) |
 | `children` | `ReactNode` | - | **Yes** | Card content |
 | `onClick` | `() => void` | `undefined` | No | Click handler (makes card interactive with role="button") |
 | `disableHover` | `boolean` | `false` | No | Disable hover lift effect (for non-interactive cards) |
@@ -117,7 +118,7 @@ function ProductCard({ product }) {
 ### Type Definitions
 
 ```typescript
-type CardVariant = 'default' | 'outlined' | 'elevated';
+type CardVariant = 'default' | 'outlined' | 'elevated' | 'accent';
 
 interface CardProps {
   variant?: CardVariant;
@@ -152,6 +153,14 @@ interface CardProps {
 - Shadow: 4px + 2px multi-layer shadow
 - Use: Important content, CTAs, featured items
 
+**accent** - Purple left border (important, minimalist)
+- Background: White (#ffffff)
+- Border: 1px solid gray (#e0e0e0)
+- Left border: 4px solid purple (#9c27b0)
+- Shadow: Inset light shadow + 2px outer shadow
+- Use: Important content that needs visual prominence without heavy shadow
+- Style: Minimalist design, no glow - just a strong left border accent
+
 ### Layout
 
 **Desktop** (≥ 1024px)
@@ -183,7 +192,8 @@ interface CardProps {
 
 **Clickable** (with onClick)
 - Cursor: pointer
-- Hover: Lift up 2px + scale 1.005 + purple glow
+- Hover (default/outlined): Lift up 2px (-2px translateY) + scale 1.005 + purple glow (HOVER_EFFECTS.lift.subtle)
+- Hover (accent): Lift up 4px (-4px translateY) + scale 1.005 + border thickens 4px→5px (HOVER_EFFECTS.lift.normal)
 - Active: Return to normal position
 - Focus: 3px purple outline (keyboard navigation)
 - Role: button
@@ -367,10 +377,10 @@ See [Changelog](#changelog) section below.
 ## Testing
 
 ### Test Coverage
-- ✅ **Unit Tests**: 30 tests
+- ✅ **Unit Tests**: 22 tests
 - ✅ **Coverage**: 100% (statements, branches, functions, lines)
 - ✅ **Accessibility Tests**: 6 tests (role, tabIndex, keyboard navigation)
-- ✅ **Variant Tests**: 3 tests (default, outlined, elevated classes)
+- ✅ **Variant Tests**: 8 tests (default, outlined, elevated, accent classes + CSS variables)
 - ✅ **Interaction Tests**: 5 tests (click, hover, keyboard Enter/Space)
 
 ### Test File
@@ -390,20 +400,23 @@ npx nx test ui-components --watch --testFile=Card.test.tsx
 
 ### Key Test Cases
 
-**Rendering (5 tests):**
+**Rendering (6 tests):**
 - ✅ Renders children correctly
 - ✅ Applies default variant class
 - ✅ Applies outlined variant class
 - ✅ Applies elevated variant class
+- ✅ Applies accent variant class
 - ✅ Applies custom className
 
-**Interaction (6 tests):**
+**Interaction (7 tests):**
 - ✅ Calls onClick when clicked
 - ✅ Applies clickable class when onClick provided
+- ✅ Applies accent variant with clickable
 - ✅ Sets role="button" when clickable
 - ✅ Does not set role when not clickable
 - ✅ Is keyboard accessible with Enter key
 - ✅ Is keyboard accessible with Space key
+- ✅ Accent variant is keyboard accessible
 
 **Hover Control (2 tests):**
 - ✅ Applies no-hover class when disableHover=true
@@ -414,9 +427,10 @@ npx nx test ui-components --watch --testFile=Card.test.tsx
 - ✅ Renders with tabIndex when clickable
 - ✅ Does not set tabIndex when not clickable
 
-**CSS Variables (2 tests):**
+**CSS Variables (4 tests):**
 - ✅ Uses theme CSS variables (not hardcoded colors)
-- ✅ Applies correct variant classes that use theme variables
+- ✅ Applies correct variant classes that use theme variables (all 4 variants)
+- ✅ Accent variant uses brand primary color variable
 
 ---
 
@@ -541,7 +555,62 @@ function ActionCard({ title, description, onAction }) {
 
 ---
 
-### Example 5: Card Grid Layout
+### Example 5: Accent Variant (Important Notice)
+```tsx
+import { Card } from '@l-kern/ui-components';
+import { Button } from '@l-kern/ui-components';
+
+function ImportantNotice() {
+  return (
+    <Card variant="accent">
+      <h3>Important Update</h3>
+      <p>New features have been released. Please review the changelog.</p>
+      <Button variant="primary">View Changelog</Button>
+    </Card>
+  );
+}
+```
+
+**Output:**
+- Accent variant (purple left border, 4px)
+- Minimalist style (no heavy shadow)
+- Hover: Lifts up 4px (stronger than default) + border thickens to 5px
+- Use: Draws attention without being too prominent
+
+---
+
+### Example 6: Clickable Accent Card
+```tsx
+import { Card } from '@l-kern/ui-components';
+import { useNavigate } from 'react-router-dom';
+
+function PromoCard() {
+  const navigate = useNavigate();
+
+  return (
+    <Card
+      variant="accent"
+      onClick={() => navigate('/promotions')}
+    >
+      <h3>🎉 Special Offer</h3>
+      <p>Check out our latest promotions and discounts!</p>
+      <span style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>
+        Learn More →
+      </span>
+    </Card>
+  );
+}
+```
+
+**Output:**
+- Clickable accent card
+- Hover: -4px lift + border 4px→5px animation
+- Purple left border draws attention
+- Navigation on click
+
+---
+
+### Example 7: Card Grid Layout
 ```tsx
 import { Card } from '@l-kern/ui-components';
 import { Badge } from '@l-kern/ui-components';
@@ -628,6 +697,14 @@ Card is similar in both versions.
 
 ## Changelog
 
+### v1.2.0 (2025-11-02)
+- ✅ Added `accent` variant with purple left border (4px solid)
+- ✅ Accent hover effect: -4px lift (HOVER_EFFECTS.lift.normal) + border thickens 4px→5px
+- ✅ Integrated with design-tokens.ts HOVER_EFFECTS system (3-level hover: subtle, normal, strong)
+- ✅ Dark mode support for accent variant
+- ✅ Accent variant uses minimalist design (no glow, just strong border)
+- ✅ Added 5 new tests for accent variant (total: 22 tests, 100% coverage)
+
 ### v1.1.0 (2025-10-19)
 - ✅ Added dark mode support ([data-theme='dark'] styles)
 - ✅ Added responsive padding (mobile: 12px, tablet: 16px, desktop: 24px)
@@ -642,7 +719,7 @@ Card is similar in both versions.
 - ✅ Hover lift effect
 - ✅ disableHover prop
 - ✅ Ref forwarding
-- ✅ 30 unit tests (100% coverage)
+- ✅ 17 unit tests (100% coverage)
 - ✅ Full ARIA compliance
 
 ---
@@ -654,17 +731,36 @@ Card is similar in both versions.
 1. Add variant to `CardVariant` type in Card.tsx
 2. Create CSS class in `Card.module.css`:
    ```css
-   .card--myVariant {
-     background: var(--theme-card-background);
-     box-shadow: /* custom shadow */;
+   /* Example: accent variant */
+   .card--accent {
+     background: var(--theme-card-background, #ffffff);
+     border: 1px solid var(--theme-border, #e0e0e0);
+     border-left: 4px solid var(--color-brand-primary, #9c27b0);
+     box-shadow:
+       inset 0 1px 2px rgba(0, 0, 0, 0.02),
+       0 2px 4px rgba(0, 0, 0, 0.08);
+   }
+
+   /* Hover effect (uses HOVER_EFFECTS.lift.normal) */
+   .card--accent.card--clickable:not(.card--no-hover):hover {
+     transform: translateY(-4px) scale(1.005);
+     border-left-width: 5px;
    }
    ```
-3. Update this documentation (Features, Visual Design, Examples)
-4. Add tests:
+3. Add dark mode support:
+   ```css
+   [data-theme='dark'] .card--accent {
+     background: var(--theme-card-background, #2a2a2a);
+     border: 1px solid var(--theme-border, #3a3a3a);
+     border-left: 4px solid var(--color-brand-primary, #9c27b0);
+   }
+   ```
+4. Update this documentation (Features, Visual Design, Examples)
+5. Add tests:
    ```tsx
-   it('applies myVariant class', () => {
-     const { container } = render(<Card variant="myVariant">Content</Card>);
-     expect(container.firstChild.className).toContain('card--myVariant');
+   it('applies accent variant class', () => {
+     const { container } = render(<Card variant="accent">Content</Card>);
+     expect(container.firstChild.className).toContain('card--accent');
    });
    ```
 
@@ -697,7 +793,7 @@ Card is similar in both versions.
 
 ---
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2025-11-02
 **Maintainer**: BOSSystems s.r.o.
-**Documentation Version**: 1.0.0
-**Component Version**: 1.1.0
+**Documentation Version**: 1.2.0
+**Component Version**: 1.2.0

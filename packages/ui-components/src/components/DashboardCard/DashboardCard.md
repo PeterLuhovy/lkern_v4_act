@@ -2,9 +2,9 @@
 # DashboardCard
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\components\DashboardCard.md
-# Version: 1.0.0
+# Version: 1.0.1
 # Created: 2025-10-20
-# Updated: 2025-10-20
+# Updated: 2025-11-02
 # Component Location: packages/ui-components/src/components/DashboardCard/DashboardCard.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -33,8 +33,9 @@ DashboardCard is a specialized navigation component that combines Card's elevate
 - ✅ **React Router Integration**: Uses Link for client-side routing (no page reload)
 - ✅ **Card-Based Design**: Wraps elevated Card variant with consistent styling
 - ✅ **Icon Support**: Accepts emoji strings or custom React elements
-- ✅ **Hover Animation**: Smooth lift effect (translateY -4px) on hover
-- ✅ **Active State**: Press animation (translateY -2px) when clicked
+- ✅ **Hover Animation**: Smooth lift effect (translateY -2px, HOVER_EFFECTS.lift.subtle) + purple glow shadow
+- ✅ **No Text Decoration**: Explicit text-decoration: none on hover/active (prevents link underline)
+- ✅ **Active State**: Press animation (translateY -1px) when clicked
 - ✅ **Flexible Layout**: Centered flex column with auto-growing description
 - ✅ **Dark Mode Support**: Adapts text colors for dark theme
 - ✅ **Semantic HTML**: Uses proper heading (h3) for title
@@ -217,13 +218,17 @@ export interface DashboardCardProps {
 
 **Hover** - Mouse over card
 - Cursor: pointer
-- Transform: translateY(-4px)
+- Transform: translateY(-2px) (HOVER_EFFECTS.lift.subtle from design-tokens.ts)
+- Shadow: Purple glow `0 0 0 2px rgba(156, 39, 176, 0.12)` + elevated shadow
+- Text decoration: none (no underline)
 - Transition: 0.2s ease
-- Effect: Card lifts upward smoothly
+- Effect: Card lifts upward smoothly with purple accent glow
 
 **Active** - Click/press
-- Transform: translateY(-2px)
-- Effect: Card slightly compresses
+- Transform: translateY(-1px)
+- Shadow: Reduced (slightly compressed appearance)
+- Text decoration: none
+- Effect: Card slightly compresses to give feedback
 
 **Focus** - Keyboard navigation
 - Outline: Default browser focus ring
@@ -380,11 +385,14 @@ export interface DashboardCardProps {
 ## Testing
 
 ### Test Coverage
-- ✅ **Unit Tests**: 42 tests
+- ✅ **Unit Tests**: 15 tests (11 original + 4 new for v1.0.1 hover effects)
 - ✅ **Coverage**: 100% (statements, branches, functions, lines)
-- ✅ **Accessibility Tests**: 5 tests (semantic HTML, screen reader content)
-- ✅ **Rendering Tests**: 9 tests (props, variants, structure)
-- ✅ **Interaction Tests**: 3 tests (routing, click behavior)
+- ✅ **Rendering Tests**: 3 tests (all props, emoji icon, React element icon)
+- ✅ **Link Behavior Tests**: 2 tests (correct path, clickable role)
+- ✅ **Content Structure Tests**: 2 tests (h3 heading, description)
+- ✅ **Styling Tests**: 2 tests (custom className, elevated variant)
+- ✅ **Hover Effects Tests**: 4 tests (text-decoration, -2px lift, purple glow, -1px active) - NEW in v1.0.1
+- ✅ **Accessibility Tests**: 2 tests (semantic HTML, screen reader content)
 
 ### Test File
 `packages/ui-components/src/components/DashboardCard/DashboardCard.test.tsx`
@@ -403,27 +411,32 @@ docker exec lkms201-web-ui npx nx test ui-components --watch --testFile=Dashboar
 
 ### Key Test Cases
 
-**Rendering:**
+**Rendering (3 tests):**
 - ✅ Renders with all props (icon, title, description, path)
-- ✅ Renders icon as emoji
+- ✅ Renders icon as emoji string
 - ✅ Renders icon as React element
+
+**Link Behavior (2 tests):**
+- ✅ Creates Link with correct path (href attribute)
+- ✅ Renders as clickable link (role="link")
+
+**Content Structure (2 tests):**
 - ✅ Renders title as h3 heading
 - ✅ Renders description text
 
-**Link Behavior:**
-- ✅ Creates Link with correct path
-- ✅ Renders as clickable link
-- ✅ Link contains all text content
-
-**Styling:**
+**Styling (2 tests):**
 - ✅ Applies custom className when provided
-- ✅ Uses elevated variant for Card
+- ✅ Uses elevated variant for Card component
 
-**Accessibility:**
-- ✅ Maintains semantic HTML structure
+**Hover Effects (4 tests - NEW in v1.0.1):**
+- ✅ Applies text-decoration: none on link wrapper
+- ✅ Uses HOVER_EFFECTS.lift.subtle (-2px) for hover transform
+- ✅ Applies purple glow shadow on hover
+- ✅ Uses -1px active state transform
+
+**Accessibility (2 tests):**
+- ✅ Maintains semantic HTML structure (link + heading)
 - ✅ Renders complete content for screen readers
-- ✅ Link role present
-- ✅ Heading role present
 
 ---
 
@@ -618,13 +631,19 @@ If migrating from custom dashboard cards:
 
 ## Changelog
 
+### v1.0.1 (2025-11-02)
+- ✅ Added explicit `text-decoration: none` on hover/active states (prevents link underline)
+- ✅ Added purple glow shadow on hover `0 0 0 2px rgba(156, 39, 176, 0.12)` for better visibility
+- ✅ Updated hover lift from -4px to -2px (uses HOVER_EFFECTS.lift.subtle from design-tokens.ts)
+- ✅ Updated active state from -2px to -1px for better feedback
+
 ### v1.0.0 (2025-10-18)
 - 🎉 Initial release
 - ✅ React Router Link integration
 - ✅ Icon support (emoji + React elements)
 - ✅ Hover lift animation
 - ✅ Dark mode support
-- ✅ 42 unit tests (100% coverage)
+- ✅ 11 unit tests (100% coverage)
 
 ---
 
@@ -668,6 +687,6 @@ If migrating from custom dashboard cards:
 
 ---
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2025-11-02
 **Maintainer**: BOSSystems s.r.o.
-**Documentation Version**: 1.0.0
+**Documentation Version**: 1.0.1
