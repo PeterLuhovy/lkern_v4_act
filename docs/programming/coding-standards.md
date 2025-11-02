@@ -2,9 +2,9 @@
 # L-KERN v4 - Coding Standards (Core Rules)
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\coding-standards.md
-# Version: 2.0.0
+# Version: 2.1.0
 # Created: 2025-10-15
-# Updated: 2025-10-18
+# Updated: 2025-11-02
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -188,6 +188,7 @@ UPDATED: 2025-10-18 15:30:00
 - ✅ Layout sizes (widths, heights, breakpoints)
 - ✅ Business rules (pagination size, max file size)
 - ✅ Colors (use design tokens from @l-kern/config)
+- ✅ Icons (use icon constants from @l-kern/config)
 - ✅ Default values
 - ❌ Small numbers (0, 1, 2) and booleans can stay inline
 
@@ -300,7 +301,79 @@ const CONSTANT_GROUP = {
 
 ---
 
-## 6. Naming Conventions
+## 6. Icon Constants
+
+### MANDATORY Icon Usage
+
+**ALL icons MUST use icon constants from `@l-kern/config`** (NOT hardcoded emoji or Unicode symbols).
+
+**Professional Icon Set:**
+- ✅ **Version:** v3.1.0 (Modern colorful emoji design)
+- ✅ **Total icons:** 109 icons across 7 categories
+- ✅ **Categories:** Navigation, Actions, Status, Data, Business, System, Shapes
+- ✅ **Location:** `packages/config/src/constants/icons.ts`
+- ✅ **Philosophy:** Modern, colorful, professional, clean visual communication
+
+**Available icon categories:**
+```typescript
+import {
+  ICONS_NAVIGATION,  // 14 icons: home, menu, back, forward, expand, collapse, etc.
+  ICONS_ACTIONS,     // 20 icons: add, edit, delete, save, search, filter, etc.
+  ICONS_STATUS,      // 14 icons: success, error, warning, info, active, etc.
+  ICONS_DATA,        // 17 icons: table, list, card, document, folder, etc.
+  ICONS_BUSINESS,    // 16 icons: user, company, invoice, warehouse, etc.
+  ICONS_SYSTEM,      // 21 icons: dashboard, analytics, settings, tools, etc.
+  ICONS_SHAPES,      // 15 icons: circle, square, triangle, diamond, star, etc.
+} from '@l-kern/config';
+```
+
+### Correct vs Wrong Usage
+
+**✅ CORRECT - Using icon constants:**
+```typescript
+import { ICONS_ACTIONS, ICONS_STATUS } from '@l-kern/config';
+
+const SaveButton = () => (
+  <button>
+    {ICONS_ACTIONS.save} Save
+  </button>
+);
+
+const SuccessMessage = () => (
+  <div>
+    {ICONS_STATUS.success} Success!
+  </div>
+);
+```
+
+**❌ WRONG - Hardcoded emoji:**
+```typescript
+const SaveButton = () => (
+  <button>
+    💾 Save  {/* DON'T DO THIS - use ICONS_ACTIONS.save */}
+  </button>
+);
+
+const SuccessMessage = () => (
+  <div>
+    ✅ Success!  {/* DON'T DO THIS - use ICONS_STATUS.success */}
+  </div>
+);
+```
+
+**Why use icon constants:**
+- ✅ **Consistency** - All icons from one source, uniform design
+- ✅ **Maintainability** - Change icon once, updates everywhere
+- ✅ **Documentation** - Icons are documented with categories
+- ✅ **TypeScript support** - Autocomplete for icon names
+- ✅ **Professional design** - Curated set for business ERP context
+
+**Testing page:**
+- 📋 [/testing/icons](http://localhost:4201/testing/icons) - Visual icon browser with click-to-copy
+
+---
+
+## 7. Naming Conventions
 
 ### TypeScript/JavaScript
 

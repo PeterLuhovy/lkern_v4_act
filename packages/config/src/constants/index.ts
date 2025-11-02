@@ -25,3 +25,6 @@ export * from './validation-constants';
 
 // Phone configurations (multi-country)
 export * from './phone-configs';
+
+// Professional icon set (Unicode symbols)
+export * from './icons';

@@ -25,6 +25,7 @@ import { WizardVariantsDemo } from '../__tests__/pages/WizardVariantsDemo';
 import { TestModalV3Page } from '../__tests__/pages/TestModalV3Page';
 import { GlassModalTestPage } from '../__tests__/pages/GlassModalTestPage';
 import { ToastTestPage } from '../__tests__/pages/ToastTestPage';
+import { IconsTest } from '../pages/IconsTest/IconsTest';
 
 export function App() {
   return (
@@ -47,6 +48,7 @@ export function App() {
         <Route path="/testing/modal-v3" element={<TestModalV3Page />} />
         <Route path="/testing/glass-modal" element={<GlassModalTestPage />} />
         <Route path="/testing/toast" element={<ToastTestPage />} />
+        <Route path="/testing/icons" element={<IconsTest />} />
       </Routes>
       <ToastContainer position="bottom-center" />
     </>

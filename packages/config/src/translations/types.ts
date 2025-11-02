@@ -71,6 +71,7 @@ export interface TranslationKeys {
     pages: string;
     testingDescription: string;
     keyboardShortcuts: string;
+    testing: string;
   };
   contacts: {
     title: string;
@@ -154,6 +155,8 @@ export interface TranslationKeys {
       modalV3Description: string;
       toastTitle: string;
       toastDescription: string;
+      iconsTitle: string;
+      iconsDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -580,6 +583,8 @@ export interface TranslationKeys {
       darkMode: string;
       switchToLight: string;
       switchToDark: string;
+      changeLanguage: string;
+      resizeWidth: string;
       newAction: string;
     };
   };
@@ -813,6 +818,22 @@ export interface TranslationKeys {
     errorOccurred: string;
     actionCompleted: string;
     processingRequest: string;
+  };
+
+  // Testovacie stránky
+  test: {
+    icons: {
+      title: string;
+      subtitle: string;
+      navigation: string;
+      actions: string;
+      status: string;
+      data: string;
+      business: string;
+      system: string;
+      shapes: string;
+      footer: string;
+    };
   };
 
   // Typy kontaktov (Firma / Fyzická osoba)

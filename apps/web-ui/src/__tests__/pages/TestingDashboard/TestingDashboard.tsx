@@ -78,6 +78,12 @@ export const TestingDashboard: React.FC = () => {
       title: t('components.testing.toastTitle'),
       description: t('components.testing.toastDescription'),
     },
+    {
+      path: '/testing/icons',
+      icon: '🎨',
+      title: t('components.testing.iconsTitle'),
+      description: t('components.testing.iconsDescription'),
+    },
   ];
 
   return (

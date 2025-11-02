@@ -46,6 +46,7 @@ export const en: TranslationKeys = {
     pages: 'Pages',
     testingDescription: 'Test all UI components - Forms, Badge, Card, EmptyState, Spinner, Utility Functions',
     keyboardShortcuts: 'Keyboard Shortcuts',
+    testing: 'Testing',
   },
   contacts: {
     title: 'Contacts',
@@ -157,6 +158,8 @@ export const en: TranslationKeys = {
       modalV3Description: 'Drag & Drop, Nested Modals, Enhanced Keyboard, Enhanced Footer, Alignment',
       toastTitle: 'Toast Notifications Test',
       toastDescription: 'Test toast manager (success, error, warning, info, queue)',
+      iconsTitle: 'Professional Icons',
+      iconsDescription: 'Unicode symbol set for ERP system (100+ icons)',
       nestedContentExamples: 'Nested Content Examples',
       gridLayoutExample: 'Grid Layout Example',
       size: 'Size',
@@ -555,6 +558,8 @@ export const en: TranslationKeys = {
       darkMode: 'Dark mode',
       switchToLight: 'Switch to light mode',
       switchToDark: 'Switch to dark mode',
+      changeLanguage: 'Change language',
+      resizeWidth: 'Resize sidebar width',
       newAction: 'New action',
     },
   },
@@ -788,6 +793,21 @@ export const en: TranslationKeys = {
     errorOccurred: 'An error occurred',
     actionCompleted: 'Action completed',
     processingRequest: 'Processing request...',
+  },
+
+  test: {
+    icons: {
+      title: 'Professional Icon Set',
+      subtitle: 'Click on any icon to copy the Unicode symbol',
+      navigation: 'Navigation',
+      actions: 'Actions',
+      status: 'Status',
+      data: 'Data & Display',
+      business: 'Business & ERP',
+      system: 'System & Technical',
+      shapes: 'Geometric Shapes',
+      footer: 'All icons use Unicode symbols for maximum compatibility and professional appearance.',
+    },
   },
 
   contactType: {

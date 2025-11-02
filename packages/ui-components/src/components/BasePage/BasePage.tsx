@@ -3,9 +3,10 @@
  * FILE: BasePage.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.tsx
  * DESCRIPTION: Base page wrapper with keyboard shortcuts, analytics, HTML5 drag tracking
- * VERSION: v4.0.0
- * UPDATED: 2025-10-21 18:00:00
+ * VERSION: v4.0.1
+ * UPDATED: 2025-11-02
  * CHANGES:
+ *   - v4.0.1: Added Icons test page to sidebar navigation
  *   - v4.0.0: Added native HTML5 drag event tracking (dragstart/dragend) for text drag & drop
  *   - v3.1.0: Analytics ALWAYS run, showDebugBar only controls visualization
  *   - v3.0.0: HYBRID keyboard handling - removed ESC/Enter (now in Modal.tsx)
@@ -15,6 +16,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { Sidebar, SidebarNavItem } from '../Sidebar';
@@ -116,30 +118,69 @@ export const BasePage: React.FC<BasePageProps> = ({
   const { toggleTheme, theme } = useTheme();
   const { language, setLanguage } = useTranslation();
   const analytics = usePageAnalytics(pageName);
+  const navigate = useNavigate();
 
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
 
+  // Load sidebar width from localStorage for dynamic padding
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-width');
+      return saved !== null ? parseInt(saved, 10) : 240;
+    } catch (error) {
+      return 240;
+    }
+  });
+
+  // Listen for localStorage changes (when sidebar width changes)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const saved = localStorage.getItem('sidebar-width');
+        if (saved !== null) {
+          setSidebarWidth(parseInt(saved, 10));
+        }
+      } catch (error) {
+        console.error('Failed to sync sidebar width:', error);
+      }
+    };
+
+    // Poll localStorage every 100ms to detect changes
+    const interval = setInterval(handleStorageChange, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   // Default sidebar items (tree structure matching L-KERN project)
+  // Home is root parent, all other main sections are its children
   const defaultSidebarItems: SidebarNavItem[] = [
-    { path: '/', labelKey: 'components.sidebar.home', icon: '🏠' },
-    { path: '/dashboard', labelKey: 'components.sidebar.dashboard', icon: '📊' },
     {
-      path: '/testing',
-      labelKey: 'dashboard.testing',
-      icon: '🧪',
+      path: '/',
+      labelKey: 'components.sidebar.home',
+      icon: '🏠',
+      onClick: () => navigate('/'),
       children: [
-        { path: '/test-badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️' },
-        { path: '/test-card', labelKey: 'components.testing.cardTitle', icon: '🃏' },
-        { path: '/test-empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭' },
-        { path: '/test-modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟' },
-        { path: '/test-toast', labelKey: 'components.testing.toastTitle', icon: '🍞' },
-        { path: '/test-utilities', labelKey: 'pages.utilityTest.title', icon: '🔧' },
+        { path: '/dashboard', labelKey: 'components.sidebar.dashboard', icon: '📊' }, // Not yet implemented (no onClick = disabled)
+        {
+          path: '/testing',
+          labelKey: 'dashboard.testing',
+          icon: '🧪',
+          onClick: () => navigate('/testing'),
+          children: [
+            { path: '/testing/badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️', onClick: () => navigate('/testing/badge') },
+            { path: '/testing/card', labelKey: 'components.testing.cardTitle', icon: '🃏', onClick: () => navigate('/testing/card') },
+            { path: '/testing/empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭', onClick: () => navigate('/testing/empty-state') },
+            { path: '/testing/icons', labelKey: 'components.testing.iconsTitle', icon: '🎨', onClick: () => navigate('/testing/icons') },
+            { path: '/testing/modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟', onClick: () => navigate('/testing/modal-v3') },
+            { path: '/testing/toast', labelKey: 'components.testing.toastTitle', icon: '🍞', onClick: () => navigate('/testing/toast') },
+            { path: '/testing/utility', labelKey: 'pages.utilityTest.title', icon: '🔧', onClick: () => navigate('/testing/utility') },
+          ],
+        },
+        { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)
+        { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦' }, // Not yet implemented (no onClick = disabled)
+        { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' }, // Not yet implemented (no onClick = disabled)
       ],
     },
-    { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' },
-    { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦' },
-    { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' },
   ];
 
   // Use provided items or default
@@ -283,9 +324,9 @@ export const BasePage: React.FC<BasePageProps> = ({
     }
   };
 
-  // Calculate content padding based on sidebar visibility
+  // Calculate content padding based on sidebar visibility and dynamic width
   const contentPaddingLeft = isSidebarVisible
-    ? (sidebarCollapsed ? '24px' : '240px')
+    ? (sidebarCollapsed ? '24px' : `${sidebarWidth}px`)
     : '0';
 
   return (
@@ -302,6 +343,8 @@ export const BasePage: React.FC<BasePageProps> = ({
           activePath={activePath}
           collapsed={sidebarCollapsed}
           onCollapseChange={setSidebarCollapsed}
+          showThemeToggle={true}
+          showLanguageToggle={true}
         />
       )}
 

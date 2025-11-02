@@ -2,7 +2,7 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 4.4.0
+# Version: 4.4.1
 # Created: 2025-10-13
 # Updated: 2025-11-02
 # Project: BOSS (Business Operating System Service)
@@ -154,15 +154,77 @@
 - ✅ Card accent variant (purple border + glow, v1.2.0)
 - ✅ DashboardCard hover effects (purple glow shadow, v1.0.1)
 - ✅ Toast test page (visual testing UI + translations)
+- ✅ Icons test page (professional icon set v3.1.0, 109 icons)
+  - 7 categories: Navigation, Actions, Status, Data, Business, System, Shapes
+  - Click-to-copy functionality
+  - Added to sidebar, testing dashboard, and routes
 - ✅ Documentation updates (Card.md, DashboardCard.md updated by agent)
 - ✅ TypeScript fixes (usePageAnalytics, Modal maxWidth)
 - ✅ Tests: 37/37 passing (22 Card + 15 DashboardCard)
 
-**Progress:** ~55h done / 60-90h total (~85% complete) | Remaining: Data Display (~5-10h)
+**Progress:** ~58h done / 60-90h total (~90% complete) | Remaining: Data Display (~5-10h)
 
 #### **1.3.5 Data Display** ⏸️ DEFERRED (After modals)
 - ⏸️ Table/DataGrid (4-6h)
 - ⏸️ FilterAndSearch (2-3h)
+
+---
+
+### **1.3.6 Design System Refactor** ⏸️ PLANNED
+**Dependencies:** None (can run parallel with 1.3.5)
+**Estimated:** 35-40h (1 week full-time)
+**Target:** 2025-11-08 - 2025-11-15
+
+**Goal:** Eliminate ALL hardcoded values from CSS. Everything via design tokens.
+
+**Implementation Plan:** [implementation-plan-design-refactor.md](../temp/implementation-plan-design-refactor.md)
+**Standards:** [design-standards.md](../design/design-standards.md) - Single source of truth
+
+#### **Phase 0: Audit & Baseline** (4-6h)
+- ⏸️ Automated audit (find all hardcoded values)
+- ⏸️ Component priority matrix
+- ⏸️ Gap analysis (missing tokens)
+- ⏸️ Migration checklists
+
+#### **Phase 1: Design Token Enhancement** (4-6h)
+- ⏸️ Add ~50 new tokens (shadows, gradients, animations, hover effects)
+- ⏸️ Generate ~100 CSS variables (theme-setup.ts)
+- ⏸️ Verify variables accessible in browser
+
+#### **Phase 2: Component Migration** (16-24h)
+- ⏸️ Round 1: Low-risk (Badge, Spinner, EmptyState, RadioGroup) - 4-6h
+- ⏸️ Round 2: Medium-risk (Input, FormField, Select, Toast, Sidebar) - 6-9h
+- ⏸️ Round 3: High-risk (Checkbox, Radio, Button, Card, DashboardCard, Modal) - 6-9h
+
+**Migration Pattern:**
+- Replace colors → `var(--color-brand-primary)`
+- Replace spacing → `var(--spacing-md)`
+- Replace shadows → `var(--shadow-sm)`
+- Replace transitions → `var(--duration-hover) var(--ease-out)`
+- Use calc() for edge cases → `calc(var(--spacing-md) - var(--spacing-xs))`
+
+#### **Phase 3: Verification & Testing** (3-4h)
+- ⏸️ Automated hardcoded value checks (grep script)
+- ⏸️ Run all tests (486/486 must pass)
+- ⏸️ Visual regression testing (manual)
+
+#### **Phase 4: Documentation & Cleanup** (2-3h)
+- ⏸️ Update all 15 component .md files (design tokens used)
+- ⏸️ Delete obsolete design files (component-design-system.md, design-system-unified.md)
+- ⏸️ Update design-standards.md (implementation status)
+
+**Success Criteria:**
+- ✅ ZERO hardcoded values (verified via automated checks)
+- ✅ ALL tests passing (486/486)
+- ✅ ZERO visual regressions
+- ✅ WCAG AA compliance (contrast fix: #9e9e9e → #757575)
+
+**Key Benefits:**
+- 🎨 Unified design system with modifier pattern (base ± offset)
+- ⚡ Performance optimized (max 2 shadows on hover, max 2 transition properties)
+- 🧘 Calm UX (150ms hover, 220ms state changes, no bounce on hover)
+- ♿ WCAG AA compliant (all text contrast ≥ 4.5:1)
+- 📚 Single source of truth (design-standards.md)
 
 ---
 

@@ -46,6 +46,7 @@ export const sk: TranslationKeys = {
     pages: 'Stránky',
     testingDescription: 'Testovanie všetkých UI komponentov - Formuláre, Badge, Card, EmptyState, Spinner, Utility funkcie',
     keyboardShortcuts: 'Klávesové skratky',
+    testing: 'Testovanie',
   },
   contacts: {
     title: 'Kontakty',
@@ -157,6 +158,8 @@ export const sk: TranslationKeys = {
       modalV3Description: 'Drag & Drop, Nested Modals, Enhanced Keyboard, Enhanced Footer, Alignment',
       toastTitle: 'Toast Notifikácie Test',
       toastDescription: 'Test toast manager (success, error, warning, info, queue)',
+      iconsTitle: 'Profesionálne ikony',
+      iconsDescription: 'Unicode symbol set pre ERP systém (100+ ikon)',
       nestedContentExamples: 'Príklady vnoreného obsahu',
       gridLayoutExample: 'Príklad grid rozloženia',
       size: 'Veľkosť',
@@ -555,6 +558,8 @@ export const sk: TranslationKeys = {
       darkMode: 'Tmavý režim',
       switchToLight: 'Prepnúť na svetlý režim',
       switchToDark: 'Prepnúť na tmavý režim',
+      changeLanguage: 'Zmeniť jazyk',
+      resizeWidth: 'Zmeniť šírku sidebaru',
       newAction: 'Nová akcia',
     },
   },
@@ -788,6 +793,21 @@ export const sk: TranslationKeys = {
     errorOccurred: 'Vyskytla sa chyba',
     actionCompleted: 'Akcia dokončená',
     processingRequest: 'Spracovávam požiadavku...',
+  },
+
+  test: {
+    icons: {
+      title: 'Profesionálny set ikon',
+      subtitle: 'Kliknite na ikonu pre skopírovanie Unicode symbolu',
+      navigation: 'Navigácia',
+      actions: 'Akcie',
+      status: 'Statusy',
+      data: 'Dáta & Zobrazenie',
+      business: 'Business & ERP',
+      system: 'Systém & Technické',
+      shapes: 'Geometrické tvary',
+      footer: 'Všetky ikony používajú Unicode symboly pre maximálnu kompatibilitu a profesionálny vzhľad.',
+    },
   },
 
   contactType: {
