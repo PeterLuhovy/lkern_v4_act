@@ -46,6 +46,7 @@ export interface TranslationKeys {
     close: string;
     search: string;
     filter: string;
+    select: string;
     export: string;
     import: string;
     refresh: string;
@@ -538,6 +539,12 @@ export interface TranslationKeys {
           title: string;
           message: string;
         };
+      };
+      sectionEditModal: {
+        clearButton: string;
+        clearConfirmTitle: string;
+        clearConfirmMessage: string;
+        clearConfirmButton: string;
       };
     };
   };

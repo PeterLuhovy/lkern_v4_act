@@ -168,6 +168,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent default form submission
+      e.stopPropagation(); // Prevent parent Modal from receiving this event
       handleConfirm();
     }
   };

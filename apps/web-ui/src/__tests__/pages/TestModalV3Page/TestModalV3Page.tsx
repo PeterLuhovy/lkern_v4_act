@@ -19,8 +19,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card, ConfirmModal, EditItemModal, ManagementModal, managementModalStyles } from '@l-kern/ui-components';
-import type { ModalFooterConfig } from '@l-kern/ui-components';
+import { BasePage, Modal, Button, Input, FormField, WizardProgress, WizardNavigation, Card, ConfirmModal, EditItemModal, ManagementModal, managementModalStyles, SectionEditModal } from '@l-kern/ui-components';
+import type { ModalFooterConfig, FieldDefinition } from '@l-kern/ui-components';
 import { useModal, useModalWizard, useConfirm, useFormDirty, EMAIL_REGEX, formatPhoneNumber } from '@l-kern/config';
 import { useTranslation } from '@l-kern/config';
 import styles from './TestModalV3Page.module.css';
@@ -212,6 +212,54 @@ export function TestModalV3Page() {
     editItemModal.close();
     // Note: editFormData will be reset to initialEditData when modal reopens (via useEffect)
   }, [isDirty, t, editItemModal]);
+
+  // Test 13: SectionEditModal (NEW) - Form Builder Test
+  const sectionEditModal = useModal();
+  const [sectionEditResult, setSectionEditResult] = useState<string>('');
+  const [sectionData, setSectionData] = useState({
+    username: 'jannovak',
+    email: 'jan.novak@example.com',
+    password: 'password123',
+    bio: t('forms.placeholders.bio'),
+  });
+
+  // Field definitions for SectionEditModal test - using existing translation keys
+  const sectionFields: FieldDefinition[] = [
+    {
+      name: 'username',
+      label: t('forms.username'),
+      type: 'text',
+      required: true,
+      placeholder: t('forms.placeholders.username'),
+    },
+    {
+      name: 'email',
+      label: t('forms.email'),
+      type: 'email',
+      required: true,
+      placeholder: t('forms.placeholders.email'),
+    },
+    {
+      name: 'password',
+      label: t('forms.password'),
+      type: 'text',
+      required: true,
+      placeholder: t('forms.placeholders.password'),
+    },
+    {
+      name: 'bio',
+      label: t('forms.bio'),
+      type: 'textarea',
+      placeholder: t('forms.placeholders.bio'),
+    },
+  ];
+
+  const handleSectionEditSave = (data: Record<string, any>) => {
+    console.log('[TestModalV3] SectionEditModal saved:', data);
+    setSectionData(data); // Update state with new data
+    setSectionEditResult(`${t('common.save')}: ${data.username} (${data.email})`);
+    sectionEditModal.close();
+  };
 
   const wizard = useModalWizard({
     id: 'test-wizard',
@@ -933,6 +981,37 @@ export function TestModalV3Page() {
                 <li>📭 {t('components.modalV3.test13.instructions.emptyState')}</li>
               </ul>
             }
+          >
+            {/* No custom list editor - using renderItem instead */}
+            <></>
+          </ManagementModal>
+        </Card>
+
+        {/* Test 13: SectionEditModal */}
+        <Card variant="default">
+          <h2 className={styles.testTitle}>🆕 SectionEditModal</h2>
+          <p className={styles.testDescription}>
+            {t('components.testing.formComponents')}
+          </p>
+          <Button variant="primary" onClick={sectionEditModal.open}>
+            {t('common.edit')}
+          </Button>
+
+          {sectionEditResult && (
+            <div className={styles.resultMessage}>
+              {sectionEditResult}
+            </div>
+          )}
+
+          {/* SectionEditModal */}
+          <SectionEditModal
+            isOpen={sectionEditModal.isOpen}
+            onClose={sectionEditModal.close}
+            onSave={handleSectionEditSave}
+            title={t('common.edit')}
+            modalId="section-edit-test"
+            fields={sectionFields}
+            initialData={sectionData}
           />
         </Card>
       </div>

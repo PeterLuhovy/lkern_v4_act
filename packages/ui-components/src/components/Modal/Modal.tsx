@@ -338,23 +338,16 @@ export const Modal: React.FC<ModalProps> = ({
    * NOTE: Cannot be async - React onClick handlers don't wait for Promises
    */
   const handleCloseWithConfirm = useCallback(() => {
-    console.log('[Modal] handleCloseWithConfirm called, hasUnsavedChanges:', hasUnsavedChanges);
     if (hasUnsavedChanges) {
-      console.log('[Modal] Showing unsaved changes confirmation...');
       // Use empty object so ConfirmModal loads default unsavedChanges translations
       // This returns a Promise, but we don't await it - instead we handle result in .then()
       unsavedConfirm.confirm({}).then((confirmed) => {
-        console.log('[Modal] Confirmation result:', confirmed);
         if (confirmed) {
-          console.log('[Modal] User confirmed - closing modal');
           onClose();
-        } else {
-          console.log('[Modal] User cancelled - staying in modal');
         }
       });
       // Modal stays open until user responds to confirmation
     } else {
-      console.log('[Modal] No unsaved changes - closing directly');
       onClose();
     }
   }, [hasUnsavedChanges, unsavedConfirm, onClose]);
@@ -372,7 +365,6 @@ export const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     if (isOpen && showDebugBar) {
       analytics.startSession();
-      console.log('[Modal] DebugBar session started:', pageName || modalId);
     }
 
     return () => {
@@ -380,7 +372,6 @@ export const Modal: React.FC<ModalProps> = ({
         // End session if still active
         if (analytics.isSessionActive) {
           analytics.endSession('dismissed');
-          console.log('[Modal] DebugBar session ended');
         }
 
         // CRITICAL: ALWAYS reset session on cleanup to allow quick reopen
@@ -403,7 +394,6 @@ export const Modal: React.FC<ModalProps> = ({
         if (debugBarRef.current) {
           const height = debugBarRef.current.offsetHeight;
           setDebugBarHeight(height);
-          console.log('[Modal] Debug bar height measured:', height);
         }
       };
 
@@ -487,17 +477,14 @@ export const Modal: React.FC<ModalProps> = ({
 
       // ESC key handling
       if (e.key === 'Escape') {
-        console.log('[Modal] ESC key pressed, isInputField:', isInputField);
         e.preventDefault();
         e.stopPropagation();
 
         if (isInputField) {
           // Input field is focused → blur it (remove focus)
-          console.log('[Modal] Input field focused - blurring');
           target.blur();
         } else {
           // No input focused → close modal (with unsaved changes check)
-          console.log('[Modal] No input focused - calling handleCloseWithConfirm');
           handleCloseWithConfirm();
         }
         return;
@@ -675,10 +662,8 @@ export const Modal: React.FC<ModalProps> = ({
   // === HANDLERS ===
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log('[Modal] handleBackdropClick called, closeOnBackdropClick:', closeOnBackdropClick);
     // Only close if clicking directly on backdrop (not on modal content)
     if (e.target === e.currentTarget && closeOnBackdropClick) {
-      console.log('[Modal] Backdrop clicked - calling handleCloseWithConfirm');
       handleCloseWithConfirm();
     }
   };
@@ -856,7 +841,6 @@ export const Modal: React.FC<ModalProps> = ({
               <button
                 className={styles.modalCloseButton}
                 onClick={() => {
-                  console.log('[Modal] Close button (X) clicked');
                   handleCloseWithConfirm();
                 }}
                 aria-label={t('common.close')}

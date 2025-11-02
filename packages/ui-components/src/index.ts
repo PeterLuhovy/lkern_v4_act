@@ -75,3 +75,6 @@ export type { EditItemModalProps } from './components/EditItemModal';
 
 export { ManagementModal, managementModalStyles } from './components/ManagementModal';
 export type { ManagementModalProps } from './components/ManagementModal';
+
+export { SectionEditModal } from './components/SectionEditModal';
+export type { SectionEditModalProps, FieldDefinition, ValidationResult } from './components/SectionEditModal';

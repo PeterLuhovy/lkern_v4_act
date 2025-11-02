@@ -266,6 +266,9 @@ export const FormField: React.FC<FormFieldProps> = ({
     }
   };
 
+  // Generate unique ID for error message (for aria-describedby)
+  const errorId = htmlFor ? `${htmlFor}-error` : undefined;
+
   // Clone child Input and inject props
   const enhancedChild = isValidElement(children)
     ? cloneElement(children as React.ReactElement<any>, {
@@ -275,6 +278,9 @@ export const FormField: React.FC<FormFieldProps> = ({
         isValid: validate && !internalError && value.length > 0 && touched,
         fullWidth,
         title: inputTitle,
+        'aria-required': required ? 'true' : undefined,
+        'aria-invalid': displayError ? 'true' : 'false',
+        'aria-describedby': displayError && errorId ? errorId : undefined,
       } as any)
     : children;
 
@@ -302,7 +308,7 @@ export const FormField: React.FC<FormFieldProps> = ({
     <div className={wrapperClassName}>
       {/* Label - optional */}
       {label && (
-        <label className={styles.label}>
+        <label className={styles.label} htmlFor={htmlFor}>
           {label}
           {required && <span className={styles.required}>*</span>}
         </label>
@@ -316,7 +322,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       {/* Message area - always rendered when reserveMessageSpace=true */}
       <div className={messageAreaClassName}>
         {hasMessage && (
-          <span className={messageClass} role={messageRole}>
+          <span className={messageClass} role={messageRole} id={displayError && errorId ? errorId : undefined}>
             {displayError && <span className={styles.errorIcon} aria-hidden="true">⚠</span>}
             {successMsg && <span className={styles.successIcon} aria-hidden="true">✓</span>}
             {messageContent}

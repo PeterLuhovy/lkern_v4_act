@@ -93,12 +93,10 @@ export const BasePage: React.FC<BasePageProps> = ({
   // Analytics session lifecycle (ALWAYS runs, showDebugBar only controls visualization)
   useEffect(() => {
     analytics.startSession();
-    console.log('[BasePage] Analytics session started:', pageName);
 
     return () => {
       if (analytics.isSessionActive) {
         analytics.endSession('navigated');
-        console.log('[BasePage] Analytics session ended');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

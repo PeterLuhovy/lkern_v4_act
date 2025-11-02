@@ -3,8 +3,8 @@
  * FILE: sk.ts
  * PATH: packages/config/src/translations/sk.ts
  * DESCRIPTION: Slovak translations for L-KERN v4
- * VERSION: v1.3.1
- * UPDATED: 2025-10-20 18:10:00
+ * VERSION: v1.3.2
+ * UPDATED: 2025-11-01 17:10:00
  * ================================================================
  */
 
@@ -21,6 +21,7 @@ export const sk: TranslationKeys = {
     close: 'Zavrieť',
     search: 'Hľadať',
     filter: 'Filtrovať',
+    select: 'Vyberte',
     export: 'Exportovať',
     import: 'Importovať',
     refresh: 'Obnoviť',
@@ -513,6 +514,12 @@ export const sk: TranslationKeys = {
           title: 'Odstrániť položku?',
           message: 'Naozaj chcete odstrániť túto položku?',
         },
+      },
+      sectionEditModal: {
+        clearButton: '🧹 Vyčistiť formulár',
+        clearConfirmTitle: 'Vyčistiť formulár?',
+        clearConfirmMessage: 'Naozaj chcete vymazať všetky polia?',
+        clearConfirmButton: 'Vyčistiť',
       },
     },
   },

@@ -8,7 +8,7 @@
  * ================================================================
  */
 
-import { render, RenderOptions } from '@testing-library/react';
+import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
 import { TranslationProvider, ThemeProvider } from '@l-kern/config';
 
@@ -62,16 +62,15 @@ interface CustomRenderOptions extends RenderOptions {
 export function renderWithTranslation(
   ui: ReactElement,
   { initialLanguage = 'sk', ...renderOptions }: CustomRenderOptions = {}
-) {
-  function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <TranslationProvider initialLanguage={initialLanguage}>
-        {children}
-      </TranslationProvider>
-    );
-  }
+): RenderResult {
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    // @ts-expect-error - React 19 FC type compatibility issue with Testing Library
+    <TranslationProvider defaultLanguage={initialLanguage}>
+      {children}
+    </TranslationProvider>
+  );
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions });
+  return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 
 // ================================================================
@@ -100,12 +99,13 @@ export function renderWithTranslation(
 export function renderWithTheme(
   ui: ReactElement,
   { initialTheme = 'light', ...renderOptions }: CustomRenderOptions = {}
-) {
-  function Wrapper({ children }: { children: ReactNode }) {
-    return <ThemeProvider initialTheme={initialTheme}>{children}</ThemeProvider>;
-  }
+): RenderResult {
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    // @ts-expect-error - React 19 FC type compatibility issue with Testing Library
+    <ThemeProvider defaultTheme={initialTheme}>{children}</ThemeProvider>
+  );
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions });
+  return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 
 // ================================================================
@@ -145,18 +145,18 @@ export function renderWithAll(
     initialTheme = 'light',
     ...renderOptions
   }: CustomRenderOptions = {}
-) {
-  function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <ThemeProvider initialTheme={initialTheme}>
-        <TranslationProvider initialLanguage={initialLanguage}>
-          {children}
-        </TranslationProvider>
-      </ThemeProvider>
-    );
-  }
+): RenderResult {
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    // @ts-expect-error - React 19 FC type compatibility issue with Testing Library
+    <ThemeProvider defaultTheme={initialTheme}>
+      {/* @ts-expect-error - React 19 FC type compatibility issue with Testing Library */}
+      <TranslationProvider defaultLanguage={initialLanguage}>
+        {children}
+      </TranslationProvider>
+    </ThemeProvider>
+  );
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions });
+  return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 
 // ================================================================
