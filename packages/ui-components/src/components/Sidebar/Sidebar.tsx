@@ -1,0 +1,713 @@
+/*
+ * ================================================================
+ * FILE: Sidebar.tsx
+ * PATH: /packages/ui-components/src/components/Sidebar/Sidebar.tsx
+ * DESCRIPTION: Modern dark sidebar with floating submenu tooltips
+ * VERSION: v3.0.0
+ * UPDATED: 2025-11-02 19:00:00
+ * CHANGES:
+ *   - v3.0.0: Complete redesign - dark theme, floating submenu, pure React+CSS
+ *   - v2.0.0: Tree navigation support, vertical toggle button
+ *   - v1.0.0: Initial version
+ * ================================================================
+ */
+
+import React, { useState, useCallback } from 'react';
+import { useTranslation, useTheme } from '@l-kern/config';
+import styles from './Sidebar.module.css';
+import logoImage from '../../assets/brand/divisions/lind/logo.png';
+
+/**
+ * Navigation item interface (supports submenu)
+ */
+export interface SidebarNavItem {
+  /**
+   * Unique item path/ID
+   */
+  path: string;
+
+  /**
+   * Display label translation key
+   */
+  labelKey: string;
+
+  /**
+   * Icon (emoji or SVG string)
+   */
+  icon: string | React.ReactNode;
+
+  /**
+   * Optional onClick handler (for navigation)
+   */
+  onClick?: () => void;
+
+  /**
+   * Optional badge count
+   */
+  badge?: number;
+
+  /**
+   * Optional children items (for submenu)
+   */
+  children?: SidebarNavItem[];
+}
+
+/**
+ * Props for Sidebar component
+ */
+export interface SidebarProps {
+  /**
+   * Navigation items to display
+   */
+  items: SidebarNavItem[];
+
+  /**
+   * Current active path (for highlighting)
+   */
+  activePath?: string;
+
+  /**
+   * Initial collapsed state
+   * @default false
+   */
+  defaultCollapsed?: boolean;
+
+  /**
+   * Controlled collapsed state
+   */
+  collapsed?: boolean;
+
+  /**
+   * Collapse change handler
+   */
+  onCollapseChange?: (collapsed: boolean) => void;
+
+  /**
+   * Optional custom className
+   */
+  className?: string;
+
+  /**
+   * Show logo at top
+   * @default true
+   */
+  showLogo?: boolean;
+
+  /**
+   * Logo icon
+   */
+  logoIcon?: string | React.ReactNode;
+
+  /**
+   * Show upload box at bottom
+   * @default false
+   */
+  showUploadBox?: boolean;
+
+  /**
+   * Show theme toggle at bottom
+   * @default false
+   */
+  showThemeToggle?: boolean;
+
+  /**
+   * Show language toggle at bottom
+   * @default false
+   */
+  showLanguageToggle?: boolean;
+
+  /**
+   * Show floating action button at bottom
+   * @default false
+   */
+  showFloatingAction?: boolean;
+
+  /**
+   * Floating action button handler
+   */
+  onFloatingAction?: () => void;
+
+  /**
+   * Enable sidebar width resizing by dragging edge
+   * @default true
+   */
+  resizable?: boolean;
+
+  /**
+   * Default sidebar width in pixels (when expanded)
+   * @default 240
+   */
+  defaultWidth?: number;
+
+  /**
+   * Minimum sidebar width in pixels
+   * @default 120
+   */
+  minWidth?: number;
+
+  /**
+   * Maximum sidebar width in pixels
+   * @default 400
+   */
+  maxWidth?: number;
+}
+
+/**
+ * Props for NavItem (with floating submenu)
+ */
+interface NavItemProps {
+  item: SidebarNavItem;
+  activePath?: string;
+  isCollapsed: boolean;
+  onItemClick: (item: SidebarNavItem) => void;
+}
+
+/**
+ * NavItem Component (with floating submenu on hover in collapsed mode)
+ */
+const NavItem: React.FC<NavItemProps> = ({
+  item,
+  activePath,
+  isCollapsed,
+  onItemClick,
+}) => {
+  const { t } = useTranslation();
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Load expanded state from localStorage
+  const [isExpanded, setIsExpanded] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-expanded-items');
+      if (saved) {
+        const expandedItems: string[] = JSON.parse(saved);
+        return expandedItems.includes(item.path);
+      }
+    } catch (error) {
+      console.error('Failed to load sidebar expanded state:', error);
+    }
+    return false;
+  });
+
+  const isActive = activePath === item.path;
+  const hasChildren = item.children && item.children.length > 0;
+  const isDisabled = !item.onClick; // Item is disabled if no onClick handler provided
+
+  // Handle item click (navigation only)
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Prevent navigation if item is disabled (no onClick handler)
+    if (isDisabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Allow middle click and Ctrl+click to open in new tab
+    if (e.button === 1 || e.ctrlKey || e.metaKey) {
+      return; // Let browser handle it
+    }
+    e.preventDefault();
+    onItemClick(item);
+  }, [item, onItemClick, isDisabled]);
+
+  // Handle arrow click (expand/collapse only, no navigation)
+  const handleArrowClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent item click
+    e.preventDefault();
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
+
+  // Save expanded state to localStorage when it changes
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-expanded-items');
+      const expandedItems: string[] = saved ? JSON.parse(saved) : [];
+
+      if (isExpanded && !expandedItems.includes(item.path)) {
+        // Add to expanded items
+        expandedItems.push(item.path);
+        localStorage.setItem('sidebar-expanded-items', JSON.stringify(expandedItems));
+      } else if (!isExpanded && expandedItems.includes(item.path)) {
+        // Remove from expanded items
+        const filtered = expandedItems.filter((path) => path !== item.path);
+        localStorage.setItem('sidebar-expanded-items', JSON.stringify(filtered));
+      }
+    } catch (error) {
+      console.error('Failed to save sidebar expanded state:', error);
+    }
+  }, [isExpanded, item.path]);
+
+  // Listen for storage events (expand/collapse all)
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const saved = localStorage.getItem('sidebar-expanded-items');
+        if (saved) {
+          const expandedItems: string[] = JSON.parse(saved);
+          setIsExpanded(expandedItems.includes(item.path));
+        } else {
+          setIsExpanded(false);
+        }
+      } catch (error) {
+        console.error('Failed to sync expanded state:', error);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [item.path]);
+
+  return (
+    <li
+      className={styles.sidebar__navItemWrapper}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <a
+        href={item.path}
+        className={`${styles.sidebar__navItem} ${isActive ? styles['sidebar__navItem--active'] : ''} ${isDisabled ? styles['sidebar__navItem--disabled'] : ''}`}
+        onClick={handleClick}
+        aria-current={isActive ? 'page' : undefined}
+        aria-disabled={isDisabled}
+        title={isCollapsed ? t(item.labelKey) : undefined}
+      >
+        {/* Active indicator (left border) */}
+        {isActive && <span className={styles.sidebar__navItemIndicator} />}
+
+        {/* Icon */}
+        <span className={styles.sidebar__icon}>
+          {typeof item.icon === 'string' ? item.icon : item.icon}
+        </span>
+
+        {/* Label + expand arrow + badge */}
+        <div className={styles.sidebar__labelContainer}>
+          {/* Label (visible only when expanded) */}
+          {!isCollapsed && (
+            <span className={styles.sidebar__label}>
+              {t(item.labelKey)}
+            </span>
+          )}
+
+          {/* Expand arrow (visible only when expanded and has children) */}
+          {!isCollapsed && hasChildren && (
+            <span
+              className={styles.sidebar__expandArrow}
+              onClick={handleArrowClick}
+            >
+              {isExpanded ? '▼' : '▶'}
+            </span>
+          )}
+
+          {/* Badge */}
+          {item.badge !== undefined && item.badge > 0 && (
+            <span className={styles.sidebar__badge}>
+              {item.badge > 99 ? '99+' : item.badge}
+            </span>
+          )}
+        </div>
+      </a>
+
+      {/* Floating submenu (collapsed mode + hover) */}
+      {isCollapsed && hasChildren && isHovered && (
+        <div className={styles.sidebar__floatingSubmenu}>
+          <div className={styles.sidebar__floatingSubmenuHeader}>
+            {t(item.labelKey)}
+          </div>
+          <ul className={styles.sidebar__floatingSubmenuList}>
+            {item.children!.map((child) => (
+              <li key={child.path}>
+                <a
+                  href={child.path}
+                  className={`${styles.sidebar__floatingSubmenuItem} ${
+                    activePath === child.path ? styles['sidebar__floatingSubmenuItem--active'] : ''
+                  }`}
+                  onClick={(e) => {
+                    if (e.button === 1 || e.ctrlKey || e.metaKey) return;
+                    e.preventDefault();
+                    onItemClick(child);
+                  }}
+                >
+                  <span className={styles.sidebar__icon}>
+                    {typeof child.icon === 'string' ? child.icon : child.icon}
+                  </span>
+                  <span>{t(child.labelKey)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Inline submenu (expanded mode) - render NavItem recursively for nested children */}
+      {!isCollapsed && hasChildren && isExpanded && (
+        <ul className={styles.sidebar__submenuList}>
+          {item.children!.map((child) => (
+            <NavItem
+              key={child.path}
+              item={child}
+              activePath={activePath}
+              isCollapsed={isCollapsed}
+              onItemClick={onItemClick}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+/**
+ * Sidebar Component
+ *
+ * Modern dark sidebar with floating submenu tooltips in collapsed mode.
+ *
+ * Features:
+ * - Collapsible (240px expanded / 80px collapsed)
+ * - Toggle button (top-right corner with arrow)
+ * - Floating submenu on hover (collapsed mode)
+ * - Inline submenu (expanded mode)
+ * - Dark theme optimized
+ * - Logo at top
+ * - Upload box, theme toggle, floating action button at bottom
+ * - Smooth CSS animations
+ *
+ * @example
+ * ```tsx
+ * const navItems: SidebarNavItem[] = [
+ *   { path: '/', labelKey: 'sidebar.dashboard', icon: '🏠' },
+ *   {
+ *     path: '/income',
+ *     labelKey: 'sidebar.income',
+ *     icon: '💰',
+ *     children: [
+ *       { path: '/income/earnings', labelKey: 'sidebar.earnings', icon: '📈' },
+ *       { path: '/income/refunds', labelKey: 'sidebar.refunds', icon: '↩️' },
+ *     ]
+ *   },
+ * ];
+ *
+ * <Sidebar
+ *   items={navItems}
+ *   activePath={location.pathname}
+ *   showLogo={true}
+ *   logoIcon="🎯"
+ *   showThemeToggle={true}
+ *   showFloatingAction={true}
+ * />
+ * ```
+ */
+export const Sidebar: React.FC<SidebarProps> = ({
+  items,
+  activePath,
+  defaultCollapsed = false,
+  collapsed: controlledCollapsed,
+  onCollapseChange,
+  className,
+  showLogo = true,
+  logoIcon = logoImage,
+  showUploadBox = false,
+  showThemeToggle = false,
+  showLanguageToggle = false,
+  showFloatingAction = false,
+  onFloatingAction,
+  resizable = true,
+  defaultWidth = 240,
+  minWidth = 120,
+  maxWidth = 400,
+}) => {
+  const { t, language, setLanguage } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
+
+  // Internal collapsed state (if not controlled) - load from localStorage
+  const [internalCollapsed, setInternalCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      return saved !== null ? JSON.parse(saved) : defaultCollapsed;
+    } catch (error) {
+      console.error('Failed to load sidebar collapsed state:', error);
+      return defaultCollapsed;
+    }
+  });
+
+  // Sidebar width state (for resizing) - load from localStorage
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-width');
+      return saved !== null ? parseInt(saved, 10) : defaultWidth;
+    } catch (error) {
+      console.error('Failed to load sidebar width:', error);
+      return defaultWidth;
+    }
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartRef = React.useRef<{ startX: number; startWidth: number } | null>(null);
+
+  // Use controlled state if provided, otherwise use internal state
+  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
+
+  // Toggle collapse handler
+  const handleToggle = useCallback(() => {
+    const newCollapsed = !isCollapsed;
+
+    if (controlledCollapsed === undefined) {
+      setInternalCollapsed(newCollapsed);
+    }
+
+    onCollapseChange?.(newCollapsed);
+  }, [isCollapsed, controlledCollapsed, onCollapseChange]);
+
+  // Handle nav item click
+  const handleItemClick = useCallback((item: SidebarNavItem) => {
+    item.onClick?.();
+  }, []);
+
+  // Expand all items with children (recursively finds all expandable items)
+  const handleExpandAll = useCallback(() => {
+    try {
+      const allPaths: string[] = [];
+
+      const traverse = (items: SidebarNavItem[]) => {
+        items.forEach(item => {
+          if (item.children && item.children.length > 0) {
+            allPaths.push(item.path);
+            traverse(item.children); // Recursively traverse children
+          }
+        });
+      };
+
+      traverse(items);
+      localStorage.setItem('sidebar-expanded-items', JSON.stringify(allPaths));
+      // Force re-render by updating a dummy state
+      window.dispatchEvent(new Event('storage'));
+    } catch (error) {
+      console.error('Failed to expand all items:', error);
+    }
+  }, [items]);
+
+  // Collapse all items
+  const handleCollapseAll = useCallback(() => {
+    try {
+      localStorage.setItem('sidebar-expanded-items', JSON.stringify([]));
+      // Force re-render by updating a dummy state
+      window.dispatchEvent(new Event('storage'));
+    } catch (error) {
+      console.error('Failed to collapse all items:', error);
+    }
+  }, []);
+
+  // Resize handlers (for drag handle)
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    if (!resizable || isCollapsed) return;
+    e.preventDefault();
+
+    // Store initial position and width
+    resizeStartRef.current = {
+      startX: e.clientX,
+      startWidth: sidebarWidth,
+    };
+
+    setIsResizing(true);
+  }, [resizable, isCollapsed, sidebarWidth]);
+
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!isResizing || !resizeStartRef.current) return;
+
+    // Calculate delta from start position
+    const delta = e.clientX - resizeStartRef.current.startX;
+    const newWidth = resizeStartRef.current.startWidth + delta;
+
+    // Clamp width between min and max
+    const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+    setSidebarWidth(clampedWidth);
+  }, [isResizing, minWidth, maxWidth]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  // Save sidebar width to localStorage when it changes
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('sidebar-width', sidebarWidth.toString());
+    } catch (error) {
+      console.error('Failed to save sidebar width:', error);
+    }
+  }, [sidebarWidth]);
+
+  // Save collapsed state to localStorage when it changes
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(internalCollapsed));
+    } catch (error) {
+      console.error('Failed to save sidebar collapsed state:', error);
+    }
+  }, [internalCollapsed]);
+
+  // Global mouse event listeners for resizing
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+
+      // Prevent text selection during resize
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'ew-resize';
+
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+      };
+    }
+  }, [isResizing, handleResizeMove, handleResizeEnd]);
+
+  return (
+    <aside
+      className={`${styles.sidebar} ${isCollapsed ? styles['sidebar--collapsed'] : ''} ${isResizing ? styles['sidebar--resizing'] : ''} ${className || ''}`}
+      data-component="sidebar"
+      data-collapsed={isCollapsed}
+      style={{
+        width: isCollapsed ? '24px' : `${sidebarWidth}px`,
+      }}
+    >
+      {/* Logo */}
+      {showLogo && (
+        <div className={styles.sidebar__logo}>
+          {typeof logoIcon === 'string' ? (
+            <img src={logoIcon} alt="Logo" className={styles.sidebar__logoImage} />
+          ) : (
+            logoIcon
+          )}
+        </div>
+      )}
+
+      {/* Toggle button (top-right corner) */}
+      <button
+        className={styles.sidebar__toggle}
+        onClick={handleToggle}
+        type="button"
+        aria-label={t(isCollapsed ? 'components.sidebar.expand' : 'components.sidebar.collapse')}
+        title={t(isCollapsed ? 'components.sidebar.expand' : 'components.sidebar.collapse')}
+      >
+        <span className={styles.sidebar__toggleIcon}>
+          {isCollapsed ? '▶' : '◀'}
+        </span>
+      </button>
+
+      {/* Navigation */}
+      <nav className={styles.sidebar__nav} aria-label={t('components.sidebar.navigation')}>
+        {/* Expand/Collapse All buttons (visible only when expanded) */}
+        {!isCollapsed && (
+          <div className={styles.sidebar__expandCollapseButtons}>
+            <button
+              className={styles.sidebar__expandAllButton}
+              onClick={handleExpandAll}
+              type="button"
+              title={t('components.sidebar.expandAll')}
+            >
+              <span className={styles.sidebar__icon}>▼</span>
+              <span>{t('components.sidebar.expandAll')}</span>
+            </button>
+            <button
+              className={styles.sidebar__collapseAllButton}
+              onClick={handleCollapseAll}
+              type="button"
+              title={t('components.sidebar.collapseAll')}
+            >
+              <span className={styles.sidebar__icon}>▲</span>
+              <span>{t('components.sidebar.collapseAll')}</span>
+            </button>
+          </div>
+        )}
+
+        <ul className={styles.sidebar__navList}>
+          {items.map((item) => (
+            <NavItem
+              key={item.path}
+              item={item}
+              activePath={activePath}
+              isCollapsed={isCollapsed}
+              onItemClick={handleItemClick}
+            />
+          ))}
+        </ul>
+      </nav>
+
+      {/* Bottom section */}
+      <div className={styles.sidebar__bottom}>
+        {/* Upload box */}
+        {showUploadBox && !isCollapsed && (
+          <div className={styles.sidebar__uploadBox}>
+            <div className={styles.sidebar__uploadBoxIcon}>+</div>
+            <div className={styles.sidebar__uploadBoxText}>
+              <div>{t('components.sidebar.uploadNewImage')}</div>
+              <div className={styles.sidebar__uploadBoxSubtext}>
+                {t('components.sidebar.dragAndDrop')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Theme & Language toggles (horizontal layout) */}
+        {(showThemeToggle || showLanguageToggle) && (
+          <div className={styles.sidebar__togglesWrapper}>
+            {/* Theme toggle */}
+            {showThemeToggle && (
+              <button
+                className={styles.sidebar__themeToggle}
+                onClick={toggleTheme}
+                type="button"
+                title={t(theme === 'dark' ? 'components.sidebar.switchToLight' : 'components.sidebar.switchToDark')}
+              >
+                <span className={styles.sidebar__icon}>
+                  {theme === 'dark' ? '☀️' : '🌙'}
+                </span>
+                {!isCollapsed && (
+                  <span>{t(theme === 'dark' ? 'components.sidebar.lightMode' : 'components.sidebar.darkMode')}</span>
+                )}
+              </button>
+            )}
+
+            {/* Language toggle */}
+            {showLanguageToggle && (
+              <button
+                className={styles.sidebar__themeToggle}
+                onClick={() => setLanguage(language === 'sk' ? 'en' : 'sk')}
+                type="button"
+                title={t('components.sidebar.changeLanguage')}
+              >
+                <span className={styles.sidebar__icon}>
+                  {language === 'sk' ? '🇸🇰' : '🇬🇧'}
+                </span>
+                {!isCollapsed && (
+                  <span>{language === 'sk' ? 'SK' : 'EN'}</span>
+                )}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Floating action button */}
+        {showFloatingAction && (
+          <button
+            className={styles.sidebar__floatingAction}
+            onClick={onFloatingAction}
+            type="button"
+            title={t('components.sidebar.newAction')}
+          >
+            +
+          </button>
+        )}
+      </div>
+
+      {/* Resize handle (only when expanded and resizable) */}
+      {resizable && !isCollapsed && (
+        <div
+          className={styles.sidebar__resizeHandle}
+          onMouseDown={handleResizeStart}
+          title={t('components.sidebar.resizeWidth')}
+        />
+      )}
+    </aside>
+  );
+};

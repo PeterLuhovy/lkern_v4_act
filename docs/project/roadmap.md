@@ -2,7 +2,7 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 4.4.1
+# Version: 4.4.2
 # Created: 2025-10-13
 # Updated: 2025-11-02
 # Project: BOSS (Business Operating System Service)
@@ -170,7 +170,30 @@
 
 ---
 
-### **1.3.6 Design System Refactor** ⏸️ PLANNED
+### **1.3.6 Navigation Components** ✅ COMPLETED (2025-11-02)
+**Estimated:** 8-10h
+**Actual:** ~10h
+
+- ✅ **Sidebar** component (collapsible tree navigation, v1.0.0) - 38 tests
+  - Collapsible (240px / 24px) with localStorage persistence
+  - Tree navigation with vertical lines (half-height on last item)
+  - Resizable width (120-400px) with drag handle
+  - Active path highlighting, disabled state support
+  - Recursive Expand/Collapse All functionality
+  - Middle-click support, badge display
+  - Theme/language toggles integration
+  - CSS variable: `--sidebar-bg` (#1a1a1a dark, #ffffff light)
+- ✅ **BasePage** v4.0.1 (sidebar integration) - 22 tests
+  - Automatic activePath detection (`activePath || location.pathname`)
+  - localStorage polling for sidebar width sync (100ms)
+  - Icons test page added to default sidebar items
+- ✅ **Documentation**: Sidebar.md (950 lines), BasePage.md updated (+125 lines)
+- ✅ **TypeScript fixes**: usePageAnalytics (6 null checks), ManagementModal (2 prop fixes)
+- ✅ **All tests passing**: 225/225 (100%)
+
+---
+
+### **1.3.7 Design System Refactor** ⏸️ PLANNED
 **Dependencies:** None (can run parallel with 1.3.5)
 **Estimated:** 35-40h (1 week full-time)
 **Target:** 2025-11-08 - 2025-11-15

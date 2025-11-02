@@ -2,29 +2,29 @@
 # BasePage
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\BasePage\BasePage.md
-# Version: 4.0.0
+# Version: 4.0.1
 # Created: 2025-10-19
-# Updated: 2025-10-21
+# Updated: 2025-11-02
 # Component Location: packages/ui-components/src/components/BasePage/BasePage.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
-#   Base page wrapper component with global keyboard shortcuts, analytics, and HTML5 drag event tracking.
-#   Provides Ctrl+D (theme toggle), Ctrl+L (language toggle), drag & drop detection, and DebugBar integration.
+#   Base page wrapper component with global keyboard shortcuts, analytics, HTML5 drag event tracking,
+#   and integrated Sidebar navigation. Automatically detects active path via useLocation() for highlighting.
 # ================================================================
 
 ---
 
 ## Overview
 
-**Purpose**: Global page wrapper with keyboard shortcuts, analytics tracking, drag & drop detection, and debug bar
+**Purpose**: Global page wrapper with keyboard shortcuts, analytics tracking, drag & drop detection, Sidebar navigation, and debug bar
 **Package**: @l-kern/ui-components
 **Path**: packages/ui-components/src/components/BasePage
-**Since**: v2.0.0 (v3.0.0 hybrid keyboard handling, v4.0.0 HTML5 drag events)
+**Since**: v2.0.0 (v3.0.0 hybrid keyboard, v4.0.0 HTML5 drag, v4.0.1 automatic activePath)
 
-BasePage is the foundation wrapper for all pages in L-KERN v4. It provides global keyboard shortcuts (Ctrl+D for theme toggle, Ctrl+L for language toggle), analytics tracking (clicks, keyboard events, session duration, text selection, drag operations), HTML5 drag & drop detection, and an optional DebugBar for development. Version 3.0.0 introduced hybrid keyboard handling where ESC/Enter are handled by Modal component directly. Version 4.0.0 added native HTML5 drag event listeners for comprehensive text drag & drop tracking.
+BasePage is the foundation wrapper for all pages in L-KERN v4. It provides global keyboard shortcuts (Ctrl+D for theme toggle, Ctrl+L for language toggle), analytics tracking (clicks, keyboard events, session duration, text selection, drag operations), HTML5 drag & drop detection, integrated Sidebar navigation with automatic active path detection via `useLocation()`, and an optional DebugBar for development. Version 3.0.0 introduced hybrid keyboard handling where ESC/Enter are handled by Modal component directly. Version 4.0.0 added native HTML5 drag event listeners for comprehensive text drag & drop tracking. Version 4.0.1 added automatic activePath detection for Sidebar highlighting.
 
 ---
 
@@ -35,6 +35,9 @@ BasePage is the foundation wrapper for all pages in L-KERN v4. It provides globa
 - ✅ **HTML5 Drag Events**: Native dragstart/dragend listeners for text drag & drop tracking (v4.0.0+)
 - ✅ **Text Selection Detection**: Automatically detects and logs text selection with distance/duration
 - ✅ **Drag Operation Tracking**: Logs element drag operations with coordinates and distance
+- ✅ **Integrated Sidebar**: Built-in Sidebar navigation with automatic active path detection (v4.0.1+)
+- ✅ **Automatic activePath**: Uses `useLocation().pathname` when activePath prop not provided (v4.0.1+)
+- ✅ **Dynamic Sidebar Width**: Listens to localStorage changes, updates content padding automatically
 - ✅ **Debug Bar Integration**: Fixed debug bar at top with real-time metrics
 - ✅ **Session Lifecycle**: Automatic session start/end on mount/unmount
 - ✅ **Modal Detection**: Disables page tracking when modal is open (modal priority)
@@ -144,6 +147,10 @@ function PageWithModal() {
 | `className` | `string` | `undefined` | No | Additional CSS classes for wrapper |
 | `pageName` | `string` | `'page'` | No | Page identifier for analytics tracking |
 | `showDebugBar` | `boolean` | `true` | No | Show/hide fixed debug bar at top |
+| `showSidebar` | `boolean` | `true` | No | Show/hide integrated Sidebar navigation |
+| `sidebarItems` | `SidebarNavItem[]` | `undefined` | No | Custom sidebar items (if not provided, uses default items) |
+| `activePath` | `string` | `undefined` | No | Current active path for sidebar (if not provided, uses `location.pathname`) |
+| `sidebarDefaultCollapsed` | `boolean` | `false` | No | Default collapsed state for sidebar |
 
 ### Type Definitions
 
@@ -154,8 +161,113 @@ export interface BasePageProps {
   className?: string;
   pageName?: string;
   showDebugBar?: boolean;
+  showSidebar?: boolean;
+  sidebarItems?: SidebarNavItem[];
+  activePath?: string;
+  sidebarDefaultCollapsed?: boolean;
 }
 ```
+
+---
+
+## Sidebar Integration
+
+### Automatic activePath Detection (v4.0.1+)
+
+**Behavior:**
+- If `activePath` prop is provided → uses it for sidebar highlighting
+- If `activePath` is NOT provided → automatically detects using `location.pathname`
+- This enables persistent active state highlighting without manual prop passing
+
+**Example:**
+```tsx
+import { BasePage } from '@l-kern/ui-components';
+import { useLocation } from 'react-router-dom';
+
+function MyPage() {
+  const location = useLocation();
+
+  // Option 1: Automatic detection (no activePath prop)
+  return (
+    <BasePage showSidebar={true}>
+      {/* Sidebar automatically highlights current page via location.pathname */}
+    </BasePage>
+  );
+
+  // Option 2: Manual control (provide activePath)
+  return (
+    <BasePage showSidebar={true} activePath={location.pathname}>
+      {/* Sidebar uses provided activePath */}
+    </BasePage>
+  );
+}
+```
+
+**Implementation:**
+```tsx
+// BasePage.tsx (line 344)
+<Sidebar
+  items={effectiveSidebarItems}
+  activePath={activePath || location.pathname}  // Automatic fallback
+  collapsed={sidebarCollapsed}
+  onCollapseChange={setSidebarCollapsed}
+  showThemeToggle={true}
+  showLanguageToggle={true}
+/>
+```
+
+### Default Sidebar Items
+
+BasePage provides a default tree navigation structure:
+
+**Structure:**
+- **Home** (root)
+  - Dashboard (not yet implemented, disabled)
+  - **Testing** (submenu)
+    - Badge Test
+    - Card Test
+    - Empty State Test
+    - Icons Test (v4.0.1+)
+    - Modal v3 Test
+    - Toast Test
+    - Utility Test
+  - Contacts (not yet implemented, disabled)
+  - Orders (not yet implemented, disabled)
+  - Settings (not yet implemented, disabled)
+
+**Custom Items:**
+```tsx
+<BasePage
+  showSidebar={true}
+  sidebarItems={[
+    {
+      path: '/custom',
+      labelKey: 'sidebar.custom',
+      icon: '🎯',
+      onClick: () => navigate('/custom'),
+    },
+  ]}
+/>
+```
+
+### Dynamic Sidebar Width
+
+**localStorage Sync:**
+- BasePage polls `localStorage` every 100ms to detect sidebar width changes
+- Content `paddingLeft` automatically adjusts based on current width
+- Smooth transition: `220ms cubic-bezier(0.4, 0, 0.2, 1)`
+
+**Width Calculation:**
+```tsx
+const contentPaddingLeft = isSidebarVisible
+  ? (sidebarCollapsed ? '24px' : `${sidebarWidth}px`)
+  : '0';
+```
+
+**Collapsed State:**
+- Sidebar collapsed: `paddingLeft: '24px'` (only toggle button visible)
+- Sidebar expanded: `paddingLeft: '240px'` (or user-resized width)
+- Sidebar hidden: `paddingLeft: '0'`
 
 ---
 
@@ -552,6 +664,7 @@ docker exec lkms201-web-ui npx nx test ui-components --watch --testFile=BasePage
 
 ## Related Components
 
+- **[Sidebar](Sidebar.md)** - Sidebar navigation component integrated into BasePage (v4.0.1+)
 - **[DebugBar](DebugBar.md)** - Debug bar component integrated into BasePage
 - **[Modal](Modal.md)** - Modal component with independent keyboard handling (v3.0.0+)
 - **useTheme hook** - Theme management hook from @l-kern/config
@@ -736,6 +849,20 @@ function OptimizedPage() {
 
 ## Changelog
 
+### v4.0.1 (2025-11-02)
+- ✅ **NEW**: Automatic activePath detection for Sidebar via `useLocation().pathname`
+- ✅ **NEW**: Default sidebar items now include Icons test page (`/testing/icons`)
+- ✅ **ENHANCED**: Sidebar integration now fully automatic (no manual activePath passing required)
+- ✅ **IMPROVED**: Dynamic sidebar width sync via localStorage polling (100ms interval)
+- 📚 **DOCS**: Added Sidebar Integration section with automatic detection examples
+- 📚 **DOCS**: Updated props table with sidebar-related props
+
+**Technical Details:**
+- Added `useLocation()` hook import from react-router-dom (line 19)
+- Added `const location = useLocation();` in BasePage component (line 122)
+- Sidebar `activePath` prop: `activePath={activePath || location.pathname}` (line 344)
+- localStorage polling for sidebar width changes (interval: 100ms)
+
 ### v4.0.0 (2025-10-21) - MAJOR UPDATE
 - 🎉 **NEW**: HTML5 drag event tracking (dragstart/dragend listeners)
 - 🎉 **NEW**: Text drag & drop detection via native browser events
@@ -819,6 +946,6 @@ it('should show help on Ctrl+H', async () => {
 
 ---
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2025-11-02
 **Maintainer**: BOSSystems s.r.o.
-**Documentation Version**: 3.0.0
+**Documentation Version**: 4.0.1

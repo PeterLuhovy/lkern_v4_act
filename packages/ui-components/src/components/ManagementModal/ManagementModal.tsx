@@ -405,7 +405,6 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
         parentModalId={parentModalId}
         title={title}
         maxWidth={maxWidth}
-        maxHeight={maxHeight}
         footer={{
           left: (
             <Button
@@ -438,7 +437,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
         <div className={styles.content}>
           {isEmpty && (
             <EmptyState
-              message={emptyStateMessage || t('components.modalV3.managementModal.emptyState.message')}
+              title={emptyStateMessage || t('components.modalV3.managementModal.emptyState.message')}
               icon={emptyStateIcon}
             />
           )}

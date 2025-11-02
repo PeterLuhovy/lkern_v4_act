@@ -16,7 +16,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { Sidebar, SidebarNavItem } from '../Sidebar';
@@ -119,6 +119,7 @@ export const BasePage: React.FC<BasePageProps> = ({
   const { language, setLanguage } = useTranslation();
   const analytics = usePageAnalytics(pageName);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
@@ -340,7 +341,7 @@ export const BasePage: React.FC<BasePageProps> = ({
       {isSidebarVisible && (
         <Sidebar
           items={effectiveSidebarItems}
-          activePath={activePath}
+          activePath={activePath || location.pathname}
           collapsed={sidebarCollapsed}
           onCollapseChange={setSidebarCollapsed}
           showThemeToggle={true}

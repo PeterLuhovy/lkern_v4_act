@@ -267,10 +267,10 @@ export const usePageAnalytics = (
       const selectedText = window.getSelection()?.toString() || '';
       const isTextSelection = isDragOperation && selectedText.length > 0;
 
-      if (isTextSelection) {
+      if (isTextSelection && event && downEvent.coordinates) {
         // TEXT SELECTION → User was selecting text with mouse
-        const deltaX = Math.abs(event.clientX - downEvent.coordinates!.x);
-        const deltaY = Math.abs(event.clientY - downEvent.coordinates!.y);
+        const deltaX = Math.abs(event.clientX - downEvent.coordinates.x);
+        const deltaY = Math.abs(event.clientY - downEvent.coordinates.y);
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
 
         console.log(`${logPrefix} Text selection:`, {
@@ -288,10 +288,10 @@ export const usePageAnalytics = (
         return; // Don't count as click
       }
 
-      if (isDragOperation) {
+      if (isDragOperation && event && downEvent.coordinates) {
         // DRAG OPERATION (modal, element) → User was dragging an element (not selecting text)
-        const deltaX = Math.abs(event.clientX - downEvent.coordinates!.x);
-        const deltaY = Math.abs(event.clientY - downEvent.coordinates!.y);
+        const deltaX = Math.abs(event.clientX - downEvent.coordinates.x);
+        const deltaY = Math.abs(event.clientY - downEvent.coordinates.y);
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
 
         console.log(`${logPrefix} Drag operation:`, {
