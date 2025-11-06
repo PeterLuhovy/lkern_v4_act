@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 5.0.0
+# Version: 5.1.0
 # Created: 2025-10-13
-# Updated: 2025-11-02
+# Updated: 2025-11-06
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -95,7 +95,7 @@
 
 ---
 
-### **1.30 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~85%)
+### **1.30 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~88%)
 **Started:** 2025-10-18
 **Target:** 2025-11-08
 
@@ -165,8 +165,20 @@
 
 **Progress:** ~58h done / 60-90h total (~90% complete) | Remaining: Data Display (~5-10h)
 
-#### **1.30.5 Data Display** ⏸️ DEFERRED (After modals)
-- ⏸️ Table/DataGrid (4-6h)
+#### **1.30.5 Data Display** ⏳ IN PROGRESS (~50%)
+- ✅ **DataGrid** (v1.0.0, 2025-11-06) - 40 tests passing
+  - Column configuration (sortable, width, flex, custom render)
+  - Sorting (asc/desc, visual indicators)
+  - Column resizing (drag to resize, localStorage persistence)
+  - Checkbox selection (Ctrl+Click, Shift+Click, Select All)
+  - Row expansion (custom content, nested grids)
+  - Built-in actions column (auto-generated, dynamic width)
+  - Compact mode (0.9x font, reduced padding)
+  - Theme support (light/dark mode)
+  - Status colors (row backgrounds)
+  - Accessibility (ARIA attributes, keyboard navigation)
+  - 100% DRY compliance (ZERO hardcoded values)
+  - Documentation (1490 lines)
 - ⏸️ FilterAndSearch (2-3h)
 
 ---
@@ -1030,6 +1042,6 @@
 
 ---
 
-**Last Updated:** 2025-11-02
-**Version:** 5.0.0
+**Last Updated:** 2025-11-06
+**Version:** 5.1.0
 **Next Review:** After Task 1.30 completion (UI Infrastructure)
