@@ -3,8 +3,8 @@
  * FILE: Card.module.css
  * PATH: /packages/ui-components/src/components/Card/Card.module.css
  * DESCRIPTION: Card component styles with gradient design system and responsive breakpoints
- * VERSION: v1.1.0
- * UPDATED: 2025-10-19
+ * VERSION: v1.1.1
+ * UPDATED: 2025-11-07
  * ================================================================
  */
 
@@ -12,10 +12,10 @@
 .card {
   position: relative;
   padding: var(--spacing-lg, 24px);
-  border-radius: var(--border-radius-md, 8px);
+  border-radius: var(--radius-md);
   background: var(--theme-card-background, #ffffff);
   box-sizing: border-box;
-  transition: all 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--duration-state) var(--ease-smooth);
 }
 
 /* ================================================

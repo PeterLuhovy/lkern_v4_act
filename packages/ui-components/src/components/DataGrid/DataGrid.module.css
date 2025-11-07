@@ -3,8 +3,8 @@
  * FILE: DataGrid.module.css
  * PATH: /packages/ui-components/src/components/DataGrid/DataGrid.module.css
  * DESCRIPTION: DataGrid styles - 100% design tokens (ZERO hardcoded values)
- * VERSION: v1.0.0
- * UPDATED: 2025-11-06 12:00:00
+ * VERSION: v1.1.0
+ * UPDATED: 2025-11-07 00:00:00
  *
  * MIGRATED FROM: L-KERN v3 DataGrid.css v2.1.0
  * CHANGES:
@@ -22,7 +22,7 @@
   border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: all var(--duration-slow) var(--ease-out);
+  transition: all var(--duration-modal) var(--ease-out);
   user-select: none;
 }
 
@@ -70,6 +70,7 @@
 /* Dark mode header */
 [data-theme="dark"] .header {
   background: var(--theme-table-header-bg-dark, #383838);
+  border-color: var(--theme-table-header-bg-dark, #383838);
 }
 
 /* Nested DataGrid in expanded content - header uses status color */
@@ -88,7 +89,7 @@
   align-items: center;
   justify-content: space-between;
   position: relative;
-  transition: background-color var(--duration-normal) var(--ease-out);
+  transition: background-color var(--duration-state) var(--ease-out);
 }
 
 .headerCellFirst {
@@ -102,7 +103,7 @@
 /* Light mode hover */
 .headerCellSortable:hover {
   background-color: var(--color-neutral-gray300);
-  transform: translateY(-1px);
+  transform: translateY(var(--hover-lift-subtle));
   box-shadow: var(--shadow-sm);
 }
 
@@ -133,7 +134,7 @@
   cursor: col-resize;
   background-color: transparent;
   z-index: 1;
-  transition: background-color var(--duration-normal) var(--ease-out);
+  transition: background-color var(--duration-state) var(--ease-out);
 }
 
 .resizeHandle:hover {
@@ -166,16 +167,11 @@
 
 /* Expanded row */
 .rowExpanded {
-  border-left: var(--border-width-heavy, 8px) solid var(--status-color, var(--color-brand-secondary));
   position: relative;
   z-index: 3;
   margin-bottom: 0 !important;
-  box-shadow:
-    inset 0 0 var(--spacing-lg) color-mix(in srgb, var(--status-color, var(--color-brand-secondary)) 18%, transparent),
-    0 0 var(--spacing-xl) color-mix(in srgb, var(--status-color, var(--color-brand-secondary)) 60%, transparent),
-    0 var(--spacing-xs) var(--spacing-lg) color-mix(in srgb, var(--status-color, var(--color-brand-secondary)) 40%, transparent),
-    var(--shadow-md);
-  transform: scale(1.005);
+  box-shadow: var(--shadow-md);
+  transform: scale(var(--hover-scale-normal));
 }
 
 /* Text in expanded row - darker for better readability */
@@ -196,11 +192,7 @@
     rgba(0, 188, 212, 0.7) 0%,
     rgba(0, 188, 212, 0.55) 50%,
     rgba(0, 188, 212, 0.7) 100%) !important;
-  border-left: var(--border-width-heavy, 8px) solid var(--color-status-info) !important;
-  box-shadow:
-    inset 0 0 var(--spacing-md) rgba(0, 188, 212, 0.5),
-    0 0 var(--spacing-md) rgba(0, 188, 212, 0.4),
-    var(--shadow-sm) !important;
+  box-shadow: var(--shadow-sm) !important;
   position: relative;
   z-index: 5;
 }
@@ -220,10 +212,7 @@
     rgba(0, 188, 212, 0.8) 0%,
     rgba(0, 188, 212, 0.65) 50%,
     rgba(0, 188, 212, 0.8) 100%) !important;
-  box-shadow:
-    inset 0 0 var(--spacing-md) rgba(0, 188, 212, 0.6),
-    0 0 var(--spacing-md) rgba(0, 188, 212, 0.5),
-    var(--shadow-sm) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 [data-theme="dark"] .rowSelected .cell {
@@ -237,7 +226,7 @@
 /* Row hover - using HOVER_EFFECTS design tokens */
 .row:hover {
   position: relative;
-  transform: translateY(var(--hover-lift-subtle, -2px)) scale(var(--hover-scale-normal, 1.005));
+  transform: translateY(var(--hover-lift-subtle)) scale(var(--hover-scale-normal));
   z-index: 10;
   border-radius: var(--radius-sm);
 }
@@ -250,7 +239,7 @@
 /* Counter-transform for first/last cells */
 .row:hover > .cell:first-child,
 .row:hover > .cell:last-child {
-  transform: scale(var(--hover-scale-subtle, 0.995)) translateY(1.005px);
+  transform: scale(var(--hover-scale-subtle)) translateY(0);
   transform-origin: center;
 }
 
@@ -305,8 +294,8 @@
 
 /* Focus indicator for keyboard navigation */
 .row:focus {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-medium) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-medium);
 }
 
 /* === CELLS === */
@@ -333,13 +322,13 @@
   margin-right: var(--spacing-xs);
   accent-color: var(--color-brand-primary);
   flex-shrink: 0;
-  border-radius: 3px;
-  transition: all var(--duration-normal) var(--ease-out);
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-state) var(--ease-out);
 }
 
 .checkbox:hover {
-  transform: scale(1.15);
-  box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.2);
+  transform: scale(var(--hover-scale-prominent));
+  box-shadow: var(--shadow-focus-hover);
 }
 
 .checkbox:checked {
@@ -347,8 +336,8 @@
 }
 
 .checkbox:focus {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-medium) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-medium);
 }
 
 /* === EXPAND ARROW === */
@@ -356,7 +345,7 @@
   font-size: var(--font-size-sm);
   color: var(--color-neutral-gray800);
   transform: rotate(0deg);
-  transition: transform var(--duration-fast) var(--ease-out);
+  transition: transform var(--duration-hover) var(--ease-out);
   margin-left: var(--spacing-sm);
 }
 
@@ -401,7 +390,7 @@
 .dataGridCompact .cell {
   font-size: calc(var(--font-size-md) * 0.9);
   line-height: 1.3;
-  padding: 2px calc(var(--spacing-md) * 0.5);
+  padding: var(--spacing-xs) calc(var(--spacing-md) * 0.5);
 }
 
 .dataGridCompact .expanded {

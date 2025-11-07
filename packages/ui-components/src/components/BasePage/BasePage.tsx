@@ -3,9 +3,10 @@
  * FILE: BasePage.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.tsx
  * DESCRIPTION: Base page wrapper with keyboard shortcuts, analytics, HTML5 drag tracking
- * VERSION: v4.0.1
- * UPDATED: 2025-11-02
+ * VERSION: v4.0.2
+ * UPDATED: 2025-11-06
  * CHANGES:
+ *   - v4.0.2: Fixed sidebar navigation - added missing test pages (forms, spinner, wizard-demo, glass-modal)
  *   - v4.0.1: Added Icons test page to sidebar navigation
  *   - v4.0.0: Added native HTML5 drag event tracking (dragstart/dragend) for text drag & drop
  *   - v3.1.0: Analytics ALWAYS run, showDebugBar only controls visualization
@@ -170,11 +171,16 @@ export const BasePage: React.FC<BasePageProps> = ({
           children: [
             { path: '/testing/badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️', onClick: () => navigate('/testing/badge') },
             { path: '/testing/card', labelKey: 'components.testing.cardTitle', icon: '🃏', onClick: () => navigate('/testing/card') },
+            { path: '/testing/datagrid', labelKey: 'components.testing.dataGridTitle', icon: '📊', onClick: () => navigate('/testing/datagrid') },
             { path: '/testing/empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭', onClick: () => navigate('/testing/empty-state') },
+            { path: '/testing/forms', labelKey: 'components.testing.formComponents', icon: '📝', onClick: () => navigate('/testing/forms') },
+            { path: '/testing/glass-modal', labelKey: 'components.testing.glassModal.title', icon: '✨', onClick: () => navigate('/testing/glass-modal') },
             { path: '/testing/icons', labelKey: 'components.testing.iconsTitle', icon: '🎨', onClick: () => navigate('/testing/icons') },
             { path: '/testing/modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟', onClick: () => navigate('/testing/modal-v3') },
+            { path: '/testing/spinner', labelKey: 'components.testing.spinnerTitle', icon: '⏳', onClick: () => navigate('/testing/spinner') },
             { path: '/testing/toast', labelKey: 'components.testing.toastTitle', icon: '🍞', onClick: () => navigate('/testing/toast') },
             { path: '/testing/utility', labelKey: 'pages.utilityTest.title', icon: '🔧', onClick: () => navigate('/testing/utility') },
+            { path: '/testing/wizard-demo', labelKey: 'components.testing.wizardTitle', icon: '🧙', onClick: () => navigate('/testing/wizard-demo') },
           ],
         },
         { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)

@@ -3,44 +3,44 @@
  * FILE: ManagementModal.module.css
  * PATH: /packages/ui-components/src/components/ManagementModal/ManagementModal.module.css
  * DESCRIPTION: Management modal styles
- * VERSION: v2.0.0
- * UPDATED: 2025-10-31 14:00:00
+ * VERSION: v2.0.1
+ * UPDATED: 2025-11-07 00:00:00
  * ================================================================
  */
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-md);
   min-height: 200px;
 }
 
 .addButton {
-  margin-top: 8px;
+  margin-top: var(--spacing-sm);
 }
 
 .itemsList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 /* === LIST CONTAINER === */
 .listContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-md);
 }
 
 /* === SELECTION TOOLBAR === */
 .selectionToolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: calc(var(--spacing-md) - var(--spacing-xs));
+  padding: var(--spacing-sm) calc(var(--spacing-md) - var(--spacing-xs));
   background: var(--theme-input-background, #f5f5f5);
   border: 1px solid var(--theme-input-border, #e0e0e0);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .selectionCount {
@@ -53,7 +53,7 @@
 .itemList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .itemWrapper {
@@ -65,7 +65,7 @@
   cursor: pointer;
   user-select: none;
   line-height: 1;
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-state) var(--ease-out);
   display: inline-flex;
   align-items: center;
   justify-content: center;

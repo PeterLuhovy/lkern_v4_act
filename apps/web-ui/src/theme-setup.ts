@@ -3,12 +3,33 @@
  * FILE: theme-setup.ts
  * PATH: apps/web-ui/src/theme-setup.ts
  * DESCRIPTION: Generate theme CSS from @l-kern/config design tokens
- * VERSION: v1.1.0
- * UPDATED: 2025-10-19 17:30:00
+ * VERSION: v2.0.0
+ * UPDATED: 2025-11-06 18:00:00
+ * ================================================================
+ * CHANGELOG v2.0.0:
+ *   - Added GRADIENTS CSS variables (6 patterns)
+ *   - Added ANIMATIONS.duration (hover, stateChange, modal)
+ *   - Added ANIMATIONS.timing (bounce, smooth)
+ *   - Added HOVER_EFFECTS CSS variables (lift, scale)
+ *   - Added SHADOWS.focus CSS variables (default, subtle, hover, error, success)
+ *   - Added SHADOWS.component CSS variables (button, card, checkbox, radio)
+ *   - Added SIDEBAR CSS variables (background, popoverBackground)
+ *   - Added border-radius shortcuts (--radius-*)
+ *   - Total: ~40 new CSS variables for Design System Refactor
  * ================================================================
  */
 
-import { COLORS, TYPOGRAPHY, LAYOUT, SPACING, SHADOWS } from '@l-kern/config';
+import {
+  COLORS,
+  TYPOGRAPHY,
+  LAYOUT,
+  SPACING,
+  SHADOWS,
+  GRADIENTS,
+  ANIMATIONS,
+  HOVER_EFFECTS,
+  SIDEBAR,
+} from '@l-kern/config';
 
 /**
  * Inject theme CSS variables into document
@@ -76,6 +97,9 @@ export function setupTheme(): void {
 
       /* Card colors */
       --theme-card-background: ${COLORS.neutral.gray100};
+
+      /* Table header */
+      --theme-table-header-bg: ${COLORS.neutral.gray255};
 
       /* Status colors */
       --color-success: ${COLORS.status.success};
@@ -145,19 +169,106 @@ export function setupTheme(): void {
       --z-index-popover: ${LAYOUT.zIndex.popover};
       --z-index-notification: ${LAYOUT.zIndex.notification};
 
-      /* Shadows */
+      /* Shadows - Base */
+      --shadow-xs: ${SHADOWS.xs};
       --shadow-sm: ${SHADOWS.sm};
       --shadow-md: ${SHADOWS.md};
       --shadow-lg: ${SHADOWS.lg};
       --shadow-xl: ${SHADOWS.xl};
+      --shadow-xxl: ${SHADOWS.xxl};
+      --shadow-inner: ${SHADOWS.inner};
 
-      /* Animations */
-      --animation-duration-fast: 150ms;
-      --animation-duration-normal: 300ms;
-      --animation-duration-slow: 500ms;
-      --animation-timing-ease: ease;
-      --animation-timing-ease-in: ease-in;
-      --animation-timing-ease-out: ease-out;
+      /* Shadows - Focus Rings */
+      --shadow-focus: ${SHADOWS.focus.default};
+      --shadow-focus-subtle: ${SHADOWS.focus.subtle};
+      --shadow-focus-hover: ${SHADOWS.focus.hover};
+      --shadow-focus-error: ${SHADOWS.focusError};
+      --shadow-focus-success: ${SHADOWS.focusSuccess};
+
+      /* Shadows - Hover Rings (Status) */
+      --shadow-hover-error: ${SHADOWS.hoverError};
+      --shadow-hover-success: ${SHADOWS.hoverSuccess};
+
+      /* Shadows - Inset */
+      --shadow-inset-deep: ${SHADOWS.insetDeep};
+
+      /* Shadows - Component (pre-combined) */
+      --shadow-checked: ${SHADOWS.component.checked};
+      --shadow-button-default: ${SHADOWS.component.button.default};
+      --shadow-button-hover: ${SHADOWS.component.button.hover};
+      --shadow-button-active: ${SHADOWS.component.button.active};
+      --shadow-button-secondary-default: ${SHADOWS.component.buttonSecondary.default};
+      --shadow-button-secondary-hover: ${SHADOWS.component.buttonSecondary.hover};
+      --shadow-button-secondary-active: ${SHADOWS.component.buttonSecondary.active};
+      --shadow-card-default: ${SHADOWS.component.card.default};
+      --shadow-card-default-hover: ${SHADOWS.component.card.defaultHover};
+      --shadow-card-elevated: ${SHADOWS.component.card.elevated};
+      --shadow-card-elevated-hover: ${SHADOWS.component.card.elevatedHover};
+      --shadow-card-accent: ${SHADOWS.component.card.accent};
+      --shadow-card-accent-hover: ${SHADOWS.component.card.accentHover};
+      --shadow-checkbox-default: ${SHADOWS.component.checkbox.default};
+      --shadow-checkbox-hover: ${SHADOWS.component.checkbox.hover};
+      --shadow-checkbox-focus: ${SHADOWS.component.checkbox.focus};
+      --shadow-checkbox-checked: ${SHADOWS.component.checkbox.checked};
+      --shadow-radio-default: ${SHADOWS.component.radio.default};
+      --shadow-radio-hover: ${SHADOWS.component.radio.hover};
+      --shadow-radio-focus: ${SHADOWS.component.radio.focus};
+      --shadow-radio-checked: ${SHADOWS.component.radio.checked};
+      --shadow-brand-glow: ${SHADOWS.component.brandGlow};
+      --shadow-elevation-dark: ${SHADOWS.component.elevationDark};
+
+      /* Border Radius (shortcuts for migration) */
+      --radius-none: ${LAYOUT.borderRadius.none}px;
+      --radius-sm: ${LAYOUT.borderRadius.sm}px;
+      --radius-md: ${LAYOUT.borderRadius.md}px;
+      --radius-lg: ${LAYOUT.borderRadius.lg}px;
+      --radius-xl: ${LAYOUT.borderRadius.xl}px;
+      --radius-round: ${LAYOUT.borderRadius.round}%;
+      --radius-pill: ${LAYOUT.borderRadius.pill}px;
+
+      /* Gradients */
+      --gradient-primary: ${GRADIENTS.primary};
+      --gradient-disabled: ${GRADIENTS.disabled};
+      --gradient-error: ${GRADIENTS.error};
+      --gradient-unchecked: ${GRADIENTS.unchecked};
+      --gradient-radial-white: ${GRADIENTS.radialWhite};
+      --gradient-radial-disabled: ${GRADIENTS.radialDisabled};
+
+      /* Animation Durations */
+      --duration-instant: ${ANIMATIONS.duration.instant}ms;
+      --duration-hover: ${ANIMATIONS.duration.hover}ms;
+      --duration-state: ${ANIMATIONS.duration.stateChange}ms;
+      --duration-normal: ${ANIMATIONS.duration.normal}ms;
+      --duration-modal: ${ANIMATIONS.duration.modal}ms;
+      --duration-sidebar: ${ANIMATIONS.duration.sidebar}ms;
+      --duration-slow: ${ANIMATIONS.duration.slow}ms;
+
+      /* Animation Easings */
+      --ease-linear: ${ANIMATIONS.timing.linear};
+      --ease: ${ANIMATIONS.timing.ease};
+      --ease-in: ${ANIMATIONS.timing.easeIn};
+      --ease-out: ${ANIMATIONS.timing.easeOut};
+      --ease-in-out: ${ANIMATIONS.timing.easeInOut};
+      --ease-bounce: ${ANIMATIONS.timing.bounce};
+      --ease-smooth: ${ANIMATIONS.timing.smooth};
+
+      /* Hover Effects - Lift */
+      --lift-subtle: ${HOVER_EFFECTS.lift.subtle};
+      --lift-normal: ${HOVER_EFFECTS.lift.normal};
+      --lift-strong: ${HOVER_EFFECTS.lift.strong};
+
+      /* Hover Effects - Scale */
+      --scale-subtle: ${HOVER_EFFECTS.scale.subtle};
+      --scale-normal: ${HOVER_EFFECTS.scale.normal};
+      --scale-strong: ${HOVER_EFFECTS.scale.strong};
+
+      /* Sidebar - Light Theme */
+      --sidebar-bg: ${SIDEBAR.background.light};
+      --sidebar-popover-bg: ${SIDEBAR.popoverBackground.light};
+
+      /* Status Colors - Dark Variants */
+      --color-status-error-dark: ${COLORS.status.errorDark};
+      --color-status-success-dark: ${COLORS.status.successDark};
     }
 
     /* Dark Theme */
@@ -170,14 +281,14 @@ export function setupTheme(): void {
       --color-text: ${COLORS.neutral.gray100};
       --color-text-secondary: ${COLORS.neutral.gray400};
       --theme-text: ${COLORS.neutral.gray100};
-      --theme-text-muted: ${COLORS.neutral.gray500};
+      --theme-text-muted: ${COLORS.neutral.gray300};
 
       /* Input text - dark for better contrast on lighter input background */
       --theme-input-text: ${COLORS.neutral.gray900};
 
-      /* Brand colors (lighter versions for dark mode) */
-      --color-primary: ${COLORS.brand.light};
-      --color-brand-primary: ${COLORS.brand.light};
+      /* Brand colors (same as light mode like v3) */
+      --color-primary: ${COLORS.brand.primary};
+      --color-brand-primary: ${COLORS.brand.primary};
       --color-secondary: #64b5f6;
       --color-accent: #f48fb1;
 
@@ -187,10 +298,10 @@ export function setupTheme(): void {
       --theme-input-border: ${COLORS.neutral.gray600};
       --theme-input-border-hover: ${COLORS.neutral.gray500};
 
-      /* Input/Form colors */
-      --theme-input-background: ${COLORS.neutral.gray600};
-      --theme-input-background-focus: ${COLORS.neutral.gray500};
-      --theme-input-background-valid: ${COLORS.neutral.gray600};
+      /* Input/Form colors - darker like v3 */
+      --theme-input-background: ${COLORS.neutral.gray650};
+      --theme-input-background-focus: ${COLORS.neutral.gray600};
+      --theme-input-background-valid: ${COLORS.neutral.gray650};
       --theme-input-background-disabled: ${COLORS.neutral.gray700};
       --theme-hover-background: ${COLORS.neutral.gray700};
       --theme-button-text-on-color: ${COLORS.neutral.white};
@@ -203,8 +314,11 @@ export function setupTheme(): void {
       --theme-validation-error-border: #ff6659;
       --theme-validation-success-border: #66bb6a;
 
-      /* Card colors - same as modal background */
-      --theme-card-background: ${COLORS.neutral.gray800};
+      /* Card colors - darker like v3 */
+      --theme-card-background: ${COLORS.neutral.gray750};
+
+      /* Table header - darker like v3 */
+      --theme-table-header-bg-dark: ${COLORS.neutral.gray770};
 
       /* Modal background - darker than inputs */
       --theme-modal-background: ${COLORS.neutral.gray800};
@@ -224,6 +338,10 @@ export function setupTheme(): void {
       /* Button warning - darker for dark mode */
       --button-warning-from: #c46d3a;
       --button-warning-to: #a0522d;
+
+      /* Sidebar - Dark Theme Override */
+      --sidebar-bg: ${SIDEBAR.background.dark};
+      --sidebar-popover-bg: ${SIDEBAR.popoverBackground.dark};
     }
 
     /* Global Styles */

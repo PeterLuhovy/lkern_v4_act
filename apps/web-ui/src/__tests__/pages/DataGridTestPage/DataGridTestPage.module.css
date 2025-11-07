@@ -1,0 +1,118 @@
+/*
+ * ================================================================
+ * FILE: DataGridTestPage.module.css
+ * PATH: /apps/web-ui/src/__tests__/pages/DataGridTestPage/DataGridTestPage.module.css
+ * DESCRIPTION: Styles for DataGrid test page
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-06 12:00:00
+ * ================================================================
+ */
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.backLink {
+  display: inline-block;
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.backLink:hover {
+  color: var(--color-brand-dark, #7b1fa2);
+  text-decoration: underline;
+}
+
+.title {
+  font-size: var(--font-size-xxxl);
+  font-weight: var(--font-weight-bold);
+  color: var(--theme-text);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--theme-text-muted);
+  margin: 0;
+}
+
+.section {
+  margin-bottom: var(--spacing-xxxl);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text);
+  margin: 0 0 var(--spacing-lg) 0;
+  border-bottom: 2px solid var(--color-brand-primary);
+  padding-bottom: var(--spacing-sm);
+}
+
+.controls {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+}
+
+.filterRow {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.filterInput {
+  flex: 1;
+  max-width: 400px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-md);
+  border: var(--border-width-thin, 1px) solid var(--theme-border);
+  border-radius: var(--radius-md);
+  background: var(--theme-input-background);
+  color: var(--theme-text);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+}
+
+.selectionInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--theme-card-background);
+  border: var(--border-width-thin, 1px) solid var(--color-brand-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  color: var(--theme-text);
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--theme-card-background);
+  border: var(--border-width-thin, 1px) solid var(--theme-border);
+  border-radius: var(--radius-md);
+}
+
+.features span {
+  font-size: var(--font-size-sm);
+  color: var(--theme-text-muted);
+}

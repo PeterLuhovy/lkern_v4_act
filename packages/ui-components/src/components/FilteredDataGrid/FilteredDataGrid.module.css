@@ -1,0 +1,15 @@
+/*
+ * ================================================================
+ * FILE: FilteredDataGrid.module.css
+ * PATH: /packages/ui-components/src/components/FilteredDataGrid/FilteredDataGrid.module.css
+ * DESCRIPTION: Minimal wrapper styles for FilteredDataGrid
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-06
+ * ================================================================
+ */
+
+.filteredDataGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* FilterPanel has margin-bottom, no gap needed */
+}

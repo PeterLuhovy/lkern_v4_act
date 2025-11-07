@@ -54,6 +54,7 @@ export const ICONS_ACTIONS = {
   remove: '➖',        // Remove
   delete: '🗑️',       // Delete
   edit: '✏️',          // Edit
+  view: '👁️',          // View
   save: '💾',          // Save
   cancel: '❌',        // Cancel
   search: '🔍',        // Search
@@ -87,6 +88,7 @@ export const ICONS_STATUS = {
   partial: '🟡',        // Partial
   progress: '⏳',       // Progress
   completed: '✅',      // Completed
+  completedCheck: '✔️', // Completed (check mark)
   blocked: '🔴',        // Blocked
   star: '⭐',          // Star filled
   starEmpty: '☆',      // Star empty

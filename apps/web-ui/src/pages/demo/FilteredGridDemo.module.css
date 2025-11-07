@@ -1,0 +1,106 @@
+/*
+ * ================================================================
+ * FILE: FilteredGridDemo.module.css
+ * PATH: /apps/web-ui/src/pages/demo/FilteredGridDemo.module.css
+ * DESCRIPTION: Styles for FilteredDataGrid demo page
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-06
+ * ================================================================
+ */
+
+.demoPage {
+  /* Full-width container with generous margins */
+  padding: var(--spacing-y-lg, 24px) 100px; /* Top/bottom 24px, left/right 100px */
+  min-height: calc(100vh - 48px); /* Full viewport height minus debug bar */
+  box-sizing: border-box;
+}
+
+.demoPage h1 {
+  margin-bottom: var(--spacing-y-md, 16px);
+  color: var(--theme-text);
+}
+
+.info {
+  background: var(--theme-card-background);
+  border: 2px solid var(--theme-border);
+  border-left: 6px solid var(--color-brand-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-y-md, 16px) var(--spacing-x-md, 16px);
+  margin-bottom: var(--spacing-y-lg, 24px);
+}
+
+.info p {
+  margin: 0 0 var(--spacing-y-sm, 10px) 0;
+  font-weight: var(--font-weight-bold);
+  color: var(--theme-text);
+}
+
+.info ul {
+  margin: 0;
+  padding-left: var(--spacing-x-md, 16px);
+  color: var(--theme-text);
+}
+
+.info li {
+  margin-bottom: var(--spacing-y-xs, 6px);
+}
+
+.expandedContent {
+  padding: var(--spacing-y-md, 16px);
+  background: var(--theme-background);
+  border-radius: var(--border-radius-sm);
+}
+
+.expandedContent h4 {
+  margin: 0 0 var(--spacing-y-sm, 10px) 0;
+  color: var(--color-brand-primary);
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-y-sm, 10px) var(--spacing-x-md, 16px);
+}
+
+.detailsGrid div {
+  font-size: var(--font-size-sm);
+  color: var(--theme-text);
+}
+
+.detailsGrid strong {
+  color: var(--theme-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.selectedInfo {
+  margin-top: var(--spacing-y-lg, 24px);
+  padding: var(--spacing-y-md, 16px);
+  background: var(--theme-card-background);
+  border: 2px solid var(--color-brand-primary);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x-md, 16px);
+  color: var(--theme-text);
+}
+
+.selectedInfo strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.selectedInfo button {
+  padding: var(--spacing-y-xs, 6px) var(--spacing-x-sm, 12px);
+  background: var(--color-brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.2s;
+}
+
+.selectedInfo button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--color-brand-primary-alpha);
+}

@@ -84,6 +84,18 @@ export const TestingDashboard: React.FC = () => {
       title: t('components.testing.iconsTitle'),
       description: t('components.testing.iconsDescription'),
     },
+    {
+      path: '/testing/datagrid',
+      icon: '📊',
+      title: t('components.testing.dataGridTitle'),
+      description: t('components.testing.dataGridDescription'),
+    },
+    {
+      path: '/testing/filtered-grid',
+      icon: '🔍',
+      title: t('components.testing.filteredGridTitle'),
+      description: t('components.testing.filteredGridDescription'),
+    },
   ];
 
   return (

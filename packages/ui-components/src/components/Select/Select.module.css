@@ -2,8 +2,8 @@
  * @file Select.module.css
  * @package @l-kern/ui-components
  * @description Select component styles using CSS Modules and design tokens
- * @version 1.0.0
- * @date 2025-10-18
+ * @version 1.0.1
+ * @date 2025-11-07
  */
 
 /* ================================================================
@@ -39,10 +39,10 @@
   /* Appearance */
   background: var(--theme-input-background, #ffffff);
   border: 2px solid var(--theme-input-border, #e0e0e0);
-  border-radius: var(--border-radius-md, 6px);
+  border-radius: var(--radius-md);
 
   /* Animation */
-  transition: border-color var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
+  transition: border-color var(--duration-hover) var(--ease-out);
 
   /* Other */
   outline: none;

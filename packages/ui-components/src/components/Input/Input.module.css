@@ -3,8 +3,8 @@
  * FILE: Input.module.css
  * PATH: /packages/ui-components/src/components/Input/Input.module.css
  * DESCRIPTION: Simplified input styles - no wrapper, no error/helper text
- * VERSION: v2.0.0
- * UPDATED: 2025-10-19 18:00:00
+ * VERSION: v2.0.2
+ * UPDATED: 2025-11-07 00:00:00
  *
  * BREAKING CHANGES (v2.0.0):
  *   - REMOVED: .wrapper, .wrapper--fullWidth (no wrapper div)
@@ -32,11 +32,11 @@
   /* Appearance */
   background: var(--theme-input-background, #ffffff);
   border: 2px solid var(--theme-input-border, #e0e0e0);
-  border-radius: var(--border-radius-md, 6px);
+  border-radius: var(--radius-md);
 
   /* Animation */
-  transition: border-color var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease),
-              background var(--animation-duration-fast, 150ms) var(--animation-timing-ease, ease);
+  transition: border-color var(--duration-hover) var(--ease-out),
+              background var(--duration-hover) var(--ease-out);
 
   /* Other */
   outline: none;
@@ -54,7 +54,7 @@
 .input:focus {
   border-color: var(--color-brand-primary, #9c27b0);
   background: var(--theme-input-background-focus);
-  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.15);
+  box-shadow: var(--shadow-focus-subtle);
   outline: none;
 }
 
@@ -66,7 +66,7 @@
 .input--error:focus {
   border-color: var(--color-status-error, #f44336);
   background: var(--theme-input-background-focus);
-  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15);
+  box-shadow: var(--shadow-focus-error);
   outline: none;
 }
 
@@ -79,7 +79,7 @@
 .input--valid:focus {
   border-color: var(--color-status-success, #4CAF50);
   background: var(--theme-input-background-focus);
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+  box-shadow: var(--shadow-focus-success);
   outline: none;
 }
 
@@ -140,19 +140,19 @@
 /* Normal input hover - purple border + shadow */
 .input:hover:not(:disabled):not(:focus):not(.input--error):not(.input--valid) {
   border-color: var(--color-brand-primary, #9c27b0);
-  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+  box-shadow: var(--shadow-focus-hover);
 }
 
 /* Error input hover - darker red + shadow */
 .input--error:hover:not(:disabled):not(:focus) {
-  border-color: #d32f2f;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+  border-color: var(--color-status-error-dark);
+  box-shadow: var(--shadow-hover-error);
 }
 
 /* Valid input hover - darker green + shadow */
 .input--valid:hover:not(:disabled):not(:focus) {
-  border-color: #388e3c;
-  box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.1);
+  border-color: var(--color-status-success-dark);
+  box-shadow: var(--shadow-hover-success);
 }
 
 /* ================================================================

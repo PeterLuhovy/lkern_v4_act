@@ -2,8 +2,11 @@
  * @file Button.module.css
  * @package @l-kern/ui-components
  * @description Clean button styles - simple gradient design
- * @version 3.0.0
- * @updated 2025-10-19 18:30:00
+ * @version 3.1.1
+ * @updated 2025-11-07 00:00:00
+ * @changes
+ *   - v3.1.1: Fixed hardcoded font-size in .button--xs (1 violation)
+ *   - v3.1.0: Design token migration (Phase 2.3)
  */
 
 /* ================================================================
@@ -19,11 +22,11 @@
   font-family: inherit;
   font-weight: var(--font-weight-semibold);
   border: none;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radius-md);
   cursor: pointer;
   outline: none;
   position: relative;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition: transform var(--duration-state) var(--ease-out), box-shadow var(--duration-state) var(--ease-out);
 }
 
 .button:hover:not(:disabled) {
@@ -47,8 +50,7 @@
 .button--primary {
   background: linear-gradient(135deg, var(--button-primary-from) 0%, var(--button-primary-to) 100%);
   color: var(--theme-button-text-on-color);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-default);
 }
 
 .button--primary:hover:not(:disabled) {
@@ -58,8 +60,7 @@
 }
 
 .button--primary:active:not(:disabled) {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-active);
 }
 
 /* Secondary */
@@ -67,25 +68,23 @@
   background: linear-gradient(135deg, var(--theme-input-background) 0%, var(--theme-input-background) 100%);
   color: var(--theme-text);
   border: 2px solid var(--theme-input-border);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-button-secondary-default);
 }
 
 .button--secondary:hover:not(:disabled) {
   border-color: var(--color-brand-primary);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05),
-              0 0 0 3px rgba(156, 39, 176, 0.1);
+  box-shadow: var(--shadow-button-secondary-hover);
 }
 
 .button--secondary:active:not(:disabled) {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-button-secondary-default);
 }
 
 /* Danger */
 .button--danger {
   background: linear-gradient(135deg, var(--button-danger-from) 0%, var(--button-danger-to) 100%);
   color: var(--theme-button-text-on-color);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-default);
 }
 
 .button--danger:hover:not(:disabled) {
@@ -95,8 +94,7 @@
 }
 
 .button--danger:active:not(:disabled) {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-active);
 }
 
 /* Danger Subtle - Muted red for less critical destructive actions */
@@ -110,8 +108,7 @@
 .button--danger-subtle:hover:not(:disabled) {
   background: var(--button-danger-subtle-hover);
   transform: translateY(-1px);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-default);
 }
 
 .button--danger-subtle:active:not(:disabled) {
@@ -138,8 +135,7 @@
 .button--success {
   background: linear-gradient(135deg, var(--button-success-from) 0%, var(--button-success-to) 100%);
   color: var(--theme-button-text-on-color);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-default);
 }
 
 .button--success:hover:not(:disabled) {
@@ -149,16 +145,14 @@
 }
 
 .button--success:active:not(:disabled) {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-active);
 }
 
 /* Warning - Orange for edit/modify actions */
 .button--warning {
   background: linear-gradient(135deg, var(--button-warning-from) 0%, var(--button-warning-to) 100%);
   color: var(--theme-button-text-on-color);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-default);
 }
 
 .button--warning:hover:not(:disabled) {
@@ -168,8 +162,7 @@
 }
 
 .button--warning:active:not(:disabled) {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
-              0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-button-active);
 }
 
 /* ================================================================
@@ -179,7 +172,7 @@
 /* Extra small - for debug bars and compact toolbars */
 .button--xs {
   padding: 1.5px 6px;
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   height: auto;
   min-height: 18px;
   font-weight: 600;

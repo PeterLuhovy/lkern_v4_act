@@ -48,6 +48,7 @@ export const FormsTestPage: React.FC = () => {
             <Button variant="primary" size="small">{t('components.buttons.primary')}</Button>
             <Button variant="secondary" size="small">{t('components.buttons.secondary')}</Button>
             <Button variant="danger" size="small">{t('components.buttons.danger')}</Button>
+            <Button variant="danger-subtle" size="small">{t('components.buttons.dangerSubtle')}</Button>
             <Button variant="ghost" size="small">{t('components.buttons.ghost')}</Button>
             <Button variant="success" size="small">{t('components.buttons.success')}</Button>
           </div>
@@ -75,13 +76,22 @@ export const FormsTestPage: React.FC = () => {
           </div>
 
           <h4 className={styles.sectionTitle}>{t('components.testing.navigationButtons')}</h4>
-          <div className={styles.buttonRowLast}>
+          <div className={styles.buttonRow}>
             <Button variant="secondary" size="small" icon={<ArrowLeftIcon />}>
               {t('common.back')}
             </Button>
             <Button variant="primary" size="small" icon={<ArrowRightIcon />} iconPosition="right">
               {t('common.next')}
             </Button>
+          </div>
+
+          <h4 className={styles.sectionTitle}>{t('components.testing.iconOnlyButtons')}</h4>
+          <div className={styles.buttonRowLast}>
+            <Button variant="ghost" size="small">✏️</Button>
+            <Button variant="danger" size="small">🗑️</Button>
+            <Button variant="primary" size="small">⭐</Button>
+            <Button variant="secondary" size="small">📋</Button>
+            <Button variant="success" size="small">✓</Button>
           </div>
         </Card>
 

@@ -3,8 +3,8 @@
  * FILE: DashboardCard.module.css
  * PATH: /packages/ui-components/src/components/DashboardCard/DashboardCard.module.css
  * DESCRIPTION: Styling for DashboardCard component
- * VERSION: v1.0.1
- * UPDATED: 2025-10-19 16:40:00
+ * VERSION: v1.0.2
+ * UPDATED: 2025-11-07 00:00:00
  * ================================================================
  */
 
@@ -15,7 +15,7 @@
   text-decoration: none;
   color: inherit;
   display: block;
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-state) var(--ease-out);
 }
 
 .cardLink:hover {
@@ -52,7 +52,7 @@
   gap: var(--spacing-md, 12px);
   height: 100%;
   min-height: var(--spacing-xhuge, 180px);
-  transition: box-shadow 0.2s ease; /* Smooth shadow transition */
+  transition: box-shadow var(--duration-state) var(--ease-out); /* Smooth shadow transition */
 }
 
 /* Icon */

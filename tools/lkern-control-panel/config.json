@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "L-KERN Control Panel",
+    "version": "1.0.0",
+    "working_directory": "L:\\system\\lkern_codebase_v4_act"
+  },
+  "ui": {
+    "window_width": 1200,
+    "window_height": 800,
+    "terminal_font": "Consolas",
+    "terminal_font_size": 10,
+    "auto_scroll_default": true,
+    "max_history": 20
+  },
+  "commands": {
+    "build_web_ui": {
+      "label": "Build Web-UI",
+      "command": "docker exec lkms201-web-ui npx nx run web-ui:build",
+      "category": "Build",
+      "description": "Build web-ui application for production in Docker"
+    },
+    "build_all": {
+      "label": "Build All",
+      "command": "docker exec lkms201-web-ui npx nx run-many -t build",
+      "category": "Build",
+      "description": "Build all projects in Docker workspace"
+    },
+    "clean": {
+      "label": "Clean",
+      "command": "docker exec lkms201-web-ui npx nx reset",
+      "category": "Build",
+      "description": "Clear Nx cache in Docker container"
+    },
+    "test_web_ui": {
+      "label": "Test Web-UI",
+      "command": "docker exec lkms201-web-ui npm test",
+      "category": "Test",
+      "description": "Run web-ui unit tests in Docker (Vitest)"
+    },
+    "test_config": {
+      "label": "Test Config",
+      "command": "docker exec lkms201-web-ui npx nx run config:test",
+      "category": "Test",
+      "description": "Run config package tests in Docker"
+    },
+    "test_ui_components": {
+      "label": "Test UI-Comp",
+      "command": "docker exec lkms201-web-ui npx nx run ui-components:test",
+      "category": "Test",
+      "description": "Run ui-components tests in Docker"
+    },
+    "test_all": {
+      "label": "Test All",
+      "command": "docker exec lkms201-web-ui npx nx run-many -t test",
+      "category": "Test",
+      "description": "Run all tests in Docker workspace"
+    },
+    "lint_all": {
+      "label": "Lint All",
+      "command": "docker exec lkms201-web-ui npx nx run-many -t lint",
+      "category": "Lint",
+      "description": "Lint all projects in Docker for code quality"
+    }
+  }
+}

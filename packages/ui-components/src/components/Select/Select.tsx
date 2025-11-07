@@ -60,6 +60,18 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
    * @default false
    */
   fullWidth?: boolean;
+
+  /**
+   * Error state (injected by FormField, internal use)
+   * @internal
+   */
+  hasError?: boolean;
+
+  /**
+   * Valid state (injected by FormField, internal use)
+   * @internal
+   */
+  isValid?: boolean;
 }
 
 /**
@@ -87,7 +99,7 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
  * ```
  */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ options, placeholder, error, helperText, fullWidth = false, className, ...props }, ref) => {
+  ({ options, placeholder, error, helperText, fullWidth = false, className, hasError, isValid, ...props }, ref) => {
     const selectClassName = classNames(
       styles.select,
       error && styles['select--error'],

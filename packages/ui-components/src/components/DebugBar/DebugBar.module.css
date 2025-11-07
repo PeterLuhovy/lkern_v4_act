@@ -3,8 +3,8 @@
  * FILE: DebugBar.module.css
  * PATH: /packages/ui-components/src/components/DebugBar/DebugBar.module.css
  * DESCRIPTION: Debug bar styles (based on v3 ModalDebugHeader inline styles)
- * VERSION: v2.1.1
- * UPDATED: 2025-10-19 16:45:00
+ * VERSION: v2.1.2
+ * UPDATED: 2025-11-07 00:00:00
  * ================================================================
  */
 
@@ -19,24 +19,24 @@
 
   /* Background - orange gradient (from v3) */
   background: linear-gradient(90deg, rgba(255,152,0,0.95), rgba(255,193,7,0.95));
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   border: 1px solid rgba(255,152,0,0.6);
   backdrop-filter: blur(10px);
-  box-shadow: 0 2px 10px rgba(255,152,0,0.4);
+  box-shadow: 0 2px 10px rgba(255,152,0,0.4); /* Debug-only: Orange glow for visibility */
 
   /* Layout - flexbox with wrap for narrow modals */
   display: flex;
   flex-wrap: wrap; /* Allow wrapping on narrow modals */
   align-items: center;
   justify-content: space-between;
-  gap: 4px 8px; /* Vertical and horizontal gap between wrapped items */
-  padding: 4px 12px; /* Increased vertical padding for wrapped content */
+  gap: var(--spacing-xs) var(--spacing-sm); /* Vertical and horizontal gap between wrapped items */
+  padding: var(--spacing-xs) calc(var(--spacing-md) - var(--spacing-xs)); /* Increased vertical padding for wrapped content */
 
   /* Typography */
   font-size: 11px;
   font-family: monospace;
   font-weight: 600;
-  color: #212121; /* Always dark text for both themes */
+  color: var(--theme-text); /* Always dark text for both themes */
 
   /* Stacking */
   z-index: 1001;
@@ -98,7 +98,7 @@
   gap: var(--spacing-sm, 8px);
   background: rgba(0, 0, 0, 0.15);
   padding: calc(var(--spacing-xs, 4px) / 2) var(--spacing-sm, 8px);
-  border-radius: var(--spacing-xs, 4px);
+  border-radius: var(--radius-sm);
 }
 
 .debugBar__timerMain {

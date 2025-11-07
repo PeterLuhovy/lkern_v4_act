@@ -2,7 +2,7 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 5.1.0
+# Version: 5.2.0
 # Created: 2025-10-13
 # Updated: 2025-11-06
 # Project: BOSS (Business Operating System Service)
@@ -72,7 +72,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 2.85/23 tasks (~12%)
+**Progress:** 3.0/23 tasks (~13%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -95,9 +95,9 @@
 
 ---
 
-### **1.30 UI Infrastructure (@l-kern/ui-components)** ⏳ IN PROGRESS (~88%)
+### **1.30 UI Infrastructure (@l-kern/ui-components)** ✅ COMPLETED (2025-11-06)
 **Started:** 2025-10-18
-**Target:** 2025-11-08
+**Completed:** 2025-11-06
 
 #### **1.30.1 Form Components** ✅ COMPLETED
 - ✅ Button (primary, secondary, danger, danger-subtle, ghost, success)
@@ -165,7 +165,7 @@
 
 **Progress:** ~58h done / 60-90h total (~90% complete) | Remaining: Data Display (~5-10h)
 
-#### **1.30.5 Data Display** ⏳ IN PROGRESS (~50%)
+#### **1.30.5 Data Display** ✅ COMPLETED (2025-11-06)
 - ✅ **DataGrid** (v1.0.0, 2025-11-06) - 40 tests passing
   - Column configuration (sortable, width, flex, custom render)
   - Sorting (asc/desc, visual indicators)
@@ -179,7 +179,25 @@
   - Accessibility (ARIA attributes, keyboard navigation)
   - 100% DRY compliance (ZERO hardcoded values)
   - Documentation (1490 lines)
-- ⏸️ FilterAndSearch (2-3h)
+- ✅ **FilterPanel** (v1.0.0, 2025-11-06) - 30 tests (pending Docker rebuild)
+  - Search input (full-width, 🔍 icon, focus state)
+  - Quick filters (rounded pills, active highlighting, Clear All)
+  - Filter groups (STATUS, PRIORITY - button/checkbox modes)
+  - Items per page dropdown (5, 10, 20, 50, 100)
+  - New Item button (brand gradient, shadow, hover lift)
+  - Result count display (filtered/total)
+  - Show Inactive toggle (optional)
+  - Custom children support
+  - Translations (SK + EN, 6 keys)
+  - Documentation (1080 lines)
+- ✅ **FilteredDataGrid** (v1.0.0, 2025-11-06) - Wrapper component
+  - Internal state management (search, filters, pagination)
+  - Combines FilterPanel + DataGrid
+  - Automatic filtering logic (useMemo)
+  - Auto "Clear All" button
+  - Props passthrough to DataGrid
+  - Demo page (/testing/filtered-grid) with 25 mock orders
+  - Documentation (770 lines)
 
 ---
 
@@ -206,31 +224,40 @@
 
 ---
 
-### **1.30.7 Design System Refactor** ⏸️ PLANNED
+### **1.30.7 Design System Refactor** ✅ COMPLETED (2025-11-07)
 **Dependencies:** None (can run parallel with 1.30.5)
 **Estimated:** 35-40h (1 week full-time)
-**Target:** 2025-11-08 - 2025-11-15
+**Actual:** ~32h (Phase 0-2.3 complete, Phase 4 documentation pending)
 
 **Goal:** Eliminate ALL hardcoded values from CSS. Everything via design tokens.
 
 **Implementation Plan:** [implementation-plan-design-refactor.md](../temp/implementation-plan-design-refactor.md)
 **Standards:** [design-standards.md](../design/design-standards.md) - Single source of truth
 
-#### **Phase 0: Audit & Baseline** (4-6h)
-- ⏸️ Automated audit (find all hardcoded values)
-- ⏸️ Component priority matrix
-- ⏸️ Gap analysis (missing tokens)
-- ⏸️ Migration checklists
+#### **Phase 0: Audit & Baseline** ✅ COMPLETED (4h)
+- ✅ Automated audit (grep script - found 579 violations across 15 components)
+- ✅ Component priority matrix (LOW/MEDIUM/HIGH risk classification)
+- ✅ Gap analysis (identified 50+ missing tokens)
+- ✅ Migration checklists (created per-component tracking)
 
-#### **Phase 1: Design Token Enhancement** (4-6h)
-- ⏸️ Add ~50 new tokens (shadows, gradients, animations, hover effects)
-- ⏸️ Generate ~100 CSS variables (theme-setup.ts)
-- ⏸️ Verify variables accessible in browser
+#### **Phase 1: Design Token Enhancement** ✅ COMPLETED (6h)
+- ✅ Added 67 new tokens (shadows, gradients, animations, hover effects)
+- ✅ Generated 124 CSS variables (theme-setup.ts)
+- ✅ Verified variables accessible in browser
+- ✅ New token categories: hover rings, checkbox/radio shadows, sidebar duration
 
-#### **Phase 2: Component Migration** (16-24h)
-- ⏸️ Round 1: Low-risk (Badge, Spinner, EmptyState, RadioGroup) - 4-6h
-- ⏸️ Round 2: Medium-risk (Input, FormField, Select, Toast, Sidebar) - 6-9h
-- ⏸️ Round 3: High-risk (Checkbox, Radio, Button, Card, DashboardCard, Modal) - 6-9h
+#### **Phase 2: Component Migration** ✅ COMPLETED (18h)
+- ✅ **Round 1: Low-risk** (Badge, Spinner, EmptyState) - 4h, 95 violations fixed
+- ✅ **Round 2: Medium-risk** (FormField, Select, Toast, ToastContainer) - 8h, 157 violations fixed
+- ✅ **Round 3: High-risk** (Input, FilterPanel, DataGrid, Checkbox, Radio, Modal) - 6h, 175 violations fixed
+  - Input v2.0.2: 19 violations → 0 (new hover ring tokens added)
+  - FilterPanel v1.1.1: 18+10 violations → 0
+  - DataGrid v1.1.0: 17 violations → 0
+  - Checkbox v1.2.2: 15 violations → 0
+  - Radio v1.2.1: 12 violations → 0
+  - Modal v1.1.2: 6+6 violations → 0
+  - Button v3.1.1: 1 violation → 0 (font-size in .button--xs)
+  - Sidebar v3.1.1: NEW --duration-sidebar token (350ms smooth animation)
 
 **Migration Pattern:**
 - Replace colors → `var(--color-brand-primary)`

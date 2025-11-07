@@ -59,6 +59,21 @@ export interface TranslationKeys {
     submit: string;
     back: string;
     next: string;
+    name: string;
+    email: string;
+    phone: string;
+    status: string;
+    orders: string;
+    view: string;
+    actions: string;
+    product: string;
+    quantity: string;
+    price: string;
+    total: string;
+    resizeColumn: string;
+    dataGrid: string;
+    selectAll: string;
+    selectRow: string;
   };
   dashboard: {
     title: string;
@@ -88,6 +103,7 @@ export interface TranslationKeys {
       primary: string;
       secondary: string;
       danger: string;
+      dangerSubtle: string;
       ghost: string;
       success: string;
       small: string;
@@ -144,8 +160,11 @@ export interface TranslationKeys {
       badgeDescription: string;
       cardTitle: string;
       cardDescription: string;
+      dataGridTitle: string;
+      dataGridDescription: string;
       emptyStateTitle: string;
       emptyStateDescription: string;
+      spinnerTitle: string;
       spinnerDescription: string;
       utilityFunctions: string;
       utilityDescription: string;
@@ -157,6 +176,8 @@ export interface TranslationKeys {
       toastDescription: string;
       iconsTitle: string;
       iconsDescription: string;
+      filteredGridTitle: string;
+      filteredGridDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -165,6 +186,7 @@ export interface TranslationKeys {
       withLabel: string;
       customColor: string;
       navigationButtons: string;
+      iconOnlyButtons: string;
       disabled: string;
       fullWidth: string;
       withError: string;
@@ -173,7 +195,6 @@ export interface TranslationKeys {
       pleaseWait: string;
       basicCheckbox: string;
       checkedByDefault: string;
-      spinnerTitle: string;
       xlarge: string;
       processingRequest: string;
       customColors: string;
@@ -220,6 +241,93 @@ export interface TranslationKeys {
         warningMessage: string;
         infoMessage: string;
       };
+    };
+    dataGridTest: {
+      title: string;
+      subtitle: string;
+      backToTesting: string;
+      controls: string;
+      normalMode: string;
+      compactMode: string;
+      disableSelection: string;
+      enableSelection: string;
+      hideActions: string;
+      showActions: string;
+      clearAll: string;
+      resetData: string;
+      filterPlaceholder: string;
+      clearFilter: string;
+      rowsSelected: string;
+      showSelected: string;
+      noOrders: string;
+      ordersFor: string;
+      mainGridTitle: string;
+      emptyStateTitle: string;
+      emptyFilterTitle: string;
+      features: {
+        sortable: string;
+        resizable: string;
+        checkboxSelection: string;
+        rowExpansion: string;
+        nestedGrid: string;
+        actionsColumn: string;
+        statusColors: string;
+        compactMode: string;
+        keyboard: string;
+        persistence: string;
+      };
+    };
+    filteredGridDemo: {
+      pageTitle: string;
+      title: string;
+      featuresTitle: string;
+      feature1: string;
+      feature2: string;
+      feature3: string;
+      feature4: string;
+      feature5: string;
+      feature6: string;
+      feature7: string;
+      feature8: string;
+      feature9: string;
+      feature10: string;
+      feature11: string;
+      feature12: string;
+      statusTitle: string;
+      statusActive: string;
+      statusPending: string;
+      statusCompleted: string;
+      statusCancelled: string;
+      priorityTitle: string;
+      priorityLow: string;
+      priorityMedium: string;
+      priorityHigh: string;
+      quickFilterOverdue: string;
+      quickFilterHighValue: string;
+      columnOrderId: string;
+      columnCustomer: string;
+      columnStatus: string;
+      columnPriority: string;
+      columnTotal: string;
+      columnDueDate: string;
+      searchPlaceholder: string;
+      newOrderClicked: string;
+      newOrderButton: string;
+      showInactiveLabel: string;
+      deleteConfirm: string;
+      orderDeleted: string;
+      orderDetailsTitle: string;
+      labelCustomer: string;
+      labelStatus: string;
+      labelPriority: string;
+      labelTotal: string;
+      labelDueDate: string;
+      labelActive: string;
+      yes: string;
+      no: string;
+      selectedRows: string;
+      orders: string;
+      clearSelection: string;
     };
     card: {
       defaultVariant: string;
@@ -889,5 +997,21 @@ export interface TranslationKeys {
     ibanHelper: string;
     swiftHelper: string;
     notesHelper: string;
+  };
+
+  pageTemplate: {
+    dataGrid: {
+      emptyState: string;
+      noFilterResults: string;
+      noFilterResultsHint: string;
+    };
+    filter: {
+      searchPlaceholder: string;
+      newItem: string;
+      showInactive: string;
+      itemsPerPageLabel: string;
+      filterLabel: string;
+      itemsCount: string;
+    };
   };
 }

@@ -20,6 +20,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from '@l-kern/config';
 import { Button } from '../Button';
+import { Checkbox } from '../Checkbox';
 import styles from './DataGrid.module.css';
 
 // === TYPES ===
@@ -38,6 +39,7 @@ export interface DataGridAction<T = any> {
   onClick: (row: T, e: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
   disabled?: (row: T) => boolean;
+  title?: string; // Tooltip text on hover
 }
 
 export interface DataGridProps<T = any> {
@@ -52,7 +54,6 @@ export interface DataGridProps<T = any> {
   getRowId?: (row: T) => string;
   getRowStatus?: (row: T) => string;
   statusColors?: Record<string, string>;
-  isDarkMode?: boolean;
   hasActiveFilters?: boolean;
   selectedRows?: Set<string>;
   onSelectionChange?: (selectedIds: Set<string>) => void;
@@ -78,7 +79,6 @@ const DataGrid = <T extends Record<string, any>>({
   getRowId = (row) => row.id || String(Math.random()),
   getRowStatus,
   statusColors = {},
-  isDarkMode = false,
   hasActiveFilters = false,
   selectedRows = new Set(),
   onSelectionChange,
@@ -90,6 +90,27 @@ const DataGrid = <T extends Record<string, any>>({
   gridId = 'dataGrid',
 }: DataGridProps<T>) => {
   const { t } = useTranslation();
+
+  // Detect dark mode from data-theme attribute
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDark(theme === 'dark');
+    };
+
+    checkDarkMode();
+
+    // Listen for theme changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // === AUTO-GENERATE ACTIONS COLUMN ===
   const finalColumns = React.useMemo(() => {
@@ -117,6 +138,7 @@ const DataGrid = <T extends Record<string, any>>({
                 action.onClick(row, e);
               }}
               disabled={action.disabled ? action.disabled(row) : false}
+              title={action.title}
             >
               {action.label}
             </Button>
@@ -174,7 +196,6 @@ const DataGrid = <T extends Record<string, any>>({
 
   // === CHECKBOX SELECTION HANDLERS ===
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number>(-1);
-  const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!onSelectionChange) return;
@@ -242,7 +263,6 @@ const DataGrid = <T extends Record<string, any>>({
   // Calculate "Select All" checkbox state
   const allSelected = enableSelection && data.length > 0 && data.every((row) => selectedRows.has(getRowId(row)));
   const someSelected = enableSelection && data.some((row) => selectedRows.has(getRowId(row)));
-  const indeterminate = someSelected && !allSelected;
 
   // === COLUMN RESIZING ===
   const [isResizing, setIsResizing] = useState(false);
@@ -295,13 +315,6 @@ const DataGrid = <T extends Record<string, any>>({
       };
     }
   }, [isResizing, handleMouseMove, handleMouseUp]);
-
-  // Set indeterminate state for "Select All" checkbox
-  useEffect(() => {
-    if (selectAllCheckboxRef.current) {
-      selectAllCheckboxRef.current.indeterminate = indeterminate;
-    }
-  }, [indeterminate]);
 
   // === KEYBOARD NAVIGATION ===
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -428,13 +441,10 @@ const DataGrid = <T extends Record<string, any>>({
           >
             {/* First column: Select All checkbox OR column title */}
             {index === 0 && enableSelection ? (
-              <input
-                type="checkbox"
-                className={styles.checkbox}
+              <Checkbox
                 checked={allSelected}
-                ref={selectAllCheckboxRef}
+                indeterminate={someSelected && !allSelected}
                 onChange={handleSelectAll}
-                onClick={(e) => e.stopPropagation()}
                 aria-label={t('common.selectAll') || 'Select all rows'}
               />
             ) : index === 0 ? (
@@ -498,7 +508,11 @@ const DataGrid = <T extends Record<string, any>>({
             const status = getRowStatus(row);
             baseColor = statusColors[status];
             if (baseColor) {
-              backgroundColor = isExpanded ? baseColor : `${baseColor}80`;
+              // Dark mode: lower opacity (40% collapsed, 70% expanded) for less vibrant colors like v3
+              // Light mode: higher opacity (50% collapsed, 100% expanded) like v3
+              const collapsedOpacity = isDark ? '66' : '80'; // 40% vs 50%
+              const expandedOpacity = isDark ? 'B3' : 'FF'; // 70% vs 100%
+              backgroundColor = isExpanded ? `${baseColor}${expandedOpacity}` : `${baseColor}${collapsedOpacity}`;
               expandedBackgroundColor = `${baseColor}26`;
             }
           }
@@ -544,12 +558,9 @@ const DataGrid = <T extends Record<string, any>>({
                     {colIndex === 0 && (
                       <>
                         {enableSelection && (
-                          <input
-                            type="checkbox"
-                            className={styles.checkbox}
+                          <Checkbox
                             checked={isSelected}
-                            onChange={(e) => handleRowSelect(rowId, e)}
-                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => handleRowSelect(rowId, e as unknown as React.ChangeEvent<HTMLInputElement>)}
                             aria-label={t('common.selectRow') || 'Select row'}
                           />
                         )}

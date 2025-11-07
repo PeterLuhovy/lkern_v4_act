@@ -78,7 +78,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     );
 
     return (
-      <div className={`${styles.checkboxWrapper} ${className || ''}`}>
+      <div
+        className={`${styles.checkboxWrapper} ${className || ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <label
           className={`${styles.checkboxLabel} ${hasError ? styles.error : ''} ${disabled ? styles.disabled : ''}`}
         >
