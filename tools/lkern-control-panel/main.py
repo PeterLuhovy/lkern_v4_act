@@ -3,8 +3,8 @@
 FILE: main.py
 PATH: /tools/lkern-control-panel/main.py
 DESCRIPTION: L-KERN Control Panel - Tkinter GUI application with ANSI color support
-VERSION: v1.3.3
-UPDATED: 2025-11-06 18:25:00
+VERSION: v1.6.4
+UPDATED: 2025-11-08 21:30:00
 ================================================================
 """
 
@@ -19,6 +19,7 @@ from executor import CommandExecutor
 COLORS = {
     'bg': '#1e1e1e',  # Window background
     'fg': '#d4d4d4',  # Text
+    'text_muted': '#9e9e9e',  # Muted text
     'button_bg': '#3c3c3c',  # Button default
     'button_hover': '#505050',  # Button hover
     'button_active': '#007acc',  # Button active/pressed
@@ -27,6 +28,7 @@ COLORS = {
     'success': '#00ff00',  # Success messages
     'error': '#ff5555',  # Error messages
     'info': '#569cd6',  # Info messages
+    'warning': '#FFA500',  # Warning (starting/restarting)
     'checkbox': '#007acc',  # Checkbox accent
     'border': '#3c3c3c',  # Borders
 }
@@ -53,6 +55,11 @@ class LKernControlPanel:
         # Track current command
         self.current_command = None
         self.current_command_label = None
+
+        # Container list (hardcoded - could be dynamic later)
+        self.containers = [
+            {'name': 'lkms201-web-ui', 'label': 'Web-UI (v4)'},
+        ]
 
         # Setup window
         self.setup_window()
@@ -162,8 +169,8 @@ class LKernControlPanel:
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
 
-        # Left panel - Tabbed interface (25%)
-        left_notebook = ttk.Notebook(main_frame, width=300)
+        # Left panel - Tabbed interface (wider for Docker controls)
+        left_notebook = ttk.Notebook(main_frame, width=380)
         left_notebook.pack(side=tk.LEFT, fill=tk.BOTH, padx=(0, 10))
         left_notebook.pack_propagate(False)
 
@@ -171,6 +178,11 @@ class LKernControlPanel:
         commands_tab = ttk.Frame(left_notebook)
         left_notebook.add(commands_tab, text="🔧 Build & Test")
         self.create_command_buttons(commands_tab)
+
+        # Docker tab (second tab)
+        docker_tab = ttk.Frame(left_notebook)
+        left_notebook.add(docker_tab, text="🐳 Docker")
+        self.create_docker_buttons(docker_tab)
 
         # Right panel - Terminal + History (75%)
         right_frame = ttk.Frame(main_frame)
@@ -276,6 +288,309 @@ class LKernControlPanel:
 
                 # Separator after category
                 ttk.Separator(container, orient='horizontal').pack(fill=tk.X, pady=10)
+
+    def create_docker_buttons(self, parent):
+        """Create Docker container list with status and dropdown menus"""
+        # Scrollable container
+        canvas = tk.Canvas(parent, bg=COLORS['bg'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True, padx=(20, 0), pady=20)
+        scrollbar.pack(side="right", fill="y", pady=20, padx=(0, 20))
+
+        # --- GLOBAL CONTROLS SECTION ---
+        global_label = ttk.Label(
+            scrollable_frame,
+            text="🐳 All Containers",
+            font=('Segoe UI', 12, 'bold'),
+            foreground=COLORS['info']
+        )
+        global_label.pack(pady=(0, 10))
+
+        # Global control buttons in grid
+        global_frame = ttk.Frame(scrollable_frame)
+        global_frame.pack(pady=(0, 15))
+
+        global_commands = [
+            ('🚀 Start All', 'docker-compose up -d'),
+            ('🛑 Stop All', 'docker-compose stop'),
+            ('🔄 Restart All', 'docker-compose restart'),
+            ('🔨 Rebuild All', 'docker-compose up --build -d'),
+            ('📋 List All', 'docker ps -a'),
+            ('🗑️ Down', 'docker-compose down'),
+        ]
+
+        row = 0
+        col = 0
+        for label, cmd in global_commands:
+            btn = tk.Button(
+                global_frame,
+                text=label,
+                command=lambda c=cmd, l=label: self.execute_command(c, l),
+                bg=COLORS['button_bg'],
+                fg=COLORS['fg'],
+                font=('Arial', 9),
+                relief=tk.RAISED,
+                bd=1,
+                width=12,
+                cursor='hand2',
+                activebackground=COLORS['button_hover']
+            )
+            btn.grid(row=row, column=col, padx=3, pady=2)
+            col += 1
+            if col >= 2:
+                col = 0
+                row += 1
+
+        ttk.Separator(scrollable_frame, orient='horizontal').pack(fill=tk.X, pady=15)
+
+        # --- INDIVIDUAL CONTAINERS SECTION ---
+        containers_label = ttk.Label(
+            scrollable_frame,
+            text="📦 Containers",
+            font=('Segoe UI', 12, 'bold'),
+            foreground=COLORS['fg']
+        )
+        containers_label.pack(pady=(0, 10))
+
+        # Create container rows
+        for container_info in self.containers:
+            self.create_container_row(scrollable_frame, container_info)
+
+    def create_container_row(self, parent, container_info):
+        """Create a row for a single container with status and menu"""
+        container_name = container_info['name']
+        container_label = container_info['label']
+
+        # Container frame
+        row_frame = tk.Frame(parent, bg=COLORS['bg'])
+        row_frame.pack(fill=tk.X, pady=3)
+
+        # Container name and status label (combined)
+        name_status_label = tk.Label(
+            row_frame,
+            text=f"{container_label}",
+            font=('Segoe UI', 10),
+            bg=COLORS['bg'],
+            fg=COLORS['fg'],
+            anchor='w',
+            width=20
+        )
+        name_status_label.pack(side=tk.LEFT)
+
+        # Status text label (small font, like superscript)
+        status_label = tk.Label(
+            row_frame,
+            text="checking...",
+            font=('Arial', 8),
+            bg=COLORS['bg'],
+            fg=COLORS['text_muted'],
+            anchor='w',
+            width=11
+        )
+        status_label.pack(side=tk.LEFT, padx=(0, 3))
+
+        # Menubutton with dropdown
+        menu_btn = tk.Menubutton(
+            row_frame,
+            text="⚙️ Actions ▼",
+            relief=tk.RAISED,
+            bg=COLORS['button_bg'],
+            fg=COLORS['fg'],
+            font=('Arial', 9),
+            cursor='hand2',
+            activebackground=COLORS['button_hover'],
+            bd=1
+        )
+        menu_btn.pack(side=tk.LEFT, padx=5)
+
+        # Create dropdown menu
+        menu = tk.Menu(menu_btn, tearoff=0, bg=COLORS['button_bg'], fg=COLORS['fg'], font=('Arial', 9))
+        menu_btn['menu'] = menu
+
+        # Add menu items
+        menu.add_command(
+            label="▶️  Start",
+            command=lambda: self.execute_command(
+                f"docker-compose start {container_name}",
+                f"Start {container_label}"
+            )
+        )
+        menu.add_command(
+            label="⏸️  Stop",
+            command=lambda: self.execute_command(
+                f"docker-compose stop {container_name}",
+                f"Stop {container_label}"
+            )
+        )
+        menu.add_command(
+            label="🔁 Restart",
+            command=lambda: self.execute_command(
+                f"docker-compose restart {container_name}",
+                f"Restart {container_label}"
+            )
+        )
+        menu.add_separator()
+        menu.add_command(
+            label="🔧 Rebuild",
+            command=lambda: self.execute_command(
+                f"docker-compose up --build -d {container_name}",
+                f"Rebuild {container_label}"
+            )
+        )
+        menu.add_command(
+            label="📜 Logs (200)",
+            command=lambda: self.execute_command(
+                f"docker logs --tail=200 {container_name}",
+                f"Logs {container_label}"
+            )
+        )
+        menu.add_separator()
+        menu.add_command(
+            label="🗑️  Remove",
+            command=lambda: self.execute_command(
+                f"docker-compose rm -f {container_name}",
+                f"Remove {container_label}"
+            )
+        )
+
+        # Refresh status button
+        refresh_btn = tk.Button(
+            row_frame,
+            text="🔄",
+            command=lambda: self.check_container_status(container_name, status_label),
+            bg=COLORS['button_bg'],
+            fg=COLORS['fg'],
+            font=('Arial', 9),
+            relief=tk.RAISED,
+            bd=1,
+            width=2,
+            cursor='hand2'
+        )
+        refresh_btn.pack(side=tk.LEFT, padx=(0, 2))
+
+        # Add tooltip to refresh button
+        self.create_tooltip(refresh_btn, "Refresh status")
+
+        # Follow logs button (live terminal)
+        logs_btn = tk.Button(
+            row_frame,
+            text="🔍",
+            command=lambda: self.execute_command(
+                f"docker logs --follow --tail=50 {container_name}",
+                f"Live Logs {container_label}"
+            ),
+            bg=COLORS['button_bg'],
+            fg=COLORS['fg'],
+            font=('Arial', 9),
+            relief=tk.RAISED,
+            bd=1,
+            width=2,
+            cursor='hand2'
+        )
+        logs_btn.pack(side=tk.LEFT)
+
+        # Add tooltip to logs button
+        self.create_tooltip(logs_btn, "Follow logs (live)")
+
+        # Auto-check status on creation
+        self.root.after(500, lambda: self.check_container_status(container_name, status_label))
+
+    def create_tooltip(self, widget, text):
+        """Create a tooltip that appears on hover"""
+        tooltip = None
+
+        def show_tooltip(event):
+            nonlocal tooltip
+            x = event.x_root + 10
+            y = event.y_root + 10
+
+            tooltip = tk.Toplevel(widget)
+            tooltip.wm_overrideredirect(True)
+            tooltip.wm_geometry(f"+{x}+{y}")
+
+            label = tk.Label(
+                tooltip,
+                text=text,
+                background=COLORS['button_active'],
+                foreground='#ffffff',
+                relief=tk.SOLID,
+                borderwidth=1,
+                font=('Arial', 8),
+                padx=5,
+                pady=2
+            )
+            label.pack()
+
+        def hide_tooltip(event):
+            nonlocal tooltip
+            if tooltip:
+                tooltip.destroy()
+                tooltip = None
+
+        widget.bind('<Enter>', show_tooltip)
+        widget.bind('<Leave>', hide_tooltip)
+
+    def check_container_status(self, container_name, status_label):
+        """Check container status and update status indicator with proper state"""
+        try:
+            import subprocess
+
+            # Get both status and health status
+            result = subprocess.run(
+                f'docker inspect -f "{{{{.State.Status}}}}|{{{{.State.Health.Status}}}}" {container_name}',
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+
+            if result.returncode == 0:
+                output = result.stdout.strip()
+                parts = output.split('|')
+                status = parts[0].lower()
+                health = parts[1].lower() if len(parts) > 1 and parts[1] else None
+
+                # Map Docker states to colors with health check
+                if status == 'running':
+                    # Check health status if available
+                    if health == 'starting':
+                        status_label.config(text="starting", fg=COLORS['warning'])
+                    elif health == 'unhealthy':
+                        status_label.config(text="unhealthy", fg=COLORS['error'])
+                    elif health == 'healthy':
+                        status_label.config(text="running", fg=COLORS['success'])
+                    else:
+                        # No health check configured, assume running is ready
+                        status_label.config(text="running", fg=COLORS['success'])
+                elif status in ['starting', 'restarting']:
+                    status_label.config(text=status, fg=COLORS['warning'])
+                elif status in ['exited', 'stopped']:
+                    status_label.config(text=status, fg=COLORS['error'])
+                elif status in ['paused', 'dead']:
+                    status_label.config(text=status, fg=COLORS['text_muted'])
+                else:
+                    # Unknown status - show it anyway
+                    status_label.config(text=status, fg=COLORS['text_muted'])
+            else:
+                status_label.config(text="not found", fg=COLORS['text_muted'])
+
+            # Schedule next check in 1 second (auto-refresh)
+            self.root.after(1000, lambda: self.check_container_status(container_name, status_label))
+
+        except Exception:
+            status_label.config(text="unknown", fg=COLORS['text_muted'])
+            # Still schedule next check even on error
+            self.root.after(1000, lambda: self.check_container_status(container_name, status_label))
 
     def create_terminal_panel(self, parent):
         """Create terminal output panel with auto-scroll checkbox"""

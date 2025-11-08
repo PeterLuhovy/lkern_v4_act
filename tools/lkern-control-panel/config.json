@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "L-KERN Control Panel",
-    "version": "1.0.0",
+    "version": "1.6.4",
     "working_directory": "L:\\system\\lkern_codebase_v4_act"
   },
   "ui": {
@@ -60,6 +60,120 @@
       "command": "docker exec lkms201-web-ui npx nx run-many -t lint",
       "category": "Lint",
       "description": "Lint all projects in Docker for code quality"
+    },
+    "lint_all_no_cache": {
+      "label": "Lint (No Cache)",
+      "command": "docker exec lkms201-web-ui npx nx run-many -t lint --skip-nx-cache",
+      "category": "Lint",
+      "description": "Lint all projects without Nx cache (fresh check)"
+    },
+    "docker_start_all": {
+      "label": "🚀 Start All",
+      "command": "docker-compose up -d",
+      "category": "Docker-All",
+      "description": "Start all Docker containers in detached mode"
+    },
+    "docker_stop_all": {
+      "label": "🛑 Stop All",
+      "command": "docker-compose stop",
+      "category": "Docker-All",
+      "description": "Stop all running Docker containers"
+    },
+    "docker_restart_all": {
+      "label": "🔄 Restart All",
+      "command": "docker-compose restart",
+      "category": "Docker-All",
+      "description": "Restart all Docker containers"
+    },
+    "docker_rebuild_all": {
+      "label": "🔨 Rebuild All",
+      "command": "docker-compose up --build -d",
+      "category": "Docker-All",
+      "description": "Rebuild and start all Docker containers"
+    },
+    "docker_down": {
+      "label": "🗑️ Down (Remove)",
+      "command": "docker-compose down",
+      "category": "Docker-All",
+      "description": "Stop and remove all containers (keeps volumes)"
+    },
+    "docker_clean": {
+      "label": "💥 Clean (+ Volumes)",
+      "command": "docker-compose down -v",
+      "category": "Docker-All",
+      "description": "Stop, remove containers and delete volumes (DESTRUCTIVE!)"
+    },
+    "docker_list": {
+      "label": "📋 List Containers",
+      "command": "docker ps -a",
+      "category": "Docker-All",
+      "description": "List all Docker containers (running and stopped)"
+    },
+    "docker_start_webui": {
+      "label": "▶️ Start Web-UI",
+      "command": "docker-compose start lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Start lkms201-web-ui container"
+    },
+    "docker_stop_webui": {
+      "label": "⏸️ Stop Web-UI",
+      "command": "docker-compose stop lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Stop lkms201-web-ui container"
+    },
+    "docker_restart_webui": {
+      "label": "🔁 Restart Web-UI",
+      "command": "docker-compose restart lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Restart lkms201-web-ui container"
+    },
+    "docker_rebuild_webui": {
+      "label": "🔧 Rebuild Web-UI",
+      "command": "docker-compose up --build -d lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Rebuild and start lkms201-web-ui container"
+    },
+    "docker_logs_webui": {
+      "label": "📜 Logs Web-UI",
+      "command": "docker-compose logs --tail=100 lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Show last 100 lines of lkms201-web-ui logs"
+    },
+    "docker_remove_webui": {
+      "label": "🗑️ Remove Web-UI",
+      "command": "docker-compose rm -f lkms201-web-ui",
+      "category": "Docker-WebUI",
+      "description": "Remove lkms201-web-ui container (must be stopped first)"
+    },
+    "docker_logs_webui_v4": {
+      "label": "📜 Web-UI (v4)",
+      "command": "docker logs --tail=200 lkms201-web-ui",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms201-web-ui logs"
+    },
+    "docker_logs_webui_v3": {
+      "label": "📜 Web-UI (v3)",
+      "command": "docker logs --tail=200 lkms201-web-ui-v3",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms201-web-ui-v3 logs"
+    },
+    "docker_logs_contacts": {
+      "label": "📜 Contacts Service",
+      "command": "docker logs --tail=200 lkms101-contacts",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms101-contacts logs"
+    },
+    "docker_logs_contacts_db": {
+      "label": "📜 Contacts DB",
+      "command": "docker logs --tail=200 lkms101-contacts-db",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms101-contacts-db logs"
+    },
+    "docker_logs_adminer": {
+      "label": "📜 Adminer",
+      "command": "docker logs --tail=200 lkms901-adminer",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms901-adminer logs"
     }
   }
 }

@@ -1,6 +1,6 @@
 # L-KERN Control Panel
 
-**Version:** 1.3.3
+**Version:** 1.6.4
 **Status:** ✅ Production Ready
 
 Lightweight Python + Tkinter desktop app for L-KERN development workflow automation with ANSI color support.
@@ -61,19 +61,26 @@ python main.py
 - ✅ **Dark Mode UI** - VSCode-inspired theme
 
 ### Available Commands
-**Build:**
-- Build Web-UI
-- Build All
-- Clean (Nx reset)
 
-**Test:**
-- Test Web-UI
-- Test Config
-- Test UI-Components
-- Test All
+**Build & Test Tab (🔧):**
+- **Build:** Web-UI, All, Clean (Nx reset)
+- **Test:** Web-UI, Config, UI-Components, All
+- **Lint:** All
 
-**Lint:**
-- Lint All
+**Docker Tab (🐳):**
+- **Global Controls:** 6 buttons for all containers (Start/Stop/Restart/Rebuild/List/Down)
+- **Container List:** 1 container (Web-UI v4) with real-time status (auto-refresh every 1s)
+- **Container States:** running, starting, restarting, exited, stopped, paused, dead, unhealthy, not found, unknown
+- **Healthcheck Integration:** Shows "starting" when container is running but app not ready (healthcheck: starting/unhealthy)
+- **Status Colors:**
+  - Green: running (healthy)
+  - Orange: starting, restarting, starting (healthcheck)
+  - Red: exited, stopped, unhealthy
+  - Gray: paused, dead, not found, unknown
+- **Auto-Refresh:** Status updates every second automatically
+- **Dropdown Menus:** Per-container actions (Start, Stop, Restart, Rebuild, Logs, Remove)
+- **Refresh Button:** Manual status refresh (🔄)
+- **Live Logs Button:** Follow container logs in real-time (🔍)
 
 ---
 
@@ -187,4 +194,92 @@ Internal tool for L-KERN v4 project.
 
 ---
 
-**Last Updated:** 2025-11-06
+## 📝 Changelog
+
+**v1.6.4 (2025-11-08):**
+- ✨ **NEW: Auto-Refresh Status** - Container status updates every 1 second automatically
+  - No more manual refresh needed - live updates in real-time
+  - Detects when status changes (starting → running → healthy)
+- ✨ **NEW: Healthcheck Integration** - Accurate application readiness detection
+  - Shows "starting" (orange) when container is running but app not ready yet
+  - Integrates with Docker healthcheck (wget test on port 4201)
+  - Solves issue: container shows "running" but Vite still booting up
+  - States: starting, unhealthy, healthy (running)
+  - Now you know exactly when the web app is truly ready!
+
+**v1.6.3 (2025-11-08):**
+- ✨ **ENHANCED: Full Docker State Visibility** - Show all container states in real-time
+  - Added states: starting, restarting, exited, paused, dead
+  - Orange color (#FFA500) for starting/restarting states
+  - Changed from `.State.Running` (boolean) to `.State.Status` (string)
+  - Now you can see when container is booting up (starting/restarting)
+  - Helpful for long startup times - no more guessing if it's still loading
+
+**v1.6.2 (2025-11-08):**
+- ✨ **NEW: Lint (No Cache) Button** - Added button to run lint without Nx cache
+  - Command: `npx nx run-many -t lint --skip-nx-cache`
+  - Performs fresh lint check without cached results
+  - Located in Build & Test tab, Lint category
+- 🎨 **UI: Removed ALL v3 Containers** - Removed all v3 project containers from Docker list
+  - Removed: Web-UI (v3), Contacts Service, Contacts DB, Adminer
+  - Only Web-UI (v4) container remains
+  - Cleaner interface showing only active v4 container
+  - Container count reduced from 5 to 1 container
+
+**v1.6.1 (2025-11-08):**
+- 🐛 **CRITICAL FIX: UTF-8 Encoding Error** - Fixed UnicodeDecodeError crash
+  - Removed conflicting `universal_newlines=True` parameter
+  - Added `errors='replace'` to handle invalid UTF-8 gracefully
+  - Fixed: "UnicodeDecodeError: 'charmap' codec can't decode byte 0x90"
+  - Now properly uses UTF-8 encoding on Windows
+
+**v1.6.0 (2025-11-08):**
+- ✨ **NEW: Live Logs Button** - Follow container logs in real-time
+  - Changed refresh icon: 🔍 → 🔄 (clearer meaning)
+  - New 🔍 button streams live logs to terminal (`docker logs --follow`)
+  - Shows last 50 lines and continues streaming
+  - Tooltip: "Follow logs (live)" vs "Refresh status"
+
+**v1.5.3 (2025-11-08):**
+- 🎨 **UI: Wider Docker Tab Panel** - Increased left panel width for better fit
+  - Panel width: 300px → 380px (+80px)
+  - Adjusted container row element widths for optimal layout
+  - All Docker controls now fit properly without overflow
+
+**v1.5.2 (2025-11-08):**
+- ✨ **UI: Tooltip on Refresh Button** - Added hover tooltip "Refresh status" on 🔍 button
+  - Tooltip appears on hover with blue background
+  - Makes it clear what the magnifying glass button does
+
+**v1.5.1 (2025-11-08):**
+- 🎨 **UI: Text Status Labels** - Replaced emoji status with text labels
+  - Status displayed as text: "running", "stopped", "not found", "unknown"
+  - Color-coded: Green (running), Red (stopped), Gray (not found/unknown)
+  - Small font (8pt) for status, easier to read than emoji
+
+**v1.5.0 (2025-11-08):**
+- ✨ **REDESIGNED: Docker Control Tab** - Container-centric UI
+  - Container list with live status indicators
+  - Dropdown menu per container (6 actions: Start/Stop/Restart/Rebuild/Logs/Remove)
+  - Global controls section (6 buttons for all containers)
+  - Auto status check on load + manual refresh button
+  - Much cleaner and more intuitive layout
+
+**v1.4.0 (2025-11-08):**
+- ✨ **NEW: Docker Control Tab** - Complete Docker container management
+  - Docker-All: Start/Stop/Restart/Rebuild/Down/Clean all containers
+  - Docker-WebUI: Individual Web-UI container control
+  - Docker-Logs: View logs for all 5 containers (Web-UI v4/v3, Contacts, DB, Adminer)
+  - 18 new Docker commands added to config.json
+  - New tabbed interface with 🐳 Docker tab
+
+**v1.3.4 (2025-11-08):**
+- 🐛 Fixed UTF-8 encoding for Docker output (emoji checkmarks now display correctly)
+- Added explicit `encoding='utf-8'` to subprocess.Popen
+
+**v1.3.3 (2025-11-06):**
+- Previous stable release
+
+---
+
+**Last Updated:** 2025-11-08

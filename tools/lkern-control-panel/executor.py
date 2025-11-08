@@ -3,8 +3,8 @@
 FILE: executor.py
 PATH: /tools/lkern-control-panel/executor.py
 DESCRIPTION: Command execution with threading and live output streaming
-VERSION: v1.1.0
-UPDATED: 2025-11-06 17:10:00
+VERSION: v1.2.1
+UPDATED: 2025-11-08 20:35:00
 ================================================================
 """
 
@@ -157,8 +157,9 @@ class CommandExecutor:
                 stderr=subprocess.PIPE,
                 cwd=self.working_dir,
                 text=True,
-                bufsize=1,  # Line buffered
-                universal_newlines=True
+                encoding='utf-8',  # Force UTF-8 encoding for Docker output
+                errors='replace',  # Replace invalid UTF-8 chars instead of crashing
+                bufsize=1  # Line buffered
             )
 
             # Read stdout and stderr simultaneously
