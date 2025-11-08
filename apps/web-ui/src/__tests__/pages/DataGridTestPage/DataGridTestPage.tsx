@@ -145,6 +145,7 @@ export const DataGridTestPage: React.FC = () => {
 
   const handleDelete = (contact: Contact, e: React.MouseEvent) => {
     e.stopPropagation();
+    // eslint-disable-next-line no-restricted-globals
     if (confirm(`Delete contact: ${contact.name}?`)) {
       setData(data.filter((c) => c.id !== contact.id));
       // Clear selection if deleted
@@ -265,6 +266,7 @@ export const DataGridTestPage: React.FC = () => {
         field: 'total',
         sortable: false,
         width: 100,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- First parameter unused but required by DataGrid interface
         render: (_: any, row: Order) => `$${row.quantity * row.price}`,
       },
     ];

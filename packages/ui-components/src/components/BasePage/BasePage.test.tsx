@@ -31,6 +31,7 @@ vi.mock('@l-kern/config', async () => {
   const actual = await vi.importActual<typeof import('@l-kern/config')>('@l-kern/config');
 
   // Create translation function from actual translations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test utility for mock translation function
   const createTranslationFunction = (translations: any) => (key: string): string => {
     const keys = key.split('.');
     let value = translations;
@@ -429,7 +430,6 @@ describe('BasePage', () => {
       expect(homeLink).toBeInTheDocument();
 
       // Expand Home item to reveal Testing submenu
-      const homeItem = homeLink.closest('a');
       const homeArrow = screen.getAllByText('▶')[0]; // First ▶ is for Home
       userEvent.click(homeArrow);
 

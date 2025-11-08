@@ -30,6 +30,7 @@ vi.mock('@l-kern/config', async () => {
 
 // Mock Toast component
 vi.mock('../Toast', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock component props
   Toast: ({ toast, onClose }: any) => (
     <div data-testid={`toast-${toast.id}`}>
       {toast.message}

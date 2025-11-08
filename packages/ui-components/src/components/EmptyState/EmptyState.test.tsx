@@ -9,7 +9,7 @@
  * ================================================================
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderWithTranslation as render, screen } from '../../test-utils';
 import { EmptyState } from './EmptyState';
 
@@ -26,8 +26,8 @@ describe('EmptyState', () => {
   });
 
   it('renders icon when provided', () => {
-    const { container } = render(
-      <EmptyState title="No data" icon={<span data-testid="icon">📭</span>} />
+    render(
+      <EmptyState title="No data" icon={<span data-testid="icon" role="img" aria-label="empty mailbox">📭</span>} />
     );
     expect(screen.getByTestId('icon')).toBeInTheDocument();
   });
@@ -131,7 +131,7 @@ describe('EmptyState', () => {
   it('renders complete empty state with all props', () => {
     render(
       <EmptyState
-        icon={<span data-testid="icon">📭</span>}
+        icon={<span data-testid="icon" role="img" aria-label="empty mailbox">📭</span>}
         title="No contacts yet"
         description="Start building your network"
         action={<button>Add Contact</button>}

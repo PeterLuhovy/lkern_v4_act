@@ -380,6 +380,8 @@ export const HOVER_EFFECTS = {
   dataGrid: {
     cellScale: '0.995',
     cellTranslateY: '1.005px',
+    rowHeight: 48,  // Average row height in pixels (for min-height calculation)
+    headerHeight: 60,  // Header height in pixels
   },
 
   // Light mode hover effects (DataGrid v4 - subtle brand colors)

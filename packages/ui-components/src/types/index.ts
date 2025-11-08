@@ -8,4 +8,3 @@
 export * from './common';
 export * from './FilterPanel';
 export * from './FilteredDataGrid';
-export * from './DataGrid';

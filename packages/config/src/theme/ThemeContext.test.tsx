@@ -52,7 +52,7 @@ describe('ThemeContext', () => {
   describe('useTheme hook', () => {
     it('should throw error when used outside provider', () => {
       // Suppress console.error for this test
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
       expect(() => {
         renderHook(() => useTheme());
@@ -164,7 +164,7 @@ describe('ThemeContext', () => {
     });
 
     it('should warn on unsupported theme', () => {
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <ThemeProvider>{children}</ThemeProvider>
@@ -173,7 +173,9 @@ describe('ThemeContext', () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       act(() => {
-        result.current.setTheme('invalid' as any);
+        // Testing invalid input - intentionally bypassing type checking
+        // @ts-expect-error - Testing error handling with invalid theme value
+        result.current.setTheme('invalid');
       });
 
       expect(consoleWarn).toHaveBeenCalledWith('Unsupported theme: invalid');
@@ -239,7 +241,7 @@ describe('ThemeContext', () => {
 
   describe('localStorage errors', () => {
     it('should handle localStorage save errors gracefully', () => {
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
       // Mock localStorage.setItem to throw error
       const originalSetItem = localStorageMock.setItem;
@@ -268,7 +270,7 @@ describe('ThemeContext', () => {
     });
 
     it('should handle localStorage load errors gracefully', () => {
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
       // Mock localStorage.getItem to throw error
       const originalGetItem = localStorageMock.getItem;

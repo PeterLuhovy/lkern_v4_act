@@ -257,7 +257,7 @@ export function getAllIcons(category: IconCategory): string[] {
  * @example getIconName('✓') // 'save' (or 'success')
  */
 export function getIconName(symbol: string): string | null {
-  for (const [_categoryName, categoryIcons] of Object.entries(ICONS)) {
+  for (const [, categoryIcons] of Object.entries(ICONS)) {
     for (const [iconName, iconSymbol] of Object.entries(categoryIcons)) {
       if (iconSymbol === symbol) {
         return iconName;

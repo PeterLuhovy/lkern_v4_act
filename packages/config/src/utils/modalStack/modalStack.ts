@@ -105,7 +105,7 @@ class ModalStackManager {
    * }, [isOpen]);
    * ```
    */
-  pop(modalId: string, closeChildren: boolean = false): boolean {
+  pop(modalId: string, closeChildren = false): boolean {
     console.log('[ModalStack] POP called:', modalId, 'closeChildren:', closeChildren, 'stack before:', this.stack.map(m => m.id));
 
     const index = this.stack.findIndex((item) => item.id === modalId);

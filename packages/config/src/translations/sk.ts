@@ -10,9 +10,16 @@
 
 import type { TranslationKeys } from './types';
 
+// ============================================================
+// PAGE TRANSLATIONS (Auto-imported from pages/)
+// ============================================================
+import { ordersPageSk } from './pages/orders';
+//--GENERATE-PAGE-PLACEHOLDER-IMPORT--
+
 export const sk: TranslationKeys = {
   common: {
     welcome: 'Vitajte',
+    home: 'Domov',
     save: 'Uložiť',
     cancel: 'Zrušiť',
     delete: 'Vymazať',
@@ -129,6 +136,10 @@ export const sk: TranslationKeys = {
       dashboard: 'Testing Dashboard',
       dashboardSubtitle: 'Vyberte komponent ktorý chcete testovať',
       dashboardHint: 'Všetky komponenty sú plne responzívne a podporujú dark mode',
+      tabComponents: 'Komponenty',
+      tabPages: 'Stránky',
+      categoryComponents: 'Komponenty',
+      categoryPages: 'Stránky',
       formComponents: 'Form komponenty',
       formComponentsDescription: 'Testovanie Button, Input, Select, Checkbox, Radio a FormField',
       utilityFunctions: 'Utility funkcie',
@@ -181,6 +192,8 @@ export const sk: TranslationKeys = {
       iconsDescription: 'Unicode symbol set pre ERP systém (100+ ikon)',
       filteredGridTitle: 'FilteredDataGrid Komponent',
       filteredGridDescription: 'Test FilteredDataGrid (vyhľadávanie, filtre, quick filtre, pagination)',
+      templatePageDatagridTitle: 'Template Page DataGrid',
+      templatePageDatagridDescription: 'Referenčná šablóna pre vytváranie nových DataGrid stránok',
       nestedContentExamples: 'Príklady vnoreného obsahu',
       gridLayoutExample: 'Príklad grid rozloženia',
       size: 'Veľkosť',
@@ -670,6 +683,11 @@ export const sk: TranslationKeys = {
       resizeWidth: 'Zmeniť šírku sidebaru',
       newAction: 'Nová akcia',
     },
+    pageHeader: {
+      logoAlt: 'Logo aplikácie',
+      logoPlaceholder: 'LOGO',
+      breadcrumbsLabel: 'Navigačná cesta',
+    },
   },
   phoneTypes: {
     mobile: 'Mobil',
@@ -723,6 +741,8 @@ export const sk: TranslationKeys = {
     },
   },
   pages: {
+    orders: ordersPageSk,
+    //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     utilityTest: {
       title: 'Testovacia stránka - Utility funkcie',
       subtitle: 'Interaktívne testovanie validačných a formátovacích funkcií',
@@ -916,6 +936,55 @@ export const sk: TranslationKeys = {
       shapes: 'Geometrické tvary',
       footer: 'Všetky ikony používajú Unicode symboly pre maximálnu kompatibilitu a profesionálny vzhľad.',
     },
+    template: {
+      title: 'Šablóna stránky',
+      subtitle: 'Univerzálna šablóna pre DataGrid stránky',
+      breadcrumb: 'Šablóna',
+      searchPlaceholder: 'Vyhľadať položky...',
+      newItemButton: 'Nová položka',
+      showInactiveLabel: 'Zobraziť neaktívne',
+      selectedCount: 'Vybraté položky',
+      clearSelection: 'Zrušiť výber',
+      newItemClicked: 'Nová položka kliknutá',
+      bulkExport: 'Exportovať {count} položiek',
+      bulkDeleteConfirm: 'Naozaj chcete odstrániť {count} položiek?',
+      bulkDeleteSuccess: 'Úspešne odstránené {count} položiek',
+      deleteConfirm: 'Naozaj chcete odstrániť položku: {name}?',
+      deleteSuccess: 'Úspešne odstránená položka: {name}',
+      detailsTitle: 'Detaily položky: {name}',
+      filters: {
+        statusTitle: 'Stav',
+        statusActive: 'Aktívny',
+        statusPending: 'Čakajúci',
+        statusInactive: 'Neaktívny',
+        priorityTitle: 'Priorita',
+        priorityLow: 'Nízka',
+        priorityMedium: 'Stredná',
+        priorityHigh: 'Vysoká',
+      },
+      quickFilters: {
+        highValue: 'Vysoká hodnota (>$5000)',
+        overdue: 'Po termíne',
+      },
+      columns: {
+        id: 'ID',
+        name: 'Meno',
+        email: 'Email',
+        status: 'Stav',
+        priority: 'Priorita',
+        value: 'Hodnota',
+        date: 'Dátum',
+      },
+      details: {
+        name: 'Meno',
+        email: 'Email',
+        status: 'Stav',
+        priority: 'Priorita',
+        value: 'Hodnota',
+        date: 'Dátum',
+        active: 'Aktívny',
+      },
+    },
   },
 
   contactType: {
@@ -981,9 +1050,17 @@ export const sk: TranslationKeys = {
       searchPlaceholder: 'Hľadať...',
       newItem: 'Nová položka',
       showInactive: 'Zobraziť neaktívne',
+      enablePagination: 'Stránkovanie',
       itemsPerPageLabel: 'Položiek na stránku',
       filterLabel: 'Filtrované',
       itemsCount: 'položiek',
+      previous: 'Predchádzajúca',
+      next: 'Ďalšia',
+      page: 'Strana',
+      of: 'z',
+      panelTitle: 'Filtre a vyhľadávanie',
+      expand: 'Rozbaliť',
+      collapse: 'Zbaliť',
     },
   },
 };

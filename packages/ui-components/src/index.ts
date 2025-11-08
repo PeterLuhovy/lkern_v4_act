@@ -16,6 +16,9 @@ export type { Size, Variant, StatusVariant, BaseComponentProps } from './types/c
 export { BasePage } from './components/BasePage';
 export type { BasePageProps } from './components/BasePage';
 
+export { PageHeader } from './components/PageHeader';
+export type { PageHeaderProps, BreadcrumbItem } from './components/PageHeader';
+
 export { Button, ArrowLeftIcon, ArrowRightIcon } from './components/Button';
 export type { ButtonProps } from './components/Button';
 
@@ -90,3 +93,6 @@ export type { FilterPanelProps, QuickFilter, FilterGroup, RoleFilter } from './c
 
 export { FilteredDataGrid } from './components/FilteredDataGrid';
 export type { FilteredDataGridProps, FilterConfig, QuickFilterConfig } from './components/FilteredDataGrid';
+
+export { Pagination } from './components/Pagination';
+export type { PaginationProps } from './components/Pagination';

@@ -121,7 +121,7 @@ const DEFAULT_OPTIONS: UseFormDirtyOptions = {
  * };
  * ```
  */
-export function useFormDirty<T extends Record<string, any>>(
+export function useFormDirty<T extends Record<string, unknown>>(
   initialValues: T | null | undefined,
   currentValues: T | null | undefined,
   options: UseFormDirtyOptions = DEFAULT_OPTIONS

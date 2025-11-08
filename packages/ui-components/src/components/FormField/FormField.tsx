@@ -271,6 +271,7 @@ export const FormField: React.FC<FormFieldProps> = ({
 
   // Clone child Input and inject props
   const enhancedChild = isValidElement(children)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React element props injection requires any
     ? cloneElement(children as React.ReactElement<any>, {
         value,
         onChange: handleChange,
@@ -281,6 +282,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         'aria-required': required ? 'true' : undefined,
         'aria-invalid': displayError ? 'true' : 'false',
         'aria-describedby': displayError && errorId ? errorId : undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React element props injection requires any
       } as any)
     : children;
 

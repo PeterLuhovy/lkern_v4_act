@@ -1,0 +1,163 @@
+{
+  "entityName": "Orders",
+  "entityNameSingular": "Order",
+  "routePath": "/orders",
+  "columns": [
+    {
+      "field": "id",
+      "title": "Order ID",
+      "type": "string",
+      "width": 120,
+      "sortable": true
+    },
+    {
+      "field": "customer",
+      "title": "Customer",
+      "type": "string",
+      "width": 250,
+      "sortable": true
+    },
+    {
+      "field": "status",
+      "title": "Status",
+      "type": "status",
+      "width": 120,
+      "sortable": true,
+      "options": ["active", "pending", "completed", "cancelled"]
+    },
+    {
+      "field": "priority",
+      "title": "Priority",
+      "type": "status",
+      "width": 100,
+      "sortable": true,
+      "options": ["low", "medium", "high"]
+    },
+    {
+      "field": "total",
+      "title": "Total",
+      "type": "number",
+      "width": 120,
+      "sortable": true,
+      "render": "currency"
+    },
+    {
+      "field": "dueDate",
+      "title": "Due Date",
+      "type": "string",
+      "width": 120,
+      "sortable": true
+    },
+    {
+      "field": "isActive",
+      "title": "Active",
+      "type": "boolean",
+      "hidden": true
+    }
+  ],
+  "features": {
+    "search": true,
+    "filters": true,
+    "quickFilters": true,
+    "export": false,
+    "bulkActions": true,
+    "expandable": true,
+    "selection": true
+  },
+  "translations": {
+    "sk": {
+      "title": "Objednávky",
+      "subtitle": "Správa objednávok",
+      "breadcrumb": "Objednávky",
+      "searchPlaceholder": "Hľadať objednávky...",
+      "newItemButton": "Nová objednávka",
+      "newItemClicked": "Kliknul si na Nová objednávka",
+      "showInactiveLabel": "Zobraz neaktívne",
+      "deleteConfirm": "Naozaj chcete vymazať objednávku {name}?",
+      "deleteSuccess": "Objednávka {name} bola úspešne vymazaná",
+      "detailsTitle": "Detaily objednávky: {name}",
+      "selectedCount": "Vybrané",
+      "clearSelection": "Zrušiť výber",
+      "bulkExport": "Exportovať {count} objednávok",
+      "bulkDeleteConfirm": "Naozaj chcete vymazať {count} objednávok?",
+      "bulkDeleteSuccess": "{count} objednávok bolo úspešne vymazaných",
+      "columns": {
+        "id": "ID objednávky",
+        "customer": "Zákazník",
+        "status": "Stav",
+        "priority": "Priorita",
+        "total": "Celkom",
+        "dueDate": "Termín"
+      },
+      "details": {
+        "id": "ID",
+        "customer": "Zákazník",
+        "status": "Stav",
+        "priority": "Priorita",
+        "total": "Celková suma",
+        "dueDate": "Termín"
+      },
+      "filters": {
+        "statusTitle": "Stav",
+        "statusActive": "Aktívne",
+        "statusPending": "Čakajúce",
+        "statusInactive": "Neaktívne",
+        "priorityTitle": "Priorita",
+        "priorityLow": "Nízka",
+        "priorityMedium": "Stredná",
+        "priorityHigh": "Vysoká"
+      },
+      "quickFilters": {
+        "highValue": "Vysoká hodnota",
+        "overdue": "Po termíne"
+      }
+    },
+    "en": {
+      "title": "Orders",
+      "subtitle": "Order Management",
+      "breadcrumb": "Orders",
+      "searchPlaceholder": "Search orders...",
+      "newItemButton": "New Order",
+      "newItemClicked": "You clicked New Order",
+      "showInactiveLabel": "Show inactive",
+      "deleteConfirm": "Are you sure you want to delete order {name}?",
+      "deleteSuccess": "Order {name} has been successfully deleted",
+      "detailsTitle": "Order Details: {name}",
+      "selectedCount": "Selected",
+      "clearSelection": "Clear selection",
+      "bulkExport": "Export {count} orders",
+      "bulkDeleteConfirm": "Are you sure you want to delete {count} orders?",
+      "bulkDeleteSuccess": "{count} orders have been successfully deleted",
+      "columns": {
+        "id": "Order ID",
+        "customer": "Customer",
+        "status": "Status",
+        "priority": "Priority",
+        "total": "Total",
+        "dueDate": "Due Date"
+      },
+      "details": {
+        "id": "ID",
+        "customer": "Customer",
+        "status": "Status",
+        "priority": "Priority",
+        "total": "Total Amount",
+        "dueDate": "Due Date"
+      },
+      "filters": {
+        "statusTitle": "Status",
+        "statusActive": "Active",
+        "statusPending": "Pending",
+        "statusInactive": "Inactive",
+        "priorityTitle": "Priority",
+        "priorityLow": "Low",
+        "priorityMedium": "Medium",
+        "priorityHigh": "High"
+      },
+      "quickFilters": {
+        "highValue": "High Value",
+        "overdue": "Overdue"
+      }
+    }
+  }
+}

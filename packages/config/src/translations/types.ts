@@ -8,6 +8,12 @@
  * ================================================================
  */
 
+// ============================================================
+// PAGE TRANSLATION TYPES (Auto-imported)
+// ============================================================
+import type { OrdersPageTranslations } from './types/orders.types';
+//--GENERATE-PAGE-PLACEHOLDER-IMPORT--
+
 /**
  * Supported languages in L-KERN v4
  */
@@ -38,6 +44,7 @@ export interface UseTranslationReturn {
 export interface TranslationKeys {
   common: {
     welcome: string;
+    home: string;
     save: string;
     cancel: string;
     delete: string;
@@ -154,6 +161,10 @@ export interface TranslationKeys {
       dashboard: string;
       dashboardSubtitle: string;
       dashboardHint: string;
+      tabComponents: string;
+      tabPages: string;
+      categoryComponents: string;
+      categoryPages: string;
       formComponents: string;
       formComponentsDescription: string;
       badgeTitle: string;
@@ -178,6 +189,8 @@ export interface TranslationKeys {
       iconsDescription: string;
       filteredGridTitle: string;
       filteredGridDescription: string;
+      templatePageDatagridTitle: string;
+      templatePageDatagridDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -695,6 +708,11 @@ export interface TranslationKeys {
       resizeWidth: string;
       newAction: string;
     };
+    pageHeader: {
+      logoAlt: string;
+      logoPlaceholder: string;
+      breadcrumbsLabel: string;
+    };
   };
   phoneTypes: {
     mobile: string;
@@ -748,6 +766,8 @@ export interface TranslationKeys {
     };
   };
   pages: {
+    orders: OrdersPageTranslations;
+    //--GENERATE-PAGE-PLACEHOLDER-TYPES--
     utilityTest: {
       title: string;
       subtitle: string;
@@ -942,6 +962,55 @@ export interface TranslationKeys {
       shapes: string;
       footer: string;
     };
+    template: {
+      title: string;
+      subtitle: string;
+      breadcrumb: string;
+      searchPlaceholder: string;
+      newItemButton: string;
+      showInactiveLabel: string;
+      selectedCount: string;
+      clearSelection: string;
+      newItemClicked: string;
+      bulkExport: string;
+      bulkDeleteConfirm: string;
+      bulkDeleteSuccess: string;
+      deleteConfirm: string;
+      deleteSuccess: string;
+      detailsTitle: string;
+      filters: {
+        statusTitle: string;
+        statusActive: string;
+        statusPending: string;
+        statusInactive: string;
+        priorityTitle: string;
+        priorityLow: string;
+        priorityMedium: string;
+        priorityHigh: string;
+      };
+      quickFilters: {
+        highValue: string;
+        overdue: string;
+      };
+      columns: {
+        id: string;
+        name: string;
+        email: string;
+        status: string;
+        priority: string;
+        value: string;
+        date: string;
+      };
+      details: {
+        name: string;
+        email: string;
+        status: string;
+        priority: string;
+        value: string;
+        date: string;
+        active: string;
+      };
+    };
   };
 
   // Typy kontaktov (Firma / Fyzická osoba)
@@ -1009,9 +1078,17 @@ export interface TranslationKeys {
       searchPlaceholder: string;
       newItem: string;
       showInactive: string;
+      enablePagination: string;
       itemsPerPageLabel: string;
       filterLabel: string;
       itemsCount: string;
+      previous: string;
+      next: string;
+      page: string;
+      of: string;
+      panelTitle: string;
+      expand: string;
+      collapse: string;
     };
   };
 }

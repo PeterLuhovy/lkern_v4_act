@@ -109,6 +109,7 @@ export interface FieldDefinition {
    * Receives current value and entire form data
    * Returns validation result with error message if invalid
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic validation for flexible field types
   validate?: (value: any, formData: Record<string, any>) => ValidationResult;
 }
 
@@ -130,6 +131,7 @@ export interface SectionEditModalProps {
    * Called when user saves the form
    * Receives entire form data object
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
   onSave: (data: Record<string, any>) => void;
 
   /**
@@ -156,6 +158,7 @@ export interface SectionEditModalProps {
    * Initial form data
    * @default {}
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
   initialData?: Record<string, any>;
 
   /**
@@ -254,9 +257,11 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
   // ================================================================
 
   // Form data (current working state)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
   const [formData, setFormData] = useState<Record<string, any>>(initialData);
 
   // Initial form data (for dirty tracking)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
   const [initialFormData, setInitialFormData] = useState<Record<string, any>>(initialData);
 
   // Validation errors (field name → error message)
@@ -301,6 +306,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
    * Updates formData and triggers validation if defined
    */
   const handleChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic field value type
     (fieldName: string, value: any) => {
       // Update form data
       setFormData((prev) => ({ ...prev, [fieldName]: value }));
@@ -313,6 +319,8 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
       if (field.validate) {
         const result = field.validate(value, { ...formData, [fieldName]: value });
         if (!result.isValid && result.error) {
+          // Safe: result.error exists after !result.isValid check
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           setValidationErrors((prev) => ({ ...prev, [fieldName]: result.error! }));
         } else {
           // Clear error for this field
@@ -408,6 +416,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
    */
   const handleClearConfirm = () => {
     // Clear all fields to empty values based on type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
     const clearedData: Record<string, any> = {};
     fields.forEach((field) => {
       if (field.type === 'number') {

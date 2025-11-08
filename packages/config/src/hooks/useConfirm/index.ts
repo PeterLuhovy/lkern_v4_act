@@ -9,4 +9,4 @@
  */
 
 export { useConfirm, type UseConfirmResult } from './useConfirm';
-export default from './useConfirm';
+export { default } from './useConfirm';

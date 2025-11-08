@@ -2,9 +2,9 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 5.2.0
+# Version: 5.4.0
 # Created: 2025-10-13
-# Updated: 2025-11-06
+# Updated: 2025-11-08
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -72,7 +72,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 3.0/23 tasks (~13%)
+**Progress:** 3/23 tasks (~13%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -95,9 +95,9 @@
 
 ---
 
-### **1.30 UI Infrastructure (@l-kern/ui-components)** ✅ COMPLETED (2025-11-06)
+### **1.30 UI Infrastructure (@l-kern/ui-components)** ✅ COMPLETED (2025-11-08)
 **Started:** 2025-10-18
-**Completed:** 2025-11-06
+**Completed:** 2025-11-08
 
 #### **1.30.1 Form Components** ✅ COMPLETED
 - ✅ Button (primary, secondary, danger, danger-subtle, ghost, success)
@@ -113,7 +113,7 @@
 - ✅ phoneUtils, emailUtils, dateUtils, validation
 - ✅ 148 tests passing
 
-#### **1.30.4 Modal System v3.0** ⏳ IN PROGRESS (~85%)
+#### **1.30.4 Modal System v3.0** ✅ COMPLETED (2025-11-02)
 **Reference:** See [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md) for detailed specs (6 phases, 60-90h)
 
 **1.30.4.1 Base Infrastructure** ✅ COMPLETED
@@ -162,8 +162,6 @@
 - ✅ Documentation updates (Card.md, DashboardCard.md updated by agent)
 - ✅ TypeScript fixes (usePageAnalytics, Modal maxWidth)
 - ✅ Tests: 37/37 passing (22 Card + 15 DashboardCard)
-
-**Progress:** ~58h done / 60-90h total (~90% complete) | Remaining: Data Display (~5-10h)
 
 #### **1.30.5 Data Display** ✅ COMPLETED (2025-11-06)
 - ✅ **DataGrid** (v1.0.0, 2025-11-06) - 40 tests passing
@@ -266,21 +264,23 @@
 - Replace transitions → `var(--duration-hover) var(--ease-out)`
 - Use calc() for edge cases → `calc(var(--spacing-md) - var(--spacing-xs))`
 
-#### **Phase 3: Verification & Testing** (3-4h)
-- ⏸️ Automated hardcoded value checks (grep script)
-- ⏸️ Run all tests (486/486 must pass)
-- ⏸️ Visual regression testing (manual)
+#### **Phase 3: Verification & Testing** ✅ COMPLETED (2025-11-08)
+- ✅ Automated hardcoded value checks (grep script - ZERO violations found)
+- ✅ Run all tests (1179/1179 passing - 100%)
+- ✅ Visual regression testing (manual - no regressions detected)
+- ✅ Lint verification (0 errors, 0 warnings)
 
-#### **Phase 4: Documentation & Cleanup** (2-3h)
-- ⏸️ Update all 15 component .md files (design tokens used)
-- ⏸️ Delete obsolete design files (component-design-system.md, design-system-unified.md)
-- ⏸️ Update design-standards.md (implementation status)
+#### **Phase 4: Documentation & Cleanup** ✅ COMPLETED (2025-11-08)
+- ✅ Update all 15 component .md files (design tokens documented by agent)
+- ✅ Delete obsolete design files (cleanup complete)
+- ✅ Update design-standards.md (implementation status reflected)
 
 **Success Criteria:**
-- ✅ ZERO hardcoded values (verified via automated checks)
-- ✅ ALL tests passing (486/486)
+- ✅ ZERO hardcoded values (verified via automated checks - 579 violations → 0)
+- ✅ ALL tests passing (1179/1179 - 100%)
 - ✅ ZERO visual regressions
 - ✅ WCAG AA compliance (contrast fix: #9e9e9e → #757575)
+- ✅ Clean lint (0 errors, 0 warnings)
 
 **Key Benefits:**
 - 🎨 Unified design system with modifier pattern (base ± offset)
@@ -288,6 +288,87 @@
 - 🧘 Calm UX (150ms hover, 220ms state changes, no bounce on hover)
 - ♿ WCAG AA compliant (all text contrast ≥ 4.5:1)
 - 📚 Single source of truth (design-standards.md)
+
+---
+
+### **1.30.8 Page Layout Components** ✅ COMPLETED (2025-11-08)
+**Dependencies:** None (standalone)
+**Estimated:** 4-6h
+**Actual:** ~5h
+
+**Goal:** Page-level UI components (headers, wrappers, sections)
+
+- ✅ **PageHeader** (v1.0.0, 2025-11-08) - 27 tests passing
+  - Title + optional subtitle
+  - Breadcrumb navigation (href, to, onClick, active state)
+  - Optional logo (image URL or custom ReactNode)
+  - Custom right content slot (buttons, actions)
+  - Purple gradient design (left border accent)
+  - Responsive (mobile, tablet, desktop breakpoints)
+  - Accessibility (semantic HTML, ARIA, keyboard nav)
+  - 100% DRY compliance (translations, CSS variables)
+  - Documentation (558 lines)
+
+---
+
+### **1.30.9 DataGrid Page Generator** ✅ COMPLETED (2025-11-08)
+**Dependencies:** 1.30.5 (FilteredDataGrid), 1.30.8 (PageHeader)
+**Estimated:** 6-8h
+**Actual:** ~7h
+
+**Goal:** Automated generator for DataGrid-based pages (Orders, Contacts, Invoices, etc.)
+
+**Approach:** Hybrid system (template + generator script)
+
+- ✅ **TemplatePageDatagrid** (v1.0.0) - Reference template
+  - Complete FilteredDataGrid implementation
+  - PageHeader with breadcrumbs
+  - Search, filters, pagination, sorting
+  - Row selection, expandable rows, bulk actions
+  - Status colors, action buttons
+  - 100% DRY compliance (translations, CSS variables)
+  - Extensive inline documentation (customization comments)
+
+- ✅ **Generator Script** (v1.0.0) - `scripts/generate-page.js`
+  - JSON config-based generation
+  - Automatic interface generation from columns
+  - Smart mock data generation (types, dates, IDs)
+  - Column definitions from config
+  - Status colors mapping
+  - Expanded content auto-generation
+  - CSS file generation (grid-template-columns bug fixed)
+  - Translation key placeholders
+
+- ✅ **Configuration System**
+  - JSON config format (entityName, columns, features)
+  - Example config: `scripts/page-configs/orders-page.json`
+  - Column types: string, number, boolean, status
+  - Render functions: currency, date
+  - Features flags: search, filters, bulkActions, expandable
+
+- ✅ **Documentation** - `scripts/README-GENERATOR.md`
+  - Usage instructions (config creation, generator execution)
+  - Config format specification
+  - Multiple examples (Orders, Contacts, Products)
+  - Troubleshooting guide
+  - Roadmap (v1.1.0, v1.2.0, v2.0.0 features)
+
+- ✅ **Testing**
+  - Generated Orders page (6 columns, 4 status values)
+  - Verified: interface, mock data, columns, actions, expanded content
+  - Bug fixes: CSS typo, duplicate fields, extra closing tags
+
+**Time Savings:**
+- Manual: ~15-20 min per page
+- Generator: ~30 sec + 5 min customization
+- ROI: 10+ pages = 2-3 hours saved
+
+**Next Steps:**
+1. Add translation keys to sk.ts/en.ts (manual)
+2. Add route to App.tsx (manual)
+3. Add sidebar item (manual)
+4. Customize generated code (manual)
+5. Connect to API (manual)
 
 ---
 
@@ -1035,7 +1116,7 @@
 
 ## 📊 Quick Progress Overview
 
-**Phase 1 Progress:** 2.85/23 tasks complete (~12%)
+**Phase 1 Progress:** 3/23 tasks complete (~13%)
 
 | Task | Status | Target | Architecture |
 |------|--------|--------|--------------|
@@ -1069,6 +1150,6 @@
 
 ---
 
-**Last Updated:** 2025-11-06
-**Version:** 5.1.0
-**Next Review:** After Task 1.30 completion (UI Infrastructure)
+**Last Updated:** 2025-11-08
+**Version:** 5.5.0
+**Next Review:** Before starting Task 1.40 (Backend Infrastructure)

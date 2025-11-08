@@ -8,11 +8,11 @@
  * ================================================================
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 
 // === TYPES ===
 
-export interface WizardStep {
+export interface WizardStep<TData = Record<string, unknown>> {
   /**
    * Unique identifier for the step
    */
@@ -27,15 +27,15 @@ export interface WizardStep {
    * Optional validation function
    * Returns true if step data is valid
    */
-  validate?: (data: any) => boolean;
+  validate?: (data: Partial<TData>) => boolean;
 
   /**
    * Optional custom component for the step
    */
-  component?: React.ComponentType<any>;
+  component?: React.ComponentType<{ data?: Partial<TData> }>;
 }
 
-export interface UseModalWizardOptions {
+export interface UseModalWizardOptions<TData = Record<string, unknown>> {
   /**
    * Unique identifier for the wizard instance
    */
@@ -44,7 +44,7 @@ export interface UseModalWizardOptions {
   /**
    * Array of wizard steps
    */
-  steps: WizardStep[];
+  steps: WizardStep<TData>[];
 
   /**
    * Initial step index (default: 0)
@@ -54,7 +54,7 @@ export interface UseModalWizardOptions {
   /**
    * Callback executed when wizard completes
    */
-  onComplete?: (data: Record<string, any>) => void | Promise<void>;
+  onComplete?: (data: TData) => void | Promise<void>;
 
   /**
    * Callback executed when wizard is cancelled
@@ -68,7 +68,7 @@ export interface UseModalWizardOptions {
   persistData?: boolean;
 }
 
-export interface UseModalWizardReturn {
+export interface UseModalWizardReturn<TData = Record<string, unknown>> {
   // === STATE ===
 
   /**
@@ -94,7 +94,7 @@ export interface UseModalWizardReturn {
   /**
    * Accumulated data from all steps
    */
-  data: Record<string, any>;
+  data: Partial<TData>;
 
   /**
    * Whether wizard is submitting (completing)
@@ -112,7 +112,7 @@ export interface UseModalWizardReturn {
    * Go to next step
    * @param stepData - Data from current step
    */
-  next: (stepData?: any) => void;
+  next: (stepData?: Partial<TData>) => void;
 
   /**
    * Go to previous step
@@ -134,7 +134,7 @@ export interface UseModalWizardReturn {
    * Complete wizard (execute onComplete callback)
    * @param finalStepData - Data from final step
    */
-  complete: (finalStepData?: any) => void;
+  complete: (finalStepData?: Partial<TData>) => void;
 
   // === VALIDATION ===
 
@@ -203,11 +203,10 @@ export interface UseModalWizardReturn {
  * );
  * ```
  */
-export const useModalWizard = (
-  options: UseModalWizardOptions
-): UseModalWizardReturn => {
+export const useModalWizard = <TData = Record<string, unknown>>(
+  options: UseModalWizardOptions<TData>
+): UseModalWizardReturn<TData> => {
   const {
-    id,
     steps,
     initialStep = 0,
     onComplete,
@@ -218,7 +217,7 @@ export const useModalWizard = (
   // === STATE ===
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(initialStep);
-  const [data, setData] = useState<Record<string, any>>({});
+  const [data, setData] = useState<Partial<TData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // === COMPUTED VALUES ===
@@ -250,7 +249,7 @@ export const useModalWizard = (
    * Go to next step
    */
   const next = useCallback(
-    (stepData?: any) => {
+    (stepData?: Partial<TData>) => {
       // Merge step data into accumulated data
       if (stepData) {
         setData((prev) => ({ ...prev, ...stepData }));
@@ -314,11 +313,11 @@ export const useModalWizard = (
    * Complete wizard - execute onComplete callback
    */
   const complete = useCallback(
-    async (finalStepData?: any) => {
+    async (finalStepData?: Partial<TData>) => {
       // Merge final step data
-      const finalData = finalStepData
+      const finalData = (finalStepData
         ? { ...data, ...finalStepData }
-        : data;
+        : data) as TData;
 
       // Validate final step if validator exists
       const currentStepConfig = steps[currentStep];

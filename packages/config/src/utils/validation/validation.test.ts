@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { debounce, validateField, type ValidationResult } from './validation';
+import { debounce, validateField } from './validation';
 
 describe('debounce', () => {
   beforeEach(() => {

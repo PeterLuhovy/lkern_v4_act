@@ -32,7 +32,7 @@ describe('ToastContext', () => {
   describe('useToastContext hook', () => {
     it('should throw error when used outside provider', () => {
       // Suppress console.error for this test
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
       expect(() => {
         renderHook(() => useToastContext());

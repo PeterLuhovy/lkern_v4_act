@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { Radio, RadioProps } from './Radio';
+import { Radio } from './Radio';
 import styles from './RadioGroup.module.css';
 
 /**

@@ -9,7 +9,6 @@
  */
 
 import { useCallback } from 'react';
-import { useTranslation } from '../../translations';
 import { toastManager, ToastOptions } from '../../utils/toastManager';
 
 export interface UseToastReturn {
@@ -23,7 +22,6 @@ export interface UseToastReturn {
 }
 
 export const useToast = (): UseToastReturn => {
-  const { t } = useTranslation();
 
   const showToast = useCallback((message: string, options?: ToastOptions) => {
     return toastManager.show(message, options);

@@ -102,4 +102,11 @@ export interface FilterPanelProps extends BaseComponentProps {
   roleFilters?: RoleFilter[];
   /** Role filter change handler */
   onRoleFilterChange?: (code: string, checked: boolean) => void;
+
+  /** Initial collapsed state (default: false) */
+  collapsed?: boolean;
+  /** Collapse state change handler */
+  onCollapseChange?: (collapsed: boolean) => void;
+  /** Panel title when collapsed (translated) */
+  panelTitle?: string;
 }

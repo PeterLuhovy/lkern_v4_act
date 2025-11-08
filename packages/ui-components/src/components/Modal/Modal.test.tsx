@@ -209,6 +209,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const backdrop = screen.getByRole('dialog').parentElement;
+    // Safe: parentElement exists after getByRole('dialog')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(backdrop!);
     expect(onClose).not.toHaveBeenCalled();
   });
@@ -222,6 +224,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const backdrop = screen.getByRole('dialog').parentElement;
+    // Safe: parentElement exists after getByRole('dialog')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.click(backdrop!);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -569,6 +573,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const titleElement = screen.getByRole('heading', { level: 2, name: 'Drag Test' });
+    // Safe: parentElement exists after getByRole('heading')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const header = titleElement.parentElement!;
 
     // Start drag
@@ -586,6 +592,8 @@ describe('Modal v3.0.0', () => {
 
     const closeButton = screen.getByLabelText('Zavrieť'); // Slovak translation
     const titleElement = screen.getByRole('heading', { level: 2, name: 'Drag Test' });
+    // Safe: parentElement exists after getByRole('heading')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const header = titleElement.parentElement!;
 
     // Try to start drag from close button
@@ -616,6 +624,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const titleElement = screen.getByRole('heading', { level: 2, name: 'Drag Test' });
+    // Safe: parentElement exists after getByRole('heading')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const header = titleElement.parentElement!;
     const modal = screen.getByRole('dialog');
 
@@ -638,6 +648,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const titleElement = screen.getByRole('heading', { level: 2, name: 'Drag Test' });
+    // Safe: parentElement exists after getByRole('heading')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const header = titleElement.parentElement!;
 
     // Start drag
@@ -659,6 +671,8 @@ describe('Modal v3.0.0', () => {
     );
 
     const titleElement = screen.getByRole('heading', { level: 2, name: 'Drag Test' });
+    // Safe: parentElement exists after getByRole('heading')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const header = titleElement.parentElement!;
 
     // Drag modal
@@ -732,7 +746,9 @@ describe('Modal v3.0.0', () => {
 
       // Check that close button exists (can't verify exact text due to mock limitations)
       const dialog = screen.getByRole('dialog');
-      const closeButton = dialog.querySelector('button[aria-label]');
+      // Safe: querySelector returns element or null, checked with expect
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const closeButton = dialog.querySelector('button[aria-label]')!;
       expect(closeButton).toBeInTheDocument();
     });
 
@@ -919,6 +935,8 @@ describe('Modal v3.0.0', () => {
 
       // Click backdrop
       const backdrop = screen.getByRole('dialog').parentElement;
+      // Safe: parentElement exists after getByRole('dialog')
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       fireEvent.click(backdrop!);
 
       // Should close immediately
@@ -942,6 +960,8 @@ describe('Modal v3.0.0', () => {
 
       // Click backdrop
       const backdrop = screen.getByRole('dialog').parentElement;
+      // Safe: parentElement exists after getByRole('dialog')
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       fireEvent.click(backdrop!);
 
       // ConfirmModal should appear (nested modal)

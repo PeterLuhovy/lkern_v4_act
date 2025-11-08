@@ -8,7 +8,7 @@
  * ================================================================
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderWithTranslation, screen } from '../../test-utils';
 import { WizardProgress } from './WizardProgress';
 
@@ -229,7 +229,7 @@ describe('WizardProgress', () => {
   });
 
   it('updates progress when step changes', () => {
-    let { container, unmount } = renderWithTranslation(
+    const { container, unmount } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} variant="bar" />
     );
 
@@ -238,14 +238,14 @@ describe('WizardProgress', () => {
 
     // Update to next step
     unmount();
-    ({ container } = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="bar" />));
+    const result2 = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="bar" />);
 
-    progressBarFill = container.querySelector('[class*="progressBarFill"]');
+    progressBarFill = result2.container.querySelector('[class*="progressBarFill"]');
     expect(progressBarFill?.getAttribute('style')).toContain('width: 60%');
   });
 
   it('handles step transitions in dots variant', () => {
-    let { container, unmount } = renderWithTranslation(
+    const { container, unmount } = renderWithTranslation(
       <WizardProgress currentStep={1} totalSteps={5} variant="dots" />
     );
 
@@ -256,9 +256,9 @@ describe('WizardProgress', () => {
 
     // Move to next step
     unmount();
-    ({ container } = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="dots" />));
+    const result2 = renderWithTranslation(<WizardProgress currentStep={2} totalSteps={5} variant="dots" />);
 
-    dots = container.querySelectorAll('[class*="_dot_"]');
+    dots = result2.container.querySelectorAll('[class*="_dot_"]');
     expect(dots[2].className).toContain('Active');
   });
 

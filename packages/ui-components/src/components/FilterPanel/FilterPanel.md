@@ -2,16 +2,17 @@
 # FilterPanel Component Documentation
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\FilterPanel\FilterPanel.md
-# Version: 1.0.0
+# Version: 1.1.0
 # Created: 2025-11-06
-# Updated: 2025-11-06
-# Component: FilterPanel v1.0.0
+# Updated: 2025-11-07
+# Component: FilterPanel v1.1.0
 # Package: @l-kern/ui-components
 #
 # Description:
 #   Complete documentation for FilterPanel component - production-ready
 #   filter and search UI with quick filters, filter groups, items per page,
-#   and result count display. Ported from v3 with v4 enhancements.
+#   result count display, and collapse/expand functionality. Ported from v3
+#   with v4 enhancements.
 # ================================================================
 
 ---
@@ -80,6 +81,16 @@
 **Custom Content:**
 - ✅ `children` prop for additional filters
 - ✅ Rendered below controls section
+
+**Collapse/Expand Functionality:** 🆕 v1.1.0
+- ✅ Collapsible panel with single-line collapsed state
+- ✅ Collapsed header shows panel title + expand button
+- ✅ Expand button (▼) in collapsed header (full-width clickable)
+- ✅ Collapse button (▲) in top-right corner when expanded
+- ✅ Controlled via `collapsed` prop (optional)
+- ✅ State change callback via `onCollapseChange`
+- ✅ Customizable panel title via `panelTitle` prop
+- ✅ Smooth transition animation (padding, opacity)
 
 **Theme Support:**
 - ✅ Light mode (white bg, light borders)
@@ -247,6 +258,43 @@ function OrdersPage() {
 />
 ```
 
+### With Collapse/Expand (New in v1.1.0)
+
+```typescript
+import { FilterPanel } from '@l-kern/ui-components';
+import { useState } from 'react';
+import { useTranslation } from '@l-kern/config';
+
+function OrdersPage() {
+  const { t } = useTranslation();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <FilterPanel
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      resultCount={15}
+
+      // Collapse/expand props
+      collapsed={collapsed}
+      onCollapseChange={setCollapsed}
+      panelTitle={t('orders.filterPanelTitle')}  // e.g., "Order Filters"
+    />
+  );
+}
+```
+
+**Collapsed state:**
+- Shows single line with title "ORDER FILTERS" + ▼ Expand button
+- Clicking anywhere on collapsed header expands panel
+- Padding reduced from 24px to 8px (vertical)
+
+**Expanded state:**
+- Shows all filters, search, controls
+- Collapse button (▲) in top-right corner
+- Clicking collapse button minimizes panel
+
 ### Full Example (All Features)
 
 ```typescript
@@ -261,6 +309,7 @@ function OrdersPage() {
   const [priorityFilters, setPriorityFilters] = useState<Set<string>>(new Set());
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [showInactive, setShowInactive] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   // ... filter logic ...
 
@@ -287,6 +336,11 @@ function OrdersPage() {
       showInactive={showInactive}
       onShowInactiveChange={setShowInactive}
       showInactiveLabel={t('orders.showInactive')}
+
+      // Collapse/expand
+      collapsed={collapsed}
+      onCollapseChange={setCollapsed}
+      panelTitle={t('orders.filterPanelTitle')}
     />
   );
 }
@@ -330,6 +384,11 @@ export interface FilterPanelProps extends BaseComponentProps {
   onShowInactiveChange?: (show: boolean) => void; // Show inactive change handler
   showInactiveLabel?: string;                   // Show inactive label (translated)
 
+  // Collapse/Expand (v1.1.0)
+  collapsed?: boolean;                          // Initial collapsed state (default: false)
+  onCollapseChange?: (collapsed: boolean) => void; // Collapse state change handler
+  panelTitle?: string;                          // Panel title when collapsed (default: 'Filters & Search')
+
   // Advanced (Future)
   roleFilters?: RoleFilter[];                   // Role filters (checkbox group)
   onRoleFilterChange?: (code: string, checked: boolean) => void;
@@ -368,9 +427,11 @@ export interface FilterGroup {
 
 ### Layout Structure
 
+**Expanded state (default):**
+
 ```
 ┌─────────────────────────────────────────────────────┐
-│ FilterPanel                                         │
+│ FilterPanel                                     [▲] │
 │ ┌─────────────────────────────────────────────────┐ │
 │ │ 🔍 Search input                                 │ │
 │ └─────────────────────────────────────────────────┘ │
@@ -386,6 +447,18 @@ export interface FilterGroup {
 └─────────────────────────────────────────────────────┘
 ```
 
+**Collapsed state (v1.1.0):**
+
+```
+┌─────────────────────────────────────────────────────┐
+│ ORDER FILTERS                          [▼ Expand]  │
+└─────────────────────────────────────────────────────┘
+```
+
+- Single line, reduced padding (8px vertical)
+- Full-width clickable area (expands on click)
+- Title (uppercase, bold) + Expand button (right-aligned)
+
 ### Color System
 
 - **Border**: 6px left border (`--color-brand-primary`)
@@ -400,6 +473,22 @@ export interface FilterGroup {
   - Active: Brand color bg + white text
 - **Result count**: Brand color text
 - **New Item button**: Brand color bg + shadow + hover lift
+- **Collapsed header** (v1.1.0):
+  - Title: `--theme-text`, uppercase, bold, letter-spacing 0.5px
+  - Expand button: `--theme-text`, hover `--theme-hover-background`
+- **Collapse button** (v1.1.0):
+  - Color: `--theme-text-muted`, hover `--color-brand-primary`
+  - Position: absolute top-right, z-index 1
+
+### CSS Classes (v1.1.0)
+
+**Collapse/Expand classes:**
+- `.filterPanel` - Base panel class
+- `.filterPanelCollapsed` - Applied when collapsed (padding: 8px 16px)
+- `.collapsedHeader` - Collapsed header container (flexbox, space-between)
+- `.collapsedTitle` - Panel title (font-size: md, weight: bold, uppercase)
+- `.expandButton` - Expand button (▼, right side of collapsed header)
+- `.collapseButton` - Collapse button (▲, absolute top-right when expanded)
 
 ---
 
@@ -413,12 +502,16 @@ export interface FilterGroup {
 - **Checkboxes**: `type="checkbox"`, proper label association
 - **Items per page**: `<select>` with options
 - **Show inactive**: `type="checkbox"` with label
+- **Collapse button** (v1.1.0): `type="button"`, `title` attribute for tooltip
+- **Expand button** (v1.1.0): `type="button"`, clickable
+- **Collapsed header** (v1.1.0): Full-width clickable `div`, accessible via click
 
 ### Keyboard Support
 
-- **Tab**: Navigate between search, filters, controls
-- **Enter/Space**: Activate buttons, toggle checkboxes
+- **Tab**: Navigate between search, filters, controls, collapse/expand buttons
+- **Enter/Space**: Activate buttons, toggle checkboxes, collapse/expand panel
 - **Arrow keys**: Navigate dropdown (items per page)
+- **Escape**: (Optional) Collapse panel when expanded (future enhancement)
 
 ---
 
@@ -426,7 +519,7 @@ export interface FilterGroup {
 
 ### Test Coverage
 
-**30 tests** covering:
+**35+ tests** covering:
 - ✅ Rendering with all props
 - ✅ Search input onChange
 - ✅ Quick filters onClick
@@ -437,6 +530,12 @@ export interface FilterGroup {
 - ✅ Custom children rendering
 - ✅ Styling (active classes)
 - ✅ Edge cases (empty arrays, minimal props)
+- ✅ **Collapse/Expand functionality** (v1.1.0):
+  - ✅ Collapsed state renders correctly (single line header)
+  - ✅ Expand button click toggles to expanded state
+  - ✅ Collapse button click toggles to collapsed state
+  - ✅ onCollapseChange callback fires with correct boolean
+  - ✅ Panel title displays correctly in collapsed state
 
 ### Running Tests
 
@@ -460,6 +559,64 @@ docker exec lkms201-web-ui yarn nx test ui-components --coverage
 - **[Input](../Input/Input.md)** - For simple search inputs
 - **[Select](../Select/Select.md)** - For single-select dropdowns
 - **[Checkbox](../Checkbox/Checkbox.md)** - For filter checkboxes
+
+---
+
+## 🔄 Behavior
+
+### Collapse/Expand Logic (v1.1.0)
+
+**State Management:**
+- FilterPanel maintains internal `isCollapsed` state (via `useState`)
+- Initial value from `collapsed` prop (default: `false`)
+- Updates internal state AND calls `onCollapseChange` callback
+
+**Collapsed State:**
+- Panel shows single-line header with:
+  - **Title**: `panelTitle` prop (default: "Filters & Search")
+  - **Expand button**: ▼ icon + translated text "Expand"
+- Full header is clickable (triggers expand)
+- Reduced padding: `8px 16px` (vertical horizontal)
+- All filter content hidden (search, quick filters, filter groups, controls)
+
+**Expanded State:**
+- Panel shows all content:
+  - Search bar
+  - Quick filters
+  - Filter groups
+  - Controls (items per page, new item button)
+  - Bottom row (result count, show inactive)
+- **Collapse button** in top-right corner (▲ icon)
+- Full padding: `24px 24px`
+- Smooth transition via CSS
+
+**Transition Animation:**
+- Property: `all` (padding, opacity, etc.)
+- Duration: `var(--duration-state)` (typically 200-300ms)
+- Easing: `var(--ease-smooth)` (ease-in-out)
+
+**User Interaction Flow:**
+1. Panel starts expanded (default) or collapsed (if `collapsed={true}`)
+2. User clicks collapse button (▲) → panel collapses
+3. User clicks collapsed header OR expand button (▼) → panel expands
+4. `onCollapseChange(newState)` callback fires on every toggle
+
+**Example Callback Usage:**
+```typescript
+const [collapsed, setCollapsed] = useState(false);
+
+const handleCollapseChange = (newCollapsed: boolean) => {
+  console.log(`Panel ${newCollapsed ? 'collapsed' : 'expanded'}`);
+  setCollapsed(newCollapsed);
+  // Optional: Save preference to localStorage
+  localStorage.setItem('filterPanelCollapsed', String(newCollapsed));
+};
+
+<FilterPanel
+  collapsed={collapsed}
+  onCollapseChange={handleCollapseChange}
+/>
+```
 
 ---
 
@@ -582,7 +739,36 @@ const toggleFilter = (value: string) => {
 
 ---
 
-**Last Updated**: 2025-11-06
-**Version**: 1.0.0
-**Component**: FilterPanel v1.0.0
+## 📝 Changelog
+
+### v1.1.0 (2025-11-07)
+- ✅ **NEW FEATURE**: Collapse/Expand functionality
+- ✅ Added `collapsed` prop (boolean, optional, default: false)
+- ✅ Added `onCollapseChange` callback (fires on toggle)
+- ✅ Added `panelTitle` prop (string, optional, default: "Filters & Search")
+- ✅ New CSS classes: `.filterPanelCollapsed`, `.collapsedHeader`, `.collapsedTitle`, `.expandButton`, `.collapseButton`
+- ✅ Collapsed state: Single-line header with title + expand button
+- ✅ Expand button (▼) in collapsed header
+- ✅ Collapse button (▲) in top-right corner when expanded
+- ✅ Smooth CSS transition animation
+- ✅ Translation keys: `pageTemplate.filter.expand`, `pageTemplate.filter.collapse`
+
+### v1.0.0 (2025-11-06)
+- 🎉 Initial release
+- ✅ Search bar with icon
+- ✅ Quick filter pills
+- ✅ Filter groups (button mode, checkbox mode)
+- ✅ Items per page dropdown
+- ✅ New Item button
+- ✅ Result count display
+- ✅ Show Inactive toggle
+- ✅ Custom content support
+- ✅ Light/dark mode support
+- ✅ 30 unit tests (100% coverage)
+
+---
+
+**Last Updated**: 2025-11-07
+**Version**: 1.1.0
+**Component**: FilterPanel v1.1.0
 **Package**: @l-kern/ui-components

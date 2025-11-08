@@ -120,7 +120,7 @@ export const usePageAnalytics = (
 
   // Pending down events (for debouncing logic)
   const pendingMouseDownRef = useRef<{ timestamp: number; element: string; elementType: string; coordinates?: { x: number; y: number } } | null>(null);
-  const pendingKeyDownRef = useRef<{ timestamp: number; key: string; code: string; modifiers: any; targetElement?: string } | null>(null);
+  const pendingKeyDownRef = useRef<{ timestamp: number; key: string; code: string; modifiers: { ctrl: boolean; shift: boolean; alt: boolean; meta: boolean }; targetElement?: string } | null>(null);
 
   // Pending drag events (for text drag & drop tracking)
   const pendingDragRef = useRef<{ timestamp: number; selectedText: string; coordinates: { x: number; y: number } } | null>(null);

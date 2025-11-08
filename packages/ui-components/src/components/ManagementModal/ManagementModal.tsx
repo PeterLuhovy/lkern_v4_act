@@ -88,6 +88,7 @@ export interface ManagementModalProps {
   /**
    * Array of items (for delete all validation and empty state)
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   items: any[];
 
   /**
@@ -108,13 +109,17 @@ export interface ManagementModalProps {
    * )}
    */
   renderItem: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
     item: any,
     helpers: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
       onEdit: (id: any) => void;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
       onDelete: (id: any) => void;
       editHint: string;
       deleteHint: string;
       isPrimary: boolean;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
       onSetPrimary?: (id: any) => void;
       primaryHint?: string;
     }
@@ -123,11 +128,13 @@ export interface ManagementModalProps {
   /**
    * Called when user clicks edit button on an item
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   onEdit?: (id: any) => void;
 
   /**
    * Called when user clicks delete button on an item (with confirmation)
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   onDelete?: (id: any) => void;
 
   /**
@@ -151,11 +158,13 @@ export interface ManagementModalProps {
   /**
    * ID of the current primary item
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   primaryItemId?: any;
 
   /**
    * Called when user sets a new primary item
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   onSetPrimary?: (id: any) => void;
 
   /**
@@ -168,6 +177,7 @@ export interface ManagementModalProps {
    * Function to extract ID from item (required if enablePrimary is true)
    * @default (item) => item.id
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   getItemId?: (item: any) => any;
 
   /**
@@ -279,6 +289,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
   const unsavedConfirm = useConfirm();
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [showDeleteItemConfirm, setShowDeleteItemConfirm] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   const [itemToDelete, setItemToDelete] = useState<any>(null);
 
   // ================================================================
@@ -353,6 +364,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
    * Handle edit item click
    * Calls parent's onEdit handler if provided
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   const handleEditClick = (id: any) => {
     if (onEdit) {
       onEdit(id);
@@ -363,6 +375,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
    * Handle delete item click
    * Opens confirmation modal
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   const handleDeleteClick = (id: any) => {
     setItemToDelete(id);
     setShowDeleteItemConfirm(true);
@@ -384,6 +397,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
    * Handle set primary click
    * Calls parent's onSetPrimary handler if provided
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic item type for flexible modal usage
   const handleSetPrimaryClick = (id: any) => {
     if (onSetPrimary) {
       onSetPrimary(id);
@@ -465,7 +479,7 @@ export const ManagementModal: React.FC<ManagementModalProps> = ({
             fullWidth
             className={styles.addButton}
           >
-            ➕ {addButtonText || t('components.modalV3.managementModal.addButton')}
+            <span role="img" aria-label="plus">➕</span> {addButtonText || t('components.modalV3.managementModal.addButton')}
           </Button>
           {bottomContent}
         </div>

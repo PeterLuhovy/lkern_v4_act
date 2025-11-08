@@ -23,14 +23,11 @@ import {
   normalizeEmail,
   getEmailDomain,
   formatDate,
-  formatDateTime,
   formatDateTimeFull,
-  parseDate,
   parseDateTime,
   convertDateLocale,
   extractDateComponents,
   type DateLocale,
-  type DateComponents,
   debounce,
   validateField,
   type ValidationType,
@@ -159,10 +156,10 @@ export function UtilityTestPage() {
         {/* Phone Utilities Section */}
         <Card className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
-            📞 {t('pages.utilityTest.phone.title')}
+            <span role="img" aria-label="phone">📞</span> {t('pages.utilityTest.phone.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>🔧 {t('pages.utilityTest.phone.description.label')}:</strong> {t('pages.utilityTest.phone.description.functions')} |
+            <strong><span role="img" aria-label="wrench">🔧</span> {t('pages.utilityTest.phone.description.label')}:</strong> {t('pages.utilityTest.phone.description.functions')} |
             <strong> {t('pages.utilityTest.phone.description.countries')}:</strong> {t('pages.utilityTest.phone.description.countriesList')} |
             <strong> {t('pages.utilityTest.phone.description.usage')}:</strong> {t('pages.utilityTest.phone.description.usageDescription')}
           </p>
@@ -175,9 +172,11 @@ export function UtilityTestPage() {
                 onChange={(e) => setPhoneCountry(e.target.value as PhoneCountryCode)}
                 className={styles.formSelect}
               >
+                {/* eslint-disable jsx-a11y/accessible-emoji -- <option> elements cannot contain <span>, only text nodes */}
                 <option value="SK">🇸🇰 Slovakia (SK)</option>
                 <option value="CZ">🇨🇿 Czech Republic (CZ)</option>
                 <option value="PL">🇵🇱 Poland (PL)</option>
+                {/* eslint-enable jsx-a11y/accessible-emoji */}
               </select>
             </label>
 
@@ -247,36 +246,36 @@ export function UtilityTestPage() {
               {phoneCountry === 'SK' && (
                 <>
                   <li onClick={() => setPhoneInput('+421 902 123 456')} className={styles.exampleItem}>
-                    🇸🇰 +421 902 123 456 (mobile)
+                    <span role="img" aria-label="slovakia flag">🇸🇰</span> +421 902 123 456 (mobile)
                   </li>
                   <li onClick={() => setPhoneInput('0902 123 456')} className={styles.exampleItem}>
-                    🇸🇰 0902 123 456 (mobile national)
+                    <span role="img" aria-label="slovakia flag">🇸🇰</span> 0902 123 456 (mobile national)
                   </li>
                   <li onClick={() => setPhoneInput('+421 2 1234 5678')} className={styles.exampleItem}>
-                    🇸🇰 +421 2 1234 5678 (Bratislava)
+                    <span role="img" aria-label="slovakia flag">🇸🇰</span> +421 2 1234 5678 (Bratislava)
                   </li>
                   <li onClick={() => setPhoneInput('032 123 4567')} className={styles.exampleItem}>
-                    🇸🇰 032 123 4567 (Trnava)
+                    <span role="img" aria-label="slovakia flag">🇸🇰</span> 032 123 4567 (Trnava)
                   </li>
                 </>
               )}
               {phoneCountry === 'CZ' && (
                 <>
                   <li onClick={() => setPhoneInput('+420 777 123 456')} className={styles.exampleItem}>
-                    🇨🇿 +420 777 123 456 (mobile)
+                    <span role="img" aria-label="czech flag">🇨🇿</span> +420 777 123 456 (mobile)
                   </li>
                   <li onClick={() => setPhoneInput('+420 234 567 890')} className={styles.exampleItem}>
-                    🇨🇿 +420 234 567 890 (Prague)
+                    <span role="img" aria-label="czech flag">🇨🇿</span> +420 234 567 890 (Prague)
                   </li>
                 </>
               )}
               {phoneCountry === 'PL' && (
                 <>
                   <li onClick={() => setPhoneInput('+48 501 234 567')} className={styles.exampleItem}>
-                    🇵🇱 +48 501 234 567 (mobile)
+                    <span role="img" aria-label="poland flag">🇵🇱</span> +48 501 234 567 (mobile)
                   </li>
                   <li onClick={() => setPhoneInput('+48 22 123 45 67')} className={styles.exampleItem}>
-                    🇵🇱 +48 22 123 45 67 (Warsaw)
+                    <span role="img" aria-label="poland flag">🇵🇱</span> +48 22 123 45 67 (Warsaw)
                   </li>
                 </>
               )}
@@ -287,10 +286,10 @@ export function UtilityTestPage() {
         {/* Email Utilities Section */}
         <Card className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
-            📧 {t('pages.utilityTest.email.title')}
+            <span role="img" aria-label="email">📧</span> {t('pages.utilityTest.email.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>🔧 {t('pages.utilityTest.email.description.label')}:</strong> {t('pages.utilityTest.email.description.functions')} |
+            <strong><span role="img" aria-label="wrench">🔧</span> {t('pages.utilityTest.email.description.label')}:</strong> {t('pages.utilityTest.email.description.functions')} |
             <strong> {t('pages.utilityTest.email.description.compliance')}</strong> |
             <strong> {t('pages.utilityTest.email.description.usage')}:</strong> {t('pages.utilityTest.email.description.usageDescription')}
           </p>
@@ -333,16 +332,16 @@ export function UtilityTestPage() {
             </h4>
             <ul className={styles.examplesList}>
               <li onClick={() => setEmailInput('user@example.com')} className={styles.exampleItem}>
-                ✉️ user@example.com
+                <span role="img" aria-label="envelope">✉️</span> user@example.com
               </li>
               <li onClick={() => setEmailInput('first.last+tag@example.co.uk')} className={styles.exampleItem}>
-                ✉️ first.last+tag@example.co.uk
+                <span role="img" aria-label="envelope">✉️</span> first.last+tag@example.co.uk
               </li>
               <li onClick={() => setEmailInput('ADMIN@DOMAIN.SK')} className={styles.exampleItem}>
-                ✉️ ADMIN@DOMAIN.SK (uppercase)
+                <span role="img" aria-label="envelope">✉️</span> ADMIN@DOMAIN.SK (uppercase)
               </li>
               <li onClick={() => setEmailInput('invalid@')} className={styles.exampleItem}>
-                ❌ invalid@ (invalid)
+                <span role="img" aria-label="cross mark">❌</span> invalid@ (invalid)
               </li>
             </ul>
           </div>
@@ -351,10 +350,10 @@ export function UtilityTestPage() {
         {/* Date Utilities Section */}
         <Card className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
-            📅 {t('pages.utilityTest.date.title')}
+            <span role="img" aria-label="calendar">📅</span> {t('pages.utilityTest.date.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>🔧 {t('pages.utilityTest.date.description.label')}:</strong> {t('pages.utilityTest.date.description.functions')} |
+            <strong><span role="img" aria-label="wrench">🔧</span> {t('pages.utilityTest.date.description.label')}:</strong> {t('pages.utilityTest.date.description.functions')} |
             <strong> {t('pages.utilityTest.date.description.localization')}:</strong> {t('pages.utilityTest.date.description.localeFormats')} |
             <strong> {t('pages.utilityTest.date.description.usage')}:</strong> {t('pages.utilityTest.date.description.usageDescription')}
           </p>
@@ -367,8 +366,10 @@ export function UtilityTestPage() {
                 onChange={(e) => setDateLocale(e.target.value as DateLocale)}
                 className={styles.formSelect}
               >
+                {/* eslint-disable jsx-a11y/accessible-emoji -- <option> elements cannot contain <span>, only text nodes */}
                 <option value="sk">🇸🇰 Slovak (DD.MM.YYYY)</option>
                 <option value="en">🇬🇧 English (YYYY-MM-DD)</option>
+                {/* eslint-enable jsx-a11y/accessible-emoji */}
               </select>
             </label>
             <Button
@@ -379,7 +380,7 @@ export function UtilityTestPage() {
                 setDateInput(formatted);
               }}
             >
-              🕐 {t('pages.utilityTest.date.nowButton')}
+              <span role="img" aria-label="clock">🕐</span> {t('pages.utilityTest.date.nowButton')}
             </Button>
           </div>
 
@@ -444,26 +445,26 @@ export function UtilityTestPage() {
               {dateLocale === 'sk' && (
                 <>
                   <li onClick={() => setDateInput('18.10.2025')} className={styles.exampleItem}>
-                    📅 18.10.2025 (today)
+                    <span role="img" aria-label="calendar">📅</span> 18.10.2025 (today)
                   </li>
                   <li onClick={() => setDateInput('01.01.2025')} className={styles.exampleItem}>
-                    📅 01.01.2025 (new year)
+                    <span role="img" aria-label="calendar">📅</span> 01.01.2025 (new year)
                   </li>
                   <li onClick={() => setDateInput('31.02.2025')} className={styles.exampleItem}>
-                    ❌ 31.02.2025 (invalid)
+                    <span role="img" aria-label="cross mark">❌</span> 31.02.2025 (invalid)
                   </li>
                 </>
               )}
               {dateLocale === 'en' && (
                 <>
                   <li onClick={() => setDateInput('2025-10-18')} className={styles.exampleItem}>
-                    📅 2025-10-18 (today)
+                    <span role="img" aria-label="calendar">📅</span> 2025-10-18 (today)
                   </li>
                   <li onClick={() => setDateInput('2025-01-01')} className={styles.exampleItem}>
-                    📅 2025-01-01 (new year)
+                    <span role="img" aria-label="calendar">📅</span> 2025-01-01 (new year)
                   </li>
                   <li onClick={() => setDateInput('2025-02-31')} className={styles.exampleItem}>
-                    ❌ 2025-02-31 (invalid)
+                    <span role="img" aria-label="cross mark">❌</span> 2025-02-31 (invalid)
                   </li>
                 </>
               )}
@@ -474,10 +475,10 @@ export function UtilityTestPage() {
         {/* Validation Utilities Section */}
         <Card className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
-            🔍 {t('pages.utilityTest.validation.title')}
+            <span role="img" aria-label="magnifying glass">🔍</span> {t('pages.utilityTest.validation.title')}
           </h2>
           <p className={styles.sectionDescription}>
-            <strong>🎁 {t('pages.utilityTest.validation.description.label')}:</strong> {t('pages.utilityTest.validation.description.functions')} |
+            <strong><span role="img" aria-label="gift">🎁</span> {t('pages.utilityTest.validation.description.label')}:</strong> {t('pages.utilityTest.validation.description.functions')} |
             <strong> {t('pages.utilityTest.validation.description.asyncApi')}:</strong> {t('pages.utilityTest.validation.description.asyncDescription')} |
             <strong> {t('pages.utilityTest.validation.description.types')}:</strong> {t('pages.utilityTest.validation.description.typesList')} |
             <strong> {t('pages.utilityTest.validation.description.usage')}:</strong> {t('pages.utilityTest.validation.description.usageDescription')}
@@ -485,7 +486,7 @@ export function UtilityTestPage() {
 
           {/* Debounce Demo */}
           <h3 className={styles.subsectionTitle}>
-            ⏱️ {t('pages.utilityTest.validation.debounce.title')}
+            <span role="img" aria-label="stopwatch">⏱️</span> {t('pages.utilityTest.validation.debounce.title')}
           </h3>
           <p className={styles.testDescription}>
             {t('pages.utilityTest.validation.debounce.description')}
@@ -541,13 +542,13 @@ export function UtilityTestPage() {
 
           {/* ValidateField Demo */}
           <h3 className={styles.subsectionTitle} style={{ marginTop: '24px' }}>
-            ✅ {t('pages.utilityTest.validation.validateField.title')}
+            <span role="img" aria-label="checkmark">✅</span> {t('pages.utilityTest.validation.validateField.title')}
           </h3>
           <p className={styles.testDescription}>
             {t('pages.utilityTest.validation.validateField.description')}
             <br />
             <em style={{ color: 'var(--color-status-info)' }}>
-              ⚡ Promise-based API s async delay (simulácia backend validácie)
+              <span role="img" aria-label="lightning">⚡</span> Promise-based API s async delay (simulácia backend validácie)
             </em>
           </p>
 
@@ -582,7 +583,7 @@ export function UtilityTestPage() {
           {isValidating && (
             <div className={styles.resultsContainer}>
               <div className={styles.resultRow}>
-                <strong className={styles.resultLabel}>⏳ Validating...</strong>
+                <strong className={styles.resultLabel}><span role="img" aria-label="hourglass">⏳</span> Validating...</strong>
                 <Badge variant="warning">Processing</Badge>
               </div>
             </div>
@@ -650,43 +651,43 @@ export function UtilityTestPage() {
               {validationType === 'email' && (
                 <>
                   <li onClick={() => handleValidationExample('user@example.com')} className={styles.exampleItem}>
-                    ✉️ user@example.com (valid)
+                    <span role="img" aria-label="envelope">✉️</span> user@example.com (valid)
                   </li>
                   <li onClick={() => handleValidationExample('invalid@')} className={styles.exampleItem}>
-                    ❌ invalid@ (invalid)
+                    <span role="img" aria-label="cross mark">❌</span> invalid@ (invalid)
                   </li>
                 </>
               )}
               {validationType === 'phone' && (
                 <>
                   <li onClick={() => handleValidationExample('+421902123456')} className={styles.exampleItem}>
-                    📱 +421902123456 (mobile SK)
+                    <span role="img" aria-label="mobile phone">📱</span> +421902123456 (mobile SK)
                   </li>
                   <li onClick={() => handleValidationExample('+421212345678')} className={styles.exampleItem}>
-                    📞 +421212345678 (landline SK)
+                    <span role="img" aria-label="phone">📞</span> +421212345678 (landline SK)
                   </li>
                   <li onClick={() => handleValidationExample('123')} className={styles.exampleItem}>
-                    ❌ 123 (invalid)
+                    <span role="img" aria-label="cross mark">❌</span> 123 (invalid)
                   </li>
                 </>
               )}
               {validationType === 'url' && (
                 <>
                   <li onClick={() => handleValidationExample('https://example.com')} className={styles.exampleItem}>
-                    🌐 https://example.com (valid)
+                    <span role="img" aria-label="globe">🌐</span> https://example.com (valid)
                   </li>
                   <li onClick={() => handleValidationExample('example.com')} className={styles.exampleItem}>
-                    ❌ example.com (invalid - no protocol)
+                    <span role="img" aria-label="cross mark">❌</span> example.com (invalid - no protocol)
                   </li>
                 </>
               )}
               {validationType === 'required' && (
                 <>
                   <li onClick={() => handleValidationExample('Some text')} className={styles.exampleItem}>
-                    ✅ Some text (valid)
+                    <span role="img" aria-label="checkmark">✅</span> Some text (valid)
                   </li>
                   <li onClick={() => handleValidationExample('')} className={styles.exampleItem}>
-                    ❌ (empty - invalid)
+                    <span role="img" aria-label="cross mark">❌</span> (empty - invalid)
                   </li>
                 </>
               )}
@@ -696,7 +697,7 @@ export function UtilityTestPage() {
 
         <div className={styles.infoBox}>
           <h3 className={styles.infoTitle}>
-            ℹ️ {t('pages.utilityTest.info.title')}
+            <span role="img" aria-label="information">ℹ️</span> {t('pages.utilityTest.info.title')}
           </h3>
           <p className={styles.infoDescription}>
             {t('pages.utilityTest.info.description')}

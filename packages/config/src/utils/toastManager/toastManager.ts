@@ -77,6 +77,8 @@ class ToastManager {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
+    // Safe: We just ensured the event exists in the Map
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.listeners.get(event)!.add(callback);
   }
 
@@ -84,12 +86,16 @@ class ToastManager {
   off(event: 'clear', callback: ClearAllListener): void;
   off(event: ToastEvent | 'clear', callback: ToastEventListener | ClearAllListener): void {
     if (this.listeners.has(event)) {
+      // Safe: We just checked that the event exists in the Map
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.listeners.get(event)!.delete(callback);
     }
   }
 
   private emit(event: ToastEvent, toast: Toast): void {
     if (this.listeners.has(event)) {
+      // Safe: We just checked that the event exists in the Map
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.listeners.get(event)!.forEach((callback) => {
         (callback as ToastEventListener)(toast);
       });
@@ -98,6 +104,8 @@ class ToastManager {
 
   private emitClearAll(): void {
     if (this.listeners.has('clear')) {
+      // Safe: We just checked that the event exists in the Map
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.listeners.get('clear')!.forEach((callback) => {
         (callback as ClearAllListener)();
       });

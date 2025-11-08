@@ -358,11 +358,6 @@ export const Modal: React.FC<ModalProps> = ({
     }
   }, [hasUnsavedChanges, unsavedConfirm, onClose]);
 
-  /**
-   * Intercepted onClose callback that children (footer buttons) should use
-   * This ensures dirty tracking confirmation is triggered even when footer buttons call onClose
-   */
-  const interceptedOnClose = handleCloseWithConfirm;
 
   // ================================================================
   // DEBUG BAR ANALYTICS SESSION

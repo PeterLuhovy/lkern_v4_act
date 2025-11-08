@@ -61,8 +61,8 @@ export function setupTheme(): void {
       --color-secondary: ${COLORS.brand.secondary};
       --color-accent: ${COLORS.brand.accent};
 
-      /* Button colors (lighter for light theme) */
-      --button-primary-from: ${COLORS.brand.light};
+      /* Button colors (same primary purple for both themes) */
+      --button-primary-from: ${COLORS.brand.primary};
       --button-primary-to: ${COLORS.brand.primary};
       --button-danger-from: #ef5350;
       --button-danger-to: #d32f2f;

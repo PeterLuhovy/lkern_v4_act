@@ -9,7 +9,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { useConfirm } from './useConfirm';
 
 describe('useConfirm', () => {

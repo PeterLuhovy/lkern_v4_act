@@ -185,7 +185,7 @@ describe('Select', () => {
 
     it('allows ref to access select value', () => {
       const ref = { current: null as HTMLSelectElement | null };
-      renderWithTranslation(<Select options={mockOptions} ref={ref} value="sk" onChange={() => {}} />);
+      renderWithTranslation(<Select options={mockOptions} ref={ref} value="sk" onChange={vi.fn()} />);
       expect(ref.current).toBeInstanceOf(HTMLSelectElement);
       expect(ref.current?.value).toBe('sk');
     });

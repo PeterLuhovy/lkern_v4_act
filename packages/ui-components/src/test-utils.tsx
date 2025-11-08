@@ -70,6 +70,7 @@ export function renderWithTranslation(
     </TranslationProvider>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19 FC type compatibility with Testing Library
   return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 
@@ -105,6 +106,7 @@ export function renderWithTheme(
     <ThemeProvider defaultTheme={initialTheme}>{children}</ThemeProvider>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19 FC type compatibility with Testing Library
   return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 
@@ -156,6 +158,7 @@ export function renderWithAll(
     </ThemeProvider>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19 FC type compatibility with Testing Library
   return render(ui, { wrapper: Wrapper as any, ...renderOptions });
 }
 

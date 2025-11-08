@@ -175,6 +175,7 @@ describe('Toast', () => {
     });
 
     it('should default to success type when type not specified', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test edge case with invalid type
       mockToast.type = undefined as any;
 
       renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
@@ -187,6 +188,8 @@ describe('Toast', () => {
     it('should start invisible and fade in', async () => {
       const { container } = renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
+      // Safe: toast element exists from querySelector
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const toastElement = container.querySelector('[class*="toast"]')!;
 
       // Initially should not have visible class

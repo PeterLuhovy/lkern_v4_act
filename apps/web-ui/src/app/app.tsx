@@ -12,6 +12,8 @@
 import { Route, Routes } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { ToastContainer } from '@l-kern/ui-components';
+import { Orders } from '../pages/Orders';
+//--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 // Test-only pages (development) - ALL testing pages in __tests__/pages/
 import { TestingDashboard } from '../__tests__/pages/TestingDashboard';
@@ -27,7 +29,7 @@ import { GlassModalTestPage } from '../__tests__/pages/GlassModalTestPage';
 import { ToastTestPage } from '../__tests__/pages/ToastTestPage';
 import { IconsTest } from '../__tests__/pages/IconsTest';
 import { DataGridTestPage } from '../__tests__/pages/DataGridTestPage';
-import { FilteredGridDemo } from '../pages/demo';
+import { FilteredGridDemo, TemplatePageDatagridDemo } from '../pages/demo';
 
 export function App() {
   return (
@@ -35,6 +37,8 @@ export function App() {
       <Routes>
         {/* Production routes */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/orders" element={<Orders />} />
+        {/*--GENERATE-PAGE-PLACEHOLDER-ROUTE--*/}
 
         {/* Testing routes */}
         <Route path="/testing" element={<TestingDashboard />} />
@@ -53,6 +57,7 @@ export function App() {
         <Route path="/testing/icons" element={<IconsTest />} />
         <Route path="/testing/datagrid" element={<DataGridTestPage />} />
         <Route path="/testing/filtered-grid" element={<FilteredGridDemo />} />
+        <Route path="/testing/template-page-datagrid" element={<TemplatePageDatagridDemo />} />
       </Routes>
       <ToastContainer position="bottom-center" />
     </>

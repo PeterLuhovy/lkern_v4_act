@@ -138,6 +138,7 @@ export function FilteredGridDemo() {
       label: '🗑️',
       title: t('common.delete'),
       onClick: (order: Order) => {
+        // eslint-disable-next-line no-restricted-globals
         if (confirm(t('components.filteredGridDemo.deleteConfirm', { id: order.id }))) {
           alert(t('components.filteredGridDemo.orderDeleted', { id: order.id }));
         }
@@ -175,7 +176,7 @@ export function FilteredGridDemo() {
   );
 
   return (
-    <BasePage title={t('components.filteredGridDemo.pageTitle')} showBackButton={false}>
+    <BasePage>
       <div className={styles.demoPage}>
         <h1>{t('components.filteredGridDemo.title')}</h1>
 
@@ -229,14 +230,44 @@ export function FilteredGridDemo() {
           getRowStatus={(row) => row.status}
           statusColors={statusColors}
           gridId="filteredGridDemo"
+          betweenContent={
+            <div className={styles.selectedInfo}>
+              <div className={styles.selectedCount}>
+                <strong>{t('components.filteredGridDemo.selectedRows')}</strong> {selectedRows.size} {t('components.filteredGridDemo.orders')}
+              </div>
+              {selectedRows.size > 0 && (
+                <div className={styles.selectedActions}>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => {
+                      alert(`Export ${selectedRows.size} ${t('components.filteredGridDemo.orders')}`);
+                    }}
+                  >
+                    <span role="img" aria-label="inbox">📥</span> {t('common.export')}
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => {
+                      // eslint-disable-next-line no-restricted-globals
+                      if (confirm(t('components.filteredGridDemo.deleteSelectedConfirm', { count: selectedRows.size }))) {
+                        alert(t('components.filteredGridDemo.selectedDeleted', { count: selectedRows.size }));
+                        setSelectedRows(new Set());
+                      }
+                    }}
+                  >
+                    <span role="img" aria-label="trash">🗑️</span> {t('common.delete')}
+                  </button>
+                  <button
+                    className={styles.actionButtonSecondary}
+                    onClick={() => setSelectedRows(new Set())}
+                  >
+                    {t('components.filteredGridDemo.clearSelection')}
+                  </button>
+                </div>
+              )}
+            </div>
+          }
         />
-
-        <div className={styles.selectedInfo}>
-          <strong>{t('components.filteredGridDemo.selectedRows')}</strong> {selectedRows.size} {t('components.filteredGridDemo.orders')}
-          {selectedRows.size > 0 && (
-            <button onClick={() => setSelectedRows(new Set())}>{t('components.filteredGridDemo.clearSelection')}</button>
-          )}
-        </div>
       </div>
     </BasePage>
   );

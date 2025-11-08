@@ -35,7 +35,7 @@ export interface ValidationResult {
     /** For email: normalized email */
     normalizedEmail?: string;
     /** Any other metadata */
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -63,7 +63,9 @@ export type ValidationType = 'email' | 'phone' | 'url' | 'required';
  * debouncedSearch('hell'); // Cancelled
  * debouncedSearch('hello'); // Executes after 500ms
  */
-export function debounce<T extends (...args: any[]) => any>(
+// Generic debounce accepts any function signature - Parameters<T> preserves exact types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce<T extends (...args: any[]) => unknown>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {
@@ -123,7 +125,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export async function validateField(
   fieldName: string,
-  value: any,
+  value: unknown,
   validationType?: ValidationType
 ): Promise<ValidationResult> {
   // No validation type specified - always valid
@@ -142,6 +144,14 @@ export async function validateField(
 
   // Email validation
   if (validationType === 'email') {
+    // Type guard: ensure value is string
+    if (typeof value !== 'string') {
+      return {
+        isValid: false,
+        error: 'Email must be a string',
+      };
+    }
+
     const isValid = validateEmail(value);
 
     if (!isValid) {
@@ -163,6 +173,14 @@ export async function validateField(
 
   // Phone validation (supports both mobile and landline)
   if (validationType === 'phone') {
+    // Type guard: ensure value is string
+    if (typeof value !== 'string') {
+      return {
+        isValid: false,
+        error: 'Phone must be a string',
+      };
+    }
+
     const isMobile = validateMobile(value);
     const isLandline = validateLandlineOrFax(value);
     const isValid = isMobile || isLandline;
@@ -191,6 +209,14 @@ export async function validateField(
 
   // URL validation
   if (validationType === 'url') {
+    // Type guard: ensure value is string
+    if (typeof value !== 'string') {
+      return {
+        isValid: false,
+        error: 'URL must be a string',
+      };
+    }
+
     try {
       new URL(value);
       return { isValid: true };

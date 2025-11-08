@@ -214,8 +214,8 @@
   outline: none;
   border-color: transparent;
   box-shadow:
-    0 0 0 2px #9c27b0,
-    0 0 12px rgba(156, 39, 176, 0.3);
+    0 0 0 2px var(--color-brand-primary),
+    0 0 12px color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
   background: rgba(255, 255, 255, 0.15);
 }
 

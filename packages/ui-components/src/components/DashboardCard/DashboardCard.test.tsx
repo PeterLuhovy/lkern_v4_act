@@ -60,7 +60,7 @@ describe('DashboardCard', () => {
       <RouterWrapper>
         <DashboardCard
           path="/test"
-          icon={<span data-testid="custom-icon">🎨</span>}
+          icon={<span data-testid="custom-icon" role="img" aria-label="art">🎨</span>}
           title="Custom Icon"
           description="Test"
         />

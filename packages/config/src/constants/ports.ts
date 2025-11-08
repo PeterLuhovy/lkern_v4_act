@@ -73,7 +73,7 @@ export const PORT_RANGES = {
  * @returns Service name or 'unknown'
  */
 export function getServiceNameByPort(port: number): string {
-  const entry = Object.entries(PORTS).find(([_, p]) => p === port);
+  const entry = Object.entries(PORTS).find(([, p]) => p === port);
   return entry ? entry[0].toLowerCase().replace(/_/g, '-') : 'unknown';
 }
 

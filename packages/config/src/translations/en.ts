@@ -10,9 +10,16 @@
 
 import type { TranslationKeys } from './types';
 
+// ============================================================
+// PAGE TRANSLATIONS (Auto-imported from pages/)
+// ============================================================
+import { ordersPageEn } from './pages/orders.en';
+//--GENERATE-PAGE-PLACEHOLDER-IMPORT--
+
 export const en: TranslationKeys = {
   common: {
     welcome: 'Welcome',
+    home: 'Home',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -129,6 +136,10 @@ export const en: TranslationKeys = {
       dashboard: 'Testing Dashboard',
       dashboardSubtitle: 'Select a component to test',
       dashboardHint: 'All components are fully responsive and support dark mode',
+      tabComponents: 'Components',
+      tabPages: 'Pages',
+      categoryComponents: 'Components',
+      categoryPages: 'Pages',
       formComponents: 'Form Components',
       formComponentsDescription: 'Test Button, Input, Select, Checkbox, Radio and FormField components',
       utilityFunctions: 'Utility Functions',
@@ -181,6 +192,8 @@ export const en: TranslationKeys = {
       iconsDescription: 'Unicode symbol set for ERP system (100+ icons)',
       filteredGridTitle: 'FilteredDataGrid Component',
       filteredGridDescription: 'Test FilteredDataGrid (search, filters, quick filters, pagination)',
+      templatePageDatagridTitle: 'Template Page DataGrid',
+      templatePageDatagridDescription: 'Reference template for creating new DataGrid pages',
       nestedContentExamples: 'Nested Content Examples',
       gridLayoutExample: 'Grid Layout Example',
       size: 'Size',
@@ -670,6 +683,11 @@ export const en: TranslationKeys = {
       resizeWidth: 'Resize sidebar width',
       newAction: 'New action',
     },
+    pageHeader: {
+      logoAlt: 'Application logo',
+      logoPlaceholder: 'LOGO',
+      breadcrumbsLabel: 'Breadcrumb navigation',
+    },
   },
   phoneTypes: {
     mobile: 'Mobile',
@@ -723,6 +741,8 @@ export const en: TranslationKeys = {
     },
   },
   pages: {
+    orders: ordersPageEn,
+    //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     utilityTest: {
       title: 'Utility Functions Test Page',
       subtitle: 'Interactive testing of validation and formatting functions',
@@ -916,6 +936,55 @@ export const en: TranslationKeys = {
       shapes: 'Geometric Shapes',
       footer: 'All icons use Unicode symbols for maximum compatibility and professional appearance.',
     },
+    template: {
+      title: 'Page Template',
+      subtitle: 'Universal template for DataGrid pages',
+      breadcrumb: 'Template',
+      searchPlaceholder: 'Search items...',
+      newItemButton: 'New Item',
+      showInactiveLabel: 'Show Inactive',
+      selectedCount: 'Selected Items',
+      clearSelection: 'Clear Selection',
+      newItemClicked: 'New item clicked',
+      bulkExport: 'Export {count} items',
+      bulkDeleteConfirm: 'Are you sure you want to delete {count} items?',
+      bulkDeleteSuccess: 'Successfully deleted {count} items',
+      deleteConfirm: 'Are you sure you want to delete item: {name}?',
+      deleteSuccess: 'Successfully deleted item: {name}',
+      detailsTitle: 'Item Details: {name}',
+      filters: {
+        statusTitle: 'Status',
+        statusActive: 'Active',
+        statusPending: 'Pending',
+        statusInactive: 'Inactive',
+        priorityTitle: 'Priority',
+        priorityLow: 'Low',
+        priorityMedium: 'Medium',
+        priorityHigh: 'High',
+      },
+      quickFilters: {
+        highValue: 'High Value (>$5000)',
+        overdue: 'Overdue',
+      },
+      columns: {
+        id: 'ID',
+        name: 'Name',
+        email: 'Email',
+        status: 'Status',
+        priority: 'Priority',
+        value: 'Value',
+        date: 'Date',
+      },
+      details: {
+        name: 'Name',
+        email: 'Email',
+        status: 'Status',
+        priority: 'Priority',
+        value: 'Value',
+        date: 'Date',
+        active: 'Active',
+      },
+    },
   },
 
   contactType: {
@@ -981,9 +1050,17 @@ export const en: TranslationKeys = {
       searchPlaceholder: 'Search...',
       newItem: 'New Item',
       showInactive: 'Show Inactive',
+      enablePagination: 'Pagination',
       itemsPerPageLabel: 'Items per page',
       filterLabel: 'Filtered',
       itemsCount: 'items',
+      previous: 'Previous',
+      next: 'Next',
+      page: 'Page',
+      of: 'of',
+      panelTitle: 'Filters & Search',
+      expand: 'Expand',
+      collapse: 'Collapse',
     },
   },
 };

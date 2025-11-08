@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderWithTranslation, screen, waitFor, fireEvent, userEvent } from '../../test-utils';
+import { renderWithTranslation, screen, fireEvent, userEvent } from '../../test-utils';
 import { DebugBar } from './DebugBar';
 import type { UsePageAnalyticsReturn } from '@l-kern/config';
 
@@ -55,6 +55,7 @@ describe('DebugBar', () => {
       trackClick: vi.fn(),
       trackKeyboard: vi.fn(),
       getSessionReport: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock object matching UsePageAnalyticsReturn interface
     } as any;
   });
 
@@ -255,6 +256,8 @@ describe('DebugBar', () => {
         />
       );
 
+      // Safe: debugBar element exists from querySelector
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const debugBar = container.querySelector('[class*="debugBar"]')!;
       await user.click(debugBar);
 
@@ -291,7 +294,7 @@ describe('DebugBar', () => {
 
   describe('metrics updates', () => {
     it('should display updated click count', () => {
-      let { unmount } = renderWithTranslation(
+      const { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -317,7 +320,7 @@ describe('DebugBar', () => {
     });
 
     it('should display updated keyboard count', () => {
-      let { unmount } = renderWithTranslation(
+      const { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}
@@ -343,7 +346,7 @@ describe('DebugBar', () => {
     });
 
     it('should display updated time values', () => {
-      let { unmount } = renderWithTranslation(
+      const { unmount } = renderWithTranslation(
         <DebugBar
           modalName="test-modal"
           isDarkMode={false}

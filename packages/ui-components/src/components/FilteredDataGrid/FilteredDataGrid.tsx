@@ -8,24 +8,24 @@
  * ================================================================
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FilterPanel } from '../FilterPanel';
 import { DataGrid } from '../DataGrid';
+import { Pagination } from '../Pagination';
 import type { FilteredDataGridProps } from '../../types/FilteredDataGrid';
 import type { FilterGroup, QuickFilter } from '../../types/FilterPanel';
 import styles from './FilteredDataGrid.module.css';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
 export function FilteredDataGrid<T extends Record<string, any>>({
   data,
   columns,
   getRowId,
-  onRowClick,
   getRowStatus,
   statusColors,
   enableSelection,
   selectedRows,
   onSelectionChange,
-  expandable,
   expandedRows,
   onRowToggle,
   renderExpandedContent,
@@ -37,12 +37,14 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   useFilterCheckboxes = false,
   quickFilters = [],
   itemsPerPage: initialItemsPerPage = 10,
+  enablePagination = true,
   onNewItem,
   newItemText,
   inactiveField,
   showInactiveLabel,
   gridId,
   className,
+  betweenContent,
 }: FilteredDataGridProps<T>) {
   // === INTERNAL STATE ===
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,6 +53,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   const [showInactive, setShowInactive] = useState(false);
   const [itemsPerPageState, setItemsPerPageState] = useState(initialItemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
+  const [paginationEnabled, setPaginationEnabled] = useState(enablePagination);
 
   // === DEFAULT SEARCH FUNCTION ===
   const defaultSearchFn = (item: T, query: string): boolean => {
@@ -94,12 +97,24 @@ export function FilteredDataGrid<T extends Record<string, any>>({
     });
   }, [data, searchQuery, filterStates, activeQuickFilters, showInactive, quickFilters, inactiveField, search]);
 
+  // === TOTAL COUNT IN CURRENT MODE (showInactive only, no other filters) ===
+  const totalCountInCurrentMode = useMemo(() => {
+    return data.filter((row) => {
+      // Only apply showInactive filter, ignore search/status/priority/quick filters
+      if (!showInactive && inactiveField && !row[inactiveField]) {
+        return false;
+      }
+      return true;
+    }).length;
+  }, [data, showInactive, inactiveField]);
+
   // === CHECK IF ANY FILTERS ACTIVE ===
-  const hasActiveFilters =
+  // NOTE: showInactive is NOT a filter, it's a display toggle
+  const hasActiveFilters = !!(
     searchQuery !== '' ||
     filterStates.size > 0 ||
-    activeQuickFilters.size > 0 ||
-    (inactiveField && !showInactive);
+    activeQuickFilters.size > 0
+  );
 
   // === RESET TO PAGE 1 WHEN FILTERS CHANGE ===
   useEffect(() => {
@@ -107,11 +122,19 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   }, [filteredData.length, itemsPerPageState]);
 
   // === PAGINATION ===
+  const totalPages = Math.ceil(filteredData.length / itemsPerPageState);
+
   const paginatedData = useMemo(() => {
+    // If pagination disabled, show all filtered items
+    if (!paginationEnabled) {
+      return filteredData;
+    }
+
+    // Otherwise, paginate
     const startIndex = (currentPage - 1) * itemsPerPageState;
     const endIndex = startIndex + itemsPerPageState;
     return filteredData.slice(startIndex, endIndex);
-  }, [filteredData, currentPage, itemsPerPageState]);
+  }, [filteredData, currentPage, itemsPerPageState, paginationEnabled]);
 
   // === FILTER GROUP TOGGLE HANDLERS ===
   const toggleFilter = (field: string, value: string) => {
@@ -188,7 +211,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         filterGroups={filterGroups}
         useCheckboxes={useFilterCheckboxes}
         resultCount={filteredData.length}
-        totalCount={data.length}
+        totalCount={totalCountInCurrentMode}
         itemsPerPage={itemsPerPageState}
         onItemsPerPageChange={setItemsPerPageState}
         onNewItem={onNewItem}
@@ -198,25 +221,38 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         showInactiveLabel={showInactiveLabel}
       />
 
+      {/* Custom content between FilterPanel and DataGrid */}
+      {betweenContent}
+
       {/* DataGrid */}
       <DataGrid
         data={paginatedData}
         columns={columns}
         getRowId={getRowId}
-        onRowClick={onRowClick}
         getRowStatus={getRowStatus}
         statusColors={statusColors}
         enableSelection={enableSelection}
         selectedRows={selectedRows}
         onSelectionChange={onSelectionChange}
-        expandable={expandable}
         expandedRows={expandedRows}
         onRowToggle={onRowToggle}
         renderExpandedContent={renderExpandedContent}
         actions={actions}
-        compact={compact}
+        compactMode={compact}
         hasActiveFilters={hasActiveFilters}
         gridId={gridId}
+        itemsPerPage={itemsPerPageState}
+      />
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredData.length}
+        itemsPerPage={itemsPerPageState}
+        onPageChange={setCurrentPage}
+        enabled={paginationEnabled}
+        onEnabledChange={setPaginationEnabled}
       />
     </div>
   );

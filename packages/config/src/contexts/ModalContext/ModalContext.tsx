@@ -92,7 +92,9 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({
 
   // === REGISTRY ===
 
-  const registerModal = useCallback((id: string) => {
+  // No-op placeholder - parameter required by interface but not used
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const registerModal = useCallback((_id: string) => {
     // No-op for now - modals self-register on mount if needed
   }, []);
 

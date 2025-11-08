@@ -9,7 +9,7 @@
  * ================================================================
  */
 
-import { getPhoneConfig, DEFAULT_PHONE_COUNTRY, type PhoneCountryConfig } from '../../constants/phone-configs';
+import { getPhoneConfig, DEFAULT_PHONE_COUNTRY } from '../../constants/phone-configs';
 
 /**
  * Phone number type

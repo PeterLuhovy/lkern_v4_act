@@ -254,6 +254,7 @@ export function TestModalV3Page() {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Form data structure is dynamic and defined by field definitions
   const handleSectionEditSave = (data: Record<string, any>) => {
     console.log('[TestModalV3] SectionEditModal saved:', data);
     setSectionData(data); // Update state with new data
@@ -320,6 +321,7 @@ export function TestModalV3Page() {
   };
 
   const handleFooterDelete = () => {
+    // eslint-disable-next-line no-restricted-globals
     if (confirm(t('components.modalV3.common.confirmDelete'))) {
       alert(t('components.modalV3.common.deleted'));
       footerModal.close();
@@ -754,7 +756,7 @@ export function TestModalV3Page() {
 
         {/* Test 8: ConfirmModal - Simple Mode */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 ConfirmModal - Simple Mode</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> ConfirmModal - Simple Mode</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test9.description')}
           </p>
@@ -780,7 +782,7 @@ export function TestModalV3Page() {
 
         {/* Test 9: ConfirmModal - Danger Mode */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 ConfirmModal - Danger Mode</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> ConfirmModal - Danger Mode</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test10.description')}
           </p>
@@ -807,7 +809,7 @@ export function TestModalV3Page() {
 
         {/* Test 10: ConfirmModal - Unsaved Changes */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 ConfirmModal - Unsaved Changes</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> ConfirmModal - Unsaved Changes</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test11.description')}
           </p>
@@ -833,7 +835,7 @@ export function TestModalV3Page() {
 
         {/* Test 11: EditItemModal */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 {t('components.modalV3.test12.title')}</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> {t('components.modalV3.test12.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test12.description')}
           </p>
@@ -894,11 +896,11 @@ export function TestModalV3Page() {
               </FormField>
 
               <ul className={styles.instructionsList}>
-                <li>💾 {t('components.modalV3.test12.instructions.unsavedChanges')}: {isDirty ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
-                <li>✅ {t('components.modalV3.test12.instructions.formValid')}: {editNameValid && editEmailValid ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
-                <li>🧹 {t('components.modalV3.test12.instructions.clearButton')}</li>
-                <li>⚠️ {t('components.modalV3.test12.instructions.tryClosing')}</li>
-                <li>🔄 {t('components.modalV3.test12.instructions.changeLanguage')}</li>
+                <li><span role="img" aria-label="floppy disk">💾</span> {t('components.modalV3.test12.instructions.unsavedChanges')}: {isDirty ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
+                <li><span role="img" aria-label="checkmark">✅</span> {t('components.modalV3.test12.instructions.formValid')}: {editNameValid && editEmailValid ? `✅ ${t('components.modalV3.test12.instructions.yes')}` : `❌ ${t('components.modalV3.test12.instructions.no')}`}</li>
+                <li><span role="img" aria-label="broom">🧹</span> {t('components.modalV3.test12.instructions.clearButton')}</li>
+                <li><span role="img" aria-label="warning">⚠️</span> {t('components.modalV3.test12.instructions.tryClosing')}</li>
+                <li><span role="img" aria-label="refresh">🔄</span> {t('components.modalV3.test12.instructions.changeLanguage')}</li>
               </ul>
             </div>
           </EditItemModal>
@@ -906,7 +908,7 @@ export function TestModalV3Page() {
 
         {/* Test 12: ManagementModal */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 {t('components.modalV3.test13.title')}</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> {t('components.modalV3.test13.title')}</h2>
           <p className={styles.testDescription}>
             {t('components.modalV3.test13.description')}
           </p>
@@ -938,10 +940,11 @@ export function TestModalV3Page() {
                   title={primaryHint}
                   style={{ cursor: onSetPrimary ? 'pointer' : 'default' }}
                 >
-                  {isPrimary ? '⭐' : '☆'}
+                  {isPrimary ? <span role="img" aria-label="star">⭐</span> : '☆'}
                 </span>
                 <div>
                   <div className={styles.phoneNumber}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any -- phone.type is string but formatPhoneNumber expects PhoneType enum */}
                     {formatPhoneNumber(phone.number, phone.type as any, 'SK')}
                   </div>
                   <div className={styles.phoneType}>{t(`phoneTypes.${phone.type}`)}</div>
@@ -951,14 +954,14 @@ export function TestModalV3Page() {
                   onClick={() => onEdit(phone.id)}
                   title={editHint}
                 >
-                  ✏️
+                  <span role="img" aria-label="pencil">✏️</span>
                 </Button>
                 <Button
                   variant="danger-subtle"
                   onClick={() => onDelete(phone.id)}
                   title={deleteHint}
                 >
-                  🗑️
+                  <span role="img" aria-label="trash">🗑️</span>
                 </Button>
               </div>
             )}
@@ -974,22 +977,22 @@ export function TestModalV3Page() {
             onAdd={handleAddPhone}
             bottomContent={
               <ul className={styles.instructionsList}>
-                <li>🗑️ {t('components.modalV3.test13.instructions.deleteAll')}</li>
-                <li>➕ {t('components.modalV3.test13.instructions.addPhone')}</li>
-                <li>✏️ {t('components.modalV3.test13.instructions.editPhone')}</li>
-                <li>🗑️ {t('components.modalV3.test13.instructions.deletePhone')}</li>
-                <li>📭 {t('components.modalV3.test13.instructions.emptyState')}</li>
+                <li><span role="img" aria-label="trash">🗑️</span> {t('components.modalV3.test13.instructions.deleteAll')}</li>
+                <li><span role="img" aria-label="plus">➕</span> {t('components.modalV3.test13.instructions.addPhone')}</li>
+                <li><span role="img" aria-label="pencil">✏️</span> {t('components.modalV3.test13.instructions.editPhone')}</li>
+                <li><span role="img" aria-label="trash">🗑️</span> {t('components.modalV3.test13.instructions.deletePhone')}</li>
+                <li><span role="img" aria-label="empty mailbox">📭</span> {t('components.modalV3.test13.instructions.emptyState')}</li>
               </ul>
             }
           >
             {/* No custom list editor - using renderItem instead */}
-            <></>
+            {null}
           </ManagementModal>
         </Card>
 
         {/* Test 13: SectionEditModal */}
         <Card variant="default">
-          <h2 className={styles.testTitle}>🆕 SectionEditModal</h2>
+          <h2 className={styles.testTitle}><span role="img" aria-label="new">🆕</span> SectionEditModal</h2>
           <p className={styles.testDescription}>
             {t('components.testing.formComponents')}
           </p>
@@ -1044,7 +1047,7 @@ export function TestModalV3Page() {
             <strong>{t('components.modalV3.featureSummary.modalStack')}</strong> {t('components.modalV3.featureSummary.modalStackDesc')}
           </li>
           <li>
-            <strong>🆕 ConfirmModal Component</strong> Simple and danger mode confirmations with keyword validation
+            <strong><span role="img" aria-label="new">🆕</span> ConfirmModal Component</strong> Simple and danger mode confirmations with keyword validation
           </li>
         </ul>
       </Card>

@@ -8,7 +8,6 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { renderWithTranslation, screen, userEvent } from '../../test-utils';
-import { TranslationProvider } from '@l-kern/config';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -114,7 +113,7 @@ describe('Button', () => {
   });
 
   it('renders icon when provided', () => {
-    renderWithTranslation(<Button icon={<span data-testid="test-icon">🔥</span>}>With Icon</Button>);
+    renderWithTranslation(<Button icon={<span data-testid="test-icon" role="img" aria-label="fire">🔥</span>}>With Icon</Button>);
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
   });
 

@@ -66,11 +66,11 @@ const createTranslationFunction = (
     try {
       // Navigate through nested object using dot notation
       const keys = key.split('.');
-      let value: any = translations[language];
+      let value: unknown = translations[language];
 
       for (const k of keys) {
         if (value && typeof value === 'object' && k in value) {
-          value = value[k];
+          value = (value as Record<string, unknown>)[k];
         } else {
           // Key not found - try fallback to Slovak
           if (language !== 'sk') {

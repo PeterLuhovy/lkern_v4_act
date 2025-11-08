@@ -6,7 +6,7 @@
  */
 
 import { BaseComponentProps } from './common';
-import { DataGridProps } from './DataGrid';
+import { DataGridProps } from '../components/DataGrid/DataGrid';
 
 /**
  * Filter configuration for simple filter setup
@@ -34,6 +34,7 @@ export interface QuickFilterConfig {
   /** Display label (translated) */
   label: string;
   /** Filter function (returns true if item matches) */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible filter usage
   filterFn: (item: any) => boolean;
 }
 
@@ -41,6 +42,7 @@ export interface QuickFilterConfig {
  * FilteredDataGrid component props
  * Combines FilterPanel + DataGrid with internal state management
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
 export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   // === DATA ===
   /** Original data (unfiltered) */
@@ -95,6 +97,8 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   // === CONTROLS ===
   /** Items per page (default: 10) */
   itemsPerPage?: number;
+  /** Enable pagination (default: true). If false, shows all items but DataGrid height based on itemsPerPage */
+  enablePagination?: boolean;
   /** New item button click handler */
   onNewItem?: () => void;
   /** New item button text (translated) */
@@ -109,4 +113,8 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   // === PERSISTENCE ===
   /** Unique grid ID for localStorage persistence (prevents column width conflicts) */
   gridId?: string;
+
+  // === CUSTOM CONTENT ===
+  /** Custom content to render between FilterPanel and DataGrid */
+  betweenContent?: React.ReactNode;
 }

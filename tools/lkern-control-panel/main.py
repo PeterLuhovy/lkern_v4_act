@@ -113,15 +113,28 @@ class LKernControlPanel:
                        foreground=COLORS['fg'],
                        bordercolor=COLORS['border'],
                        font=FONTS['button'],
-                       padding=(10, 8))  # (horizontal, vertical) for better text centering
+                       padding=(10, 8))
 
-        # Force button text to center by modifying layout
+        # CRITICAL: Force text centering by modifying button layout
+        # On Windows, ttk.Button ignores anchor parameter, so we must modify layout
         style.layout('TButton', [
-            ('Button.border', {'sticky': 'nswe', 'border': '1', 'children': [
-                ('Button.padding', {'sticky': 'nswe', 'children': [
-                    ('Button.label', {'sticky': ''})  # Empty sticky centers the label
-                ]})
-            ]})
+            ('Button.border', {
+                'sticky': 'nswe',
+                'border': '1',
+                'children': [
+                    ('Button.focus', {
+                        'sticky': 'nswe',
+                        'children': [
+                            ('Button.padding', {
+                                'sticky': 'nswe',
+                                'children': [
+                                    ('Button.label', {'sticky': ''})  # Empty sticky = CENTER text
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            })
         ])
 
         style.map('TButton',
@@ -183,38 +196,33 @@ class LKernControlPanel:
         clear_button.pack(side=tk.RIGHT, padx=5)
 
     def create_command_buttons(self, parent):
-        """Create preset command buttons with scrolling"""
-        # Create canvas for scrolling
-        canvas = tk.Canvas(parent, bg=COLORS['bg'], highlightthickness=0)
-        scrollbar = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas)
+        """Create preset command buttons - COMPLETE REBUILD"""
+        # Simple container frame
+        container = ttk.Frame(parent)
+        container.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        # Workflow hint box at the top
+        hint_label = ttk.Label(
+            container,
+            text="💡 Recommended Workflow",
+            font=('Segoe UI', 11, 'bold'),
+            foreground=COLORS['info']
         )
-
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-
-        # Workflow hint box
-        hint_frame = ttk.LabelFrame(scrollable_frame, text="💡 Recommended Workflow", padding=10)
-        hint_frame.pack(fill=tk.X, pady=(0, 10), padx=5)
+        hint_label.pack(pady=(0, 5))
 
         hint_text = tk.Text(
-            hint_frame,
-            height=6,
+            container,
+            height=4,
+            width=30,
             wrap=tk.WORD,
             bg=COLORS['bg'],
             fg=COLORS['info'],
             font=FONTS['ui'],
-            relief=tk.FLAT,
+            relief=tk.SOLID,
+            bd=1,
             state='disabled'
         )
-        hint_text.pack(fill=tk.X)
+        hint_text.pack(pady=(0, 15))
 
         # Insert workflow hint
         hint_text.config(state='normal')
@@ -229,35 +237,45 @@ class LKernControlPanel:
                 categories[category] = []
             categories[category].append((cmd_id, cmd_data))
 
-        # Define category display order (Lint first, then Build, then Test)
+        # Define category display order
         category_order = ['Lint', 'Build', 'Test', 'Other']
 
-        # Create button groups in specified order
+        # Create each category section
         for category in category_order:
             if category in categories:
                 commands = categories[category]
-                frame = ttk.LabelFrame(scrollable_frame, text=category, padding=10)
-                frame.pack(fill=tk.X, pady=(0, 10), padx=5)
 
+                # Category label
+                cat_label = ttk.Label(
+                    container,
+                    text=category,
+                    font=('Segoe UI', 11, 'bold'),
+                    foreground=COLORS['fg']
+                )
+                cat_label.pack(pady=(10, 5))
+
+                # Create buttons for this category
                 for cmd_id, cmd_data in commands:
-                    # Use tk.Button for better text centering control
+                    # Use tk.Button with explicit width in pixels
                     btn = tk.Button(
-                        frame,
+                        container,
                         text=cmd_data['label'],
                         command=lambda c=cmd_data['command'], l=cmd_data['label']: self.execute_command(c, l),
                         bg=COLORS['button_bg'],
                         fg=COLORS['fg'],
                         font=FONTS['button'],
-                        relief=tk.FLAT,
-                        bd=1,
-                        highlightthickness=0,
-                        activebackground=COLORS['button_hover'],
-                        activeforeground=COLORS['fg'],
+                        relief=tk.RAISED,
+                        bd=2,
+                        width=20,  # Characters width
+                        height=1,
                         cursor='hand2',
-                        anchor='center',
-                        justify='center'
+                        activebackground=COLORS['button_hover'],
+                        activeforeground=COLORS['fg']
                     )
-                    btn.pack(pady=3, fill=tk.X, padx=10, ipady=5)
+                    btn.pack(pady=2)
+
+                # Separator after category
+                ttk.Separator(container, orient='horizontal').pack(fill=tk.X, pady=10)
 
     def create_terminal_panel(self, parent):
         """Create terminal output panel with auto-scroll checkbox"""

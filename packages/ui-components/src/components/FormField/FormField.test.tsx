@@ -530,7 +530,6 @@ describe('FormField', () => {
     });
 
     it('controlled mode with validation works correctly', async () => {
-      const user = userEvent.setup();
       const mockOnChange = vi.fn();
 
       // Note: In controlled mode, validation runs but doesn't show error until touched

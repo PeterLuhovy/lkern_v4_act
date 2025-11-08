@@ -130,7 +130,7 @@ export const BasePage: React.FC<BasePageProps> = ({
     try {
       const saved = localStorage.getItem('sidebar-width');
       return saved !== null ? parseInt(saved, 10) : 240;
-    } catch (error) {
+    } catch {
       return 240;
     }
   });
@@ -169,22 +169,40 @@ export const BasePage: React.FC<BasePageProps> = ({
           icon: '🧪',
           onClick: () => navigate('/testing'),
           children: [
-            { path: '/testing/badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️', onClick: () => navigate('/testing/badge') },
-            { path: '/testing/card', labelKey: 'components.testing.cardTitle', icon: '🃏', onClick: () => navigate('/testing/card') },
-            { path: '/testing/datagrid', labelKey: 'components.testing.dataGridTitle', icon: '📊', onClick: () => navigate('/testing/datagrid') },
-            { path: '/testing/empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭', onClick: () => navigate('/testing/empty-state') },
-            { path: '/testing/forms', labelKey: 'components.testing.formComponents', icon: '📝', onClick: () => navigate('/testing/forms') },
-            { path: '/testing/glass-modal', labelKey: 'components.testing.glassModal.title', icon: '✨', onClick: () => navigate('/testing/glass-modal') },
-            { path: '/testing/icons', labelKey: 'components.testing.iconsTitle', icon: '🎨', onClick: () => navigate('/testing/icons') },
-            { path: '/testing/modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟', onClick: () => navigate('/testing/modal-v3') },
-            { path: '/testing/spinner', labelKey: 'components.testing.spinnerTitle', icon: '⏳', onClick: () => navigate('/testing/spinner') },
-            { path: '/testing/toast', labelKey: 'components.testing.toastTitle', icon: '🍞', onClick: () => navigate('/testing/toast') },
-            { path: '/testing/utility', labelKey: 'pages.utilityTest.title', icon: '🔧', onClick: () => navigate('/testing/utility') },
-            { path: '/testing/wizard-demo', labelKey: 'components.testing.wizardTitle', icon: '🧙', onClick: () => navigate('/testing/wizard-demo') },
+            {
+              path: '/testing/components',
+              labelKey: 'components.testing.categoryComponents',
+              icon: '🧩',
+              onClick: () => {}, // Expandable category (no navigation)
+              children: [
+                { path: '/testing/badge', labelKey: 'components.testing.badgeTitle', icon: '🏷️', onClick: () => navigate('/testing/badge') },
+                { path: '/testing/card', labelKey: 'components.testing.cardTitle', icon: '🃏', onClick: () => navigate('/testing/card') },
+                { path: '/testing/datagrid', labelKey: 'components.testing.dataGridTitle', icon: '📊', onClick: () => navigate('/testing/datagrid') },
+                { path: '/testing/empty-state', labelKey: 'components.testing.emptyStateTitle', icon: '📭', onClick: () => navigate('/testing/empty-state') },
+                { path: '/testing/forms', labelKey: 'components.testing.formComponents', icon: '📝', onClick: () => navigate('/testing/forms') },
+                { path: '/testing/glass-modal', labelKey: 'components.testing.glassModal.title', icon: '✨', onClick: () => navigate('/testing/glass-modal') },
+                { path: '/testing/icons', labelKey: 'components.testing.iconsTitle', icon: '🎨', onClick: () => navigate('/testing/icons') },
+                { path: '/testing/modal-v3', labelKey: 'components.testing.modalV3Title', icon: '🪟', onClick: () => navigate('/testing/modal-v3') },
+                { path: '/testing/spinner', labelKey: 'components.testing.spinnerTitle', icon: '⏳', onClick: () => navigate('/testing/spinner') },
+                { path: '/testing/toast', labelKey: 'components.testing.toastTitle', icon: '🍞', onClick: () => navigate('/testing/toast') },
+                { path: '/testing/utility', labelKey: 'pages.utilityTest.title', icon: '🔧', onClick: () => navigate('/testing/utility') },
+                { path: '/testing/wizard-demo', labelKey: 'components.testing.wizardTitle', icon: '🧙', onClick: () => navigate('/testing/wizard-demo') },
+              ],
+            },
+            {
+              path: '/testing/pages',
+              labelKey: 'components.testing.categoryPages',
+              icon: '📄',
+              onClick: () => {}, // Expandable category (no navigation)
+              children: [
+                { path: '/testing/filtered-grid', labelKey: 'components.testing.filteredGridTitle', icon: '🔍', onClick: () => navigate('/testing/filtered-grid') },
+                { path: '/testing/template-page-datagrid', labelKey: 'components.testing.templatePageDatagridTitle', icon: '📋', onClick: () => navigate('/testing/template-page-datagrid') },
+              ],
+            },
           ],
         },
         { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)
-        { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦' }, // Not yet implemented (no onClick = disabled)
+        { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦', onClick: () => navigate('/orders') },
         { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' }, // Not yet implemented (no onClick = disabled)
       ],
     },

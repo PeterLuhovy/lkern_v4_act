@@ -150,7 +150,7 @@ export function BasePageTemplate() {
           {/* Info box */}
           <div className={styles.infoBox}>
             <p>
-              <strong>💡 Template Guide:</strong> This page uses CSS Modules for styling.
+              <strong><span role="img" aria-label="light bulb">💡</span> Template Guide:</strong> This page uses CSS Modules for styling.
               All styles are in <code>BasePageTemplate.module.css</code> and are scoped to this component.
               Replace the content with your page-specific UI and customize the styles.
             </p>
@@ -161,11 +161,11 @@ export function BasePageTemplate() {
             <Card>
               <h3 className={styles.sectionTitle}>CSS Modules Features</h3>
               <ul className={styles.list}>
-                <li className={styles.listItem}>✅ Scoped class names (no global conflicts)</li>
-                <li className={styles.listItem}>✅ TypeScript autocomplete for class names</li>
-                <li className={styles.listItem}>✅ CSS variables for theming</li>
-                <li className={styles.listItem}>✅ Maintainable and organized styles</li>
-                <li className={styles.listItem}>✅ Production-ready optimization</li>
+                <li className={styles.listItem}><span role="img" aria-label="checkmark">✅</span> Scoped class names (no global conflicts)</li>
+                <li className={styles.listItem}><span role="img" aria-label="checkmark">✅</span> TypeScript autocomplete for class names</li>
+                <li className={styles.listItem}><span role="img" aria-label="checkmark">✅</span> CSS variables for theming</li>
+                <li className={styles.listItem}><span role="img" aria-label="checkmark">✅</span> Maintainable and organized styles</li>
+                <li className={styles.listItem}><span role="img" aria-label="checkmark">✅</span> Production-ready optimization</li>
               </ul>
             </Card>
           </section>

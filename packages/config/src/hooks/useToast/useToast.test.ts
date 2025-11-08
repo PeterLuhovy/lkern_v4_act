@@ -134,7 +134,7 @@ describe('useToast', () => {
   it('should pass custom position option', () => {
     const { result } = renderHook(() => useToast());
 
-    result.current.error('Message', { position: 'bottom-left' as any });
+    result.current.error('Message', { position: 'bottom-left' });
 
     expect(toastManager.show).toHaveBeenCalledWith('Message', { position: 'bottom-left', type: 'error' });
   });
@@ -142,7 +142,7 @@ describe('useToast', () => {
   it('should pass multiple options', () => {
     const { result } = renderHook(() => useToast());
 
-    result.current.warning('Message', { duration: 5000, position: 'top-center' as any });
+    result.current.warning('Message', { duration: 5000, position: 'top-center' });
 
     expect(toastManager.show).toHaveBeenCalledWith('Message', { duration: 5000, position: 'top-center', type: 'warning' });
   });

@@ -79,7 +79,7 @@
     inset 0 1px 2px rgba(0, 0, 0, 0.02),
     0 4px 12px rgba(0, 0, 0, 0.15),
     0 2px 6px rgba(0, 0, 0, 0.1),
-    0 0 0 2px rgba(156, 39, 176, 0.1);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
 }
 
 /* Outlined hover */
@@ -87,7 +87,7 @@
   border-color: var(--color-brand-primary, #9c27b0);
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.01),
-    0 0 0 2px rgba(156, 39, 176, 0.15);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
 }
 
 /* Elevated hover */
@@ -96,7 +96,7 @@
     inset 0 1px 3px rgba(0, 0, 0, 0.03),
     0 8px 16px rgba(0, 0, 0, 0.16),
     0 4px 8px rgba(0, 0, 0, 0.12),
-    0 0 0 2px rgba(156, 39, 176, 0.12);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
 }
 
 /* Accent hover - uses HOVER_EFFECTS.lift.normal (-4px) for prominence */
@@ -115,7 +115,7 @@
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.02),
     0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 3px rgba(156, 39, 176, 0.25);
+    0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
 }
 
 /* Active state */
@@ -163,7 +163,7 @@
     inset 0 1px 2px rgba(255, 255, 255, 0.03),
     0 4px 12px rgba(0, 0, 0, 0.5),
     0 2px 6px rgba(0, 0, 0, 0.4),
-    0 0 0 2px rgba(156, 39, 176, 0.2);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
 }
 
 /* Dark mode hover - Outlined */
@@ -171,7 +171,7 @@
   border-color: var(--color-brand-primary, #9c27b0);
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.02),
-    0 0 0 2px rgba(156, 39, 176, 0.25);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
 }
 
 /* Dark mode hover - Elevated */
@@ -180,7 +180,7 @@
     inset 0 1px 3px rgba(255, 255, 255, 0.04),
     0 8px 16px rgba(0, 0, 0, 0.6),
     0 4px 8px rgba(0, 0, 0, 0.5),
-    0 0 0 2px rgba(156, 39, 176, 0.22);
+    0 0 0 2px color-mix(in srgb, var(--color-brand-primary) 22%, transparent);
 }
 
 /* Dark mode hover - Accent (uses same -4px lift as light mode) */
@@ -198,7 +198,7 @@
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.03),
     0 4px 12px rgba(0, 0, 0, 0.5),
-    0 0 0 3px rgba(156, 39, 176, 0.35);
+    0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 35%, transparent);
 }
 
 /* ================================================

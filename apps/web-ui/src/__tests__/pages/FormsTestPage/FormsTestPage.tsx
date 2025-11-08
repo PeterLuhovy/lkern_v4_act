@@ -63,9 +63,9 @@ export const FormsTestPage: React.FC = () => {
 
           <h4 className={styles.sectionTitle}>Debug Style (XS)</h4>
           <div className={styles.buttonRow}>
-            <Button variant="secondary" size="xs" debug>📋 copy</Button>
-            <Button variant="secondary" size="xs" debug>🔍 search</Button>
-            <Button variant="secondary" size="xs" debug>⚙️ settings</Button>
+            <Button variant="secondary" size="xs" debug><span role="img" aria-label="clipboard">📋</span> copy</Button>
+            <Button variant="secondary" size="xs" debug><span role="img" aria-label="magnifying glass">🔍</span> search</Button>
+            <Button variant="secondary" size="xs" debug><span role="img" aria-label="settings">⚙️</span> settings</Button>
           </div>
 
           <h4 className={styles.sectionTitle}>{t('components.testing.states')}</h4>
@@ -87,11 +87,11 @@ export const FormsTestPage: React.FC = () => {
 
           <h4 className={styles.sectionTitle}>{t('components.testing.iconOnlyButtons')}</h4>
           <div className={styles.buttonRowLast}>
-            <Button variant="ghost" size="small">✏️</Button>
-            <Button variant="danger" size="small">🗑️</Button>
-            <Button variant="primary" size="small">⭐</Button>
-            <Button variant="secondary" size="small">📋</Button>
-            <Button variant="success" size="small">✓</Button>
+            <Button variant="ghost" size="small"><span role="img" aria-label="pencil">✏️</span></Button>
+            <Button variant="danger" size="small"><span role="img" aria-label="trash">🗑️</span></Button>
+            <Button variant="primary" size="small"><span role="img" aria-label="star">⭐</span></Button>
+            <Button variant="secondary" size="small"><span role="img" aria-label="clipboard">📋</span></Button>
+            <Button variant="success" size="small"><span role="img" aria-label="checkmark">✓</span></Button>
           </div>
         </Card>
 

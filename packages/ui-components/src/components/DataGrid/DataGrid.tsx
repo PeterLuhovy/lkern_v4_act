@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useTranslation } from '@l-kern/config';
+import { useTranslation, HOVER_EFFECTS } from '@l-kern/config';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
 import styles from './DataGrid.module.css';
@@ -31,9 +31,11 @@ export interface Column {
   sortable?: boolean;
   width?: number;
   flex?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
   render?: (value: any, row: any) => React.ReactNode;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
 export interface DataGridAction<T = any> {
   label: string;
   onClick: (row: T, e: React.MouseEvent) => void;
@@ -42,12 +44,15 @@ export interface DataGridAction<T = any> {
   title?: string; // Tooltip text on hover
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
 export interface DataGridProps<T = any> {
   data: T[];
   columns: Column[];
   sortField?: string;
   sortDirection?: 'asc' | 'desc';
   onSort?: (field: string) => void;
+  onRowClick?: (row: T) => void; // Row click handler
+  expandable?: boolean; // Enable row expansion
   expandedRows?: Set<string>;
   onRowToggle?: (rowId: string) => void;
   renderExpandedContent?: (row: T) => React.ReactNode;
@@ -58,15 +63,18 @@ export interface DataGridProps<T = any> {
   selectedRows?: Set<string>;
   onSelectionChange?: (selectedIds: Set<string>) => void;
   enableSelection?: boolean;
+  compact?: boolean; // Alias for compactMode
   compactMode?: boolean;
   actions?: DataGridAction<T>[];
   actionsLabel?: string;
   actionsWidth?: number;
   gridId?: string; // For localStorage persistence and ARIA
+  itemsPerPage?: number; // For min-height calculation (prevents page jumping)
 }
 
 // === COMPONENT ===
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
 const DataGrid = <T extends Record<string, any>>({
   data,
   columns,
@@ -88,6 +96,7 @@ const DataGrid = <T extends Record<string, any>>({
   actionsLabel,
   actionsWidth,
   gridId = 'dataGrid',
+  itemsPerPage = 10,
 }: DataGridProps<T>) => {
   const { t } = useTranslation();
 
@@ -112,43 +121,58 @@ const DataGrid = <T extends Record<string, any>>({
     return () => observer.disconnect();
   }, []);
 
-  // === AUTO-GENERATE ACTIONS COLUMN ===
+  // === AUTO-GENERATE COLUMNS ===
   const finalColumns = React.useMemo(() => {
-    if (!actions || actions.length === 0) {
-      return columns;
+    let cols = [...columns];
+
+    // Add selection column at the beginning if needed
+    const hasSelectionColumn = enableSelection || !!renderExpandedContent;
+    if (hasSelectionColumn) {
+      const selectionColumn: Column = {
+        title: '', // Empty title, checkbox will be rendered instead
+        field: '_selection',
+        sortable: false,
+        width: 80,
+      };
+      cols = [selectionColumn, ...cols];
     }
 
-    const defaultWidth = actions.length * 40 + (actions.length - 1) * 6 + 20;
-    const width = actionsWidth || defaultWidth;
+    // Add actions column at the end if needed
+    if (actions && actions.length > 0) {
+      const defaultWidth = actions.length * 40 + (actions.length - 1) * 6 + 20;
+      const width = actionsWidth || defaultWidth;
 
-    const actionsColumn: Column = {
-      title: actionsLabel || t('common.actions') || 'Actions',
-      field: '_actions',
-      sortable: false,
-      width,
-      render: (_, row: T) => (
-        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-          {actions.map((action, idx) => (
-            <Button
-              key={idx}
-              variant={action.variant || 'secondary'}
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                action.onClick(row, e);
-              }}
-              disabled={action.disabled ? action.disabled(row) : false}
-              title={action.title}
-            >
-              {action.label}
-            </Button>
-          ))}
-        </div>
-      ),
-    };
+      const actionsColumn: Column = {
+        title: actionsLabel || t('common.actions') || 'Actions',
+        field: '_actions',
+        sortable: false,
+        width,
+        render: (_, row: T) => (
+          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+            {actions.map((action, idx) => (
+              <Button
+                key={idx}
+                variant={action.variant || 'secondary'}
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.onClick(row, e);
+                }}
+                disabled={action.disabled ? action.disabled(row) : false}
+                title={action.title}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        ),
+      };
 
-    return [...columns, actionsColumn];
-  }, [columns, actions, actionsLabel, actionsWidth, t]);
+      cols = [...cols, actionsColumn];
+    }
+
+    return cols;
+  }, [columns, actions, actionsLabel, actionsWidth, t, enableSelection, renderExpandedContent]);
 
   // === COLUMN WIDTH PERSISTENCE (localStorage) ===
   const [columnWidths, setColumnWidths] = useState<number[]>(() => {
@@ -300,6 +324,46 @@ const DataGrid = <T extends Record<string, any>>({
     setResizingColumn(-1);
   }, []);
 
+  // Auto-fit column width on double-click
+  const handleDoubleClick = (columnIndex: number) => {
+    const column = finalColumns[columnIndex];
+    if (!column) return;
+
+    // Create canvas for text measurement
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    // Get computed font from header cell
+    const headerCell = document.querySelector(`.${styles.headerCell}`) as HTMLElement;
+    const computedStyle = headerCell ? window.getComputedStyle(headerCell) : null;
+    const font = computedStyle
+      ? `${computedStyle.fontWeight} ${computedStyle.fontSize} ${computedStyle.fontFamily}`
+      : '16px sans-serif';
+    context.font = font;
+
+    let maxWidth = context.measureText(column.title).width; // Start with header width
+
+    // Measure all cell contents in this column
+    data.forEach((row) => {
+      const value = column.render ? column.render(row[column.field], row) : row[column.field];
+      const text = typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+      const width = context.measureText(text).width;
+      if (width > maxWidth) {
+        maxWidth = width;
+      }
+    });
+
+    // Add padding (2 * 16px = 32px) + buffer for sort icon/arrows (30px)
+    const newWidth = Math.max(100, Math.ceil(maxWidth + 62));
+
+    setColumnWidths((prev) => {
+      const newWidths = [...prev];
+      newWidths[columnIndex] = newWidth;
+      return newWidths;
+    });
+  };
+
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -394,9 +458,15 @@ const DataGrid = <T extends Record<string, any>>({
   const isEmpty = data.length === 0;
 
   // === RENDER ===
+  // Calculate fixed height to prevent page jumping when row count changes
+  const fixedHeight = `calc(${HOVER_EFFECTS.dataGrid.headerHeight}px + ((${itemsPerPage} + 1) * ${HOVER_EFFECTS.dataGrid.rowHeight}px))`;
+
+
+  
   return (
     <div
       className={`${styles.dataGrid} ${compactMode ? styles.dataGridCompact : ''}`}
+      style={{ height: fixedHeight, overflow: 'auto' }}
       role="grid"
       aria-label={t('common.dataGrid') || 'Data grid'}
       aria-rowcount={data.length + 1}
@@ -454,8 +524,8 @@ const DataGrid = <T extends Record<string, any>>({
             {/* Other columns: regular title */}
             {index !== 0 && <span>{column.title}</span>}
 
-            {/* Sort indicator */}
-            {column.sortable && (
+            {/* Sort indicator - except first column */}
+            {index !== 0 && column.sortable && (
               <span
                 className={`${styles.sortIcon} ${sortField === column.field ? styles.sortIconActive : ''}`}
                 aria-hidden="true"
@@ -469,6 +539,10 @@ const DataGrid = <T extends Record<string, any>>({
               <div
                 className={styles.resizeHandle}
                 onMouseDown={(e) => handleMouseDown(e, index)}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  handleDoubleClick(index);
+                }}
                 onClick={(e) => e.stopPropagation()}
                 aria-label={t('common.resizeColumn') || 'Resize column'}
               />
@@ -554,8 +628,8 @@ const DataGrid = <T extends Record<string, any>>({
                     role="gridcell"
                     aria-colindex={colIndex + 1}
                   >
-                    {/* First column: Checkbox + Expand arrow + content */}
-                    {colIndex === 0 && (
+                    {/* Selection column: ONLY checkbox + expand arrow */}
+                    {column.field === '_selection' ? (
                       <>
                         {enableSelection && (
                           <Checkbox
@@ -572,13 +646,11 @@ const DataGrid = <T extends Record<string, any>>({
                             ▶
                           </span>
                         )}
-                        {/* Show first column content */}
-                        {column.render ? column.render(row[column.field], row) : row[column.field]}
                       </>
+                    ) : (
+                      /* Regular column content */
+                      column.render ? column.render(row[column.field], row) : row[column.field]
                     )}
-
-                    {/* Other columns content */}
-                    {colIndex !== 0 && (column.render ? column.render(row[column.field], row) : row[column.field])}
                   </div>
                 ))}
               </div>

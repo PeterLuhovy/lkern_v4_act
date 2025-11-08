@@ -1,0 +1,57 @@
+/*
+ * ================================================================
+ * FILE: Pagination.module.css
+ * PATH: /packages/ui-components/src/components/Pagination/Pagination.module.css
+ * DESCRIPTION: Pagination component styles - 100% DRY, theme-aware
+ * VERSION: v1.0.0
+ * CREATED: 2025-11-07
+ * ================================================================
+ */
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--theme-card-background);
+  border: var(--border-width-thin) solid var(--theme-border);
+  border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-md);
+}
+
+/* Left: Record count info */
+.info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text);
+}
+
+/* Right: Page navigation controls */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Pagination checkbox */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  margin-right: var(--spacing-md);
+}
+
+.checkboxText {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text);
+  white-space: nowrap;
+}

@@ -45,7 +45,7 @@ describe('Card', () => {
 
   it('applies accent variant with clickable', () => {
     const { container } = renderWithTranslation(
-      <Card variant="accent" onClick={() => {}}>
+      <Card variant="accent" onClick={vi.fn()}>
         Clickable Accent
       </Card>
     );
@@ -72,13 +72,13 @@ describe('Card', () => {
   });
 
   it('applies clickable class when onClick provided', () => {
-    const { container } = renderWithTranslation(<Card onClick={() => {}}>Content</Card>);
+    const { container } = renderWithTranslation(<Card onClick={vi.fn()}>Content</Card>);
     const card = container.firstChild as HTMLElement;
     expect(card.className).toContain('card--clickable');
   });
 
   it('sets role="button" when clickable', () => {
-    renderWithTranslation(<Card onClick={() => {}}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={vi.fn()}>Clickable</Card>);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe('Card', () => {
 
   it('applies no-hover class when disableHover is true', () => {
     const { container } = renderWithTranslation(
-      <Card onClick={() => {}} disableHover>
+      <Card onClick={vi.fn()} disableHover>
         Content
       </Card>
     );
@@ -139,7 +139,7 @@ describe('Card', () => {
 
   it('does not apply no-hover class when disableHover is false', () => {
     const { container } = renderWithTranslation(
-      <Card onClick={() => {}} disableHover={false}>
+      <Card onClick={vi.fn()} disableHover={false}>
         Content
       </Card>
     );
@@ -154,7 +154,7 @@ describe('Card', () => {
   });
 
   it('renders with tabIndex when clickable', () => {
-    renderWithTranslation(<Card onClick={() => {}}>Clickable</Card>);
+    renderWithTranslation(<Card onClick={vi.fn()}>Clickable</Card>);
     const card = screen.getByRole('button');
     expect(card).toHaveAttribute('tabIndex', '0');
   });
@@ -170,7 +170,6 @@ describe('Card', () => {
     it('uses theme CSS variables (not hardcoded colors)', () => {
       const { container } = renderWithTranslation(<Card>Content</Card>);
       const card = container.firstChild as HTMLElement;
-      const styles = getComputedStyle(card);
 
       // Verify CSS Module classes are applied (indicates CSS variables will be used)
       expect(card.className).toContain('card');

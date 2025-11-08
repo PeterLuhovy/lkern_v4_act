@@ -8,7 +8,7 @@
  * ================================================================
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from '@l-kern/config';
 import type { FilterPanelProps } from '../../types/FilterPanel';
 import { Checkbox } from '../Checkbox';
@@ -31,20 +31,53 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   showInactive = false,
   onShowInactiveChange,
   showInactiveLabel,
-  roleFilters = [],
-  onRoleFilterChange,
+  collapsed: initialCollapsed = false,
+  onCollapseChange,
+  panelTitle,
 }) => {
   const { t } = useTranslation();
   const placeholder = searchPlaceholder || t('pageTemplate.filter.searchPlaceholder');
   const buttonText = newItemText || t('pageTemplate.filter.newItem');
   const inactiveLabel = showInactiveLabel || t('pageTemplate.filter.showInactive');
+  const title = panelTitle || 'Filters & Search';
+
+  // Collapse state
+  const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);
+
+  const handleToggleCollapse = () => {
+    const newCollapsed = !isCollapsed;
+    setIsCollapsed(newCollapsed);
+    onCollapseChange?.(newCollapsed);
+  };
 
   return (
-    <div className={styles.filterPanel}>
+    <div className={`${styles.filterPanel} ${isCollapsed ? styles.filterPanelCollapsed : ''}`}>
+      {/* Collapsed Header - Single line with title and expand button */}
+      {isCollapsed && (
+        <div className={styles.collapsedHeader} onClick={handleToggleCollapse}>
+          <span className={styles.collapsedTitle}>{title}</span>
+          <button className={styles.expandButton} type="button">
+            ▼ {t('pageTemplate.filter.expand')}
+          </button>
+        </div>
+      )}
+
+      {/* Expanded Content - All filters visible */}
+      {!isCollapsed && (
+        <>
+          {/* Collapse button in top-right corner */}
+          <button
+            className={styles.collapseButton}
+            onClick={handleToggleCollapse}
+            type="button"
+            title={t('pageTemplate.filter.collapse')}
+          >
+            ▲
+          </button>
       {/* Search Bar - V2 Style with Icon Inside */}
       <div className={styles.searchContainer}>
         <div className={styles.searchWrapper}>
-          <span className={styles.searchIcon}>🔍</span>
+          <span className={styles.searchIcon} role="img" aria-label="search">🔍</span>
           <input
             type="text"
             className={styles.searchInput}
@@ -120,7 +153,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
         )}
 
-        {/* Right: Controls (Items-per-page + New Item) - without count */}
+        {/* Right: Controls (Items-per-page + New Item) */}
         <div className={styles.controls}>
           <div className={styles.itemsPerPage}>
             <span className={styles.itemsLabel}>{t('pageTemplate.filter.itemsPerPageLabel')}</span>
@@ -159,7 +192,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         <div className={styles.bottomLeft}>
           <span className={styles.filterLabel}>{t('pageTemplate.filter.filterLabel')}:</span>
           <span className={styles.filterCount}>
-            📊 {resultCount}/{totalCount || resultCount} {t('pageTemplate.filter.itemsCount')}
+            <span role="img" aria-label="chart">📊</span> {resultCount}/{totalCount || resultCount} {t('pageTemplate.filter.itemsCount')}
           </span>
         </div>
 
@@ -174,6 +207,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -2,16 +2,17 @@
 # FilteredDataGrid Component Documentation
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\FilteredDataGrid\FilteredDataGrid.md
-# Version: 1.0.0
+# Version: 1.0.1
 # Created: 2025-11-06
-# Updated: 2025-11-06
-# Component: FilteredDataGrid v1.0.0
+# Updated: 2025-11-07
+# Component: FilteredDataGrid v1.0.1
 # Package: @l-kern/ui-components
 #
 # Description:
 #   Complete documentation for FilteredDataGrid wrapper component -
 #   combines FilterPanel + DataGrid with internal state management
-#   for quick and easy filtered grid setup.
+#   for quick and easy filtered grid setup. Includes fixed logic for
+#   totalCountInCurrentMode and hasActiveFilters.
 # ================================================================
 
 ---
@@ -71,6 +72,12 @@ FilteredDataGrid (wrapper with internal state)
 - ✅ Quick filter filtering (custom filter functions)
 - ✅ Inactive filtering (optional `inactiveField` prop)
 - ✅ Auto "Clear All" button (appears when filters active)
+
+**Important Behavior (v1.0.1):**
+- ✅ **`showInactive` is NOT counted as a filter** - It's a display mode toggle
+- ✅ **`totalCountInCurrentMode`** - Counts items with ONLY `showInactive` applied (excludes search, status, priority, quick filters)
+- ✅ **`hasActiveFilters`** - Only true if search, status, priority, or quick filters are active (NOT showInactive)
+- ✅ Result count format: `resultCount / totalCountInCurrentMode` (e.g., "5/10" means 5 items match filters out of 10 active items)
 
 ### Props Passthrough
 
@@ -513,6 +520,103 @@ const { t } = useTranslation();
 
 ---
 
+## 🔄 Behavior
+
+### Filter Count Logic (v1.0.1)
+
+**Problem Context:**
+The result count in FilterPanel shows "X/Y items" where:
+- **X** = number of items matching ALL filters (resultCount)
+- **Y** = total items in current mode (totalCountInCurrentMode)
+
+**Key Concept: `showInactive` is NOT a filter, it's a display mode toggle.**
+
+#### totalCountInCurrentMode Calculation
+
+**Purpose:** Show how many items are available in current mode (active-only vs active+inactive).
+
+**Logic (lines 99-108 in FilteredDataGrid.tsx):**
+```typescript
+const totalCountInCurrentMode = useMemo(() => {
+  return data.filter((row) => {
+    // Only apply showInactive filter, ignore search/status/priority/quick filters
+    if (!showInactive && inactiveField && !row[inactiveField]) {
+      return false;
+    }
+    return true;
+  }).length;
+}, [data, showInactive, inactiveField]);
+```
+
+**Examples:**
+- Total data: 100 items (80 active, 20 inactive)
+- `showInactive=false` → `totalCountInCurrentMode=80` (active items only)
+- `showInactive=true` → `totalCountInCurrentMode=100` (all items)
+- **Filters do NOT affect this count** - It's the "pool" of items before filtering
+
+#### hasActiveFilters Calculation
+
+**Purpose:** Determine if "Clear All" button should appear and if filters are active.
+
+**Logic (lines 110-116 in FilteredDataGrid.tsx):**
+```typescript
+const hasActiveFilters = !!(
+  searchQuery !== '' ||
+  filterStates.size > 0 ||
+  activeQuickFilters.size > 0
+);
+// NOTE: showInactive is NOT included!
+```
+
+**Why `showInactive` is excluded:**
+- `showInactive` is a **display mode toggle**, not a filter
+- It changes the "universe" of items, not the filter criteria
+- Similar to pagination (items per page) - it's a display setting, not a filter
+- Clicking "Clear All" should clear filters, but NOT reset `showInactive` toggle
+
+**Examples:**
+```typescript
+// Scenario 1: No filters, showInactive=true
+searchQuery = '';
+filterStates = new Map();  // Empty
+activeQuickFilters = new Set();  // Empty
+showInactive = true;  // Display mode
+→ hasActiveFilters = false  // Correct! No filters active
+
+// Scenario 2: Search active, showInactive=true
+searchQuery = 'ACME';
+showInactive = true;
+→ hasActiveFilters = true  // Correct! Search is a filter
+
+// Scenario 3: Only showInactive=true
+searchQuery = '';
+filterStates = new Map();
+activeQuickFilters = new Set();
+showInactive = true;
+→ hasActiveFilters = false  // Correct! showInactive is NOT a filter
+```
+
+#### Result Count Display
+
+**Format:** "📊 X/Y items"
+
+**Example with 100 total items (80 active, 20 inactive):**
+
+| Scenario | showInactive | Search | Filters | resultCount | totalCountInCurrentMode | Display |
+|----------|--------------|--------|---------|-------------|------------------------|---------|
+| 1. No filters, active only | false | - | - | 80 | 80 | 📊 80/80 items |
+| 2. No filters, all items | true | - | - | 100 | 100 | 📊 100/100 items |
+| 3. Search "ACME", active only | false | "ACME" | - | 5 | 80 | 📊 5/80 items |
+| 4. Search "ACME", all items | true | "ACME" | - | 8 | 100 | 📊 8/100 items |
+| 5. Status filter, active only | false | - | status:pending | 12 | 80 | 📊 12/80 items |
+
+**Key Insight:**
+- Changing `showInactive` changes the denominator (Y), not the filter state
+- `totalCountInCurrentMode` = baseline before applying search/status/priority/quick filters
+- `resultCount` = items matching ALL filters within current mode
+
+---
+
 ## 🐛 Troubleshooting
 
 ### Filters not working
@@ -626,7 +730,34 @@ const filteredData = useMemo(() => {
 
 ---
 
-**Last Updated**: 2025-11-06
-**Version**: 1.0.0
-**Component**: FilteredDataGrid v1.0.0
+## 📝 Changelog
+
+### v1.0.1 (2025-11-07)
+- 🐛 **FIX**: Corrected `totalCountInCurrentMode` calculation (lines 99-108)
+  - Now counts items with ONLY `showInactive` filter applied
+  - Excludes search, status, priority, quick filters from total count
+  - Example: 100 items (80 active) → `totalCountInCurrentMode=80` when `showInactive=false`
+- 🐛 **FIX**: Updated `hasActiveFilters` logic (lines 110-116)
+  - `showInactive` is NO LONGER counted as filter (it's a display mode toggle)
+  - Only search, status, priority, quick filters count as active filters
+  - "Clear All" button does NOT clear `showInactive` state
+- 📊 **IMPROVED**: Result count display now correctly shows "X/Y items"
+  - X = filtered items, Y = items in current mode (active-only or all)
+  - Denominator (Y) changes when `showInactive` toggles, but filter state unchanged
+- 📚 **DOCS**: Added Behavior section explaining filter count logic with examples
+
+### v1.0.0 (2025-11-06)
+- 🎉 Initial release
+- ✅ Wrapper combining FilterPanel + DataGrid
+- ✅ Internal state management
+- ✅ Search, filter groups, quick filters
+- ✅ Show inactive toggle
+- ✅ Pagination support
+- ✅ Auto "Clear All" button
+
+---
+
+**Last Updated**: 2025-11-07
+**Version**: 1.0.1
+**Component**: FilteredDataGrid v1.0.1
 **Package**: @l-kern/ui-components

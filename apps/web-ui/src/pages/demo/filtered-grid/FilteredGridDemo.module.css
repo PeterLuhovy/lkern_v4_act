@@ -73,22 +73,38 @@
 }
 
 .selectedInfo {
-  margin-top: var(--spacing-y-lg, 24px);
-  padding: var(--spacing-y-md, 16px);
+  margin-top: var(--spacing-y-xs, 6px);
+  margin-bottom: var(--spacing-y-md, 16px);
+  padding: var(--spacing-y-sm, 8px);
+  min-height: var(--spacing-xl, 32px);
   background: var(--theme-card-background);
-  border: 2px solid var(--color-brand-primary);
+  border: var(--border-width-thin, 1px) solid var(--theme-border);
+  border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-x-md, 16px);
   color: var(--theme-text);
 }
 
-.selectedInfo strong {
+.selectedCount {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x-xs, 6px);
+}
+
+.selectedCount strong {
   font-weight: var(--font-weight-bold);
 }
 
-.selectedInfo button {
+.selectedActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x-sm, 12px);
+}
+
+.actionButton {
   padding: var(--spacing-y-xs, 6px) var(--spacing-x-sm, 12px);
   background: var(--color-brand-primary);
   color: white;
@@ -98,9 +114,30 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.selectedInfo button:hover {
+.actionButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px var(--color-brand-primary-alpha);
+  filter: brightness(0.9);
+}
+
+.actionButtonSecondary {
+  padding: var(--spacing-y-xs, 6px) var(--spacing-x-sm, 12px);
+  background: transparent;
+  color: var(--theme-text-muted);
+  border: var(--border-width-thin, 1px) solid var(--theme-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.actionButtonSecondary:hover {
+  background: var(--theme-hover-background);
+  border-color: var(--color-brand-primary);
+  color: var(--theme-text);
 }

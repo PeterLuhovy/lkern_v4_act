@@ -14,13 +14,74 @@
 .filterPanel {
   background: var(--theme-card-background);
   padding: var(--spacing-y-lg, 24px) var(--spacing-x-lg, 24px);
-  margin-bottom: var(--spacing-y-lg, 24px);
+  margin-bottom: var(--spacing-y-xs, 6px);
   border: var(--border-width-thin) solid var(--theme-border);
   border-left: 6px solid var(--color-brand-primary);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-y-md, 16px);
+  position: relative;
+  transition: all var(--duration-state) var(--ease-smooth);
+}
+
+/* === COLLAPSED STATE === */
+.filterPanelCollapsed {
+  padding: var(--spacing-y-sm, 8px) var(--spacing-x-md, 16px);
+  cursor: pointer;
+}
+
+.collapsedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.collapsedTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--theme-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.expandButton {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--theme-text);
+  background: transparent;
+  border: var(--border-width-thin) solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-state) var(--ease-smooth);
+}
+
+.expandButton:hover {
+  background: var(--theme-hover-background);
+  border-color: var(--color-brand-primary);
+}
+
+/* === COLLAPSE BUTTON (top-right) === */
+.collapseButton {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--theme-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-state) var(--ease-smooth);
+  z-index: 1;
+}
+
+.collapseButton:hover {
+  color: var(--color-brand-primary);
+  background: var(--theme-hover-background);
 }
 
 /* === SEARCH BAR (V2 EXACT) === */
@@ -38,7 +99,7 @@
   left: var(--spacing-md);
   top: 50%;
   transform: translateY(-50%);
-  fontSize: var(--font-size-lg);
+  font-size: var(--font-size-lg);
   color: var(--theme-text-muted);
   pointer-events: none;
   z-index: 1;
@@ -245,7 +306,7 @@
   border-top: var(--border-width-thin) solid var(--theme-border);
 }
 
-/* === RIGHT CONTROLS (V2 EXACT - without count) === */
+/* === RIGHT CONTROLS (V2 EXACT) === */
 .controls {
   position: absolute;
   bottom: 0;

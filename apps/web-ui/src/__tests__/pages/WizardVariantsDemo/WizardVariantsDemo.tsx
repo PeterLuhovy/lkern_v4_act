@@ -24,6 +24,7 @@ export const WizardVariantsDemo: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [variant, setVariant] = useState<'centered' | 'drawer' | 'fullscreen'>('centered');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Completed wizard data structure varies by wizard type
   const [completedData, setCompletedData] = useState<any>(null);
 
   const handleOpen = (selectedVariant: 'centered' | 'drawer' | 'fullscreen') => {
@@ -32,6 +33,7 @@ export const WizardVariantsDemo: React.FC = () => {
     setCompletedData(null);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Wizard data structure varies by wizard type
   const handleComplete = (data: any) => {
     console.log('Wizard completed with data:', data);
     setCompletedData(data);
@@ -76,7 +78,7 @@ export const WizardVariantsDemo: React.FC = () => {
           <div className={styles.cardContent}>
             <div className={styles.cardHeader}>
               <h3 className={styles.cardTitle}>{t('components.wizard.drawerModal')}</h3>
-              <Badge variant="success" size="small">⭐ {t('components.wizard.recommended')}</Badge>
+              <Badge variant="success" size="small"><span role="img" aria-label="star">⭐</span> {t('components.wizard.recommended')}</Badge>
             </div>
             <p className={styles.cardDescription}>
               {t('components.wizard.drawerDescription')}

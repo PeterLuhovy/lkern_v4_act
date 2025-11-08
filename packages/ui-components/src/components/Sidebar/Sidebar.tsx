@@ -313,6 +313,8 @@ const NavItem: React.FC<NavItemProps> = ({
             {t(item.labelKey)}
           </div>
           <ul className={styles.sidebar__floatingSubmenuList}>
+            {/* Safe: item.children exists after hasChildren check */}
+            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
             {item.children!.map((child) => (
               <li key={child.path}>
                 <a
@@ -340,6 +342,8 @@ const NavItem: React.FC<NavItemProps> = ({
       {/* Inline submenu (expanded mode) - render NavItem recursively for nested children */}
       {!isCollapsed && hasChildren && isExpanded && (
         <ul className={styles.sidebar__submenuList}>
+          {/* Safe: item.children exists after hasChildren check */}
+          {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
           {item.children!.map((child) => (
             <NavItem
               key={child.path}

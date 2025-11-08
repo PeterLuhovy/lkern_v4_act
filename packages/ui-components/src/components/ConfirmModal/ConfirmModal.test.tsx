@@ -139,6 +139,8 @@ describe('ConfirmModal', () => {
 
     // Simulate Enter key
     const modal = screen.getByText('Naozaj chcete pokračovať?').closest('div');
+    // Safe: Element exists after closest('div') check
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     fireEvent.keyDown(modal!, { key: 'Enter', code: 'Enter' });
 
     // Note: Enter is handled by Modal's onConfirm prop, which calls handleConfirm

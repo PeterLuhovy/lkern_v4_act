@@ -70,6 +70,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('renders modal when open with items', () => {
     const items = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => (
       <div key={item.id}>{item.name}</div>
     ));
@@ -198,7 +199,7 @@ describe('ManagementModal v2.0.0', () => {
     );
 
     // Add button is always present in footer (v2.0.0)
-    const addButton = screen.getByRole('button', { name: /➕/i });
+    const addButton = screen.getByRole('button', { name: /pridať/i });
     expect(addButton).toBeInTheDocument();
     fireEvent.click(addButton);
     expect(handleAdd).toHaveBeenCalledTimes(1);
@@ -231,6 +232,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('renders Delete All button (enabled when items exist)', () => {
     const items = [{ id: 1 }, { id: 2 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -376,6 +378,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('opens ConfirmModal when Delete All clicked (with items)', async () => {
     const items = [{ id: 1 }, { id: 2 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -435,6 +438,7 @@ describe('ManagementModal v2.0.0', () => {
   it('calls onDeleteAll when user confirms deletion', async () => {
     const handleDeleteAll = vi.fn();
     const items = [{ id: 1 }, { id: 2 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -480,6 +484,7 @@ describe('ManagementModal v2.0.0', () => {
   it('does not call onDeleteAll when user cancels confirmation', async () => {
     const handleDeleteAll = vi.fn();
     const items = [{ id: 1 }, { id: 2 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -522,6 +527,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('renders custom delete all confirmation title', async () => {
     const items = [{ id: 1 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -549,6 +555,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('renders custom delete all confirmation message', async () => {
     const items = [{ id: 1 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -641,6 +648,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('passes parentModalId to ConfirmModal', async () => {
     const items = [{ id: 1 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => <div key={item.id}>{item.id}</div>);
 
     renderWithAll(
@@ -675,6 +683,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('renders items using renderItem function', () => {
     const items = [{ id: 1, value: 'Test Item' }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => (
       <div key={item.id} data-testid={`item-${item.id}`}>
         {item.value}
@@ -706,6 +715,7 @@ describe('ManagementModal v2.0.0', () => {
   it('calls onEdit when edit button clicked via renderItem', () => {
     const items = [{ id: 1 }];
     const handleEdit = vi.fn();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = (item: any, helpers: any) => (
       <div key={item.id}>
         <button onClick={() => helpers.onEdit(item.id)} data-testid={`edit-${item.id}`}>
@@ -738,6 +748,7 @@ describe('ManagementModal v2.0.0', () => {
   it('shows ConfirmModal when delete button clicked via renderItem', async () => {
     const items = [{ id: 1 }];
     const handleDelete = vi.fn();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = (item: any, helpers: any) => (
       <div key={item.id}>
         <button onClick={() => helpers.onDelete(item.id)} data-testid={`delete-${item.id}`}>
@@ -775,6 +786,7 @@ describe('ManagementModal v2.0.0', () => {
   it('calls onDelete after confirming delete', async () => {
     const items = [{ id: 1 }];
     const handleDelete = vi.fn();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = (item: any, helpers: any) => (
       <div key={item.id}>
         <button onClick={() => helpers.onDelete(item.id)} data-testid={`delete-${item.id}`}>
@@ -822,6 +834,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('sorts items with primary first when enablePrimary is true', () => {
     const items = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => (
       <div key={item.id} data-testid={`item-${item.id}`} />
     ));
@@ -857,6 +870,7 @@ describe('ManagementModal v2.0.0', () => {
   it('calls onSetPrimary when primary button clicked', () => {
     const items = [{ id: 1 }];
     const handleSetPrimary = vi.fn();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = (item: any, helpers: any) => (
       <div key={item.id}>
         {helpers.onSetPrimary && (
@@ -892,6 +906,7 @@ describe('ManagementModal v2.0.0', () => {
 
   it('does not pass onSetPrimary when enablePrimary is false', () => {
     const items = [{ id: 1 }];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock data with flexible structure
     const renderItem = vi.fn((item: any) => (
       <div key={item.id} />
     ));

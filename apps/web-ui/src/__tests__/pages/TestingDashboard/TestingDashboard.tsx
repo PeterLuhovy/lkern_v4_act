@@ -2,20 +2,23 @@
  * ================================================================
  * FILE: TestingDashboard.tsx
  * PATH: /apps/web-ui/src/__tests__/pages/TestingDashboard/TestingDashboard.tsx
- * DESCRIPTION: Central testing dashboard with links to all component test pages
- * VERSION: v2.0.0
- * UPDATED: 2025-10-18 21:30:00
+ * DESCRIPTION: Central testing dashboard with tabs for Components and Pages
+ * VERSION: v3.0.0
+ * UPDATED: 2025-11-08
  * ================================================================
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@l-kern/config';
 import { BasePage, Card, DashboardCard } from '@l-kern/ui-components';
 import styles from './TestingDashboard.module.css';
 
+type TabType = 'components' | 'pages';
+
 export const TestingDashboard: React.FC = () => {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<TabType>('components');
 
   const testPages = [
     {
@@ -90,13 +93,24 @@ export const TestingDashboard: React.FC = () => {
       title: t('components.testing.dataGridTitle'),
       description: t('components.testing.dataGridDescription'),
     },
+  ];
+
+  const demoPages = [
     {
       path: '/testing/filtered-grid',
       icon: '🔍',
       title: t('components.testing.filteredGridTitle'),
       description: t('components.testing.filteredGridDescription'),
     },
+    {
+      path: '/testing/template-page-datagrid',
+      icon: '📋',
+      title: t('components.testing.templatePageDatagridTitle'),
+      description: t('components.testing.templatePageDatagridDescription'),
+    },
   ];
+
+  const currentPages = activeTab === 'components' ? testPages : demoPages;
 
   return (
     <BasePage>
@@ -107,16 +121,32 @@ export const TestingDashboard: React.FC = () => {
             {t('components.testing.backToHome')}
           </Link>
           <h1 className={styles.title}>
-            🧪 {t('components.testing.dashboard')}
+            <span role="img" aria-label="test tube">🧪</span> {t('components.testing.dashboard')}
           </h1>
           <p className={styles.subtitle}>
             {t('components.testing.dashboardSubtitle')}
           </p>
         </div>
 
-        {/* Test Pages Grid */}
+        {/* Tabs */}
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'components' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('components')}
+          >
+            <span role="img" aria-label="components">🧩</span> {t('components.testing.tabComponents')}
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'pages' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('pages')}
+          >
+            <span role="img" aria-label="pages">📄</span> {t('components.testing.tabPages')}
+          </button>
+        </div>
+
+        {/* Pages Grid */}
         <div className={styles.grid}>
-          {testPages.map((page) => (
+          {currentPages.map((page) => (
             <DashboardCard
               key={page.path}
               path={page.path}
@@ -130,7 +160,7 @@ export const TestingDashboard: React.FC = () => {
         {/* Info Footer */}
         <Card variant="default" className={styles.infoFooter}>
           <p className={styles.infoText}>
-            💡 {t('components.testing.dashboardHint')}
+            <span role="img" aria-label="light bulb">💡</span> {t('components.testing.dashboardHint')}
           </p>
         </Card>
       </div>
