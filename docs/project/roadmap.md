@@ -936,20 +936,97 @@
 ---
 
 ### **1.80 Configuration Service** ⏸️ PLANNED
-**Dependencies:** 1.50 complete (uses microservice template)
-**Estimated:** 15-20h (4-5 days)
+**Dependencies:** 1.50 complete (uses microservice template), 1.70 complete (Contact Service - countries)
+**Estimated:** 24-36h (4-5 days)
 **Target:** 2025-11-25 - 2025-11-30 (parallel with 1.70)
 **Ports:** 4199 (REST), 5199 (gRPC)
 **Database:** lkms199_config
+**Implementation Plan:** [docs/temp/config-service-implementation-plan.md](../temp/config-service-implementation-plan.md)
 
-**Global settings (COA, VAT, currencies)**
+**Shared regulatory and global configuration data (VAT rates, exchange rates, travel allowances, meal deductions, global settings, analytics settings)**
 
-#### **1.80.1 Backend**
-- ⏸️ Copy from template
-- ⏸️ Models: COA, VAT, currencies, periods
+**Scope:**
+- ✅ VAT/Tax rates (SK/CZ/PL) - Used by Sales Service
+- ✅ Exchange rates (ECB integration) - Used by Sales, Purchasing, Finance
+- ✅ Travel allowances (domestic + foreign 27 countries) - Used by Sales, HR, Finance
+- ✅ Meal deductions - Used by HR, Finance
+- ✅ Global settings (company info, defaults) - Used by all services
+- ✅ Analytics settings (usePageAnalytics configuration) - Used by frontend
+- ❌ NOT in scope: Chart of Accounts (→ Finance Service), Accounting Periods (→ Finance Service), Document Numbering (→ each service owns), Countries (→ Contact Service MDM)
 
-#### **1.80.2 Frontend**
-- ⏸️ Configuration page
+**Key Design:**
+- Centralized ConfigurationPage UI with 8 tabs (distributed backend calls)
+- No cross-service foreign keys (ISO codes only)
+- Frontend joins country names via Contact Service API
+- Read-heavy service (no Kafka events)
+
+#### **1.80.1 Database & Core Backend** (6-8h)
+- ⏸️ Create database lkms199_config
+- ⏸️ Create 7 tables: vat_codes, exchange_rates, travel_allowances_domestic, travel_allowances_foreign, meal_deductions, global_settings, analytics_settings
+- ⏸️ Seed initial data (VAT SK/CZ/PL, travel allowances, meal deductions)
+- ⏸️ Implement SQLAlchemy models + Pydantic schemas
+- ⏸️ Implement repositories (data access layer)
+- ⏸️ 30 backend tests
+
+#### **1.80.2 REST API Endpoints** (4-6h)
+- ⏸️ Implement all REST API routes (/api/v1/vat-codes, /exchange-rates, /travel-allowances/*, /meal-deductions, /settings, /analytics-settings)
+- ⏸️ Implement business logic in service layer
+- ⏸️ Implement ECB integration for exchange rates
+- ⏸️ Add input validation and error handling
+- ⏸️ 15 API endpoint tests
+- ⏸️ OpenAPI/Swagger documentation
+
+#### **1.80.3 gRPC API** (3-4h)
+- ⏸️ Define protobuf schema (config_service.proto)
+- ⏸️ Implement gRPC servicers
+- ⏸️ 5 gRPC tests
+
+#### **1.80.4 Docker & Deployment** (2-3h)
+- ⏸️ Create Dockerfile
+- ⏸️ Add to docker-compose.yml
+- ⏸️ Configure environment variables
+- ⏸️ Verify REST (4199) + gRPC (5199) ports accessible
+
+#### **1.80.5 Frontend - ConfigurationPage Structure** (3-4h)
+- ⏸️ Create ConfigurationPage component with tabs
+- ⏸️ Implement 8 tab sections: VAT & Tax, Chart of Accounts (placeholder), Travel Allowances, Meal Deductions, Exchange Rates, Accounting Periods (placeholder), Global Settings, Analytics
+- ⏸️ Add routing (/configuration)
+- ⏸️ Add navigation menu item
+- ⏸️ 3 page structure tests
+
+#### **1.80.6 Frontend - Sections Implementation** (4-6h)
+- ⏸️ Implement VATTaxSection (forms + table)
+- ⏸️ Implement TravelAllowancesSection (domestic + foreign)
+- ⏸️ Implement MealDeductionsSection
+- ⏸️ Implement ExchangeRatesSection (ECB sync button)
+- ⏸️ Implement GlobalSettingsSection
+- ⏸️ Implement AnalyticsSection (usePageAnalytics configuration)
+- ⏸️ Create shared components (CountrySelector, ConfigurationCard)
+- ⏸️ Implement useConfigurationService hook (API calls)
+- ⏸️ Implement useCountryNames hook (Contact Service join)
+- ⏸️ 12 frontend tests
+
+#### **1.80.7 Translation Keys & Documentation** (2-3h)
+- ⏸️ Add translation keys to packages/config/src/translations/types.ts
+- ⏸️ Add Slovak translations (sk.ts) - 60+ keys
+- ⏸️ Add English translations (en.ts) - 60+ keys
+- ⏸️ Test language switching
+- ⏸️ Create service README.md
+
+#### Success Criteria:
+- ✅ All 7 database tables created and seeded
+- ✅ 50 backend tests passing (100% coverage)
+- ✅ All REST API endpoints functional
+- ✅ All gRPC methods functional
+- ✅ ECB exchange rate sync working
+- ✅ Docker container running and accessible
+- ✅ ConfigurationPage with 8 tabs accessible at /configuration
+- ✅ 6 active sections functional (VAT, Travel, Meals, Exchange, Global, Analytics)
+- ✅ 2 placeholder sections (COA, Accounting Periods) display "Available after Finance Service"
+- ✅ Country names joined from Contact Service API
+- ✅ 65 total tests passing (50 backend + 15 frontend)
+- ✅ All text uses translations (no hardcoded strings)
+- ✅ Code follows coding-standards.md (DRY, no hardcoded values)
 
 ---
 
@@ -1149,6 +1226,10 @@
 #### **1.180.2 Frontend**
 - ⏸️ Finance dashboard
 - ⏸️ GL viewer, reports, VAT returns
+- ⏸️ **Configuration Page Updates:**
+  - Replace "Chart of Accounts" placeholder with functional ChartOfAccountsSection (API calls to Finance Service)
+  - Replace "Accounting Periods" placeholder with functional AccountingPeriodsSection (API calls to Finance Service)
+  - Update ConfigurationPage tabs to call Finance Service endpoints
 
 ---
 
