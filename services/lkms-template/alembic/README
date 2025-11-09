@@ -1,0 +1,30 @@
+# {{SERVICE_NAME}} - Database Migrations
+
+This directory contains Alembic database migrations for {{SERVICE_NAME}}.
+
+## Commands
+
+Create new migration:
+```bash
+alembic revision --autogenerate -m "description"
+```
+
+Apply migrations:
+```bash
+alembic upgrade head
+```
+
+Rollback one migration:
+```bash
+alembic downgrade -1
+```
+
+Show migration history:
+```bash
+alembic history
+```
+
+Show current revision:
+```bash
+alembic current
+```

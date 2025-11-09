@@ -2,9 +2,9 @@
 # Port Mapping Strategy - L-KERN v4
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\architecture\port-mapping.md
-# Version: 1.0.0
+# Version: 2.0.0
 # Created: 2025-10-13
-# Updated: 2025-10-18
+# Updated: 2025-11-08
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -85,13 +85,17 @@ Third-party integrations, webhooks, message queues.
 
 ### **500-599: Data Services**
 
-Databases, caching, data processing.
+Databases, caching, data processing, event streaming.
 
 | LKMS | Service | Port | Description |
 |------|---------|------|-------------|
-| lkms501 | postgres-main | 4501 | PostgreSQL main DB |
+| lkms501 | postgres-main | 4501 | PostgreSQL main DB (future - per-service DBs) |
 | lkms502 | redis-cache | 4502 | Redis caching (future) |
-| lkms503 | elasticsearch | 4503 | Search engine (future) |
+| lkms503 | zookeeper | **2181** | Apache Zookeeper (exception: standard port) |
+| lkms504 | kafka | 4503 | Apache Kafka event streaming |
+| lkms505 | elasticsearch | 4505 | Search engine (future) |
+
+**Note:** Zookeeper uses standard port **2181** instead of 4503 (exception to pattern)
 
 ### **900-999: Development Tools**
 
@@ -103,6 +107,33 @@ Development-only services (not in production).
 | lkms902 | pgadmin | 4902 | PostgreSQL admin (alternative) |
 | lkms903 | mailhog | 4903 | Email testing (future) |
 | lkms904 | swagger-ui | 4904 | API documentation viewer (future) |
+
+---
+
+## 🔌 gRPC Internal Communication
+
+### **gRPC Port Convention: 5{XXX}**
+
+Backend services expose **TWO ports**:
+- **REST API (4XXX)**: External HTTP/JSON communication (frontend → backend)
+- **gRPC API (5XXX)**: Internal service-to-service communication (backend ↔ backend)
+
+| LKMS | Service | REST Port | gRPC Port | Description |
+|------|---------|-----------|-----------|-------------|
+| lkms101 | contacts | 4101 | **5101** | Contacts service (REST + gRPC) |
+| lkms102 | orders | 4102 | **5102** | Orders service (REST + gRPC) |
+| lkms105 | issues | 4105 | **5105** | Issues service (REST + gRPC) |
+| lkms107 | auth | 4107 | **5107** | Authentication service (REST + gRPC) |
+
+**Pattern**: REST port 4{XXX} → gRPC port 5{XXX}
+
+**Example:**
+```yaml
+lkms101-contacts:
+  ports:
+    - "4101:4101"  # REST API (external)
+    - "5101:5101"  # gRPC API (internal only)
+```
 
 ---
 
@@ -151,9 +182,11 @@ http://localhost:4107/docs     → Auth API (Swagger)
 http://localhost:4901          → Adminer (DB viewer)
 http://localhost:4903          → Mailhog (Email testing)
 
-# Databases
+# Databases & Event Streaming
 postgresql://localhost:4501    → PostgreSQL
 redis://localhost:4502         → Redis
+zookeeper://localhost:2181     → Zookeeper
+kafka://localhost:4503         → Kafka
 ```
 
 ---
@@ -218,5 +251,18 @@ lkms204 (new frontend app)     → Port 4204
 
 ---
 
-**Last Updated**: 2025-10-13
+**Last Updated**: 2025-11-08
 **Maintained by**: BOSSystems s.r.o. Development Team
+
+---
+
+## 📝 Changelog
+
+**v2.0.0 (2025-11-08)**:
+- Added Apache Kafka (lkms504, port 4503) for event streaming
+- Added Apache Zookeeper (lkms503, port 2181 - exception to 4XXX pattern)
+- Added gRPC port convention (5XXX range for internal service communication)
+- Updated elasticsearch to lkms505
+
+**v1.0.0 (2025-10-13)**:
+- Initial port mapping strategy with 1:1 pattern (LKMS{XXX} → 4{XXX})

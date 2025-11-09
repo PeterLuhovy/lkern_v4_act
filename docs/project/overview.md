@@ -2,7 +2,7 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 9.0.0
+# Version: 11.0.0
 # Created: 2025-10-13
 # Updated: 2025-11-08
 # Project: BOSS (Business Operating System Service)
@@ -36,13 +36,15 @@
 ## 📊 Current Status
 
 **Version:** 4.0.0 (Phase 1 - MVP Development)
-**Roadmap:** v5.5.0 (Updated 2025-11-08 - UI Infrastructure complete)
-**Progress:** 3/23 tasks complete (~13%)
+**Roadmap:** v7.0.0 (Updated 2025-11-08 - Backend Infrastructure complete)
+**Progress:** 5/23 tasks complete (~22%)
 **Started:** 2025-10-13
 **Target MVP Completion:** 2026-06-30
 
-**Current Task:** Ready to start Task 1.40 (Backend Infrastructure)
-**Next Milestone:** PostgreSQL + Kafka + gRPC setup by 2025-11-17
+**Recently Completed:**
+- ✅ Task 1.40 Backend Infrastructure (Kafka + Universal Dockerfile + gRPC)
+- ✅ Task 1.50 Microservice Template (25+ files + generator script)
+**Next Tasks:** 1.60 Issues Service (customization), 1.70 Contact MDM
 
 ---
 
@@ -142,8 +144,8 @@ L-KERN v4/
 | 1.10 Infrastructure | ✅ COMPLETED | 2025-10-15 |
 | 1.20 Coding Standards | ✅ COMPLETED | 2025-10-15 |
 | 1.30 UI Infrastructure | ✅ COMPLETED | 2025-11-08 |
-| 1.40 Backend Infrastructure + Kafka | ⏸️ PLANNED | 2025-11-17 |
-| 1.50 Microservice Template | ⏸️ PLANNED | 2025-11-20 |
+| 1.40 Backend Infrastructure + Kafka | ✅ COMPLETED | 2025-11-08 |
+| 1.50 Microservice Template | ✅ COMPLETED | 2025-11-08 |
 | 1.60 Issues Service | ⏸️ PLANNED | 2025-11-24 |
 | 1.70 Contact (MDM) | ⏸️ PLANNED | 2025-12-02 |
 | 1.80 Configuration | ⏸️ PLANNED | 2025-11-30 |
@@ -163,13 +165,77 @@ L-KERN v4/
 | 1.220 Production Prep | ⏸️ PLANNED | 2026-04-04 |
 | 1.230 Deploy MVP | ⏸️ PLANNED | 2026-04-11 |
 
-**Progress:** 3/23 tasks (~13%)
+**Progress:** 5/23 tasks (~22%)
 
 **Deferred to Phase 2 (v4.1.x):**
-- Issues Service
 - Inquiries Service
 - Mail Client (partial - authentication remains)
 - Documents Service
+
+---
+
+## ✅ Completed: Tasks 1.40, 1.50 - Backend Infrastructure
+
+### **1.40 Backend Infrastructure + Kafka**
+
+**Started:** 2025-11-08
+**Completed:** 2025-11-08
+**Duration:** 1 day
+
+**Delivered:**
+- ✅ Universal Dockerfile.backend.dev (DRY principle for all Python services)
+- ✅ Kafka + Zookeeper infrastructure (lkms503-504, ports 2181/4503)
+- ✅ Adminer database UI (lkms901, port 4901)
+- ✅ gRPC infrastructure (proto files + Linux/Windows compile scripts)
+- ✅ Documentation updates (port-mapping v2.0.0)
+
+**Bugfixes:**
+- Fixed Dockerfile PORT → REST_PORT environment variable
+
+### **1.50 Microservice Template**
+
+**Started:** 2025-11-08
+**Completed:** 2025-11-08
+**Duration:** 1 day
+
+**Delivered:**
+- ✅ Complete template (25+ files: app/, tests/, alembic/, proto/)
+- ✅ Placeholder system (11 variables for code generation)
+- ✅ Full CRUD REST API + gRPC + Kafka integration
+- ✅ Generator script (scripts/microservice-generator/generate-microservice.js)
+- ✅ 3 example configs (test, issues, contacts services)
+- ✅ Comprehensive documentation (15KB README)
+
+**Template Structure:**
+```
+services/lkms-template/
+├── app/
+│   ├── main.py                  # FastAPI + gRPC server
+│   ├── config.py                # Pydantic settings (11 env vars)
+│   ├── database.py              # SQLAlchemy + async session
+│   ├── models/example.py        # Database models
+│   ├── schemas/example.py       # Pydantic request/response schemas
+│   ├── api/
+│   │   ├── rest/example.py      # CRUD REST endpoints
+│   │   └── grpc/example_service.py  # gRPC services
+│   └── events/
+│       ├── producer.py          # Kafka producer (create/update/delete events)
+│       └── consumer.py          # Kafka consumer skeleton
+├── alembic/                     # Database migrations
+├── tests/test_api.py            # 13 comprehensive tests
+├── requirements.txt             # Python dependencies
+└── README.md                    # Service documentation
+```
+
+**Generator Features:**
+- Copies template → services/lkms{code}-{slug}/
+- Replaces 11 placeholders in all files
+- Injects services into docker-compose.yml
+- Injects configuration into .env
+- Generated in ~5 seconds (vs 4-6 hours manual)
+
+**Bugfixes:**
+- Fixed alembic/env.py sys.path import issue (added to template)
 
 ---
 
@@ -244,6 +310,32 @@ L-KERN v4/
 
 ## 🔄 Recent Changes
 
+**v11.0.0 (2025-11-08):**
+- ✅ **Tasks 1.40, 1.50 Backend Infrastructure COMPLETED**
+- Task 1.40 Backend Infrastructure:
+  - ✅ Universal Dockerfile.backend.dev (DRY principle for all services)
+  - ✅ Kafka + Zookeeper infrastructure (lkms503-504)
+  - ✅ Adminer database UI (lkms901)
+  - ✅ gRPC infrastructure (proto files + compilation scripts)
+  - ✅ Documentation updated (port-mapping v2.0.0)
+  - 🔧 Fixed Dockerfile PORT → REST_PORT bug
+- Task 1.50 Microservice Template:
+  - ✅ Complete template structure (25+ files)
+  - ✅ Placeholder system (11 variables for generator)
+  - ✅ Full CRUD REST API + gRPC + Kafka integration
+  - ✅ Alembic migrations + comprehensive tests
+  - ✅ Generator script (scripts/microservice-generator/generate-microservice.js)
+  - ✅ 3 example configs + 15KB documentation
+  - 🔧 Fixed alembic/env.py sys.path import issue
+  - Generator tested: Generated Issues Service skeleton in 30 seconds (vs 4-6 hours manual)
+- Updated roadmap to v7.0.0
+- Progress: 5/23 tasks complete (22%)
+
+**v10.0.0 (2025-11-08):**
+- ⏳ Tasks 1.40 & 1.50 Backend Infrastructure started
+- Backend Infrastructure (80% complete at end of day)
+- Microservice Template (95% complete at end of day)
+
 **v9.0.0 (2025-11-08):**
 - ✅ **Task 1.30 UI Infrastructure COMPLETED**
 - Design System Refactor complete (Phase 3 & 4)
@@ -282,4 +374,4 @@ L-KERN v4/
 
 **Last Updated:** 2025-11-08
 **Maintainer:** BOSSystems s.r.o.
-**Next Review:** Before starting Task 1.40 (Backend Infrastructure)
+**Next Review:** Before starting Task 1.70 (Contact MDM)

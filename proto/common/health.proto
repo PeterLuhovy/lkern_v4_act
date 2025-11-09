@@ -1,0 +1,46 @@
+// ================================================================
+// L-KERN v4 - Health Check gRPC Service Definition
+// ================================================================
+// File: proto/common/health.proto
+// Version: v1.0.0
+// Created: 2025-11-08
+// Description:
+//   Standard health check service for all microservices.
+//   Used for monitoring service availability and readiness.
+// ================================================================
+
+syntax = "proto3";
+
+package lkern.common.health;
+
+// Health check service
+service Health {
+  // Check service health status
+  rpc Check (HealthCheckRequest) returns (HealthCheckResponse);
+
+  // Watch service health status (streaming)
+  rpc Watch (HealthCheckRequest) returns (stream HealthCheckResponse);
+}
+
+// Health check request
+message HealthCheckRequest {
+  // Service name to check (empty = default service)
+  string service = 1;
+}
+
+// Health check response
+message HealthCheckResponse {
+  // Health status
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;
+  }
+
+  // Current status
+  ServingStatus status = 1;
+
+  // Optional status message
+  string message = 2;
+}

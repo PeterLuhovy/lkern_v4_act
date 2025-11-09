@@ -26,6 +26,10 @@ networks:
 # VOLUMES
 # ================================================================
 volumes:
+  lkms105_db_data:
+    name: ${LKMS105_DB_VOLUME}
+  lkms105_minio_data:
+    name: ${LKMS105_MINIO_VOLUME:-lkern_lkms105_minio_data}
   node_modules:
     name: ${VOLUME_NODE_MODULES}
   postgres_data:
@@ -162,6 +166,90 @@ services:
   #     - database
   #   depends_on:
   #     - lkms501-postgres
+
+
+
+  # ================================================================
+  # Issues Service - PostgreSQL Database
+  # ================================================================
+  lkms105-issues-db:
+    image: ${LKMS105_DB_IMAGE}
+    container_name: ${LKMS105_DB_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${LKMS105_DB_NAME}
+      POSTGRES_USER: ${LKMS105_DB_USER}
+      POSTGRES_PASSWORD: ${LKMS105_DB_PASSWORD}
+    volumes:
+      - lkms105_db_data:/var/lib/postgresql/data
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LKMS105_DB_USER} -d ${LKMS105_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  lkms105-minio:
+    image: minio/minio:latest
+    container_name: lkms105-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${LKMS105_MINIO_ROOT_USER:-lkern_admin}
+      MINIO_ROOT_PASSWORD: ${LKMS105_MINIO_ROOT_PASSWORD:-lkern_dev_password_2024}
+    ports:
+      - "9105:9000"   # MinIO API
+      - "9106:9001"   # MinIO Console
+    volumes:
+      - lkms105_minio_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ================================================================
+  # Issues Service - FastAPI Application
+  # ================================================================
+  lkms105-issues:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.backend.dev
+      args:
+        SERVICE_PATH: services/lkms105-issues
+    container_name: ${LKMS105_CONTAINER_NAME}
+    depends_on:
+      lkms105-issues-db:
+        condition: service_healthy
+      lkms105-minio:
+        condition: service_healthy
+    environment:
+      - SERVICE_NAME=Issues Service
+      - REST_PORT=${LKMS105_REST_PORT}
+      - GRPC_PORT=${LKMS105_GRPC_PORT}
+      - DB_HOST=lkms105-issues-db
+      - DB_PORT=5432
+      - DB_NAME=${LKMS105_DB_NAME}
+      - DB_USER=${LKMS105_DB_USER}
+      - DB_PASSWORD=${LKMS105_DB_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=lkms504-kafka:9092
+      - MINIO_HOST=lkms105-minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${LKMS105_MINIO_ROOT_USER:-lkern_admin}
+      - MINIO_SECRET_KEY=${LKMS105_MINIO_ROOT_PASSWORD:-lkern_dev_password_2024}
+      - MINIO_BUCKET=issues-attachments
+    ports:
+      - "${LKMS105_REST_PORT_EXTERNAL}:${LKMS105_REST_PORT}"
+      - "${LKMS105_GRPC_PORT_EXTERNAL}:${LKMS105_GRPC_PORT}"
+    volumes:
+      - ./services/lkms105-issues:/app
+    networks:
+      - backend
+      - database
+    restart: unless-stopped
 
 # ================================================================
 # USAGE

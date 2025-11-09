@@ -1,0 +1,14 @@
+{
+  "serviceCode": "105",
+  "serviceName": "Issues Service",
+  "serviceSlug": "issues",
+  "restPort": 4105,
+  "grpcPort": 5105,
+  "dbName": "lkern_issues",
+  "modelName": "Issue",
+  "tableName": "issues",
+  "routePrefix": "issues",
+  "routeSingular": "issue",
+  "serviceDescription": "Issue tracking and management service",
+  "serviceLongDescription": "Comprehensive issue tracking system for managing bugs, feature requests, and tasks. Includes priority levels, status tracking, assignments, comments, and full lifecycle management."
+}

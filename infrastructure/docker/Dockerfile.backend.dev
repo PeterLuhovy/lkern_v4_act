@@ -1,0 +1,42 @@
+# ================================================================
+# L-KERN v4 - Universal Backend Dockerfile (Development)
+# ================================================================
+# Service: Universal (all Python backend microservices)
+# Build Arg: SERVICE_PATH (e.g., "services/lkms101-contacts")
+# Port: Configured via .env per service
+# Hot-reload: Enabled via uvicorn --reload
+# ================================================================
+
+FROM python:3.11-slim
+
+# Build argument for service path
+# Example: docker build --build-arg SERVICE_PATH=services/lkms101-contacts
+ARG SERVICE_PATH
+ENV SERVICE_PATH=${SERVICE_PATH}
+
+# Install system dependencies
+# - gcc, g++: Required for compiling Python packages (psycopg2, grpcio)
+# - postgresql-client: For database debugging and migrations
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy service-specific requirements and install dependencies
+COPY ${SERVICE_PATH}/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy service code
+# Source code mounted via docker-compose volumes for hot-reload
+COPY ${SERVICE_PATH}/ .
+
+# Default port (overridden by docker-compose.yml environment)
+ENV REST_PORT=8000
+
+# Start FastAPI server with hot-reload
+# Port configured via environment variable from docker-compose.yml
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${REST_PORT} --reload

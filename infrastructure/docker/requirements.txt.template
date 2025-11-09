@@ -1,0 +1,54 @@
+# ================================================================
+# L-KERN v4 - Backend Microservices Requirements Template
+# ================================================================
+# File: infrastructure/docker/requirements.txt.template
+# Version: v1.0.0
+# Created: 2025-11-08
+# Description:
+#   Standard Python dependencies for all backend microservices.
+#   Copy this file to services/{service}/requirements.txt when
+#   creating new microservices.
+# ================================================================
+
+# ----------------------------------------------------------------
+# Core Web Framework
+# ----------------------------------------------------------------
+fastapi==0.104.1          # Modern async web framework
+uvicorn[standard]==0.24.0 # ASGI server with WebSocket support
+
+# ----------------------------------------------------------------
+# Database (PostgreSQL + ORM + Migrations)
+# ----------------------------------------------------------------
+sqlalchemy==2.0.23        # SQL toolkit and ORM
+alembic==1.12.1           # Database migration tool
+psycopg2-binary==2.9.9    # PostgreSQL adapter for Python
+
+# ----------------------------------------------------------------
+# gRPC (Inter-service Communication)
+# ----------------------------------------------------------------
+grpcio==1.59.3            # gRPC runtime
+grpcio-tools==1.59.3      # Proto compilation tools
+protobuf==4.25.0          # Protocol Buffers
+
+# ----------------------------------------------------------------
+# Apache Kafka (Event-driven Architecture)
+# ----------------------------------------------------------------
+kafka-python==2.0.2       # Kafka client for Python
+
+# ----------------------------------------------------------------
+# Validation and Serialization
+# ----------------------------------------------------------------
+pydantic==2.5.0           # Data validation using type hints
+pydantic-settings==2.1.0  # Settings management
+
+# ----------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------
+pytest==7.4.3             # Testing framework
+pytest-asyncio==0.21.1    # Async test support
+httpx==0.25.1             # HTTP client for testing FastAPI
+
+# ----------------------------------------------------------------
+# Utilities
+# ----------------------------------------------------------------
+python-dotenv==1.0.0      # Load environment variables from .env

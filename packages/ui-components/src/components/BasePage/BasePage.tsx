@@ -21,6 +21,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { Sidebar, SidebarNavItem } from '../Sidebar';
+import { ReportButton } from '../ReportButton';
+import { IssueTypeSelectModal } from '../IssueTypeSelectModal';
+import { CreateIssueModal } from '../CreateIssueModal';
+import type { IssueType, IssueSeverity, IssueCategory, IssuePriority } from '../CreateIssueModal';
 
 /**
  * Props for BasePage component
@@ -75,6 +79,35 @@ export interface BasePageProps {
    * @default false
    */
   sidebarDefaultCollapsed?: boolean;
+
+  /**
+   * Show report button for bug reports
+   * @default true
+   */
+  showReportButton?: boolean;
+
+  /**
+   * Callback when issue is submitted via CreateIssueModal
+   */
+  onReportIssue?: (data: {
+    title: string;
+    description: string;
+    type: IssueType;
+    severity?: IssueSeverity;
+    category?: IssueCategory;
+    priority?: IssuePriority;
+    error_message?: string;
+    error_type?: string;
+    browser?: string;
+    os?: string;
+    url?: string;
+  }) => Promise<void>;
+
+  /**
+   * Report button position
+   * @default 'top-right'
+   */
+  reportButtonPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
 /**
@@ -115,6 +148,9 @@ export const BasePage: React.FC<BasePageProps> = ({
   sidebarItems,
   activePath,
   sidebarDefaultCollapsed = false,
+  showReportButton = true,
+  onReportIssue,
+  reportButtonPosition = 'top-right',
 }) => {
   const { toggleTheme, theme } = useTheme();
   const { language, setLanguage } = useTranslation();
@@ -124,6 +160,87 @@ export const BasePage: React.FC<BasePageProps> = ({
 
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
+
+  // IssueTypeSelectModal state
+  const [isTypeSelectOpen, setIsTypeSelectOpen] = useState(false);
+
+  // CreateIssueModal state
+  const [isCreateIssueModalOpen, setIsCreateIssueModalOpen] = useState(false);
+  const [browserContext, setBrowserContext] = useState<{
+    browser?: string;
+    os?: string;
+    url?: string;
+    description?: string;
+    type?: IssueType;
+  }>({});
+
+  // Handle ReportButton click - open type selection modal
+  const handleReportButtonClick = () => {
+    setIsTypeSelectOpen(true);
+  };
+
+  // Handle issue type selection - collect browser context and open create modal
+  const handleTypeSelect = (type: IssueType) => {
+    // Close type select modal
+    setIsTypeSelectOpen(false);
+
+    // Collect browser information
+    const userAgent = navigator.userAgent;
+    const url = window.location.href;
+
+    // Parse browser name and version from userAgent
+    let browserInfo = 'Unknown';
+    if (userAgent.includes('Chrome')) {
+      const match = userAgent.match(/Chrome\/(\d+)/);
+      browserInfo = match ? `Chrome ${match[1]}` : 'Chrome';
+    } else if (userAgent.includes('Firefox')) {
+      const match = userAgent.match(/Firefox\/(\d+)/);
+      browserInfo = match ? `Firefox ${match[1]}` : 'Firefox';
+    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+      const match = userAgent.match(/Version\/(\d+)/);
+      browserInfo = match ? `Safari ${match[1]}` : 'Safari';
+    } else if (userAgent.includes('Edge')) {
+      const match = userAgent.match(/Edge\/(\d+)/);
+      browserInfo = match ? `Edge ${match[1]}` : 'Edge';
+    }
+
+    // Parse OS from userAgent
+    let osInfo = 'Unknown';
+    if (userAgent.includes('Windows NT 10.0')) osInfo = 'Windows 10/11';
+    else if (userAgent.includes('Windows NT 6.3')) osInfo = 'Windows 8.1';
+    else if (userAgent.includes('Windows NT 6.2')) osInfo = 'Windows 8';
+    else if (userAgent.includes('Windows NT 6.1')) osInfo = 'Windows 7';
+    else if (userAgent.includes('Mac OS X')) {
+      const match = userAgent.match(/Mac OS X (\d+[._]\d+)/);
+      osInfo = match ? `macOS ${match[1].replace('_', '.')}` : 'macOS';
+    } else if (userAgent.includes('Linux')) osInfo = 'Linux';
+
+    // Build description with context
+    const timestamp = new Date().toLocaleString();
+    const viewport = `${window.innerWidth}x${window.innerHeight}`;
+    const screen = `${window.screen.width}x${window.screen.height}`;
+
+    const contextDescription = `**Browser Context:**
+- URL: ${url}
+- Browser: ${browserInfo}
+- OS: ${osInfo}
+- Viewport: ${viewport}
+- Screen: ${screen}
+- Timestamp: ${timestamp}
+
+**Issue Description:**
+`;
+
+    setBrowserContext({
+      browser: browserInfo,
+      os: osInfo,
+      url: url,
+      description: contextDescription,
+      type, // Add selected type to initial data
+    });
+
+    setIsCreateIssueModalOpen(true);
+  };
 
   // Load sidebar width from localStorage for dynamic padding
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -203,6 +320,7 @@ export const BasePage: React.FC<BasePageProps> = ({
         },
         { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)
         { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦', onClick: () => navigate('/orders') },
+        { path: '/issues', labelKey: 'components.sidebar.issues', icon: '🐛', onClick: () => navigate('/issues') },
         { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' }, // Not yet implemented (no onClick = disabled)
       ],
     },
@@ -390,6 +508,44 @@ export const BasePage: React.FC<BasePageProps> = ({
             contextType="page"
           />
         </div>
+      )}
+
+      {/* Report Button (floating bug report) */}
+      {showReportButton && (
+        <ReportButton
+          position={reportButtonPosition}
+          onClick={handleReportButtonClick}
+        />
+      )}
+
+      {/* IssueTypeSelectModal - opened by ReportButton */}
+      {showReportButton && (
+        <IssueTypeSelectModal
+          isOpen={isTypeSelectOpen}
+          onClose={() => setIsTypeSelectOpen(false)}
+          onSelectType={handleTypeSelect}
+          modalId="basepage-issue-type-select-modal"
+        />
+      )}
+
+      {/* CreateIssueModal - opened after type selection */}
+      {showReportButton && (
+        <CreateIssueModal
+          isOpen={isCreateIssueModalOpen}
+          onClose={() => setIsCreateIssueModalOpen(false)}
+          modalId="basepage-report-issue-modal"
+          initialData={browserContext}
+          showRoleTabs={true}
+          onSubmit={async (data) => {
+            if (onReportIssue) {
+              await onReportIssue(data);
+            } else {
+              // Default: log to console
+              console.log('[Issue Report]', data);
+            }
+            setIsCreateIssueModalOpen(false);
+          }}
+        />
       )}
 
       {/* Page content - add padding-top if debug bar is visible, padding-left for sidebar */}

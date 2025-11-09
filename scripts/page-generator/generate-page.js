@@ -3,17 +3,17 @@
 /*
  * ================================================================
  * FILE: generate-page.js
- * PATH: /scripts/generate-page.js
+ * PATH: /scripts/page-generator/generate-page.js
  * DESCRIPTION: Generator for DataGrid pages from template
- * VERSION: v1.0.0
+ * VERSION: v1.0.1
  * UPDATED: 2025-11-08
  *
  * USAGE:
- * node scripts/generate-page.js config.json
+ * node scripts/page-generator/generate-page.js configs/config.json
  * OR
- * npm run generate:page -- config.json
+ * npm run generate:page -- configs/config.json
  *
- * CONFIG FORMAT: See page-config-example.json
+ * CONFIG FORMAT: See configs/orders-page.json
  * ================================================================
  */
 
@@ -24,12 +24,12 @@ const path = require('path');
 // CONFIGURATION
 // ============================================================
 
-const TEMPLATE_DIR = path.join(__dirname, '..', 'apps', 'web-ui', 'src', 'pages', '_templates', 'TemplatePageDatagrid');
-const PAGES_DIR = path.join(__dirname, '..', 'apps', 'web-ui', 'src', 'pages');
-const TRANSLATIONS_DIR = path.join(__dirname, '..', 'packages', 'config', 'src', 'translations');
+const TEMPLATE_DIR = path.join(__dirname, '..', '..', 'apps', 'web-ui', 'src', 'pages', '_templates', 'TemplatePageDatagrid');
+const PAGES_DIR = path.join(__dirname, '..', '..', 'apps', 'web-ui', 'src', 'pages');
+const TRANSLATIONS_DIR = path.join(__dirname, '..', '..', 'packages', 'config', 'src', 'translations');
 
 // Injection target files
-const APP_TSX_PATH = path.join(__dirname, '..', 'apps', 'web-ui', 'src', 'app', 'App.tsx');
+const APP_TSX_PATH = path.join(__dirname, '..', '..', 'apps', 'web-ui', 'src', 'app', 'App.tsx');
 const SK_TS_PATH = path.join(TRANSLATIONS_DIR, 'sk.ts');
 const EN_TS_PATH = path.join(TRANSLATIONS_DIR, 'en.ts');
 const TYPES_TS_PATH = path.join(TRANSLATIONS_DIR, 'types.ts');

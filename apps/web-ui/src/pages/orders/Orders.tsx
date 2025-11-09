@@ -49,11 +49,11 @@ interface Order {
  * Replace with your entity data or API fetch
  */
 const mockData: Order[] = [
-  { id: 'ORD-001', customer: 'Sample customer 1', status: 'active', priority: 'low', total: 6068, dueDate: '2025-11-08' },
-  { id: 'ORD-002', customer: 'Sample customer 2', status: 'pending', priority: 'medium', total: 5827, dueDate: '2025-11-13' },
-  { id: 'ORD-003', customer: 'Sample customer 3', status: 'completed', priority: 'high', total: 7999, dueDate: '2025-11-18' },
-  { id: 'ORD-004', customer: 'Sample customer 4', status: 'cancelled', priority: 'low', total: 1132, dueDate: '2025-11-23' },
-  { id: 'ORD-005', customer: 'Sample customer 5', status: 'active', priority: 'medium', total: 8263, dueDate: '2025-11-28' }
+  { id: 'ORD-001', customer: 'Sample customer 1', status: 'active', priority: 'low', total: 2188, dueDate: '2025-11-08' },
+  { id: 'ORD-002', customer: 'Sample customer 2', status: 'pending', priority: 'medium', total: 4640, dueDate: '2025-11-13' },
+  { id: 'ORD-003', customer: 'Sample customer 3', status: 'completed', priority: 'high', total: 5405, dueDate: '2025-11-18' },
+  { id: 'ORD-004', customer: 'Sample customer 4', status: 'cancelled', priority: 'low', total: 2281, dueDate: '2025-11-23' },
+  { id: 'ORD-005', customer: 'Sample customer 5', status: 'active', priority: 'medium', total: 10240, dueDate: '2025-11-28' }
 ];
 
 // ============================================================

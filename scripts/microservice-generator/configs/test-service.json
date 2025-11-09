@@ -1,0 +1,14 @@
+{
+  "serviceCode": "999",
+  "serviceName": "Test Service",
+  "serviceSlug": "test",
+  "restPort": 4999,
+  "grpcPort": 5999,
+  "dbName": "lkern_test",
+  "modelName": "TestItem",
+  "tableName": "test_items",
+  "routePrefix": "test-items",
+  "routeSingular": "test-item",
+  "serviceDescription": "Test microservice for generator validation",
+  "serviceLongDescription": "This is a test microservice used to validate the microservice generator script. It demonstrates all features including REST API, gRPC, Kafka events, database migrations, and comprehensive testing."
+}

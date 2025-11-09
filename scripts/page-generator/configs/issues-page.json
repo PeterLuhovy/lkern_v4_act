@@ -1,0 +1,211 @@
+{
+  "entityName": "Issues",
+  "entityNameSingular": "Issue",
+  "path": "/issues",
+  "columns": [
+    {
+      "field": "issue_code",
+      "title": "Issue Code",
+      "type": "string",
+      "width": 150,
+      "sortable": true
+    },
+    {
+      "field": "title",
+      "title": "Title",
+      "type": "string",
+      "width": 300,
+      "sortable": true
+    },
+    {
+      "field": "type",
+      "title": "Type",
+      "type": "status",
+      "width": 120,
+      "sortable": true,
+      "options": ["BUG", "FEATURE", "IMPROVEMENT", "QUESTION"]
+    },
+    {
+      "field": "severity",
+      "title": "Severity",
+      "type": "status",
+      "width": 120,
+      "sortable": true,
+      "options": ["MINOR", "MODERATE", "MAJOR", "BLOCKER"]
+    },
+    {
+      "field": "status",
+      "title": "Status",
+      "type": "status",
+      "width": 130,
+      "sortable": true,
+      "options": ["OPEN", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "CLOSED", "REJECTED"]
+    },
+    {
+      "field": "priority",
+      "title": "Priority",
+      "type": "status",
+      "width": 100,
+      "sortable": true,
+      "options": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    {
+      "field": "created_at",
+      "title": "Created",
+      "type": "string",
+      "width": 120,
+      "sortable": true
+    },
+    {
+      "field": "id",
+      "title": "ID",
+      "type": "string",
+      "hidden": true
+    },
+    {
+      "field": "is_deleted",
+      "title": "Deleted",
+      "type": "boolean",
+      "hidden": true
+    }
+  ],
+  "features": {
+    "search": true,
+    "filters": true,
+    "quickFilters": true,
+    "export": true,
+    "bulkActions": true,
+    "expandable": true,
+    "selection": true
+  },
+  "translations": {
+    "sk": {
+      "title": "Problémy",
+      "subtitle": "Sledovanie a správa projektových problémov",
+      "breadcrumb": "Problémy",
+      "searchPlaceholder": "Hľadať problémy podľa kódu, názvu alebo popisu...",
+      "newItemButton": "+ Nový problém",
+      "newItemClicked": "Vytvorenie nového problému",
+      "showInactiveLabel": "Zobraz vymazané problémy",
+      "deleteConfirm": "Naozaj chcete vymazať problém {name}?",
+      "deleteSuccess": "Problém {name} bol úspešne vymazaný",
+      "detailsTitle": "Detaily problému: {name}",
+      "selectedCount": "Vybrané",
+      "clearSelection": "Zrušiť výber",
+      "bulkExport": "Exportovať {count} problémov",
+      "bulkDeleteConfirm": "Naozaj chcete vymazať {count} problémov?",
+      "bulkDeleteSuccess": "{count} problémov bolo úspešne vymazaných",
+      "columns": {
+        "issue_code": "Kód problému",
+        "title": "Názov",
+        "type": "Typ",
+        "severity": "Závažnosť",
+        "status": "Stav",
+        "priority": "Priorita",
+        "created_at": "Vytvorené"
+      },
+      "details": {
+        "issue_code": "Kód",
+        "title": "Názov",
+        "type": "Typ",
+        "severity": "Závažnosť",
+        "status": "Stav",
+        "priority": "Priorita",
+        "created_at": "Dátum vytvorenia"
+      },
+      "filters": {
+        "typeTitle": "Typ",
+        "typeBug": "Chyba",
+        "typeFeature": "Funkcia",
+        "typeImprovement": "Vylepšenie",
+        "typeQuestion": "Otázka",
+        "severityTitle": "Závažnosť",
+        "severityMinor": "Malá",
+        "severityModerate": "Stredná",
+        "severityMajor": "Veľká",
+        "severityBlocker": "Blokujúca",
+        "statusTitle": "Stav",
+        "statusOpen": "Otvorený",
+        "statusAssigned": "Priradený",
+        "statusInProgress": "V riešení",
+        "statusResolved": "Vyriešený",
+        "statusClosed": "Uzatvorený",
+        "statusRejected": "Odmietnutý",
+        "priorityTitle": "Priorita",
+        "priorityLow": "Nízka",
+        "priorityMedium": "Stredná",
+        "priorityHigh": "Vysoká",
+        "priorityCritical": "Kritická"
+      },
+      "quickFilters": {
+        "blockers": "🚨 Blokujúce",
+        "myIssues": "👤 Moje problémy",
+        "unassigned": "📋 Nepriradené"
+      }
+    },
+    "en": {
+      "title": "Issues",
+      "subtitle": "Track and manage project issues",
+      "breadcrumb": "Issues",
+      "searchPlaceholder": "Search issues by code, title, or description...",
+      "newItemButton": "+ New Issue",
+      "newItemClicked": "Creating new issue",
+      "showInactiveLabel": "Show deleted issues",
+      "deleteConfirm": "Are you sure you want to delete issue {name}?",
+      "deleteSuccess": "Issue {name} has been successfully deleted",
+      "detailsTitle": "Issue Details: {name}",
+      "selectedCount": "Selected",
+      "clearSelection": "Clear selection",
+      "bulkExport": "Export {count} issues",
+      "bulkDeleteConfirm": "Are you sure you want to delete {count} issues?",
+      "bulkDeleteSuccess": "{count} issues have been successfully deleted",
+      "columns": {
+        "issue_code": "Issue Code",
+        "title": "Title",
+        "type": "Type",
+        "severity": "Severity",
+        "status": "Status",
+        "priority": "Priority",
+        "created_at": "Created"
+      },
+      "details": {
+        "issue_code": "Code",
+        "title": "Title",
+        "type": "Type",
+        "severity": "Severity",
+        "status": "Status",
+        "priority": "Priority",
+        "created_at": "Creation Date"
+      },
+      "filters": {
+        "typeTitle": "Type",
+        "typeBug": "Bug",
+        "typeFeature": "Feature",
+        "typeImprovement": "Improvement",
+        "typeQuestion": "Question",
+        "severityTitle": "Severity",
+        "severityMinor": "Minor",
+        "severityModerate": "Moderate",
+        "severityMajor": "Major",
+        "severityBlocker": "Blocker",
+        "statusTitle": "Status",
+        "statusOpen": "Open",
+        "statusAssigned": "Assigned",
+        "statusInProgress": "In Progress",
+        "statusResolved": "Resolved",
+        "statusClosed": "Closed",
+        "statusRejected": "Rejected",
+        "priorityTitle": "Priority",
+        "priorityLow": "Low",
+        "priorityMedium": "Medium",
+        "priorityHigh": "High",
+        "priorityCritical": "Critical"
+      },
+      "quickFilters": {
+        "blockers": "🚨 Blockers",
+        "myIssues": "👤 My Issues",
+        "unassigned": "📋 Unassigned"
+      }
+    }
+  }
+}
