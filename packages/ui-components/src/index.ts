@@ -96,3 +96,12 @@ export type { FilteredDataGridProps, FilterConfig, QuickFilterConfig } from './c
 
 export { Pagination } from './components/Pagination';
 export type { PaginationProps } from './components/Pagination';
+
+export { ReportButton } from './components/ReportButton';
+export type { ReportButtonProps } from './components/ReportButton';
+
+export { CreateIssueModal } from './components/CreateIssueModal';
+export type { UserRole, IssueType, IssueSeverity, IssueCategory, IssuePriority } from './components/CreateIssueModal';
+
+export { IssueTypeSelectModal } from './components/IssueTypeSelectModal';
+export type { IssueTypeSelectModalProps } from './components/IssueTypeSelectModal';

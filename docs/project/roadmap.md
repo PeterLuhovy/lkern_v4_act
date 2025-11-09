@@ -2,22 +2,25 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 7.1.0
+# Version: 7.2.0
 # Created: 2025-10-13
 # Updated: 2025-11-09
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 7.0.0
+# Previous Version: 7.1.0
 #
-# Key Changes from v7.0.0:
-# - ✅ Task 1.70 Contact (MDM) implementation plan created (3413 lines, 25 tables, GDPR architecture)
-# - ✅ Added implementation plan link: docs/temp/contacts-mdm-implementation-plan.md
-# - ✅ Database schema: 25 tables with sequential numbering (1-24 + 2a reference table)
-# - ✅ Kafka events: 6 events with full payloads (created, updated, role_added, role_updated, role_removed, deleted)
-# - ✅ API endpoints: 25 REST + 26 gRPC methods with universal validation and retry logic
-# - ✅ Estimate updated: 25-30h → 40-50h (comprehensive GDPR MDM architecture)
+# Key Changes from v7.1.0:
+# - ✅ Task 1.60.2 Issues Service Frontend - PARTIAL COMPLETION (2025-11-09)
+# - ✅ IssueTypeSelectModal completed (two-step workflow, DRY compliance)
+# - ✅ CreateIssueModal refactored (FormField + Input + Select components)
+# - ✅ Real-time validation (Title: min 3 chars, Description: min 3 chars)
+# - ✅ Type-based screenshot validation (required ONLY for BUG type)
+# - ✅ Browser context auto-population (browser, OS, URL, viewport, timestamp)
+# - ⚠️ WARNING: Frontend 80% complete but missing documentation and tests
+# - ⚠️ Missing: Component docs, 50 unit/integration/CRUD/E2E tests
+# - ⚠️ Many bugs in filtering, sorting, validation logic
 #
 # Key Changes from v6.1.0:
 # - ✅ Task 1.40 Backend Infrastructure COMPLETED (Kafka + Universal Dockerfile + gRPC)
@@ -680,41 +683,57 @@
   - Allowed types: images, PDFs, logs (.log, .txt)
   - Multiple files per issue (max 5)
 
-#### **1.60.2 Frontend**
-- ⏸️ **Issues Page** (`/issues`)
-  - FilteredDataGrid with role-based columns
-  - Show `category` column only for PROGRAMMER role
-  - Filters: type, severity, category (conditional), status
-  - Search by title/description/error_message
-  - Sort by created_at, severity, issue_code
-  - Click → detail view
+#### **1.60.2 Frontend** ⚠️ IN PROGRESS (80% complete, needs tests & docs)
+**Status:** Functional but incomplete - many bugs, missing tests, missing documentation
 
-- ⏸️ **Create Issue Modal (Role-Based)** ← UPDATED
-  - **Variant A - SCANNER (minimal):**
-    - Fields: title, description, type, screenshot (required)
-  - **Variant B - USER (basic):**
-    - Fields: title, description, type, severity, attachments (optional)
-  - **Variant C - PROGRAMMER (full detail):**
-    - Fields: title, description, type, severity, category
-    - Developer fields: error_message, browser, os, url
-    - Auto-fill: browser (detectBrowser()), os (detectOS()), url (window.location.href)
-    - Attachments: multiple files (images, PDFs, logs)
-  - SectionEditModal with dynamic FieldDefinition based on user role
+- 🟡 **Issues Page** (`/issues`) - PARTIAL
+  - ✅ FilteredDataGrid with basic columns
+  - ✅ Filters: type, severity, status
+  - ✅ Search by title/description
+  - ⚠️ Role-based category column NOT implemented
+  - ⚠️ Many bugs in filtering/sorting logic
+  - ⚠️ Click → detail view NOT implemented
 
-- ⏸️ **Issue Detail Modal**
+- 🟢 **IssueTypeSelectModal** ✅ COMPLETED (2025-11-09)
+  - ✅ Two-step workflow (type selection → create form)
+  - ✅ 4 issue types (BUG, FEATURE, IMPROVEMENT, QUESTION)
+  - ✅ FormField + Select components (DRY compliance)
+  - ✅ Translation support (SK/EN)
+
+- 🟡 **CreateIssueModal** ✅ REFACTORED (2025-11-09) - needs tests
+  - ✅ Role tabs (Basic/Standard/Advanced) - temporary until auth
+  - ✅ Refactored to use FormField + Input + Select components
+  - ✅ Real-time validation (Title: min 3 chars, Description: min 3 chars)
+  - ✅ Type-based screenshot validation (required ONLY for BUG)
+  - ✅ Browser context auto-population (browser, OS, URL, viewport, timestamp)
+  - ✅ Conditional fields based on role/type
+  - ⚠️ **Missing:** Component documentation (.md file)
+  - ⚠️ **Missing:** Unit tests (0/20 created)
+  - ⚠️ **Missing:** Integration tests (0/15 created)
+  - ⚠️ **Missing:** CRUD tests (0/10 created)
+  - ⚠️ **Missing:** Playwright E2E tests (0/5 created)
+
+- ⏸️ **Issue Detail Modal** - NOT STARTED
   - Display all fields (role-based visibility)
   - Show attachments gallery (images preview, download links)
   - Show developer fields only if populated
   - Actions: Assign, Resolve, Close
   - Status transitions validation
 
-- ⏸️ **File Upload Component** ← NEW
+- ⏸️ **File Upload Component** - NOT STARTED
   - Drag-and-drop support
   - Multiple file selection (max 5 files)
   - File type validation (images, PDFs, logs)
   - File size validation (max 10MB per file)
   - Upload progress indicator
   - Preview thumbnails for images
+
+**⚠️ Known Issues:**
+- Frontend has many bugs in filtering, sorting, validation
+- No integration with backend API yet (mocked data)
+- No file upload implementation
+- No role-based permissions (using temporary tabs)
+- Missing comprehensive test coverage
 
 #### **1.60.3 Testing**
 - ⏸️ **Backend Tests (pytest):**

@@ -14,6 +14,7 @@ import type { TranslationKeys } from './types';
 // PAGE TRANSLATIONS (Auto-imported from pages/)
 // ============================================================
 import { ordersPageEn } from './pages/orders.en';
+import { issuesPageEn } from './pages/issues.en';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 export const en: TranslationKeys = {
@@ -66,6 +67,8 @@ export const en: TranslationKeys = {
     toggleTheme: 'Toggle Theme',
     toggleLanguage: 'Toggle Language',
     pages: 'Pages',
+    ordersDescription: 'Order management - create, edit and track order status',
+    issuesDescription: 'Track and manage project issues, bugs and feature requests',
     testingDescription: 'Test all UI components - Forms, Badge, Card, EmptyState, Spinner, Utility Functions',
     keyboardShortcuts: 'Keyboard Shortcuts',
     testing: 'Testing',
@@ -79,6 +82,28 @@ export const en: TranslationKeys = {
     title: 'Orders',
     add: 'Add Order',
     edit: 'Edit Order',
+  },
+  issues: {
+    title: 'Issues',
+    form: {
+      title: 'Title',
+      titlePlaceholder: 'Enter a brief description of the issue',
+      titleHint: 'Minimum 5 characters, maximum 200 characters',
+      description: 'Description',
+      descriptionPlaceholder: 'Describe the issue in detail...',
+      descriptionHint: 'Minimum 10 characters. Specify what happened, when, and how to reproduce.',
+      type: 'Type',
+      severity: 'Severity',
+      category: 'Category',
+      priority: 'Priority',
+      errorMessage: 'Error Message',
+      errorType: 'Error Type',
+      browser: 'Browser',
+      os: 'Operating System',
+      url: 'URL',
+      attachments: 'Attachments',
+      submit: 'Report Issue',
+    },
   },
   components: {
     buttons: {
@@ -624,6 +649,7 @@ export const en: TranslationKeys = {
         unsavedChanges: {
           title: 'Unsaved Changes',
           message: 'You have unsaved changes. Do you really want to close without saving?',
+          confirmButton: 'Discard Changes',
         },
       },
       editItemModal: {
@@ -672,6 +698,7 @@ export const en: TranslationKeys = {
       dashboard: 'Dashboard',
       contacts: 'Contacts',
       orders: 'Orders',
+      issues: 'Issues',
       settings: 'Settings',
       uploadNewImage: 'Upload new image',
       dragAndDrop: 'Drag and drop',
@@ -687,6 +714,28 @@ export const en: TranslationKeys = {
       logoAlt: 'Application logo',
       logoPlaceholder: 'LOGO',
       breadcrumbsLabel: 'Breadcrumb navigation',
+    },
+    reportButton: {
+      title: 'Report bug or suggest improvement',
+      buttonLabel: 'Report',
+      modal: {
+        title: 'Report Issue',
+        description: 'This form is for reporting bugs and suggesting system improvements.',
+        typeLabel: 'Issue Type',
+        descriptionLabel: 'Description',
+        placeholder: 'Describe the issue or suggestion...',
+        close: 'Close',
+        cancel: 'Cancel',
+        submit: 'Submit',
+        submitting: 'Submitting...',
+        error: 'Error submitting report. Please try again.',
+      },
+      types: {
+        bug: 'Bug',
+        feature: 'Feature Request',
+        improvement: 'Improvement',
+        question: 'Question',
+      },
     },
   },
   phoneTypes: {
@@ -742,6 +791,7 @@ export const en: TranslationKeys = {
   },
   pages: {
     orders: ordersPageEn,
+    issues: issuesPageEn,
     //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     utilityTest: {
       title: 'Utility Functions Test Page',

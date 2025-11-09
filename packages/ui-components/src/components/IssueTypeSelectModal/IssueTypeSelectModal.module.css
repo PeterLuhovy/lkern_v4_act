@@ -1,0 +1,94 @@
+/*
+ * ================================================================
+ * FILE: IssueTypeSelectModal.module.css
+ * PATH: /packages/ui-components/src/components/IssueTypeSelectModal/IssueTypeSelectModal.module.css
+ * DESCRIPTION: Styles for IssueTypeSelectModal component
+ * VERSION: v1.0.0
+ * CREATED: 2025-11-09
+ * UPDATED: 2025-11-09
+ * ================================================================
+ */
+
+/* ============================================================
+   TYPE GRID - 2x2 layout for 4 issue types
+   ============================================================ */
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) 0;
+}
+
+/* ============================================================
+   TYPE BUTTON
+   ============================================================ */
+
+.typeButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: var(--theme-input-background);
+  border: 2px solid var(--theme-input-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-hover) var(--timing-ease-out);
+  min-height: 120px;
+}
+
+.typeButton:hover {
+  background: var(--theme-hover-background);
+  border-color: var(--color-brand-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.typeButton:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.typeButton:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus-default);
+}
+
+/* ============================================================
+   TYPE ICON & LABEL
+   ============================================================ */
+
+.typeIcon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.typeLabel {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-text);
+  text-align: center;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .typeGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .typeButton {
+    min-height: 80px;
+    padding: var(--spacing-md);
+  }
+
+  .typeIcon {
+    font-size: 32px;
+  }
+}

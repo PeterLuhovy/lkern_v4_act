@@ -14,6 +14,7 @@ import type { TranslationKeys } from './types';
 // PAGE TRANSLATIONS (Auto-imported from pages/)
 // ============================================================
 import { ordersPageSk } from './pages/orders';
+import { issuesPageSk } from './pages/issues';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 export const sk: TranslationKeys = {
@@ -66,6 +67,8 @@ export const sk: TranslationKeys = {
     toggleTheme: 'Prepnúť tému',
     toggleLanguage: 'Prepnúť jazyk',
     pages: 'Stránky',
+    ordersDescription: 'Správa objednávok - vytváranie, upravovanie a sledovanie stavu objednávok',
+    issuesDescription: 'Sledovanie a správa projektových problémov, chýb a požiadaviek',
     testingDescription: 'Testovanie všetkých UI komponentov - Formuláre, Badge, Card, EmptyState, Spinner, Utility funkcie',
     keyboardShortcuts: 'Klávesové skratky',
     testing: 'Testovanie',
@@ -79,6 +82,28 @@ export const sk: TranslationKeys = {
     title: 'Objednávky',
     add: 'Pridať objednávku',
     edit: 'Upraviť objednávku',
+  },
+  issues: {
+    title: 'Problémy',
+    form: {
+      title: 'Názov',
+      titlePlaceholder: 'Zadajte krátky popis problému',
+      titleHint: 'Minimálne 5 znakov, maximálne 200 znakov',
+      description: 'Popis',
+      descriptionPlaceholder: 'Podrobne popíšte problém...',
+      descriptionHint: 'Minimálne 10 znakov. Uveďte čo sa stalo, kedy a ako to reprodukovať.',
+      type: 'Typ',
+      severity: 'Závažnosť',
+      category: 'Kategória',
+      priority: 'Priorita',
+      errorMessage: 'Chybová hláška',
+      errorType: 'Typ chyby',
+      browser: 'Prehliadač',
+      os: 'Operačný systém',
+      url: 'URL adresa',
+      attachments: 'Prílohy',
+      submit: 'Nahlásiť problém',
+    },
   },
   components: {
     buttons: {
@@ -624,6 +649,7 @@ export const sk: TranslationKeys = {
         unsavedChanges: {
           title: 'Neuložené zmeny',
           message: 'Máte neuložené zmeny. Naozaj chcete zatvoriť bez uloženia?',
+          confirmButton: 'Zahodiť zmeny',
         },
       },
       editItemModal: {
@@ -672,6 +698,7 @@ export const sk: TranslationKeys = {
       dashboard: 'Dashboard',
       contacts: 'Kontakty',
       orders: 'Objednávky',
+      issues: 'Problémy',
       settings: 'Nastavenia',
       uploadNewImage: 'Nahrať nový obrázok',
       dragAndDrop: 'Potiahnuť a pustiť',
@@ -687,6 +714,28 @@ export const sk: TranslationKeys = {
       logoAlt: 'Logo aplikácie',
       logoPlaceholder: 'LOGO',
       breadcrumbsLabel: 'Navigačná cesta',
+    },
+    reportButton: {
+      title: 'Nahlásiť chybu alebo navrhnúť vylepšenie',
+      buttonLabel: 'Nahlásiť',
+      modal: {
+        title: 'Nahlásiť problém',
+        description: 'Tento formulár slúži na nahlasovanie chýb a navrhov vylepšení systému.',
+        typeLabel: 'Typ problému',
+        descriptionLabel: 'Popis',
+        placeholder: 'Popíšte problém alebo návrh...',
+        close: 'Zavrieť',
+        cancel: 'Zrušiť',
+        submit: 'Odoslať',
+        submitting: 'Odosielam...',
+        error: 'Chyba pri odosielaní reportu. Skúste znova.',
+      },
+      types: {
+        bug: 'Chyba',
+        feature: 'Požiadavka na funkciu',
+        improvement: 'Vylepšenie',
+        question: 'Otázka',
+      },
     },
   },
   phoneTypes: {
@@ -742,6 +791,7 @@ export const sk: TranslationKeys = {
   },
   pages: {
     orders: ordersPageSk,
+    issues: issuesPageSk,
     //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     utilityTest: {
       title: 'Testovacia stránka - Utility funkcie',

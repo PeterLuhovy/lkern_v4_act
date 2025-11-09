@@ -12,6 +12,7 @@
 // PAGE TRANSLATION TYPES (Auto-imported)
 // ============================================================
 import type { OrdersPageTranslations } from './types/orders.types';
+import type { IssuesPageTranslations } from './types/issues.types';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 /**
@@ -92,6 +93,8 @@ export interface TranslationKeys {
     toggleLanguage: string;
     pages: string;
     testingDescription: string;
+    ordersDescription: string;
+    issuesDescription: string;
     keyboardShortcuts: string;
     testing: string;
   };
@@ -104,6 +107,28 @@ export interface TranslationKeys {
     title: string;
     add: string;
     edit: string;
+  };
+  issues: {
+    title: string;
+    form: {
+      title: string;
+      titlePlaceholder: string;
+      titleHint: string;
+      description: string;
+      descriptionPlaceholder: string;
+      descriptionHint: string;
+      type: string;
+      severity: string;
+      category: string;
+      priority: string;
+      errorMessage: string;
+      errorType: string;
+      browser: string;
+      os: string;
+      url: string;
+      attachments: string;
+      submit: string;
+    };
   };
   components: {
     buttons: {
@@ -649,6 +674,7 @@ export interface TranslationKeys {
         unsavedChanges: {
           title: string;
           message: string;
+          confirmButton: string;
         };
       };
       editItemModal: {
@@ -697,6 +723,7 @@ export interface TranslationKeys {
       dashboard: string;
       contacts: string;
       orders: string;
+      issues: string;
       settings: string;
       uploadNewImage: string;
       dragAndDrop: string;
@@ -707,6 +734,28 @@ export interface TranslationKeys {
       changeLanguage: string;
       resizeWidth: string;
       newAction: string;
+    };
+    reportButton: {
+      title: string;
+      buttonLabel: string;
+      modal: {
+        title: string;
+        description: string;
+        typeLabel: string;
+        descriptionLabel: string;
+        placeholder: string;
+        close: string;
+        cancel: string;
+        submit: string;
+        submitting: string;
+        error: string;
+      };
+      types: {
+        bug: string;
+        feature: string;
+        improvement: string;
+        question: string;
+      };
     };
     pageHeader: {
       logoAlt: string;
@@ -767,6 +816,7 @@ export interface TranslationKeys {
   };
   pages: {
     orders: OrdersPageTranslations;
+    issues: IssuesPageTranslations;
     //--GENERATE-PAGE-PLACEHOLDER-TYPES--
     utilityTest: {
       title: string;

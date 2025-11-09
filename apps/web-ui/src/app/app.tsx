@@ -13,6 +13,7 @@ import { Route, Routes } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { ToastContainer } from '@l-kern/ui-components';
 import { Orders } from '../pages/Orders';
+import { Issues, IssueDetail } from '../pages/Issues';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 // Test-only pages (development) - ALL testing pages in __tests__/pages/
@@ -38,6 +39,8 @@ export function App() {
         {/* Production routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/issues" element={<Issues />} />
+        <Route path="/issues/:issueId" element={<IssueDetail />} />
         {/*--GENERATE-PAGE-PLACEHOLDER-ROUTE--*/}
 
         {/* Testing routes */}
