@@ -2,14 +2,29 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 5.4.0
+# Version: 7.1.0
 # Created: 2025-10-13
-# Updated: 2025-11-08
+# Updated: 2025-11-09
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: v4.4.2 (archived to docs/temp/roadmap-v4.4.2-obsolete.md)
+# Previous Version: 7.0.0
+#
+# Key Changes from v7.0.0:
+# - ✅ Task 1.70 Contact (MDM) implementation plan created (3413 lines, 25 tables, GDPR architecture)
+# - ✅ Added implementation plan link: docs/temp/contacts-mdm-implementation-plan.md
+# - ✅ Database schema: 25 tables with sequential numbering (1-24 + 2a reference table)
+# - ✅ Kafka events: 6 events with full payloads (created, updated, role_added, role_updated, role_removed, deleted)
+# - ✅ API endpoints: 25 REST + 26 gRPC methods with universal validation and retry logic
+# - ✅ Estimate updated: 25-30h → 40-50h (comprehensive GDPR MDM architecture)
+#
+# Key Changes from v6.1.0:
+# - ✅ Task 1.40 Backend Infrastructure COMPLETED (Kafka + Universal Dockerfile + gRPC)
+# - ✅ Task 1.50 Microservice Template COMPLETED (25+ files + generator script)
+# - ✅ Progress: 5/23 tasks complete (22%, up from 13%)
+# - ✅ Backend microservices foundation ready for rapid service generation
+# - ⏸️ Task 1.60 Issues Service skeleton generated (needs customization for role-based UI + file uploads)
 #
 # Key Changes from v4.4.2:
 # - ✅ Numbering changed from 1.1, 1.2, 1.3... to 1.10, 1.20, 1.30... (increments of 10)
@@ -72,7 +87,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 3/23 tasks (~13%)
+**Progress:** 5/23 complete (~22%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -372,204 +387,551 @@
 
 ---
 
-### **1.40 Backend Infrastructure** ⏸️ PLANNED
+### **1.40 Backend Infrastructure + Kafka** ✅ COMPLETED (2025-11-08)
+**Started:** 2025-11-08
+**Completed:** 2025-11-08
+**Duration:** 1 day
 **Dependencies:** 1.30 complete
-**Estimated:** 12-16h (3-4 days)
-**Target:** 2025-11-13 - 2025-11-17
+**Estimated:** 20h (9 phases)
+**Actual:** ~15h
+**Architecture:** OPTION 2 (DB per service - 2 containers per microservice)
 
-#### **1.40.1 PostgreSQL Setup**
-- ⏸️ PostgreSQL 15 (port 4501)
-- ⏸️ Database per service strategy
+**Implementation:** 9-phase plan completed (infrastructure → template → generator → testing)
 
-#### **1.40.2 Alembic Migrations**
-- ⏸️ Install + configure
+#### **PHASE 1: Universal Dockerfile** ✅ COMPLETED (2h)
+- ✅ Created `infrastructure/docker/Dockerfile.backend.dev`
+  - Single Dockerfile for ALL Python backend services (DRY principle)
+  - SERVICE_PATH build arg for service-specific paths
+  - Python 3.11-slim base, PostgreSQL client, pip caching
+- ✅ Created `infrastructure/docker/requirements.txt.template`
+  - FastAPI 0.104.1, Uvicorn 0.24.0
+  - SQLAlchemy 2.0.23, Alembic 1.12.1, psycopg2-binary 2.9.9
+  - gRPC 1.59.3, Kafka-python 2.0.2
+  - Pydantic 2.5.0, pytest 7.4.3
+- ✅ Tested build successfully with test service
+- ✅ Cleaned up test files
 
-#### **1.40.3 gRPC Infrastructure**
-- ⏸️ grpcio + proto compilation
+#### **PHASE 2: Kafka + Zookeeper Infrastructure** ✅ COMPLETED (1.5h)
+- ✅ Added lkms503-zookeeper (port 2181 - exception to 4XXX pattern)
+  - Volumes: zookeeper_data, zookeeper_logs
+  - Health check: nc -z localhost 2181
+  - Image: confluentinc/cp-zookeeper:7.5.0
+- ✅ Added lkms504-kafka (port 4503)
+  - Depends on zookeeper (health check dependency)
+  - Volume: kafka_data
+  - Image: confluentinc/cp-kafka:7.5.0
+  - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://lkms504-kafka:9092,PLAINTEXT_HOST://localhost:4503
+- ✅ Updated .env with full Kafka/Zookeeper configuration (58 lines)
+- ✅ Started services (docker-compose up -d)
 
-#### **1.40.4 Apache Kafka**
-- ⏸️ Kafka + Zookeeper (port 9092)
-- ⏸️ Topic setup
+#### **PHASE 3: Adminer Database UI** ✅ COMPLETED (0.5h)
+- ✅ Enabled lkms901-adminer (port 4901)
+- ✅ Updated .env (LKMS901_ENABLED=true)
+- ✅ Database management interface for all microservices
 
-#### **1.40.5 Adminer UI**
-- ⏸️ Add to docker-compose (port 4901)
+#### **PHASE 4: gRPC Infrastructure** ✅ COMPLETED (1h)
+- ✅ Created proto directory structure:
+  - `proto/common/` - Shared proto files
+  - `proto/services/` - Service-specific proto files
+- ✅ Created `proto/common/health.proto`
+  - Standard health check service (Check + Watch)
+  - HealthCheckRequest/Response with ServingStatus enum
+- ✅ Created `scripts/compile-proto.sh` (Linux)
+- ✅ Created `scripts/compile-proto.cmd` (Windows)
+  - Proto compilation to Python gRPC code
+  - Recursive search for all .proto files
+  - Output to generated/ directory
+
+#### **PHASE 5: Documentation Updates** ✅ COMPLETED (0.5h)
+- ✅ Updated `docs/architecture/port-mapping.md` to v2.0.0
+  - Added lkms503-zookeeper (port 2181)
+  - Added lkms504-kafka (port 4503)
+  - Added gRPC port convention (5XXX range)
+  - Added elasticsearch (lkms505 - planned)
+  - Updated changelog
+- ✅ Updated `docs/project/overview.md` to v10.0.0 (this update)
+- ✅ Updated `docs/project/roadmap.md` to v6.0.0 (this file)
+
+#### **PHASE 6: Template Microservice** ✅ COMPLETED (8h)
+- ✅ Completed (25+ files created)
+- See Task 1.50 for details
+
+#### **PHASE 7: Generator Script** ✅ COMPLETED (4h)
+- ✅ Created `scripts/microservice-generator/generate-microservice.js`
+- ✅ JSON config system (11-variable placeholder system)
+- ✅ Placeholder replacement engine
+- ✅ docker-compose.yml injection
+- ✅ .env injection
+- ✅ 3 example configs (test, issues, contacts)
+- ✅ Comprehensive documentation (15KB README)
+- 🔧 **Bugfix:** Fixed alembic/env.py sys.path import issue
+
+#### **PHASE 8: Testing & Validation** ✅ COMPLETED (1h)
+- ✅ Generated test service (lkms999-test)
+- ✅ Generated Issues Service (lkms105-issues - Task 1.60)
+- ✅ Tested REST API endpoints (GET, POST, GET/{id})
+- ✅ Tested health check endpoint
+- ✅ Tested database migrations (alembic upgrade head)
+- ✅ Tested Docker deployment (2 containers per service)
+- 🔧 **Bugfix:** Fixed Dockerfile PORT → REST_PORT environment variable
+
+#### **PHASE 9: Documentation + Commit** ✅ COMPLETED (0.5h)
+- ✅ Updated overview.md to v11.0.0
+- ✅ Updated roadmap.md to v7.0.0
+- ✅ Ready for git commit
 
 ---
 
-### **1.50 Microservice Template** ⏸️ PLANNED
-**Dependencies:** 1.40 complete
-**Estimated:** 8-12h (2-3 days)
-**Target:** 2025-11-18 - 2025-11-20
+### **1.50 Microservice Template** ✅ COMPLETED (2025-11-08)
+**Started:** 2025-11-08
+**Completed:** 2025-11-08
+**Duration:** 1 day
+**Dependencies:** 1.40 (PHASES 1-5 complete)
+**Estimated:** 12h (2 phases: template + generator)
+**Actual:** ~12h
+**Architecture:** Part of 1.40 PHASE 6-7
 
-**Goal:** Reusable template for all microservices - copy, rename, configure, run.
+**Goal:** Complete microservice template with 11-variable placeholder system → Generator script → 30-second service creation
 
-**Template Location:** `services/template/`
+**Template Location:** `services/lkms-template/`
 
-#### **1.50.1 Backend Template Structure**
-- ⏸️ **FastAPI Service Boilerplate**
-  - `main.py` - FastAPI app entry point
-  - `models.py` - SQLAlchemy models template
-  - `schemas.py` - Pydantic schemas template
-  - `crud.py` - CRUD operations template
-  - `api/v1/endpoints/` - REST API endpoints template
-  - `grpc/` - gRPC server template
-  - `kafka/` - Kafka producer/consumer template
-- ⏸️ **Database Setup**
-  - `alembic/` - Migration templates
-  - `database.py` - PostgreSQL connection
-  - `.env.template` - Environment variables template
-- ⏸️ **Docker Configuration**
-  - `Dockerfile` - Python 3.11 + FastAPI
-  - `docker-compose.service.yml` - Service-specific compose
-  - `requirements.txt` - Python dependencies
-- ⏸️ **Testing Templates**
-  - `tests/test_api.py` - REST API test template
-  - `tests/test_grpc.py` - gRPC test template
-  - `tests/test_crud.py` - Database test template
-  - `pytest.ini` - pytest configuration
-- ⏸️ **Documentation**
-  - `README.md` - Setup instructions, port mapping, API docs
-  - `TEMPLATE_INSTRUCTIONS.md` - How to use this template
+#### **Template Structure** ✅ COMPLETED (25+ files created)
 
-#### **1.50.2 Copy-Rename-Configure Workflow**
-- ⏸️ **Setup Script:** `scripts/create_microservice.sh`
-  - Input: Service name (e.g., "Issues")
-  - Input: Port numbers (REST, gRPC)
-  - Input: Database name
-  - Actions:
-    1. Copy `services/template/` to `services/lkms{XXX}-{name}/`
-    2. Replace placeholders: `{{SERVICE_NAME}}`, `{{PORT_REST}}`, `{{PORT_GRPC}}`, `{{DB_NAME}}`
-    3. Generate `.env` from `.env.template`
-    4. Update `docker-compose.yml` with new service
-    5. Create database in PostgreSQL
-    6. Run Alembic migrations
-    7. Print: "Service ready! Run: docker-compose up lkms{XXX}-{name}"
+**Core Application Files:**
+- ✅ `app/__init__.py` - Package initialization
+- ✅ `app/main.py` - FastAPI application entry point
+  - CORS middleware, health endpoint, startup/shutdown events
+  - Router inclusion, database initialization
+- ✅ `app/config.py` - Pydantic Settings
+  - 11 placeholders: SERVICE_NAME, SERVICE_CODE, REST_PORT, GRPC_PORT, DB_NAME, etc.
+  - DATABASE_URL property, Kafka config, CORS settings
+- ✅ `app/database.py` - SQLAlchemy setup
+  - Engine, SessionLocal, Base, get_db() dependency
 
-#### **1.50.3 Template Features**
-- ⏸️ **REST API:** Health check, CRUD endpoints
-- ⏸️ **gRPC API:** Service definition, server implementation
-- ⏸️ **Kafka:** Producer (emit events), Consumer (listen to events)
-- ⏸️ **Database:** SQLAlchemy models, Alembic migrations
-- ⏸️ **Logging:** Structured logging (JSON format)
-- ⏸️ **Error Handling:** Standardized error responses
-- ⏸️ **Validation:** Pydantic schemas for request/response
-- ⏸️ **Testing:** Unit tests, integration tests, fixtures
+**Models & Schemas:**
+- ✅ `app/models/__init__.py` - Model exports
+- ✅ `app/models/example.py` - SQLAlchemy model template
+  - {{MODEL_NAME}}, {{TABLE_NAME}} placeholders
+  - Standard fields: id, name, description, is_active, timestamps
+- ✅ `app/schemas/__init__.py` - Schema exports
+- ✅ `app/schemas/example.py` - Pydantic schemas
+  - Base, Create, Update, Response schemas
 
-**Success Criteria:**
-- ✅ Template tested with dummy service (lkms999-test)
-- ✅ Copy script works end-to-end (< 5 minutes)
-- ✅ Generated service runs without modifications
-- ✅ All tests passing in generated service
+**REST API:**
+- ✅ `app/api/__init__.py` - API package init
+- ✅ `app/api/rest/__init__.py` - REST routes init
+- ✅ `app/api/rest/example.py` - Complete CRUD REST API (120 lines)
+  - List (GET /), Create (POST /), Get by ID (GET /{id})
+  - Update (PUT /{id}), Delete (DELETE /{id})
+  - Kafka event publishing (created, updated, deleted)
+  - {{ROUTE_PREFIX}}, {{ROUTE_SINGULAR}} placeholders
 
-**Time Saved:**
-- Without template: 6-8h per microservice (setup + boilerplate)
-- With template: 15-30 minutes (copy + rename + configure)
-- ROI: 10-15x time savings for 14 microservices
+**gRPC API:**
+- ✅ `app/api/grpc/__init__.py` - gRPC package init
+- ✅ `app/api/grpc/example_service.py` - gRPC service stubs
+  - HealthService (health check implementation)
+  - {{MODEL_NAME}}Service (service-specific RPC stubs)
+
+**Kafka Events:**
+- ✅ `app/events/__init__.py` - Events package init
+- ✅ `app/events/producer.py` - Kafka producer
+  - Singleton pattern, async publish_event() function
+  - JSON serialization, topic prefixing
+- ✅ `app/events/consumer.py` - Kafka consumer
+  - EventConsumer class, handler registration
+  - Async message processing
+
+**Database Migrations:**
+- ✅ `alembic.ini` - Alembic configuration
+- ✅ `alembic/env.py` - Migration environment
+  - Imports Base metadata, sets DATABASE_URL
+  - Online/offline migration support
+- ✅ `alembic/script.py.mako` - Migration template
+- ✅ `alembic/README` - Migration usage guide
+
+**Testing:**
+- ✅ `tests/__init__.py` - Tests package init
+- ✅ `tests/test_api.py` - Comprehensive test suite (13 tests, 140 lines)
+  - Create, list, get by ID, update, delete tests
+  - Validation tests (404, 422 errors)
+  - In-memory SQLite for testing
+
+**Configuration & Documentation:**
+- ✅ `requirements.txt` - Python dependencies (39 lines)
+  - FastAPI, SQLAlchemy, Alembic, gRPC, Kafka, pytest
+- ✅ `.env.template` - Environment variables (35 lines)
+  - Service info, ports, database, Kafka, CORS config
+- ✅ `README.md` - Comprehensive documentation (200+ lines)
+  - Quick start, API endpoints, Kafka events
+  - Database schema, testing guide, configuration
+
+**Placeholder System (11 variables):**
+- Service identifiers: {{SERVICE_NAME}}, {{SERVICE_CODE}}, {{SERVICE_SLUG}}
+- Ports: {{REST_PORT}}, {{GRPC_PORT}}
+- Database: {{DB_NAME}}
+- Models: {{MODEL_NAME}}, {{TABLE_NAME}}
+- Routes: {{ROUTE_PREFIX}}, {{ROUTE_SINGULAR}}
+- Descriptions: {{SERVICE_DESCRIPTION}}, {{SERVICE_LONG_DESCRIPTION}}
+
+#### **Generator Script** ✅ COMPLETED (PHASE 7)
+- ✅ Created `scripts/microservice-generator/generate-microservice.js` (v1.0.1)
+- ✅ JSON config system (11 variables: service name, code, slug, ports, db, model, routes, descriptions)
+- ✅ Copy lkms-template → lkms{code}-{slug}
+- ✅ Replace all 11 placeholders in all files
+- ✅ Inject services into docker-compose.yml (2 containers: app + db)
+- ✅ Inject service config into .env
+- ✅ Created example configs:
+  - `scripts/microservice-generator/configs/test-service.json`
+  - `scripts/microservice-generator/configs/issues-service.json` (Task 1.60)
+  - `scripts/microservice-generator/configs/contacts-service.json` (Task 1.70)
+- ✅ Created comprehensive documentation:
+  - `scripts/README.md` (master index for all scripts)
+  - `scripts/microservice-generator/README.md` (15KB detailed guide)
+  - `scripts/page-generator/README.md` (page generator docs)
+  - `scripts/proto-compiler/README.md` (gRPC proto compilation)
+- 🔧 **Bugfixes:**
+  - Fixed docker-compose injection (before # USAGE instead of # VOLUMES)
+  - Fixed alembic/env.py sys.path import issue (added to template)
+  - Removed `frontend` network (not defined in docker-compose.yml)
+
+**Time Savings:**
+- Manual service creation: ~4-6 hours
+- Generator: ~30 seconds + 10 min customization
+- ROI: 10+ services = 40-60 hours saved
 
 ---
 
 ### **1.60 Issues Service** ⏸️ PLANNED
-**Dependencies:** 1.50 complete (uses microservice template)
-**Estimated:** 12-16h (3-4 days)
-**Target:** 2025-11-21 - 2025-11-24
+**Dependencies:** 1.40 (Backend Infrastructure), 1.50 (Microservice Template)
+**Estimated:** 18-23h (4-5 days) ↑ from 12-16h
+**Target:** 2025-11-21 - 2025-11-25
 **Ports:** 4105 (REST), 5105 (gRPC)
-**Database:** lkms105_issues
+**Database:** lkms105_issues (PostgreSQL)
+**Storage:** MinIO bucket: `lkern-issues`
 
-**Internal ticketing system - bug reports, feature requests, improvements**
+📄 **Implementation Plan:** [docs/temp/issues-service-implementation-plan.md](../temp/issues-service-implementation-plan.md)
+
+**Role-Based Ticketing System - Developer-focused issue tracking**
+
+#### Key Features:
+- 🎭 **Role-Based UI** - Dynamic forms based on user role (PROGRAMMER/USER/SCANNER)
+- 🔢 **Human-Readable Codes** - BUG-00042, FEAT-00123, IMPR-00008, QUES-00015
+- 📸 **File Attachments** - Screenshots, logs, PDFs (max 10MB, MinIO storage)
+- 🐛 **Developer Fields** - error_message, browser, os, url (variant C only)
+- 🏷️ **Rich Classification** - type + severity + category (optional)
+- ✅ **No Auto-Actions** - No auto-assign, no auto-close (manual control)
 
 #### **1.60.1 Backend**
 - ⏸️ **Copy from template:** `scripts/create_microservice.sh Issues 4105 5105 lkms105_issues`
 - ⏸️ **Issue Model** (SQLAlchemy):
   - `id` (UUID, primary key)
+  - `issue_number` (Integer, sequential: 1, 2, 3...)
+  - `issue_code` (String 20, unique: BUG-00042, FEAT-00123)
   - `title` (String 200, required)
-  - `description` (Text, optional)
-  - `type` (Enum: bug, feature, improvement, question)
-  - `priority` (Enum: low, medium, high, critical)
-  - `status` (Enum: open, in_progress, resolved, closed, wont_fix)
-  - `reporter_id` (UUID, FK to users)
-  - `assignee_id` (UUID, FK to users, nullable)
-  - `created_at`, `updated_at`, `resolved_at`, `closed_at`
-  - `tags` (Array[String], optional)
-  - `attachments` (JSON, optional)
+  - `description` (Text, required)
+  - **Classification:**
+    - `type` (Enum: BUG, FEATURE, IMPROVEMENT, QUESTION)
+    - `severity` (Enum: MINOR, MODERATE, MAJOR, BLOCKER) ← NEW
+    - `category` (Enum: UI, BACKEND, DATABASE, INTEGRATION, DOCS, PERFORMANCE, SECURITY, nullable) ← NEW
+  - **Status & Priority:**
+    - `status` (Enum: OPEN, ASSIGNED, IN_PROGRESS, RESOLVED, CLOSED, REJECTED)
+    - `priority` (Enum: LOW, MEDIUM, HIGH, CRITICAL)
+  - **Users:**
+    - `reporter_id` (UUID, FK to users)
+    - `assignee_id` (UUID, FK to users, nullable)
+  - **Developer Fields (variant C only):** ← NEW
+    - `error_message` (Text, nullable) - Stack trace, console error
+    - `error_type` (String 100, nullable) - TypeError, ValueError, 500, etc.
+    - `browser` (String 100, nullable) - Chrome 120.0.6099.109, etc.
+    - `os` (String 100, nullable) - Windows 11, macOS 14.2, etc.
+    - `url` (String 500, nullable) - URL where error occurred
+  - **Attachments:** ← NEW
+    - `attachments` (JSON, nullable) - Array of file metadata
+      - `[{filename, url, size, type, uploaded_at, uploaded_by}]`
+  - **Timestamps:**
+    - `created_at`, `updated_at`, `resolved_at`, `closed_at`
+  - **Soft Delete:**
+    - `is_deleted` (Boolean, default=False)
+
 - ⏸️ **REST API Endpoints:**
   - `GET /api/v1/issues` - List issues (with filters)
   - `GET /api/v1/issues/{id}` - Get issue detail
   - `POST /api/v1/issues` - Create issue
   - `PUT /api/v1/issues/{id}` - Update issue
-  - `DELETE /api/v1/issues/{id}` - Delete issue
+  - `DELETE /api/v1/issues/{id}` - Delete issue (soft delete)
   - `POST /api/v1/issues/{id}/assign` - Assign to user
   - `POST /api/v1/issues/{id}/resolve` - Mark as resolved
   - `POST /api/v1/issues/{id}/close` - Close issue
+  - `POST /api/v1/issues/{id}/attachments` - Upload file ← NEW
+  - `DELETE /api/v1/issues/{id}/attachments/{filename}` - Delete file ← NEW
+
 - ⏸️ **gRPC API:** Same operations for inter-service communication
+
 - ⏸️ **Kafka Events:**
-  - `IssueCreated` - New issue reported
-  - `IssueAssigned` - Assigned to user
-  - `IssueStatusChanged` - Status updated
-  - `IssueResolved` - Marked as resolved
-  - `IssueClosed` - Issue closed
-- ⏸️ **Business Logic:**
-  - Auto-assign to admin if priority = critical
-  - Email notification on issue created (to assignee)
-  - Auto-close if resolved for 7+ days
+  - `lkern.issues.created` - New issue reported
+  - `lkern.issues.assigned` - Assigned to user
+  - `lkern.issues.resolved` - Marked as resolved
+  - `lkern.issues.closed` - Issue closed
+
+- ⏸️ **MinIO File Storage:** ← NEW
+  - Bucket: `lkern-issues`
+  - Path: `issues/{issue_id}/{timestamp}_{filename}`
+  - Max file size: 10 MB
+  - Allowed types: images, PDFs, logs (.log, .txt)
+  - Multiple files per issue (max 5)
 
 #### **1.60.2 Frontend**
 - ⏸️ **Issues Page** (`/issues`)
-  - List view with filters (type, priority, status, assignee)
-  - Search by title/description
-  - Sort by created_at, priority
+  - FilteredDataGrid with role-based columns
+  - Show `category` column only for PROGRAMMER role
+  - Filters: type, severity, category (conditional), status
+  - Search by title/description/error_message
+  - Sort by created_at, severity, issue_code
   - Click → detail view
+
+- ⏸️ **Create Issue Modal (Role-Based)** ← UPDATED
+  - **Variant A - SCANNER (minimal):**
+    - Fields: title, description, type, screenshot (required)
+  - **Variant B - USER (basic):**
+    - Fields: title, description, type, severity, attachments (optional)
+  - **Variant C - PROGRAMMER (full detail):**
+    - Fields: title, description, type, severity, category
+    - Developer fields: error_message, browser, os, url
+    - Auto-fill: browser (detectBrowser()), os (detectOS()), url (window.location.href)
+    - Attachments: multiple files (images, PDFs, logs)
+  - SectionEditModal with dynamic FieldDefinition based on user role
+
 - ⏸️ **Issue Detail Modal**
-  - Display all fields
-  - Edit button → EditItemModal
-  - Assign button → dropdown of users
-  - Resolve/Close buttons
-  - Comment section (future Phase 2)
-- ⏸️ **Create Issue Modal**
-  - SectionEditModal with FieldDefinition:
-    - title (text, required)
-    - description (textarea, optional)
-    - type (select: bug/feature/improvement/question)
-    - priority (select: low/medium/high/critical)
-    - tags (text, comma-separated)
+  - Display all fields (role-based visibility)
+  - Show attachments gallery (images preview, download links)
+  - Show developer fields only if populated
+  - Actions: Assign, Resolve, Close
+  - Status transitions validation
+
+- ⏸️ **File Upload Component** ← NEW
+  - Drag-and-drop support
+  - Multiple file selection (max 5 files)
+  - File type validation (images, PDFs, logs)
+  - File size validation (max 10MB per file)
+  - Upload progress indicator
+  - Preview thumbnails for images
 
 #### **1.60.3 Testing**
 - ⏸️ **Backend Tests (pytest):**
-  - 15 unit tests (CRUD operations)
-  - 10 integration tests (REST API endpoints)
+  - 20 unit tests (CRUD operations + file upload)
+  - 15 integration tests (REST API endpoints)
   - 5 gRPC tests (service calls)
   - 5 Kafka tests (event emission)
+  - 5 MinIO tests (file upload/delete)
+  - **Total: 50 backend tests**
+
 - ⏸️ **Frontend Tests (Vitest):**
-  - 10 component tests (Issues page, detail modal, create modal)
-  - 5 integration tests (API calls, state management)
+  - 15 component tests (Issues page, 3 modal variants, file upload)
+  - 5 integration tests (API calls, role-based rendering)
+  - **Total: 20 frontend tests**
 
 **Success Criteria:**
-- ✅ All tests passing (50 tests total)
-- ✅ REST API functional (all endpoints work)
+- ✅ All tests passing (70 tests total)
+- ✅ REST API functional (10 endpoints including file upload)
 - ✅ gRPC API functional (inter-service calls work)
-- ✅ Kafka events emitted correctly
+- ✅ Kafka events emitted correctly (4 events)
+- ✅ MinIO file storage working (upload/download/delete)
+- ✅ Role-based UI working (3 variants: A/B/C)
+- ✅ Issue code generation working (BUG-00042 format)
 - ✅ Frontend connected to backend
+- ✅ File upload end-to-end working
 
 ---
 
 ### **1.70 Contact (MDM) Service** ⏸️ PLANNED
 **Dependencies:** 1.50 complete (uses microservice template)
-**Estimated:** 25-30h (6-7 days)
-**Target:** 2025-11-25 - 2025-12-02
+**Estimated:** 40-50h (10-12 days)
+**Target:** 2025-11-25 - 2025-12-10
 **Ports:** 4101 (REST), 5101 (gRPC)
 **Database:** lkms101_contacts
 
-**Master Data Management - Single Source of Truth**
+**📄 Implementation Plan:** [docs/temp/contacts-mdm-implementation-plan.md](../temp/contacts-mdm-implementation-plan.md) (3413 lines, fully validated)
 
-#### **1.70.1 Backend**
-- ⏸️ Copy from template: `scripts/create_microservice.sh Contact 4101 5101 lkms101_contacts`
-- ⏸️ Contact model (UUID, Name, Address, Tax ID)
-- ⏸️ **NO sensitive data** (NO bank accounts, NO salaries)
-- ⏸️ REST + gRPC APIs
-- ⏸️ Kafka: ContactCreated/Updated/Deleted
+**Master Data Management - Single Source of Truth for Contact Data**
 
-#### **1.70.2 Frontend**
-- ⏸️ Contacts page (with Table)
-- ⏸️ List, detail, add/edit views
+#### Key Features:
+- 🏢 **Party Model Pattern** - Base contacts table with type-specific detail tables (PERSON, COMPANY, ORGANIZATIONAL_UNIT)
+- 🎭 **Multi-Role Support** - One contact can have multiple roles simultaneously (SUPPLIER + CUSTOMER + EMPLOYEE)
+- 📊 **25 Database Tables** - Sequential order (1-24 + 2a reference table for dynamic role types)
+- 📡 **6 Kafka Events** - Full payloads for data synchronization (created, updated, role_added, role_updated, role_removed, deleted)
+- 🔐 **GDPR Least Privilege** - NO sensitive data (NO IBAN, NO salaries, NO rodné čísla)
+- 🌐 **25 REST + 26 gRPC Endpoints** - Universal validation, hybrid architecture, exponential retry logic
+- 🔢 **Dynamic Role Types** - Reference table allows runtime addition of new roles without schema changes
+
+#### GDPR Data Ownership Matrix:
+**Contact (MDM) Stores:**
+- ✅ UUID (contact_id) - Master identifier
+- ✅ Name (Person/Company) - Public data
+- ✅ Work Email/Phone - Business communication
+- ✅ Company Address - Public information (obchodný register)
+- ✅ Personal Address - For employees only (replicated to HR if needed)
+
+**Contact (MDM) Does NOT Store:**
+- ❌ IBAN - Stored in Sales (customer), Purchasing (vendor), HR (employee)
+- ❌ Salaries - Stored in HR microservice only
+- ❌ Rodné čísla - Stored in HR microservice only
+- ❌ Credit Limits - Stored in Sales microservice
+- ❌ Payment Terms - Stored in Sales/Purchasing microservices
+
+#### Database Schema (25 Tables):
+
+**Core Tables (1-6):**
+- Table 1: `contacts` - Base entity (UUID, type, is_deleted, audit fields)
+- Table 2: `contact_roles` - M:N role assignments with validity periods
+- Table 2a: `role_types` - Reference table for dynamic role management (9 pre-populated roles)
+- Table 3: `contact_persons` - Person details (first_name, last_name, title, nationality, birth date)
+- Table 4: `contact_companies` - Company details (legal_form_id, registration_number, tax_number, VAT)
+- Table 5: `contact_organizational_units` - Organizational unit details (division, department, team)
+- Table 6: `organizational_unit_types` - Reference table for unit types
+
+**Reference Tables (7-11):**
+- Table 7: `legal_forms` - Company legal forms (s.r.o., a.s., GmbH, Corp., Inc., etc.)
+- Table 8: `countries` - Countries with ISO codes and phone codes
+- Table 9: `languages` - Languages with ISO codes
+- Table 10: `nationalities` - Nationalities reference
+- Table 11: `business_focus_areas` - Business activities classification
+
+**Address System (12-15):**
+- Table 12: `addresses` - Reusable address pool
+- Table 13: `person_addresses` - M:N junction for person addresses
+- Table 14: `company_addresses` - M:N junction for company addresses
+- Table 15: `organizational_unit_addresses` - M:N junction for org unit addresses
+
+**Communication Tables (16-19):**
+- Table 16: `contact_emails` - Work emails with type ENUM (WORK, BILLING, SUPPORT, GENERAL)
+- Table 17: `contact_phones` - Work phones with type ENUM (MOBILE, FAX, FIXED_LINE)
+- Table 18: `contact_websites` - Websites with type ENUM (MAIN, SHOP, BLOG, SUPPORT, PORTFOLIO)
+- Table 19: `contact_social_networks` - Social network profiles
+
+**Relations & Tags (20-24):**
+- Table 20: `tags` - Tag definitions for classification
+- Table 21: `contact_tags` - M:N junction for contact tagging
+- Table 22: `contact_languages` - M:N junction for spoken languages
+- Table 23: `contact_operating_countries` - M:N junction for countries of operation
+- Table 24: `contact_business_focus_areas` - M:N junction for business activities
+
+#### Kafka Events (6 Events):
+1. **lkern.contacts.created** - New contact created (full contact data + roles + emails + phones + addresses)
+2. **lkern.contacts.updated** - Contact data modified (changed_fields array with old/new values)
+3. **lkern.contacts.role_added** - New role assigned (role_type_id UUID + nested role_type object + contact_summary)
+4. **lkern.contacts.role_updated** - Role assignment modified (changes array with field updates)
+5. **lkern.contacts.role_removed** - Role removed (role_type_id UUID + reason + contact_summary)
+6. **lkern.contacts.deleted** - Contact soft-deleted (GDPR compliance with 30-day purge)
+
+**Subscribers:**
+- Sales microservice (CUSTOMER/CLIENT roles)
+- Purchasing microservice (SUPPLIER/VENDOR/SERVICE_PROVIDER roles)
+- HR microservice (EMPLOYEE/MANAGER roles)
+- PPQ microservice (quality tracking)
+- Operations microservice (job assignments)
+
+#### REST API Endpoints (25 Total):
+
+**Health & Info (2):**
+- GET /health - Health check
+- GET /info - Service information
+
+**Contact Management (5):**
+- POST /api/v1/contacts - Create contact
+- GET /api/v1/contacts/{id} - Get contact by UUID
+- PUT /api/v1/contacts/{id} - Update contact
+- DELETE /api/v1/contacts/{id} - Soft delete
+- GET /api/v1/contacts - List with filtering
+
+**Role Management (4):**
+- POST /api/v1/contacts/{id}/roles - Add role
+- PUT /api/v1/contacts/{id}/roles/{role_id} - Update role
+- DELETE /api/v1/contacts/{id}/roles/{role_id} - Remove role
+- GET /api/v1/contacts/{id}/roles - Get all roles
+
+**Address Management (3):**
+- POST /api/v1/contacts/{id}/addresses - Add address
+- PUT /api/v1/contacts/{id}/addresses/{address_id} - Update address
+- DELETE /api/v1/contacts/{id}/addresses/{address_id} - Remove address
+
+**Communication Management (4 Universal Endpoints):**
+- POST /api/v1/contacts/{id}/communication?type={email|phone|website} - Add communication
+- PUT /api/v1/contacts/{id}/communication/{comm_id}?type={email|phone|website} - Update communication
+- DELETE /api/v1/contacts/{id}/communication/{comm_id}?type={email|phone|website} - Remove communication
+- GET /api/v1/contacts/{id}/communication?type={email|phone|website} - Get all communication
+
+**Relations Management (4 Universal Endpoints):**
+- POST /api/v1/contacts/{id}/relations?type={tag|language|social_network|operating_country|business_focus_area}
+- PUT /api/v1/contacts/{id}/relations/{relation_id}?type={...}
+- DELETE /api/v1/contacts/{id}/relations/{relation_id}?type={...}
+- GET /api/v1/contacts/{id}/relations?type={...}
+
+**Universal Validation (1):**
+- GET /api/v1/contacts/validate?type={email|phone|website|registration_number|tax_number|vat_number}&value=...
+
+**Search & Filter (2):**
+- GET /api/v1/contacts/search?query=... - Full-text search
+- GET /api/v1/contacts/filter?role=...&type=...&tag=... - Advanced filtering
+
+#### gRPC API Methods (26 Total):
+- 10 Contact CRUD operations (Create, Get, Update, Delete, List, Search, Filter, etc.)
+- 4 Role management (AddRole, UpdateRole, RemoveRole, GetRoles)
+- 3 Address management (AddAddress, UpdateAddress, RemoveAddress)
+- 4 Communication management (AddCommunication, UpdateCommunication, RemoveCommunication, GetCommunication)
+- 4 Relations management (AddRelation, UpdateRelation, RemoveRelation, GetRelations)
+- 1 Validation (ValidateUnique)
+
+#### Error Handling & Retry Logic:
+
+**Backend Validation BEFORE INSERT:**
+- Validate all foreign keys (nationality_id, legal_form_id, role_type_id, country_id, language_id, tag_id, related_contact_id)
+- Check for duplicate email (is_deleted = FALSE)
+- Check for duplicate phone (is_deleted = FALSE)
+- Check for duplicate registration_number (is_deleted = FALSE)
+- Prevents database constraint violations with better error messages
+
+**Frontend Exponential Backoff:**
+- Timeline: t=0s (Attempt 1) → t=1s (Attempt 2) → t=3s (Attempt 3) → t=7s (Attempt 4)
+- Max wait: 10s → Show toast error to user
+- Total timeout: 20s → Final timeout with error toast
+- Only retries on 500 Server Errors (not 4xx client errors)
+
+#### **1.70.1 Backend (25-30h)**
+- ⏸️ Generate from template: `node scripts/microservice-generator/generate-microservice.js scripts/microservice-configs/contacts-service.json`
+- ⏸️ Create all 25 database tables with constraints, indexes, triggers
+- ⏸️ Seed reference tables (countries, languages, nationalities, legal_forms, role_types, organizational_unit_types, business_focus_areas)
+- ⏸️ Implement 25 REST endpoints (CRUD + universal communication + universal relations + validation)
+- ⏸️ Implement 26 gRPC methods (full service integration)
+- ⏸️ Implement 6 Kafka events with full payloads (producer logic)
+- ⏸️ Backend validation (10 checks before INSERT)
+- ⏸️ Alembic database migrations
+- ⏸️ 50+ unit tests (API endpoints, validation, Kafka events)
+
+#### **1.70.2 Frontend (15-20h)**
+- ⏸️ Contacts page with FilteredDataGrid
+- ⏸️ Contact detail view (tabbed interface: Basic Info, Roles, Addresses, Communication, Relations)
+- ⏸️ Create/Edit modal with SectionEditModal (dynamic fields based on contact type: PERSON/COMPANY/ORGANIZATIONAL_UNIT)
+- ⏸️ Role management modal (add/edit/remove roles with validity periods)
+- ⏸️ Address management modal (add/edit/remove addresses)
+- ⏸️ Communication management (emails, phones, websites) with type selection
+- ⏸️ Relations management (tags, languages, social networks, countries, business areas)
+- ⏸️ Universal validation integration (real-time duplicate checking)
+- ⏸️ Exponential retry logic for 500 errors (10s toast warning, 20s timeout)
+- ⏸️ 60+ translation keys (SK/EN)
+- ⏸️ 40+ integration tests
+
+#### Success Criteria:
+- ✅ All 25 tables created with correct constraints and indexes
+- ✅ Reference tables seeded with initial data (countries, legal forms, role types, etc.)
+- ✅ All 25 REST endpoints working (CRUD + universal endpoints + validation)
+- ✅ All 26 gRPC methods implemented and tested
+- ✅ All 6 Kafka events publishing with correct payloads
+- ✅ Backend validation prevents FK violations and detects duplicates
+- ✅ Frontend exponential retry logic working (10s toast, 20s timeout)
+- ✅ 90+ tests passing (50+ backend unit tests + 40+ frontend integration tests)
+- ✅ GDPR data ownership matrix respected (NO sensitive data in Contact MDM)
+- ✅ Multi-role support working (one contact can have multiple roles simultaneously)
+- ✅ Dynamic role types working (new roles can be added without schema changes)
 
 ---
 
