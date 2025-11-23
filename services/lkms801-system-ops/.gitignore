@@ -1,0 +1,35 @@
+# ================================================================
+# LKMS801 - Git Ignore Rules
+# ================================================================
+
+# Environment variables (contains secrets!)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Generated gRPC files
+app/system_ops_pb2.py
+app/system_ops_pb2_grpc.py
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

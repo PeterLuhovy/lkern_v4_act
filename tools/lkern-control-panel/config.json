@@ -1,12 +1,12 @@
 {
   "app": {
     "name": "L-KERN Control Panel",
-    "version": "1.6.4",
+    "version": "1.9.1",
     "working_directory": "L:\\system\\lkern_codebase_v4_act"
   },
   "ui": {
-    "window_width": 1200,
-    "window_height": 800,
+    "window_width": 1650,
+    "window_height": 1130,
     "terminal_font": "Consolas",
     "terminal_font_size": 10,
     "auto_scroll_default": true,

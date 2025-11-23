@@ -1,0 +1,25 @@
+# ================================================================
+# LKMS801 - System Operations Service - Python Dependencies
+# ================================================================
+# Version: 1.0.0
+# Updated: 2025-11-23
+# Python: 3.11+
+# ================================================================
+
+# === WEB FRAMEWORK ===
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.20
+
+# === GRPC ===
+grpcio==1.68.1
+grpcio-tools==1.68.1
+protobuf==5.28.3
+
+# === CONFIGURATION ===
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+
+# === UTILITIES ===
+# All file operations use standard library (os, shutil, pathlib)

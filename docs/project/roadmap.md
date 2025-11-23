@@ -2,14 +2,43 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 7.2.0
+# Version: 8.2.0
 # Created: 2025-10-13
-# Updated: 2025-11-09
+# Updated: 2025-11-23
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 7.1.0
+# Previous Version: 8.1.0
+#
+# Key Changes from v8.1.0:
+# - ✨ Task 1.55 System Operations Service (LKMS801) ADDED (6-8h, native Windows gRPC service)
+# - 🔧 L-KERN Control Panel ENHANCED (3 buttons: START/STOP/CLEAN, window height 1130px)
+# - 📊 Progress: 6/26 tasks complete (~23%, up from 5/25 tasks)
+#
+# Key Changes from v8.0.0:
+# - 📈 Task 2.01 Event Store UPDATED (80-100h → 120-150h, +30h learning curve, +20h security)
+# - ✨ Task 2.05 Blockchain Integration Extension ADDED (OPTIONAL, 40-50h, full Hyperledger)
+# - ✨ Task 2.06 Advanced Health Monitoring ADDED (Phase 2, 35-45h, service-specific metrics)
+# - 📝 Part 3 Security & Honeypot Layer ADDED (section 3.7, tamper detection, fake endpoints)
+# - 📝 Part 4 External Events Admin Workflow ADDED (section 4.6.6, weekly/quarterly review)
+# - 📝 Part 4 Rate Limiting & Queue Management ADDED (section 4.7, concurrent job limits)
+# - ⚠️ Testing Strategy warnings added to Tasks 2.01, 2.05, 2.06, 2.10
+# - 📊 Phase 2 total updated: 345-435h (265-335h if 2.05 skipped), Grand Total: 450-565h
+# - 🔍 Task 1.40 review: Basic health checks sufficient for MVP, Phase 2 expansion added
+#
+# Key Changes from v7.2.0:
+# - 🎯 Extended Architecture Implementation Plan Complete (8 parts, 335-425h estimate)
+# - ✨ Task 1.155 Calendar Service ADDED (Phase 1, 40-50h, Office 365-like calendar)
+# - ✨ Task 1.205 Messaging Service ADDED (Phase 1, 30-40h, WebSocket real-time chat)
+# - 📈 Task 1.60 Issues Service UPDATED (18-23h → 35-45h, extended features)
+# - ✨ Task 2.01 Event Store + Blockchain ADDED (Phase 2, 80-100h, Hyperledger Fabric)
+# - ✨ Task 2.02 Temporal Analytics ADDED (Phase 2, 60-80h, time-travel queries)
+# - ✨ Task 2.03 Graph Visualization ADDED (Phase 2, 40-50h, Neo4j + D3.js)
+# - ✨ Task 2.04 Dashboard Phase 2 ADDED (Phase 2, 50-60h, multi-service aggregation)
+# - ✨ Task 3.05 Dashboard Phase 3 ADDED (Phase 3, 40-50h, SharePoint-like widgets)
+# - 📊 Progress updated: Phase 1 (5/25 tasks, ~20%), Phase 2 (+4 tasks), Phase 3 (+1 task)
+# - 📄 Complete implementation plans in docs/temp/ (8 separate files + master index)
 #
 # Key Changes from v7.1.0:
 # - ✅ Task 1.60.2 Issues Service Frontend - PARTIAL COMPLETION (2025-11-09)
@@ -90,7 +119,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 5/23 complete (~22%)
+**Progress:** 6/26 complete (~23%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -604,17 +633,116 @@
 
 ---
 
-### **1.60 Issues Service** ⏸️ PLANNED
+### **1.55 System Operations Service (LKMS801)** ✅ COMPLETED (2025-11-23)
+**Started:** 2025-11-23
+**Completed:** 2025-11-23
+**Duration:** 1 day
+**Dependencies:** 1.50 (Microservice Template - structure reference only)
+**Estimated:** 6-8h
+**Actual:** ~5h
+**Type:** Native Windows Service (NOT Docker)
+**Architecture:** gRPC + FastAPI (native Windows, no database)
+
+**Ports:** 5801 (REST), 6801 (gRPC)
+**Storage:** None (operates on host file system)
+**Network:** Runs on host machine (outside Docker network)
+
+**Goal:** Native Windows service for file system operations that Docker containers cannot perform.
+
+**Why Native (not Docker)?**
+- Docker containers have limited access to host file system
+- Need to open folders in Windows Explorer (os.startfile)
+- Need to copy/move files on host system with full permissions
+- Native service has complete Windows API access
+
+#### **Service Structure:**
+```
+services/lkms801-system-ops/
+├── proto/
+│   └── system_ops.proto           # gRPC protocol definitions (7 operations)
+├── app/
+│   ├── main.py                    # FastAPI + gRPC server (dual server)
+│   ├── config.py                  # Pydantic settings (API key, path whitelist)
+│   ├── grpc_server.py             # gRPC servicer implementation
+│   ├── services/
+│   │   └── file_operations.py    # File system operations logic
+│   └── security/
+│       └── auth.py                # API key + path validation
+├── requirements.txt               # Python dependencies (gRPC, FastAPI)
+├── compile-proto.bat              # Windows proto compilation script
+├── start-service.bat              # Windows service startup script
+├── .env.example                   # Configuration template
+└── README.md                      # Comprehensive documentation (10KB)
+```
+
+#### **Operations Implemented (7):**
+1. **OpenFolder** - Open folder in Windows Explorer (os.startfile)
+2. **CopyFile** - Copy file or folder (shutil.copy2 / shutil.copytree)
+3. **MoveFile** - Move file or folder (shutil.move)
+4. **DeleteFile** - Delete file or folder (os.remove / shutil.rmtree)
+5. **RenameFile** - Rename file or folder (os.rename)
+6. **ListFolder** - List folder contents (os.scandir)
+7. **GetFileInfo** - Get file metadata (os.stat)
+
+#### **Security Features:**
+- ✅ **API Key Authentication** - gRPC metadata: `api-key`
+- ✅ **Path Whitelist** - Only allowed directories (`L:\system`, `L:\data`, etc.)
+- ✅ **Audit Logging** - All operations logged (INFO/WARNING levels)
+- ✅ **Path Validation** - Prevents directory traversal attacks
+- ✅ **Error Handling** - Graceful failures with detailed error messages
+
+#### **Communication:**
+- **REST API (port 5801):** Health check, status endpoint
+- **gRPC API (port 6801):** Main file operations (7 RPC methods)
+- **Authentication:** API key in gRPC metadata
+- **Response:** StatusResponse (success, message, error)
+
+#### **Configuration (Pydantic Settings):**
+```python
+API_KEY = "lkern_dev_api_key_2024"  # Change in production!
+ALLOWED_PATHS = ["L:\\system", "L:\\data", "C:\\Users\\PeterLuhový"]
+LOG_LEVEL = "INFO"
+REST_PORT = 5801
+GRPC_PORT = 6801
+```
+
+#### **Startup:**
+```cmd
+cd services/lkms801-system-ops
+pip install -r requirements.txt
+compile-proto.bat
+start-service.bat
+```
+
+**Success Criteria:**
+- ✅ gRPC proto compiled (system_ops_pb2.py, system_ops_pb2_grpc.py)
+- ✅ All 7 operations implemented and working
+- ✅ API key authentication functional
+- ✅ Path whitelist validation working
+- ✅ Health check endpoint responding (GET /health)
+- ✅ Comprehensive README (usage, setup, security, troubleshooting)
+- ✅ Windows batch files for easy startup
+
+**Use Cases:**
+- Open project folders from web UI
+- Copy/move generated reports to shared drives
+- Delete temporary files from build processes
+- List backup directories
+- Get file sizes for upload validation
+
+---
+
+### **1.60 Issues Service Extended** ⏸️ PLANNED
 **Dependencies:** 1.40 (Backend Infrastructure), 1.50 (Microservice Template)
-**Estimated:** 18-23h (4-5 days) ↑ from 12-16h
-**Target:** 2025-11-21 - 2025-11-25
+**Estimated:** 35-45h (8-10 days) ↑ from 18-23h
+**Target:** 2025-11-21 - 2025-12-02
 **Ports:** 4105 (REST), 5105 (gRPC)
 **Database:** lkms105_issues (PostgreSQL)
 **Storage:** MinIO bucket: `lkern-issues`
 
-📄 **Implementation Plan:** [docs/temp/issues-service-implementation-plan.md](../temp/issues-service-implementation-plan.md)
+📄 **Implementation Plan:** [docs/temp/part-02-issues-service-extended.md](../temp/part-02-issues-service-extended.md) (comprehensive)
 
-**Role-Based Ticketing System - Developer-focused issue tracking**
+**Role-Based Ticketing System with Extended Collaboration Features**
 
 #### Key Features:
 - 🎭 **Role-Based UI** - Dynamic forms based on user role (PROGRAMMER/USER/SCANNER)
@@ -623,6 +751,15 @@
 - 🐛 **Developer Fields** - error_message, browser, os, url (variant C only)
 - 🏷️ **Rich Classification** - type + severity + category (optional)
 - ✅ **No Auto-Actions** - No auto-assign, no auto-close (manual control)
+
+#### **Extended Collaboration Features (NEW):**
+- 📝 **Edit History Tracking** - Who created, who can edit, baseline + diff snapshots
+- 👍 **"Affects Me Too" Voting** - Voting system with counter, prevent duplicates
+- 💬 **Developer Q&A Comments** - Thread-based comments (max 2-level depth)
+- 📢 **Broadcast Notifications** - Critical issue alerts to all users/teams
+- 🔍 **Duplicate Detection** - AI-powered or full-text search similarity matching
+
+**See Part 2 implementation plan for complete specifications.**
 
 #### **1.60.1 Backend**
 - ⏸️ **Copy from template:** `scripts/create_microservice.sh Issues 4105 5105 lkms105_issues`
@@ -713,7 +850,7 @@
   - ⚠️ **Missing:** CRUD tests (0/10 created)
   - ⚠️ **Missing:** Playwright E2E tests (0/5 created)
 
-- ⏸️ **Issue Detail Modal** - NOT STARTED
+- ⏸�� **Issue Detail Modal** - NOT STARTED
   - Display all fields (role-based visibility)
   - Show attachments gallery (images preview, download links)
   - Show developer fields only if populated
@@ -734,6 +871,7 @@
 - No file upload implementation
 - No role-based permissions (using temporary tabs)
 - Missing comprehensive test coverage
+- **TODO:** Add `?role=user_basic` query parameter to GET `/issues/` endpoint for role-based data filtering (currently only POST has role parameter)
 
 #### **1.60.3 Testing**
 - ⏸️ **Backend Tests (pytest):**
@@ -1184,6 +1322,57 @@
 
 ---
 
+### **1.155 Calendar Service** ⏸️ PLANNED (NEW)
+**Dependencies:** 1.150 complete, Authentication (1.200) for user context
+**Estimated:** 40-50h (10-12 days)
+**Target:** 2026-01-17 - 2026-01-28
+**Ports:** 4806 (REST), 5806 (gRPC)
+**Database:** lkms806_calendar
+
+📄 **Implementation Plan:** [docs/temp/part-06-calendar-service.md](../temp/part-06-calendar-service.md)
+
+**Office 365-Like Calendar System with Event Management**
+
+#### Key Features:
+- 📅 **Multiple Calendars** - Personal, Work, Project-specific per user
+- 🔄 **Recurring Events** - Daily, weekly, monthly, yearly with RRULE (RFC 5545)
+- 👥 **Meeting Invitations** - RSVP system (Accept/Decline/Tentative)
+- 🔗 **Calendar Sharing** - Granular permissions (READ, WRITE, ADMIN)
+- 📤 **iCal/ICS Support** - Import/export events (RFC 5545 compliant)
+- ⏰ **Reminders** - Configurable notifications before events
+- 🌍 **Time Zone Support** - Proper handling of different time zones
+- 🎨 **Drag-and-Drop** - Visual event rescheduling (frontend)
+- ⚠️ **Conflict Detection** - Prevent double-booking
+
+#### **1.155.1 Backend (25-30h)**
+- ⏸️ Generate from template: `scripts/microservice-generator/generate-microservice.js`
+- ⏸️ Database Tables:
+  - `calendars` (owner, type, color, visibility)
+  - `calendar_events` (title, start/end, recurrence_rule, status)
+  - `event_attendees` (RSVP status, notifications)
+  - `calendar_shares` (permission levels)
+- ⏸️ REST API: 25+ endpoints (calendars, events, RSVPs, sharing)
+- ⏸️ Recurring Events: RRULE parser (python-dateutil)
+- ⏸️ iCal/ICS Export/Import (RFC 5545)
+- ⏸️ 50+ backend tests
+
+#### **1.155.2 Frontend (15-20h)**
+- ⏸️ CalendarView component (month/week/day views)
+- ⏸️ EventCreateModal with recurrence builder
+- ⏸️ Meeting invitation workflow
+- ⏸️ Drag-and-drop rescheduling
+- ⏸️ 40+ translation keys (SK/EN)
+
+**Success Criteria:**
+- ✅ All calendar operations working (create, read, update, delete)
+- ✅ Recurring events expanding correctly
+- ✅ Meeting invitations with RSVP functional
+- ✅ iCal/ICS import/export working
+- ✅ Calendar sharing with permissions working
+- ✅ 90+ tests passing (50+ backend + 40+ frontend)
+
+---
+
 ### **1.160 Production Planning & Quality (PPQ)** ⏸️ PLANNED
 **Dependencies:** 1.110, 1.140, 1.150 complete
 **Estimated:** 40-50h (10-12 days)
@@ -1277,14 +1466,84 @@
 **Ports:** 4107 (REST), 5107 (gRPC)
 **Database:** lkms107_auth
 
+**🚨 TEMPORARY AUTH STRATEGY (Until 1.200 is complete):**
+- **Frontend:** Mock `useAuth()` hook returns hardcoded admin user
+  - Location: `packages/config/src/hooks/useAuth/useAuth.ts`
+  - Returns: `{ user: { role: 'admin' }, hasPermission() }` (always returns true for admin)
+  - Purpose: Enable permission-based UI features (disable delete buttons, etc.)
+- **Backend Microservices:** NO authentication yet - accept all requests
+  - All endpoints currently public (no JWT validation)
+  - Rate limiting and security will be added in Phase 1.200
+- **Migration Plan:**
+  - Replace mock `useAuth()` with real implementation (read JWT from localStorage)
+  - Add JWT validation middleware to all microservices
+  - Update all API calls to include `Authorization: Bearer <token>` header
+
 #### **1.200.1 Backend**
 - ⏸️ Copy from template
 - ⏸️ User model, JWT, bcrypt, RBAC
 - ⏸️ REST + gRPC APIs
+- ⏸️ JWT token generation and validation
+- ⏸️ Shared auth middleware for other microservices
 
 #### **1.200.2 Frontend**
 - ⏸️ Login page
 - ⏸️ Auth context + protected routes
+- ⏸️ Replace mock `useAuth()` with real implementation
+- ⏸️ Token storage (localStorage) and refresh logic
+
+---
+
+### **1.205 Messaging Service** ⏸️ PLANNED (NEW)
+**Dependencies:** 1.200 complete (Authentication required for WebSocket auth)
+**Estimated:** 30-40h (7-10 days)
+**Target:** 2026-03-06 - 2026-03-15
+**Ports:** 4807 (REST + WebSocket), 5807 (gRPC), 6379 (Redis)
+**Database:** lkms807_messaging
+
+📄 **Implementation Plan:** [docs/temp/part-07-messaging-service.md](../temp/part-07-messaging-service.md)
+
+**Real-Time Chat System with WebSocket and Redis Pub/Sub**
+
+#### Key Features:
+- 💬 **Direct Messages** - 1-on-1 chat channels
+- 👥 **Group Channels** - Multi-user team conversations
+- 🔴 **Real-Time WebSocket** - Bidirectional instant messaging
+- ⌨️ **Typing Indicators** - "User is typing..." with 5-second TTL
+- ✔️ **Read Receipts** - Track message read status
+- 📜 **Message History** - Persistent storage with pagination
+- 📎 **File Attachments** - Share files in conversations (future phase)
+- 🔄 **Redis Pub/Sub** - Horizontal scaling across multiple servers
+
+#### **1.205.1 Backend (18-24h)**
+- ⏸️ Generate from template
+- ⏸️ Database Tables:
+  - `channels` (DIRECT, GROUP types)
+  - `channel_members` (group membership)
+  - `messages` (text, attachments, reply threading)
+  - `message_read_receipts` (read tracking)
+- ⏸️ WebSocket Server: FastAPI WebSocket + JWT auth
+- ⏸️ Redis Pub/Sub: Message distribution across servers
+- ⏸️ REST API: 10+ endpoints (channels, messages, read receipts)
+- ⏸️ Typing indicators (Redis TTL 5s)
+- ⏸️ 45+ backend tests
+
+#### **1.205.2 Frontend (12-16h)**
+- ⏸️ ChatWindow component (message list + input)
+- ⏸️ WebSocket integration (send/receive messages)
+- ⏸️ Typing indicators display
+- ⏸️ Read receipts display
+- ⏸️ Message history pagination
+- ⏸️ 30+ translation keys (SK/EN)
+
+**Success Criteria:**
+- ✅ WebSocket connections authenticated via JWT
+- ✅ Direct messages working (1-on-1 channels)
+- ✅ Group channels working (multi-user)
+- ✅ Real-time message delivery via Redis Pub/Sub
+- ✅ Typing indicators functional (5-second TTL)
+- ✅ Read receipts tracking working
+- ✅ 75+ tests passing (45+ backend + 30+ frontend)
 
 ---
 
@@ -1334,14 +1593,419 @@
 
 ## 📋 PHASE 2: Security & Stability (v4.1.x)
 
-**Goal:** Harden security, fix bugs, stabilize for production
+**Goal:** Harden security, fix bugs, stabilize for production, add advanced features
 **Start:** After Phase 1 complete (target: Apr 2026)
+**Progress:** 0/11 tasks (~0%, includes 2.05 optional)
 **Status:** ⏸️ PLANNED
+
+---
+
+### **2.01 Event Store + Blockchain Microservice** ⏸️ PLANNED (NEW)
+**Dependencies:** All Phase 1 services complete (needs event consumers from all services)
+**Estimated:** 120-150h (30-37 days) ↑ Updated from 80-100h
+**Target:** Apr 2026 (Phase 2 start)
+**Ports:** 4901 (REST), 5901 (gRPC), 7050 (Orderer), 7051 (Peer)
+**Database:** Hyperledger Fabric + PostgreSQL
+
+📄 **Implementation Plan:** [docs/temp/part-03-event-store-blockchain.md](../temp/part-03-event-store-blockchain.md)
+
+⚠️ **Testing Strategy Required:** Before implementation, define:
+- Unit tests (hash chain, CRUD operations, data anonymization)
+- Integration tests (Kafka consumer, blockchain invocation, GDPR deletion)
+- E2E tests (complete audit trail workflow, integrity verification)
+- Manual testing checklist (blockchain health, event archival, access control)
+
+**Immutable Audit Trail with GDPR-Compliant 3-Database Architecture**
+
+**Why estimate increased:**
+- Hyperledger Fabric complexity (certificate management, chaincode deployment)
+- Learning curve (+30h for first-time setup)
+- Debugging time (crypto issues, network configuration)
+- Security & Honeypot layer implementation (+20h, see Part 3 section 3.7)
+
+#### Key Features:
+- ⛓️ **Hyperledger Fabric Blockchain** - Private blockchain for audit trail (NO PII)
+- 🗄️ **3-Database Pattern** - DB1 (blockchain metadata), DB2 (deletable PII), DB3 (query layer)
+- 📡 **Kafka Consumer** - Archives ALL events from all microservices
+- 🔒 **GDPR Compliant** - Blockchain stores ONLY IDs/timestamps, PII in deletable DB2
+- 🔗 **Hash Chain Integrity** - SHA-256 tamper detection
+- 🔍 **Audit Trail API** - Query complete history with access control
+- 🛡️ **Security & Honeypot Layer** - Tamper detection, fake endpoints, behavioral monitoring
+- ⏳ **Event Retention** - Configurable policies for data lifecycle
+
+#### **2.01.1 Hyperledger Fabric Setup (35-45h)** ↑ Updated from 20-25h
+- ⏸️ Install Hyperledger Fabric 2.5 binaries
+- ⏸️ Generate crypto materials (certificates, keys)
+- ⏸️ Docker containers: Orderer, Peer, CouchDB, CA
+- ⏸️ Create channel: lkern-audit-channel
+- ⏸️ Deploy chaincode (lkern-event-store) in Go
+- ⏸️ Test chaincode invocation/query
+- ⏸️ Debugging & troubleshooting (crypto, network issues)
+- ⏸️ Learning curve buffer (+15h)
+
+#### **2.01.2 Database Setup (12-15h)** ↑ Updated from 10-12h
+- ⏸️ DB2 (PostgreSQL): sensitive_event_payloads table
+- ⏸️ DB3 (PostgreSQL): audit_trail_view materialized view
+- ⏸️ Schedule REFRESH MATERIALIZED VIEW (every 5 min)
+- ⏸️ Security tables: honeypot_events, suspicious_user_flags, security_logs
+
+#### **2.01.3 Kafka Consumer (18-25h)** ↑ Updated from 15-20h
+- ⏸️ Subscribe to ALL microservice topics (lkern.*.events)
+- ⏸️ Extract metadata (NO PII) for blockchain
+- ⏸️ Store full payload in DB2 (with PII)
+- ⏸️ Invoke chaincode to store in blockchain (DB1)
+- ⏸️ Error handling & retry logic
+
+#### **2.01.4 REST API (20-25h)** ↑ Updated from 15-18h
+- ⏸️ GET /api/audit-trail/{entity_type}/{entity_id} (with access control)
+- ⏸️ POST /api/audit-trail/verify-integrity
+- ⏸️ GET /api/blockchain/stats
+- ⏸️ Fake endpoints (tamper detection - PUT/DELETE)
+- ⏸️ Honeypot redirection middleware
+
+#### **2.01.5 Security & Honeypot Layer (20-25h)** NEW
+- ⏸️ Honeypot database & fake data generator
+- ⏸️ Suspicious user flagging system
+- ⏸️ Behavioral analysis (Celery background job)
+- ⏸️ Silent alerting (email/Slack webhooks)
+- ⏸️ Security dashboard (web-ui page)
+
+#### **2.01.6 GDPR Compliance (15-18h)** ↑ Updated from 10-13h
+- ⏸️ GDPR deletion consumer (*.gdpr_deleted events)
+- ⏸️ Soft delete in DB2, blockchain unchanged
+- ⏸️ Aggregation view returns payload=NULL for deleted
+- ⏸️ Testing GDPR workflows
+
+**Success Criteria:**
+- ✅ Hyperledger Fabric running (Orderer, Peer, CouchDB)
+- ✅ Chaincode deployed and functional
+- ✅ Kafka consumer archiving events from all services
+- ✅ 3-database architecture working (DB1 + DB2 + DB3)
+- ✅ Audit trail API with access control
+- ✅ GDPR deletion workflow functional
+- ✅ Hash chain integrity verification working
+
+---
+
+### **2.02 Temporal Analytics Service** ⏸️ PLANNED (NEW)
+**Dependencies:** 2.01 complete (Event Store data source)
+**Estimated:** 60-80h (15-20 days)
+**Target:** May 2026
+**Ports:** 4902 (REST), 5902 (gRPC)
+**Database:** PostgreSQL + TimescaleDB
+
+📄 **Implementation Plan:** [docs/temp/part-04-temporal-analytics.md](../temp/part-04-temporal-analytics.md)
+
+⚠️ **Testing Strategy Required:** Before implementation, define timeline reconstruction tests (accuracy, performance), cache tests (hit rate, staleness), rate limiting tests (concurrent jobs, queue overflow), external events integration tests.
+
+**Time-Travel Queries and Timeline Reconstruction**
+
+#### Key Features:
+- ⏮️ **Time-Travel Queries** - "Show me entity state on 2025-10-15"
+- 📅 **On-Demand Reconstruction** - User-triggered, not real-time
+- ⏱️ **TimescaleDB Caching** - Performance-optimized time-series storage
+- 🔄 **Background Jobs** - Celery workers for timeline reconstruction
+- 🎚️ **Timeline Slider** - Interactive UI for browsing history
+- 📊 **Historical Analysis** - Trend analysis across entities
+
+#### **2.02.1 TimescaleDB Setup (10-12h)**
+- ⏸️ Install TimescaleDB extension
+- ⏸️ Create temporal_cache hypertable (partitioned by time)
+- ⏸️ Create timeline_jobs table (job queue)
+- ⏸️ Configure data retention policies
+
+#### **2.02.2 Background Jobs (20-25h)**
+- ⏸️ Set up Celery worker with Redis broker
+- ⏸️ Implement reconstruct_timeline task
+- ⏸️ Generate timestamps (hourly/daily/weekly/on_change)
+- ⏸️ Reconstruct state from events (baseline + diffs)
+- ⏸️ Cache results in TimescaleDB
+
+#### **2.02.3 REST API (15-18h)**
+- ⏸️ POST /api/timeline/reconstruct (trigger job)
+- ⏸️ GET /api/timeline/jobs/{job_id} (job status)
+- ⏸️ GET /api/timeline/{entity_type}/{entity_id} (cached timeline)
+- ⏸️ GET /api/timeline/{entity_type}/{entity_id}/at/{timestamp} (time-travel)
+
+#### **2.02.4 Frontend (10-13h)**
+- ⏸️ TimelineSlider component (React + D3.js)
+- ⏸️ Job status polling
+- ⏸️ Visual timeline with change indicators
+
+#### **2.02.5 Event Store Integration (5-7h)**
+- ⏸️ EventStoreClient (query events from lkms901)
+- ⏸️ Parse baseline + diff events
+
+**Success Criteria:**
+- ✅ TimescaleDB hypertable created
+- ✅ Background jobs reconstructing timelines
+- ✅ Time-travel queries working
+- ✅ Timeline slider UI functional
+- ✅ Performance acceptable (< 5s for 1-month timeline)
+
+---
+
+### **2.03 Graph Visualization Service** ⏸️ PLANNED (NEW)
+**Dependencies:** 2.02 complete
+**Estimated:** 40-50h (10-12 days)
+**Target:** June 2026
+**Ports:** 4903 (REST), 5903 (gRPC), 7474 (Neo4j HTTP), 7687 (Neo4j Bolt)
+**Database:** Neo4j 5.x
+
+📄 **Implementation Plan:** [docs/temp/part-05-graph-visualization.md](../temp/part-05-graph-visualization.md)
+
+⚠️ **Testing Strategy Required:** Before implementation, define Neo4j sync tests (Kafka to graph lag, CRUD operations), graph query tests (shortest path, centrality algorithms), visualization tests (D3.js rendering, performance with large graphs), data consistency tests.
+
+**Organizational Hierarchies and Relationship Networks**
+
+#### Key Features:
+- 🏢 **Organizational Hierarchy** - Company → Departments → Teams → Employees
+- 🤝 **Contact Networks** - Who knows whom, collaboration history
+- 🔧 **Manufacturing Graphs** - BOM tree, part dependencies
+- 📊 **D3.js Visualization** - Interactive drag-and-drop graphs
+- 🔍 **Graph Queries** - Shortest path, centrality, clustering
+
+#### **2.03.1 Neo4j Setup (8-10h)**
+- ⏸️ Install Neo4j 5.x (Docker)
+- ⏸️ Create node labels (Company, Department, Team, Employee, Contact, Product, Component)
+- ⏸️ Create relationships (BELONGS_TO, REPORTS_TO, KNOWS, REQUIRES)
+- ⏸️ Set up indexes
+
+#### **2.03.2 Data Synchronization (12-15h)**
+- ⏸️ Kafka consumer for entity sync to Neo4j
+- ⏸️ Handle entity.created → CREATE node
+- ⏸️ Handle entity.updated → UPDATE properties
+- ⏸️ Handle entity.deleted → DELETE node
+
+#### **2.03.3 REST API (12-15h)**
+- ⏸️ GET /api/graph/organization/{company_id} (org chart)
+- ⏸️ GET /api/graph/contacts/{contact_id}/network (relationship network)
+- ⏸️ GET /api/graph/bom/{product_id} (BOM tree)
+- ⏸️ POST /api/graph/shortest-path (find path between entities)
+
+#### **2.03.4 Frontend (8-10h)**
+- ⏸️ GraphVisualization component (D3.js + React)
+- ⏸️ Force-directed layout
+- ⏸️ Drag, zoom, pan interactions
+
+**Success Criteria:**
+- ✅ Neo4j running and syncing data from Kafka
+- ✅ Organizational hierarchy queries working
+- ✅ Contact network visualization functional
+- ✅ BOM tree rendering correctly
+- ✅ Interactive D3.js graphs working
+
+---
+
+### **2.04 Dashboard Microservice (Phase 2)** ⏸️ PLANNED (NEW)
+**Dependencies:** 2.03 complete, all Phase 1 services for data aggregation
+**Estimated:** 50-60h (12-15 days)
+**Target:** July 2026
+**Ports:** 4904 (REST), 5904 (gRPC)
+**Database:** PostgreSQL + Redis (caching)
+
+📄 **Implementation Plan:** [docs/temp/part-08-dashboard-microservice.md](../temp/part-08-dashboard-microservice.md) (Phase 2 sections)
+
+⚠️ **Testing Strategy Required:** Before implementation, define data aggregation tests (gRPC client calls, cache invalidation), widget tests (KPI calculations, chart rendering), layout tests (drag-and-drop, save/load), performance tests (multi-service query latency).
+
+**Multi-Service Data Aggregation Dashboards**
+
+#### Key Features:
+- 📊 **KPI Widgets** - Issues, Sales, Inventory, HR metrics
+- 🔄 **Real-Time Updates** - WebSocket push, auto-refresh every 30s
+- 📐 **Custom Layouts** - Drag-and-drop widget positioning (react-grid-layout)
+- 👥 **Role-Based Templates** - Executive, Sales Manager, Inventory Manager, HR Manager
+- 📈 **Charts** - Line, bar, pie charts (Recharts library)
+
+#### **2.04.1 Core Dashboard (15-18h)**
+- ⏸️ Database tables: dashboards, dashboard_widgets
+- ⏸️ CRUD operations, widget management
+
+#### **2.04.2 Data Aggregation (20-25h)**
+- ⏸️ gRPC clients for all microservices
+- ⏸️ Widget data queries (Issues, Sales, Inventory, HR)
+- ⏸️ KPI calculations (totals, averages, trends)
+- ⏸️ Redis caching for performance
+
+#### **2.04.3 Frontend (15-17h)**
+- ⏸️ Dashboard component (react-grid-layout)
+- ⏸️ Widget components (KPICounter, LineChart, BarChart, PieChart)
+- ⏸️ Drag-and-drop layout editor
+- ⏸️ Save/load user layouts
+
+**Success Criteria:**
+- ✅ Dashboards created and customizable
+- ✅ Widgets aggregating data from multiple services
+- ✅ Real-time updates working (WebSocket or polling)
+- ✅ Drag-and-drop layout functional
+- ✅ Role-based templates working
+
+---
+
+### **2.05 Blockchain Integration Extension** ⏸️ OPTIONAL (NEW)
+**Dependencies:** 2.01 complete (Event Store with PostgreSQL + hash chain working)
+**Estimated:** 40-50h (10-12 days)
+**Target:** Phase 2 (after 2.01, if needed)
+**Status:** ⏸️ OPTIONAL - Can be SKIPPED if hash chain sufficient
+
+📄 **Implementation Plan:** [docs/temp/part-03-event-store-blockchain.md](../temp/part-03-event-store-blockchain.md) (Hyperledger sections)
+
+⚠️ **Testing Strategy Required:** Before implementation, define Hyperledger Fabric chaincode tests, blockchain integrity tests, performance benchmarks.
+
+**Upgrade Event Store with Full Hyperledger Fabric Blockchain**
+
+**Why this is OPTIONAL:**
+- Task 2.01 already provides **immutable audit trail** via PostgreSQL + hash chain
+- Hash chain integrity = **90% of blockchain benefits** at **50% of the cost**
+- Hyperledger Fabric adds: Distributed consensus, multi-organization trust
+- **Use case:** If you need multi-company audit trail (e.g., supply chain with partners)
+
+#### Key Features:
+- ⛓️ **Full Hyperledger Fabric** - Replace PostgreSQL hash chain with blockchain
+- 🔗 **Distributed Ledger** - Multi-peer consensus for tamper-proof audit
+- 📜 **Chaincode Smart Contracts** - Programmable audit logic
+- 🌐 **Multi-Organization** - Support for partner companies joining network
+
+#### **2.05.1 Hyperledger Fabric Infrastructure (15-20h)**
+- ⏸️ Multi-peer network setup (3+ peers for consensus)
+- ⏸️ Orderer service configuration
+- ⏸️ Certificate Authority for each organization
+- ⏸️ Channel policies & endorsement policies
+
+#### **2.05.2 Chaincode Development (15-18h)**
+- ⏸️ Migrate hash chain logic to Go chaincode
+- ⏸️ Implement StoreEvent, GetEvent, VerifyIntegrity functions
+- ⏸️ Chaincode unit tests
+- ⏸️ Deploy & upgrade chaincode
+
+#### **2.05.3 Integration & Testing (10-12h)**
+- ⏸️ Replace PostgreSQL hash chain with blockchain calls
+- ⏸️ Performance testing (throughput, latency)
+- ⏸️ Consensus testing (peer failures, Byzantine scenarios)
+
+**Success Criteria:**
+- ✅ Multi-peer Hyperledger Fabric network running
+- ✅ Chaincode deployed and functional
+- ✅ Event Store API using blockchain (not PostgreSQL hash chain)
+- ✅ Performance acceptable (< 500ms per event)
+- ✅ Consensus working (survives 1 peer failure)
+
+**Decision Point:**
+- If PostgreSQL + hash chain is **sufficient** → SKIP this task
+- If you need **multi-organization trust** → IMPLEMENT this task
+
+---
+
+### **2.06 Advanced Health Monitoring & Alerting** ⏸️ PLANNED (NEW)
+**Dependencies:** 2.01-2.05 complete (all new microservices operational)
+**Estimated:** 35-45h (9-11 days)
+**Target:** August 2026 (after Dashboard Phase 2)
+**Ports:** 4906 (REST), 5906 (gRPC)
+**Database:** PostgreSQL (metrics history) + Redis (real-time metrics)
+
+⚠️ **Testing Strategy Required:** Before implementation, define health check test scenarios, alerting thresholds, false positive rate testing, monitoring dashboard E2E tests.
+
+**Advanced Health Metrics Collection and Alerting for New Microservices**
+
+**Why this task is needed:**
+- Task 1.40 Phase 4 provides **basic gRPC health checks** (up/down status)
+- New microservices (Event Store, Temporal Analytics, Graph Viz, Calendar, Messaging, Dashboard) need **advanced health metrics**
+- Proactive monitoring prevents production outages (detect issues before users complain)
+- Historical metrics enable capacity planning and performance trend analysis
+
+#### Key Features:
+- 📊 **Service-Specific Metrics** - Custom health checks for each microservice
+- 🚨 **Alerting System** - Slack/Email notifications for threshold breaches
+- 📈 **Monitoring Dashboard** - Real-time metrics UI (web-ui page)
+- 📜 **Historical Metrics** - 30-day metric retention for trend analysis
+- ⏱️ **Polling System** - Background Celery job (every 30s) to collect metrics
+- 🎯 **Threshold Configuration** - Admin-configurable alert thresholds
+
+#### **2.06.1 Health Metrics Collection (12-15h)**
+
+**lkms901 (Event Store + Blockchain):**
+- ⏸️ Blockchain block height (current block number)
+- ⏸️ Peer status (if Hyperledger: peer count, orderer status)
+- ⏸️ Kafka consumer lag (events queued vs processed)
+- ⏸️ Hash chain integrity status (last verification timestamp)
+- ⏸️ DB2 payload count, DB3 materialized view last refresh
+
+**lkms902 (Temporal Analytics):**
+- ⏸️ Celery queue depth (pending jobs, running jobs)
+- ⏸️ Job processing time (avg duration, max duration)
+- ⏸️ TimescaleDB hypertable size (disk usage)
+- ⏸️ Cache hit rate (% of queries served from TimescaleDB cache)
+- ⏸️ Failed job count (last 24h)
+
+**lkms903 (Graph Visualization):**
+- ⏸️ Neo4j sync lag (Kafka events to Neo4j latency)
+- ⏸️ Graph query performance (avg query time, P95, P99)
+- ⏸️ Node count, edge count (graph size metrics)
+- ⏸️ Neo4j memory usage, disk usage
+
+**lkms806 (Calendar Service):**
+- ⏸️ iCal sync status (last sync timestamp, errors)
+- ⏸️ Recurring event processor status (jobs running, backlog)
+- ⏸️ Event count (total events, upcoming events count)
+- ⏸️ RSVP pending count
+
+**lkms807 (Messaging Service):**
+- ⏸️ WebSocket connection count (active connections)
+- ⏸️ Redis pub/sub status (channels active, messages/sec)
+- ⏸️ Message queue depth (undelivered messages)
+- ⏸️ Active users count (online users)
+
+**lkms904 (Dashboard Service):**
+- ⏸️ Widget refresh lag (time since last data update)
+- ⏸️ Data aggregation performance (avg query time)
+- ⏸️ Cache status (Redis hit rate)
+- ⏸️ Active dashboard count (users with dashboards open)
+
+#### **2.06.2 REST API (10-12h)**
+- ⏸️ GET /api/health/metrics (all services health summary)
+- ⏸️ GET /api/health/metrics/{service_id} (specific service details)
+- ⏸️ GET /api/health/history/{service_id}?metric={metric_name}&days={days} (historical data)
+- ⏸️ POST /api/health/thresholds (admin config for alert thresholds)
+- ⏸️ GET /api/health/alerts (active alerts, alert history)
+
+#### **2.06.3 Alerting System (8-10h)**
+- ⏸️ Threshold monitoring (background Celery job every 30s)
+- ⏸️ Slack webhook integration (send alerts to #ops-alerts channel)
+- ⏸️ Email alerting (SMTP integration for critical alerts)
+- ⏸️ Alert rules engine (IF metric > threshold FOR duration THEN alert)
+- ⏸️ Alert deduplication (don't spam same alert multiple times)
+
+**Example Alert Rules:**
+```
+Celery Queue Depth > 50 for 5 minutes → ALERT: "Temporal Analytics job backlog"
+WebSocket Connections > 10000 → ALERT: "Messaging Service high load"
+Kafka Consumer Lag > 1000 events → ALERT: "Event Store consumer falling behind"
+Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
+```
+
+#### **2.06.4 Monitoring Dashboard UI (5-7h)**
+- ⏸️ Health Overview page (all services status grid)
+- ⏸️ Real-time metrics (auto-refresh every 30s)
+- ⏸️ Status indicators (green = healthy, yellow = degraded, red = critical)
+- ⏸️ Historical charts (line charts for metric trends)
+- ⏸️ Alert notifications (toast alerts for new issues)
+- ⏸️ Admin: Threshold configuration UI
+
+**Success Criteria:**
+- ✅ All 6 new microservices reporting health metrics
+- ✅ Monitoring dashboard showing real-time status
+- ✅ Alerts firing correctly for threshold breaches
+- ✅ Slack/Email notifications working
+- ✅ Historical metrics stored for 30 days
+- ✅ Admin can configure alert thresholds via UI
+- ✅ No false positives in alerting (< 5% false positive rate)
 
 ---
 
 ### **2.10 Security Hardening** ⏸️ PLANNED
 **Estimated:** 30-40h
+
+⚠️ **Testing Strategy Required:** Before implementation, define penetration testing scope, vulnerability scanning tools, compliance audit checklist.
 
 - ⏸️ Dependency updates
 - ⏸️ Penetration testing
@@ -1355,6 +2019,8 @@
 ### **2.20 Performance Optimization** ⏸️ PLANNED
 **Estimated:** 25-35h
 
+⚠️ **Testing Strategy Required:** Before implementation, define performance benchmarks (response time targets, throughput goals), load testing scenarios (concurrent users, peak load), database optimization metrics (query execution time, index effectiveness).
+
 - ⏸️ Database query optimization
 - ⏸️ Kafka optimization
 - ⏸️ Load testing
@@ -1367,6 +2033,8 @@
 ### **2.30 Bug Fixes & Stability** ⏸️ PLANNED
 **Estimated:** 40-50h
 
+⚠️ **Testing Strategy Required:** Before implementation, define regression test suite (prevent fixed bugs from reappearing), stability tests (long-running processes, memory leaks), error handling tests (edge cases, network failures).
+
 - ⏸️ Production bug fixes
 - ⏸️ Error handling improvements
 - ⏸️ Logging improvements
@@ -1378,6 +2046,8 @@
 ### **2.40 PPQ Advanced Algorithms** ⏸️ PLANNED
 **Estimated:** 30-40h
 
+⚠️ **Testing Strategy Required:** Before implementation, define algorithm correctness tests (scheduling accuracy, constraint satisfaction), performance tests (optimization time vs problem size), comparison tests (advanced vs basic algorithm results).
+
 - ⏸️ Multi-criteria optimization (quality + speed + cost)
 - ⏸️ Constraint-based scheduling
 - ⏸️ Machine learning predictions
@@ -1388,6 +2058,8 @@
 ### **2.50 Optional Services** ⏸️ PLANNED
 **Estimated:** 40-60h
 
+⚠️ **Testing Strategy Required:** Before implementation, define service-specific test plans for each optional service (Notification delivery tests, Gamification point calculation, Inquiries workflow E2E, Mail client SMTP/IMAP tests, Documents upload/download tests).
+
 **Note:** Issues Service moved to Phase 1 (task 1.60)
 
 - ⏸️ Notification Service (email/SMS/push)
@@ -1395,6 +2067,46 @@
 - ⏸️ Inquiries Service (customer quotes tracking)
 - ⏸️ Mail Client Service (SMTP/IMAP)
 - ⏸️ Documents Service (file upload/download)
+
+---
+
+### **2.55 Issues Service Advanced** ⏸️ PLANNED (NEW)
+**Dependencies:** 1.60 complete (Issues Service MVP)
+**Estimated:** 8-12h (2-3 days)
+**Target:** Phase 2 (after MVP)
+
+📄 **Implementation Plan:** [docs/temp/part-02-issues-service-extended.md](../temp/part-02-issues-service-extended.md) (section "Roadmap Phase 2: Advanced Features")
+
+**Advanced comment threading and UX improvements**
+
+#### Key Features:
+- 🌳 **3-Level Tree Threading** - Comments nested up to 3 levels deep (0, 1, 2, 3)
+- 📋 **Flat After Level 3** - Replies beyond level 3 appear flat (no more nesting)
+- 🔄 **Recursive Query** - WITH RECURSIVE CTE for efficient tree loading
+- 📐 **Visual Indentation** - Clear depth indicators in UI (padding per level)
+
+#### **2.55.1 Backend (4-6h)**
+- ⏸️ Remove `CHECK (thread_depth <= 1)` constraint
+- ⏸️ Change to `CHECK (thread_depth >= 0)` (unlimited, display handles it)
+- ⏸️ Add `is_flat_continuation` column
+- ⏸️ Implement recursive CTE query for tree structure
+- ⏸️ API: Return `is_flat_display` flag for level 4+ replies
+- ⏸️ 10 unit tests (tree loading, depth limits)
+
+#### **2.55.2 Frontend (4-6h)**
+- ⏸️ CommentThread component with recursive rendering
+- ⏸️ Visual indentation (levels 0-3: 24px per level)
+- ⏸️ Flat display for level 4+ (no indent, "↩️ replied to @user" prefix)
+- ⏸️ Collapse/expand subtrees
+- ⏸️ 8 component tests
+
+**Success Criteria:**
+- ✅ Comments nest correctly up to 3 levels (visual tree)
+- ✅ Level 4+ replies appear flat with "↩️ replied to @user" indicator
+- ✅ Tree loads efficiently (single recursive CTE query)
+- ✅ 18 tests passing (10 backend + 8 frontend)
+
+---
 
 **→ When complete: Upgrade to v4.2.0 and start Phase 3**
 
@@ -1405,6 +2117,63 @@
 **Goal:** Create stable foundation for future development
 **Start:** After Phase 2 complete
 **Status:** ⏸️ PLANNED
+
+---
+
+### **3.05 Dashboard Phase 3: SharePoint-Like Features** ⏸️ PLANNED (NEW)
+**Dependencies:** 2.04 complete (Dashboard Phase 2), Multi-service ecosystem operational
+**Estimated:** 40-50h (8-10 days)
+**Target:** Phase 3 timeline
+**Service:** lkms904 Dashboard Microservice (existing)
+
+📄 **Implementation Plan:** [docs/temp/part-08-dashboard-microservice.md](../temp/part-08-dashboard-microservice.md) (Phase 3)
+
+⚠️ **Testing Strategy Required:** Before implementation, define widget library tests (widget rendering, data binding), dashboard sharing tests (permissions, access control), mobile responsive tests (layout adaptation, touch interactions), alert tests (threshold triggers, notifications).
+
+**Advanced Dashboard Features: Widget Library & Dashboard Sharing**
+
+#### Key Features:
+- 📊 **Advanced Widget Library** - Pre-built KPI widgets (revenue, inventory, orders, contacts)
+- 🎨 **Widget Marketplace** - Discover, preview, and install community widgets
+- 🔗 **Dashboard Sharing** - Share dashboards with view-only or edit permissions
+- 📱 **Mobile-Responsive Layouts** - Auto-adjust widget layouts for mobile devices
+- 🔔 **Widget Alerts** - Set thresholds and receive notifications
+- 📈 **Widget Export** - Export widget data to CSV/Excel
+- 🎛️ **Advanced Customization** - Custom color schemes, widget templates
+
+#### Implementation Phases:
+
+**3.05.1 Widget Library (15-20h):**
+- ⏸️ Pre-built widgets: Revenue chart, Top products, Order count, Contact count
+- ⏸️ Widget preview modal with live data samples
+- ⏸️ One-click widget installation
+- ⏸️ Widget version management
+- ⏸️ Widget configuration templates
+
+**3.05.2 Dashboard Sharing (10-15h):**
+- ⏸️ Share dashboard with specific users
+- ⏸️ Role-based permissions (view-only, edit, admin)
+- ⏸️ Public dashboard URLs (read-only, optional password)
+- ⏸️ Dashboard cloning (fork shared dashboard)
+- ⏸️ Activity log (who viewed/edited when)
+
+**3.05.3 Mobile & Advanced Features (15-20h):**
+- ⏸️ Responsive grid layouts for mobile (1-column, 2-column)
+- ⏸️ Touch-optimized drag-and-drop
+- ⏸️ Widget alert system (threshold notifications)
+- ⏸️ CSV/Excel export per widget
+- ⏸️ Custom color schemes (light/dark themes)
+- ⏸️ Widget templates library
+
+#### Success Criteria:
+- ✅ 10+ pre-built widgets available in library
+- ✅ Dashboard sharing works with permissions (view/edit/admin)
+- ✅ Public dashboard URLs accessible without login
+- ✅ Mobile layouts auto-adjust to screen size
+- ✅ Widget alerts trigger notifications when thresholds crossed
+- ✅ CSV/Excel export working for all widget types
+- ✅ 30+ translation keys (SK/EN)
+- ✅ 25+ integration tests
 
 ---
 

@@ -1,0 +1,100 @@
+// ================================================================
+// FILE: system_ops.proto
+// PATH: /services/lkms801-system-ops/proto/system_ops.proto
+// DESCRIPTION: gRPC protocol definitions for system file operations
+// VERSION: v1.0.0
+// UPDATED: 2025-11-23 12:00:00
+// ================================================================
+
+syntax = "proto3";
+
+package system_ops;
+
+// ================================================================
+// MESSAGES
+// ================================================================
+
+// Generic status response
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+  string error = 3;
+}
+
+// File/folder information
+message FileInfo {
+  string path = 1;
+  int64 size_bytes = 2;
+  string modified_at = 3;
+  bool is_directory = 4;
+}
+
+// List of file information
+message FileListResponse {
+  repeated FileInfo files = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+// ================================================================
+// REQUEST MESSAGES
+// ================================================================
+
+message OpenFolderRequest {
+  string folder_path = 1;
+}
+
+message CopyFileRequest {
+  string source_path = 1;
+  string destination_path = 2;
+}
+
+message MoveFileRequest {
+  string source_path = 1;
+  string destination_path = 2;
+}
+
+message DeleteFileRequest {
+  string file_path = 1;
+}
+
+message RenameFileRequest {
+  string old_path = 1;
+  string new_path = 2;
+}
+
+message ListFolderRequest {
+  string folder_path = 1;
+  bool include_hidden = 2;
+}
+
+message GetFileInfoRequest {
+  string file_path = 1;
+}
+
+// ================================================================
+// SERVICE DEFINITION
+// ================================================================
+
+service SystemOpsService {
+  // Open folder in Windows Explorer
+  rpc OpenFolder (OpenFolderRequest) returns (StatusResponse);
+
+  // Copy file or folder
+  rpc CopyFile (CopyFileRequest) returns (StatusResponse);
+
+  // Move file or folder
+  rpc MoveFile (MoveFileRequest) returns (StatusResponse);
+
+  // Delete file or folder
+  rpc DeleteFile (DeleteFileRequest) returns (StatusResponse);
+
+  // Rename file or folder
+  rpc RenameFile (RenameFileRequest) returns (StatusResponse);
+
+  // List folder contents
+  rpc ListFolder (ListFolderRequest) returns (FileListResponse);
+
+  // Get file information
+  rpc GetFileInfo (GetFileInfoRequest) returns (FileInfo);
+}
