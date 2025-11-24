@@ -3,8 +3,8 @@
 FILE: executor.py
 PATH: /tools/lkern-control-panel/executor.py
 DESCRIPTION: Command execution with threading and live output streaming
-VERSION: v1.2.1
-UPDATED: 2025-11-08 20:35:00
+VERSION: v1.2.2
+UPDATED: 2025-11-22 16:45:00
 ================================================================
 """
 
@@ -64,6 +64,7 @@ class CommandExecutor:
         self.process: Optional[subprocess.Popen] = None
         self.is_running = False
         self.exit_code: Optional[int] = None
+        self.stop_reading = False  # Flag to stop reader threads immediately
 
     @staticmethod
     def parse_ansi(text: str) -> List[Tuple[str, List[str]]]:
@@ -126,6 +127,9 @@ class CommandExecutor:
             output_callback("⚠️ Command already running. Stop it first.", "error")
             return
 
+        # Reset stop flag for new command
+        self.stop_reading = False
+
         # Start execution in separate thread
         thread = threading.Thread(
             target=self._execute_thread,
@@ -166,6 +170,9 @@ class CommandExecutor:
             def read_stdout():
                 if self.process and self.process.stdout:
                     for line in self.process.stdout:
+                        # Stop reading if flag is set
+                        if self.stop_reading:
+                            break
                         if line.strip():
                             # Parse ANSI codes and send formatted segments
                             segments = CommandExecutor.parse_ansi(line.rstrip())
@@ -174,6 +181,9 @@ class CommandExecutor:
             def read_stderr():
                 if self.process and self.process.stderr:
                     for line in self.process.stderr:
+                        # Stop reading if flag is set
+                        if self.stop_reading:
+                            break
                         if line.strip():
                             # Parse ANSI codes and send formatted segments
                             segments = CommandExecutor.parse_ansi(line.rstrip())
@@ -226,6 +236,9 @@ class CommandExecutor:
         if not self.is_running or not self.process:
             return False
 
+        # Signal reader threads to stop immediately
+        self.stop_reading = True
+
         try:
             self.process.terminate()
             # Wait up to 5 seconds for graceful termination
@@ -246,6 +259,9 @@ class CommandExecutor:
         """
         if not self.is_running or not self.process:
             return False
+
+        # Signal reader threads to stop immediately
+        self.stop_reading = True
 
         try:
             self.process.kill()

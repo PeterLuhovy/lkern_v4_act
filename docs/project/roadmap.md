@@ -2,14 +2,19 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 8.2.0
+# Version: 8.3.0
 # Created: 2025-10-13
 # Updated: 2025-11-23
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 8.1.0
+# Previous Version: 8.2.0
+#
+# Key Changes from v8.2.0:
+# - ✨ Timezone configuration ADDED to Configuration Service (LKMS199) scope
+# - 🐛 Issues Service: Fixed issue_code generation bug (duplicate key violation)
+# - 🧹 Issues Service frontend: Debug console logs removed
 #
 # Key Changes from v8.1.0:
 # - ✨ Task 1.55 System Operations Service (LKMS801) ADDED (6-8h, native Windows gRPC service)
@@ -1107,8 +1112,9 @@ start-service.bat
 - ✅ Exchange rates (ECB integration) - Used by Sales, Purchasing, Finance
 - ✅ Travel allowances (domestic + foreign 27 countries) - Used by Sales, HR, Finance
 - ✅ Meal deductions - Used by HR, Finance
-- ✅ Global settings (company info, defaults) - Used by all services
+- ✅ Global settings (company info, defaults, timezone configuration) - Used by all services
 - ✅ Analytics settings (usePageAnalytics configuration) - Used by frontend
+- ⏸️ Timezone configuration (UTC offset, DST handling) - Used by all services for timestamp display
 - ❌ NOT in scope: Chart of Accounts (→ Finance Service), Accounting Periods (→ Finance Service), Document Numbering (→ each service owns), Countries (→ Contact Service MDM)
 
 **Key Design:**
@@ -2218,6 +2224,11 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 - ⏸️ Test coverage improvements
 - ⏸️ Dependency cleanup
 - ⏸️ Architecture simplification
+- ⏸️ **Docker Production Optimization**
+  - Enable Nx daemon for CI/CD pipelines (`NX_DAEMON=true`)
+  - Keep disabled for local development (`NX_DAEMON=false` in docker-compose.yml)
+  - Configure daemon settings for production builds
+  - Document daemon usage in deployment guide
 
 ---
 

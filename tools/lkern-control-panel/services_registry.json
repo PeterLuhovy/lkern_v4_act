@@ -1,0 +1,146 @@
+{
+  "version": "1.0.0",
+  "description": "Central registry of all L-KERN microservices",
+  "updated": "2025-11-24",
+  "services": [
+    {
+      "code": "lkms105-issues",
+      "name": "Issues Service",
+      "name_sk": "Issues Service",
+      "type": "docker",
+      "container": "lkms105-issues",
+      "order": 105,
+      "category": "business",
+      "ports": {
+        "rest": 4105,
+        "grpc": 6105
+      },
+      "health_check": "http://localhost:4105/health",
+      "dependencies": ["lkms105-issues-db", "lkms105-minio", "lkms504-kafka"]
+    },
+    {
+      "code": "lkms105-issues-db",
+      "name": "Issues Database (PostgreSQL)",
+      "name_sk": "PostgreSQL databáza pre Issues",
+      "type": "docker",
+      "container": "lkms105-issues-db",
+      "order": 105,
+      "category": "database",
+      "ports": {
+        "db": 5432
+      },
+      "health_check": null,
+      "dependencies": []
+    },
+    {
+      "code": "lkms105-minio",
+      "name": "MinIO Object Storage",
+      "name_sk": "MinIO object storage",
+      "type": "docker",
+      "container": "lkms105-minio",
+      "order": 105,
+      "category": "storage",
+      "ports": {
+        "api": 9105,
+        "console": 9106
+      },
+      "health_check": "http://localhost:9105/minio/health/live",
+      "dependencies": []
+    },
+    {
+      "code": "lkms201-web-ui",
+      "name": "Web UI (React Frontend)",
+      "name_sk": "Web UI",
+      "type": "docker",
+      "container": "lkms201-web-ui",
+      "order": 201,
+      "category": "frontend",
+      "ports": {
+        "http": 4201
+      },
+      "health_check": "http://localhost:4201",
+      "dependencies": ["lkms105-issues"]
+    },
+    {
+      "code": "lkms503-zookeeper",
+      "name": "Zookeeper (Kafka Coordination)",
+      "name_sk": "Zookeeper",
+      "type": "docker",
+      "container": "lkms503-zookeeper",
+      "order": 503,
+      "category": "messaging",
+      "ports": {
+        "client": 2181
+      },
+      "health_check": null,
+      "dependencies": []
+    },
+    {
+      "code": "lkms504-kafka",
+      "name": "Kafka (Message Broker)",
+      "name_sk": "Kafka",
+      "type": "docker",
+      "container": "lkms504-kafka",
+      "order": 504,
+      "category": "messaging",
+      "ports": {
+        "broker": 9092
+      },
+      "health_check": null,
+      "dependencies": ["lkms503-zookeeper"]
+    },
+    {
+      "code": "lkms801-system-ops",
+      "name": "System Operations Service (Native)",
+      "name_sk": "System Operations Service",
+      "type": "native",
+      "container": null,
+      "order": 801,
+      "category": "system",
+      "ports": {
+        "rest": 5801,
+        "grpc": 6801
+      },
+      "health_check": "http://localhost:5801/health",
+      "dependencies": [],
+      "process_filter": {
+        "name": ["python.exe", "pythonw.exe"],
+        "commandline": "*app.main*"
+      }
+    },
+    {
+      "code": "lkms901-adminer",
+      "name": "Adminer (Database UI)",
+      "name_sk": "Adminer",
+      "type": "docker",
+      "container": "lkms901-adminer",
+      "order": 901,
+      "category": "tools",
+      "ports": {
+        "http": 4901
+      },
+      "health_check": "http://localhost:4901",
+      "dependencies": ["lkms105-issues-db"]
+    }
+  ],
+  "startup_order": [
+    "lkms503-zookeeper",
+    "lkms504-kafka",
+    "lkms105-issues-db",
+    "lkms105-minio",
+    "lkms105-issues",
+    "lkms201-web-ui",
+    "lkms901-adminer",
+    "lkms801-system-ops"
+  ],
+  "shutdown_order": [
+    "lkms801-system-ops",
+    "lkms201-web-ui",
+    "lkms901-adminer",
+    "lkms105-issues",
+    "lkms105-minio",
+    "lkms105-issues-db",
+    "lkms504-kafka",
+    "lkms503-zookeeper"
+  ]
+}
