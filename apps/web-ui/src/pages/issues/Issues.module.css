@@ -20,26 +20,58 @@
 }
 
 /* ============================================================
-   EXPANDED ROW DETAILS
+   EXPANDED ROW DETAILS (moved to DataGrid.module.css)
    ============================================================ */
 
-.expandedContent {
-  padding: var(--spacing-lg, 24px);
+/* NOTE: .expandedContent and .expandedContent h4 moved to DataGrid.module.css for reusability */
+
+/* ============================================================
+   STATUS LEGEND
+   ============================================================ */
+
+.statusLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md, 16px);
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  margin-bottom: var(--spacing-md, 16px);
   background: var(--theme-card-background, #ffffff);
+  border: var(--border-width-thin, 1px) solid var(--theme-border, #e0e0e0);
+  border-left: var(--border-width-heavy, 6px) solid var(--color-brand-secondary, #3366cc);
   border-radius: var(--radius-md);
+  font-size: var(--font-size-sm, 12px);
 }
 
-.expandedContent h4 {
-  margin: 0 0 var(--spacing-md, 16px) 0;
-  font-size: var(--font-size-lg, 16px);
+.legendTitle {
+  width: 100%;
   font-weight: var(--font-weight-bold, 700);
   color: var(--theme-text, #212121);
+  margin-bottom: var(--spacing-xs, 4px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
+}
+
+.legendColor {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.legendLabel {
+  color: var(--theme-text-secondary, #757575);
+}
+
+/* Page-specific grid for issue details */
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-md, 16px);
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-xs, 8px) var(--spacing-sm, 12px);
   font-size: var(--font-size-sm, 12px);
   color: var(--theme-text, #212121);
 }
@@ -49,13 +81,106 @@
   font-weight: var(--font-weight-bold, 700);
 }
 
+/* 4-column layout for expanded details */
+.detailsColumns {
+  display: grid;
+  grid-template-columns: 350px 200px 200px 300px;
+  gap: var(--spacing-md, 16px);
+  font-size: var(--font-size-sm, 12px);
+  color: var(--theme-text, #212121);
+}
+
+.detailsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 8px);
+}
+
+.detailsColumn h5 {
+  margin: 0 0 var(--spacing-xs, 8px) 0;
+  font-size: var(--font-size-md, 14px);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-brand-primary, #9c27b0);
+  border-bottom: 2px solid var(--theme-border);
+  padding-bottom: var(--spacing-xs, 4px);
+}
+
+.detailsColumn h5.timelineHeader {
+  margin-top: var(--spacing-md, 16px);
+}
+
+/* Label-Value grid layout (labels in left column, values in right column) */
+.labelValueGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 var(--spacing-sm, 12px);
+}
+
+/* Column 1 - labels right-aligned */
+.labelColumn div {
+  text-align: left;
+  padding: 2px 0;
+}
+
+/* Column 2 - values left-aligned */
+.valueColumn div {
+  text-align: left;
+  padding: 2px 0;
+}
+
+.detailsColumn > div:not(.labelValueGrid) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailsColumn strong {
+  color: var(--theme-text, #212121);
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-xs, 11px);
+}
+
+.detailsColumn span {
+  color: var(--theme-text-secondary, #757575);
+  font-size: var(--font-size-sm, 12px);
+  white-space: pre;
+}
+
+/* Clickable attachment card */
+.attachmentCard {
+  padding: var(--spacing-xs);
+  background: var(--theme-input-background);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+
+.attachmentCard:hover {
+  background: var(--theme-hover-background, #f5f5f5);
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.attachmentFileName {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.attachmentMeta {
+  display: flex;
+  gap: var(--spacing-xs);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  margin-top: 4px;
+}
+
 /* ============================================================
    BULK ACTIONS BAR (SELECTED INFO)
    ============================================================ */
 
 .selectedInfo {
-  margin-top: var(--spacing-y-xs, 6px);
-  margin-bottom: var(--spacing-y-md, 16px);
   padding: var(--spacing-y-sm, 8px);
   min-height: var(--spacing-xl, 32px);
   background: var(--theme-card-background, #ffffff);
@@ -204,6 +329,107 @@
 
 .statusRejected {
   background: var(--color-status-error, #f44336);
+}
+
+/* ============================================================
+   DETAILED SECTION (DRY - NO INLINE STYLES)
+   ============================================================ */
+
+/* Soft delete warning */
+.deletedWarning {
+  padding: var(--spacing-sm);
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-md);
+  color: #856404;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.deletedIcon {
+  font-size: 1.5rem;
+}
+
+/* 3-line text pre tag - for description */
+.descriptionPre {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--theme-input-background);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  overflow: auto;
+  height: 50px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 6-line text pre tag - for error_message */
+.errorMessagePre {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--theme-input-background);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  overflow: auto;
+  height: 100px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 1-line text pre tag - for error_type */
+.errorTypePre {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--theme-input-background);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  overflow: auto;
+  height: 30px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Resolution text pre tag (3 lines) */
+.resolutionPre {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--theme-input-background);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  overflow: auto;
+  height: 50px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* N/A text muted */
+.notAvailable {
+  color: var(--theme-text-muted);
+}
+
+/* URL word break */
+.urlBreak {
+  word-break: break-all;
+}
+
+/* Attachments list container */
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Empty attachments state */
+.emptyAttachments {
+  color: var(--theme-text-muted);
+  font-size: 11px;
 }
 
 /* ============================================================

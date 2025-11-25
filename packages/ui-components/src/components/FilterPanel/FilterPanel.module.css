@@ -13,10 +13,9 @@
 
 .filterPanel {
   background: var(--theme-card-background);
-  padding: var(--spacing-y-lg, 24px) var(--spacing-x-lg, 24px);
-  margin-bottom: var(--spacing-y-xs, 6px);
+  padding: var(--spacing-y-sm, 8px) var(--spacing-x-md, 16px);
   border: var(--border-width-thin) solid var(--theme-border);
-  border-left: 6px solid var(--color-brand-primary);
+  border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
@@ -25,20 +24,24 @@
   transition: all var(--duration-state) var(--ease-smooth);
 }
 
-/* === COLLAPSED STATE === */
-.filterPanelCollapsed {
-  padding: var(--spacing-y-sm, 8px) var(--spacing-x-md, 16px);
-  cursor: pointer;
-}
-
-.collapsedHeader {
+/* === PANEL HEADER (always visible) === */
+.panelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  cursor: pointer;
+  padding: calc(var(--spacing-sm) - 4px) var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: var(--border-width-thin) solid var(--theme-border);
+  transition: all var(--duration-state) var(--ease-smooth);
 }
 
-.collapsedTitle {
+.panelHeader:hover {
+  background: var(--theme-hover-background);
+  border-radius: var(--radius-sm);
+}
+
+.panelTitle {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--theme-text);
@@ -46,42 +49,21 @@
   letter-spacing: 0.5px;
 }
 
-.expandButton {
-  padding: var(--spacing-xs) var(--spacing-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--theme-text);
-  background: transparent;
-  border: var(--border-width-thin) solid var(--theme-border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--duration-state) var(--ease-smooth);
-}
-
-.expandButton:hover {
-  background: var(--theme-hover-background);
-  border-color: var(--color-brand-primary);
-}
-
-/* === COLLAPSE BUTTON (top-right) === */
-.collapseButton {
-  position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
-  padding: var(--spacing-xs);
+.toggleArrow {
   font-size: var(--font-size-sm);
   color: var(--theme-text-muted);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--duration-state) var(--ease-smooth);
-  z-index: 1;
+  transition: transform var(--duration-state) var(--ease-smooth);
 }
 
-.collapseButton:hover {
-  color: var(--color-brand-primary);
-  background: var(--theme-hover-background);
+/* === COLLAPSED STATE === */
+.filterPanelCollapsed {
+  padding: var(--spacing-y-sm) var(--spacing-x-md, 16px);
+}
+
+.filterPanelCollapsed .panelHeader {
+  border-bottom: none;
+  margin-bottom: calc(var(--spacing-sm) - 5px);
+  padding: calc(var(--spacing-sm) + 4px) var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
 }
 
 /* === SEARCH BAR (V2 EXACT) === */
@@ -377,7 +359,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--theme-border);
 }
@@ -405,8 +386,10 @@
   color: var(--color-brand-primary);
 }
 
-/* Right Column: Show Inactive Checkbox */
+/* Right Column: Controls (Items per page + New Item + Show Inactive) */
 .bottomRight {
   display: flex;
   align-items: center;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
 }

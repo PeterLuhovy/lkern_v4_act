@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 /*
  * ================================================================
  * FILE: IssueDetail.tsx
@@ -12,8 +11,19 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { BasePage, PageHeader, Badge, Button, Card } from '@l-kern/ui-components';
-import { useTranslation } from '@l-kern/config';
+import {
+  BasePage,
+  PageHeader,
+  Badge,
+  Button,
+  Card,
+  AssignIssueModal,
+  ResolveIssueModal,
+  CloseIssueModal,
+  EditIssueModal,
+  ConfirmModal,
+} from '@l-kern/ui-components';
+import { useTranslation, COLORS } from '@l-kern/config';
 import styles from './IssueDetail.module.css';
 
 // ============================================================
@@ -49,7 +59,7 @@ interface Issue {
   updated_at: string;
   resolved_at?: string;
   closed_at?: string;
-  is_deleted: boolean;
+  deleted_at: string | null;
 }
 
 // ============================================================
@@ -71,6 +81,13 @@ export function IssueDetail() {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Modal states
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // ============================================================
   // FETCH ISSUE FROM API
@@ -112,33 +129,33 @@ export function IssueDetail() {
   // ============================================================
 
   const statusColors = {
-    OPEN: '#FF9800',
-    ASSIGNED: '#2196F3',
-    IN_PROGRESS: '#9c27b0',
-    RESOLVED: '#4CAF50',
-    CLOSED: '#9e9e9e',
-    REJECTED: '#f44336',
+    OPEN: COLORS.status.warning,       // Orange
+    ASSIGNED: COLORS.status.info,      // Blue
+    IN_PROGRESS: COLORS.brand.primary, // Purple
+    RESOLVED: COLORS.status.success,   // Green
+    CLOSED: COLORS.status.muted,       // Gray
+    REJECTED: COLORS.status.error,     // Red
   };
 
   const typeColors = {
-    BUG: '#f44336',
-    FEATURE: '#4CAF50',
-    IMPROVEMENT: '#2196F3',
-    QUESTION: '#FF9800',
+    BUG: COLORS.status.error,          // Red
+    FEATURE: COLORS.status.success,    // Green
+    IMPROVEMENT: COLORS.status.info,   // Blue
+    QUESTION: COLORS.status.warning,   // Orange
   };
 
   const severityColors = {
-    MINOR: '#9e9e9e',
-    MODERATE: '#FF9800',
-    MAJOR: '#f44336',
-    BLOCKER: '#9c27b0',
+    MINOR: COLORS.status.muted,        // Gray
+    MODERATE: COLORS.status.warning,   // Orange
+    MAJOR: COLORS.status.error,        // Red
+    BLOCKER: COLORS.brand.primary,     // Purple
   };
 
   const priorityColors = {
-    LOW: '#9e9e9e',
-    MEDIUM: '#2196F3',
-    HIGH: '#FF9800',
-    CRITICAL: '#f44336',
+    LOW: COLORS.status.muted,          // Gray
+    MEDIUM: COLORS.status.info,        // Blue
+    HIGH: COLORS.status.warning,       // Orange
+    CRITICAL: COLORS.status.error,     // Red
   };
 
   // ============================================================
@@ -150,32 +167,122 @@ export function IssueDetail() {
   };
 
   const handleEdit = () => {
-    alert(`Edit Issue: ${issue.issue_code}`);
-    // TODO: Open edit modal
+    setIsEditModalOpen(true);
   };
 
   const handleAssign = () => {
-    alert(`Assign Issue: ${issue.issue_code}`);
-    // TODO: Open assign modal
+    setIsAssignModalOpen(true);
   };
 
   const handleResolve = () => {
-    alert(`Resolve Issue: ${issue.issue_code}`);
-    // TODO: Open resolve modal
+    setIsResolveModalOpen(true);
   };
 
   const handleClose = () => {
-    if (confirm(`Close issue ${issue.issue_code}?`)) {
-      alert(`Closed: ${issue.issue_code}`);
-      // TODO: API call to close issue
-    }
+    setIsCloseModalOpen(true);
   };
 
   const handleDelete = () => {
-    if (confirm(`Delete issue ${issue.issue_code}?`)) {
-      alert(`Deleted: ${issue.issue_code}`);
-      navigate('/issues');
-      // TODO: API call for soft delete
+    setIsDeleteModalOpen(true);
+  };
+
+  // ============================================================
+  // API HANDLERS
+  // ============================================================
+
+  const refetchIssue = async () => {
+    if (!issueId) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issueId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIssue(data);
+      }
+    } catch (err) {
+      console.error('Error refetching issue:', err);
+    }
+  };
+
+  const handleAssignSubmit = async (assigneeId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issue?.id}/assign`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignee_id: assigneeId }),
+      });
+      if (response.ok) {
+        await refetchIssue();
+      } else {
+        console.error('Failed to assign issue');
+      }
+    } catch (err) {
+      console.error('Error assigning issue:', err);
+    }
+  };
+
+  const handleResolveSubmit = async (resolution: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issue?.id}/resolve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resolution }),
+      });
+      if (response.ok) {
+        await refetchIssue();
+      } else {
+        console.error('Failed to resolve issue');
+      }
+    } catch (err) {
+      console.error('Error resolving issue:', err);
+    }
+  };
+
+  const handleCloseSubmit = async (comment?: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issue?.id}/close`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ closure_comment: comment }),
+      });
+      if (response.ok) {
+        await refetchIssue();
+      } else {
+        console.error('Failed to close issue');
+      }
+    } catch (err) {
+      console.error('Error closing issue:', err);
+    }
+  };
+
+  const handleEditSubmit = async (data: any) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issue?.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        await refetchIssue();
+      } else {
+        console.error('Failed to update issue');
+      }
+    } catch (err) {
+      console.error('Error updating issue:', err);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/issues/${issue?.id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        navigate('/issues');
+      } else {
+        console.error('Failed to delete issue');
+      }
+    } catch (err) {
+      console.error('Error deleting issue:', err);
     }
   };
 
@@ -466,6 +573,55 @@ export function IssueDetail() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <AssignIssueModal
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        onSubmit={handleAssignSubmit}
+        issueCode={issue.issue_code}
+        issueTitle={issue.title}
+      />
+
+      <ResolveIssueModal
+        isOpen={isResolveModalOpen}
+        onClose={() => setIsResolveModalOpen(false)}
+        onSubmit={handleResolveSubmit}
+        issueCode={issue.issue_code}
+        issueTitle={issue.title}
+      />
+
+      <CloseIssueModal
+        isOpen={isCloseModalOpen}
+        onClose={() => setIsCloseModalOpen(false)}
+        onSubmit={handleCloseSubmit}
+        issueCode={issue.issue_code}
+        issueTitle={issue.title}
+      />
+
+      <EditIssueModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditSubmit}
+        issueCode={issue.issue_code}
+        initialData={{
+          title: issue.title,
+          description: issue.description,
+          severity: issue.severity,
+          priority: issue.priority,
+          category: issue.category,
+        }}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete Issue: ${issue.issue_code}`}
+        message={`Are you sure you want to delete "${issue.title}"? This action cannot be undone.`}
+        confirmButtonLabel="Delete"
+        isDanger
+      />
     </BasePage>
   );
 }

@@ -22,7 +22,7 @@
   border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--radius-lg);
   transition: all var(--duration-modal) var(--ease-out);
-  user-select: none;
+  /* Allow text selection in cells and expanded content */
 }
 
 /* === EMPTY STATE === */
@@ -169,21 +169,21 @@
 .rowExpanded {
   position: relative;
   z-index: 3;
-  margin-bottom: 0 !important;
+  margin-bottom: 0;
   box-shadow: var(--shadow-md);
   transform: scale(var(--hover-scale-normal));
 }
 
 /* Text in expanded row - darker for better readability */
 .rowExpanded .cell {
-  color: var(--color-neutral-gray900) !important;
-  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-neutral-gray900);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Dark mode text in expanded row */
 [data-theme="dark"] .rowExpanded .cell {
-  color: var(--color-neutral-white) !important;
-  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-neutral-white);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Selected row - cyan gradient */
@@ -192,7 +192,7 @@
     rgba(0, 188, 212, 0.7) 0%,
     rgba(0, 188, 212, 0.55) 50%,
     rgba(0, 188, 212, 0.7) 100%);
-  border-left-color: transparent;
+  border: none;
   box-shadow: none;
   position: relative;
   z-index: 5;
@@ -213,7 +213,7 @@
     rgba(0, 188, 212, 0.8) 0%,
     rgba(0, 188, 212, 0.65) 50%,
     rgba(0, 188, 212, 0.8) 100%);
-  border-left-color: transparent;
+  border: none;
   box-shadow: none;
 }
 
@@ -240,63 +240,55 @@
   transform-origin: center;
 }
 
-/* Light mode hover: Subtle gradient overlay using brand colors */
+/* Light mode hover */
 .row:hover::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--color-brand-primary) 8%, transparent) 0%,
-    color-mix(in srgb, var(--color-brand-secondary) 6%, transparent) 50%,
-    color-mix(in srgb, var(--color-brand-primary) 8%, transparent) 100%
-  );
-  pointer-events: none;
-  border-radius: var(--radius-sm);
-  z-index: 1;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.06) 100%);
 }
 
-/* Light mode shadow with brand glow */
+/* Light mode shadow with glow */
 .row:hover {
-  box-shadow: var(--shadow-lg), 0 0 var(--spacing-sm) color-mix(in srgb, var(--color-brand-primary) 15%, transparent) !important;
+  box-shadow: var(--shadow-xl), 0 0 var(--spacing-xl) rgba(156, 39, 176, 0.4), 0 0 var(--spacing-md) rgba(156, 39, 176, 0.3);
 }
 
-/* Dark mode row hover: Gradient overlay */
+/* Dark mode row hover */
 [data-theme="dark"] .row:hover::before {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.25) 100%);
 }
 
-/* Dark mode shadow with white glow */
+/* Dark mode shadow with glow */
 [data-theme="dark"] .row:hover {
-  box-shadow: var(--shadow-xl), 0 0 var(--spacing-xl) rgba(255, 255, 255, 0.4), 0 0 var(--spacing-md) rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--shadow-xl), 0 0 var(--spacing-xl) rgba(255, 255, 255, 0.4), 0 0 var(--spacing-md) rgba(255, 255, 255, 0.3);
 }
 
-/* Light mode text styling on hover - keep normal color */
+/* Light mode text styling on hover */
 .row:hover .cell {
-  color: inherit;
-  font-weight: var(--font-weight-semibold);
+  color: var(--color-black);
+  font-weight: var(--font-weight-bold);
   z-index: 2;
-  position: relative;
+  text-shadow: none;
 }
 
 /* Dark mode text styling on hover */
 [data-theme="dark"] .row:hover .cell {
-  color: var(--color-neutral-white) !important;
+  color: var(--color-white);
   font-weight: var(--font-weight-bold);
+  z-index: 2;
   text-shadow: none;
 }
 
 /* Focus indicator for keyboard navigation */
-.row:focus {
-  outline: var(--border-width-medium) solid var(--color-brand-primary);
-  outline-offset: var(--border-width-medium);
+.row:focus:not(.rowSelected) {
+  outline: var(--border-width-thick) solid var(--color-black);
+}
+
+/* Dark mode focus - light gray outline */
+[data-theme="dark"] .row:focus:not(.rowSelected) {
+  outline: var(--border-width-thick) solid var(--color-white);
 }
 
 /* Remove focus outline from selected rows */
-.rowSelected:focus {
+.row.rowSelected:focus,
+.row.rowSelected {
   outline: none;
 }
 
@@ -308,6 +300,7 @@
   gap: var(--spacing-sm);
   color: var(--theme-text);
   font-size: var(--font-size-md);
+  user-select: text;
 }
 
 /* Dark mode cell text */
@@ -362,12 +355,30 @@
 
 /* === EXPANDED CONTENT === */
 .expanded {
-  background: var(--theme-card-background);
-  padding: var(--spacing-lg);
-  border-left: var(--border-width-thick) solid var(--status-color, var(--color-brand-secondary));
-  border-bottom: var(--border-width-thick) solid var(--theme-border);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-left: var(--border-width-heavy, 6px) solid var(--status-color, var(--color-brand-secondary));
+  border-bottom: var(--border-width-thin, 1px) solid var(--theme-border);
   color: var(--theme-text);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  user-select: text;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Content wrapper inside expanded - white/dark background */
+.expandedContent {
+  padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
+  background: var(--theme-card-background);
+  border-radius: var(--radius-md);
+}
+
+/* Styling for headings inside expanded content */
+.expandedContent h4 {
+  margin: var(--spacing-sm, 12px) 0 var(--spacing-xs, 8px) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--theme-text);
 }
 
 /* === COMPACT MODE === */
@@ -410,4 +421,108 @@
 
 .dataGridCompact .expandArrow {
   font-size: calc(var(--font-size-sm) * 0.9);
+}
+
+/* ============================================================
+   DELETED/INACTIVE ROW STYLING
+   ============================================================
+   Shared styling for deleted/inactive items across all pages
+   Color: #CC0000 (bright saturated red)
+   Text: #999999 (muted gray for both light and dark modes)
+   ============================================================ */
+
+/* Override text color for rows with bright red background (inactive/deleted) */
+.row[style*="rgb(204, 0, 0)"],
+.row[style*="rgba(204, 0, 0"],
+.row[style*="#CC0000"],
+.row[style*="#cc0000"],
+.row[style*="rgb(238, 0, 0)"],
+.row[style*="rgba(238, 0, 0"],
+.row[style*="#EE0000"],
+.row[style*="#ee0000"] {
+  color: #999999 !important;
+  opacity: 0.85;
+}
+
+.row[style*="rgb(204, 0, 0)"] *,
+.row[style*="rgba(204, 0, 0"] *,
+.row[style*="#CC0000"] *,
+.row[style*="#cc0000"] *,
+.row[style*="rgb(238, 0, 0)"] *,
+.row[style*="rgba(238, 0, 0"] *,
+.row[style*="#EE0000"] *,
+.row[style*="#ee0000"] * {
+  color: #999999 !important;
+}
+
+/* Dark mode - darker gray text */
+[data-theme="dark"] .row[style*="rgb(204, 0, 0)"],
+[data-theme="dark"] .row[style*="rgba(204, 0, 0"],
+[data-theme="dark"] .row[style*="#CC0000"],
+[data-theme="dark"] .row[style*="#cc0000"] {
+  color: #707070 !important;
+}
+
+[data-theme="dark"] .row[style*="rgb(204, 0, 0)"] *,
+[data-theme="dark"] .row[style*="rgba(204, 0, 0"] *,
+[data-theme="dark"] .row[style*="#CC0000"] *,
+[data-theme="dark"] .row[style*="#cc0000"] * {
+  color: #707070 !important;
+}
+
+/* Override even for hover and selected states */
+.row[style*="rgb(204, 0, 0)"]:hover .cell,
+.row[style*="rgba(204, 0, 0"]:hover .cell,
+.row[style*="#CC0000"]:hover .cell,
+.row[style*="#cc0000"]:hover .cell,
+.row[style*="rgb(238, 0, 0)"]:hover .cell,
+.row[style*="rgba(238, 0, 0"]:hover .cell,
+.row[style*="#EE0000"]:hover .cell,
+.row[style*="#ee0000"]:hover .cell {
+  color: #999999 !important;
+}
+
+[data-theme="dark"] .row[style*="rgb(204, 0, 0)"]:hover .cell,
+[data-theme="dark"] .row[style*="rgba(204, 0, 0"]:hover .cell,
+[data-theme="dark"] .row[style*="#CC0000"]:hover .cell,
+[data-theme="dark"] .row[style*="#cc0000"]:hover .cell {
+  color: #707070 !important;
+}
+
+.rowSelected[style*="rgb(204, 0, 0)"] .cell,
+.rowSelected[style*="rgba(204, 0, 0"] .cell,
+.rowSelected[style*="#CC0000"] .cell,
+.rowSelected[style*="#cc0000"] .cell,
+.rowSelected[style*="rgb(238, 0, 0)"] .cell,
+.rowSelected[style*="rgba(238, 0, 0"] .cell,
+.rowSelected[style*="#EE0000"] .cell,
+.rowSelected[style*="#ee0000"] .cell {
+  color: #999999 !important;
+}
+
+[data-theme="dark"] .rowSelected[style*="rgb(204, 0, 0)"] .cell,
+[data-theme="dark"] .rowSelected[style*="rgba(204, 0, 0"] .cell,
+[data-theme="dark"] .rowSelected[style*="#CC0000"] .cell,
+[data-theme="dark"] .rowSelected[style*="#cc0000"] .cell {
+  color: #707070 !important;
+}
+
+/* Make warning icon visible on dark background */
+.row[style*="rgb(204, 0, 0)"] span[title="Deleted item"],
+.row[style*="rgba(204, 0, 0"] span[title="Deleted item"],
+.row[style*="#CC0000"] span[title="Deleted item"],
+.row[style*="#cc0000"] span[title="Deleted item"],
+.row[style*="rgb(204, 0, 0)"] span[title="Deleted issue"],
+.row[style*="rgba(204, 0, 0"] span[title="Deleted issue"],
+.row[style*="#CC0000"] span[title="Deleted issue"],
+.row[style*="#cc0000"] span[title="Deleted issue"],
+.row[style*="rgb(238, 0, 0)"] span[title="Deleted item"],
+.row[style*="rgba(238, 0, 0"] span[title="Deleted item"],
+.row[style*="#EE0000"] span[title="Deleted item"],
+.row[style*="#ee0000"] span[title="Deleted item"],
+.row[style*="rgb(238, 0, 0)"] span[title="Deleted issue"],
+.row[style*="rgba(238, 0, 0"] span[title="Deleted issue"],
+.row[style*="#EE0000"] span[title="Deleted issue"],
+.row[style*="#ee0000"] span[title="Deleted issue"] {
+  color: var(--color-status-warning, #FFD700) !important;
 }

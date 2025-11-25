@@ -54,8 +54,6 @@
    ============================================================ */
 
 .selectedInfo {
-  margin-top: var(--spacing-y-xs, 6px);
-  margin-bottom: var(--spacing-y-md, 16px);
   padding: var(--spacing-y-sm, 8px);
   min-height: var(--spacing-xl, 32px);
   background: var(--theme-card-background, #ffffff);
@@ -132,6 +130,15 @@
   border-color: var(--color-brand-primary, #9c27b0);
   color: var(--color-brand-primary, #9c27b0);
 }
+
+/* ============================================================
+   ROW STYLING FOR INACTIVE/DELETED ITEMS
+   ============================================================ */
+
+/* NOTE: Moved to DataGrid.module.css for DRY compliance
+ * Shared styling in the DataGrid component itself
+ * See: packages/ui-components/src/components/DataGrid/DataGrid.module.css
+ */
 
 /* ============================================================
    RESPONSIVE

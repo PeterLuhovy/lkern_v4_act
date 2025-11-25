@@ -190,6 +190,12 @@ export interface ModalProps {
    * @example '600px', '80vw', '50rem'
    */
   maxWidth?: string;
+
+  /**
+   * Custom className for modal header (for colored headers)
+   * @example 'headerBug', 'headerFeature'
+   */
+  headerClassName?: string;
 }
 
 // === HELPER FUNCTIONS ===
@@ -305,6 +311,7 @@ export const Modal: React.FC<ModalProps> = ({
   className = '',
   showDebugBar = true,
   pageName,
+  headerClassName,
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -793,7 +800,7 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Header */}
         {(title || showCloseButton) && (
           <div
-            className={styles.modalHeader}
+            className={`${styles.modalHeader} ${headerClassName || ''}`}
             onMouseDown={(e) => {
               // Track mousedown on header (for drag analytics)
               if (showDebugBar) {

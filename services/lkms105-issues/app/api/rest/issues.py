@@ -14,16 +14,17 @@ Description:
 ================================================================
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status as http_status
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, status as http_status, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from typing import List, Optional
 from datetime import datetime
 import uuid
 import logging
+import json
 
 from app.database import get_db
-from app.models import Issue, IssueType, IssueSeverity, IssueCategory, IssueStatus, IssuePriority
+from app.models import Issue, IssueType, IssueSeverity, IssueCategory, IssueStatus, IssuePriority, DeletionAudit, DeletionStatus
 from app.schemas import (
     IssueCreateUserBasic,
     IssueCreateUserStandard,
@@ -33,9 +34,11 @@ from app.schemas import (
     IssueResolve,
     IssueClose,
     IssueResponse,
+    DeletionAuditResponse,
 )
 from app.services.issue_service import generate_issue_code, validate_status_transition
 from app.events.producer import publish_event
+from app.services.minio_client import minio_client
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +81,7 @@ async def list_issues(
 
     # Soft delete filter (default: exclude deleted)
     if not include_deleted:
-        query = query.filter(Issue.is_deleted == False)  # noqa: E712
+        query = query.filter(Issue.deleted_at == None)  # noqa: E711
 
     # Apply enum filters
     if type:
@@ -126,7 +129,7 @@ async def get_issue(
     """Get single issue by UUID."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:
@@ -144,79 +147,125 @@ async def get_issue(
 
 @router.post("/", response_model=IssueResponse, status_code=http_status.HTTP_201_CREATED)
 async def create_issue(
-    role: str = Query(..., regex="^(user_basic|user_standard|user_advance)$", description="User role"),
-
-    # Accept all 3 schema variants (FastAPI will validate based on role)
-    basic_data: Optional[IssueCreateUserBasic] = None,
-    standard_data: Optional[IssueCreateUserStandard] = None,
-    advance_data: Optional[IssueCreateUserAdvance] = None,
-
+    data: str = Form(..., description="JSON string with issue data"),
+    role: str = Form(..., description="User role: user_basic | user_standard | user_advance"),
+    files: List[UploadFile] = File(default=[], description="Optional file attachments"),
     db: Session = Depends(get_db),
 ):
     """
-    Create new issue - role-based schema validation.
+    Create new issue - role-based schema validation with file attachments.
 
     Roles:
     - user_basic: Minimal fields (title, description, type, 1 screenshot)
     - user_standard: Basic fields (+ severity, optional attachments)
     - user_advance: Full fields (+ category, developer data, logs)
 
-    Query parameter:
+    Form fields:
+    - data: JSON string with issue data
     - role: user_basic | user_standard | user_advance
+    - files: Optional file attachments (multipart/form-data)
     """
-    # Determine which schema to use based on role
-    if role == "user_basic":
-        if not basic_data:
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST,
-                detail="user_basic role requires IssueCreateUserBasic schema"
-            )
-        data = basic_data.model_dump()
-        # Set defaults for user_basic
-        data['severity'] = IssueSeverity.MODERATE
-        data['priority'] = IssuePriority.MEDIUM
-
-    elif role == "user_standard":
-        if not standard_data:
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST,
-                detail="user_standard role requires IssueCreateUserStandard schema"
-            )
-        data = standard_data.model_dump()
-        # Set defaults for user_standard
-        data['priority'] = IssuePriority.MEDIUM
-
-    elif role == "user_advance":
-        if not advance_data:
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST,
-                detail="user_advance role requires IssueCreateUserAdvance schema"
-            )
-        data = advance_data.model_dump()
-
-    else:
+    # Parse JSON data
+    try:
+        request_data = json.loads(data)
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {str(e)}")
         raise HTTPException(
             status_code=http_status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid role: {role}"
+            detail=f"Invalid JSON data: {str(e)}"
+        )
+
+    # Validate request data based on role
+    try:
+        if role == "user_basic":
+            validated_data = IssueCreateUserBasic(**request_data)
+            issue_data = validated_data.model_dump()
+            # Set defaults for user_basic
+            issue_data['severity'] = IssueSeverity.MODERATE
+            issue_data['priority'] = IssuePriority.MEDIUM
+
+        elif role == "user_standard":
+            validated_data = IssueCreateUserStandard(**request_data)
+            issue_data = validated_data.model_dump()
+            # Set defaults for user_standard
+            issue_data['priority'] = IssuePriority.MEDIUM
+
+        elif role == "user_advance":
+            validated_data = IssueCreateUserAdvance(**request_data)
+            issue_data = validated_data.model_dump()
+
+        else:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid role: {role}"
+            )
+    except Exception as e:
+        logger.error(f"Validation error for role {role}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Validation error: {str(e)}"
         )
 
     # Generate issue_code
-    issue_code = generate_issue_code(db, data['type'])
+    issue_code = generate_issue_code(db, issue_data['type'])
 
     # TODO: Get reporter_id from JWT token (for now, use dummy UUID)
     reporter_id = uuid.uuid4()
 
-    # Create Issue entity
+    # Create Issue entity (without attachments for now)
     issue = Issue(
         issue_code=issue_code,
         reporter_id=reporter_id,
         status=IssueStatus.OPEN,
-        **data
+        **issue_data
     )
 
     db.add(issue)
     db.commit()
     db.refresh(issue)
+
+    # Process file attachments if provided
+    attachments_metadata = []
+    if files:
+        logger.info(f"Processing {len(files)} file attachments for issue {issue.issue_code}")
+        for file in files:
+            try:
+                # Read file content
+                file_content = await file.read()
+                file_size = len(file_content)
+
+                # Generate unique object name: {uuid}/{filename}
+                object_name = f"{issue.id}/{file.filename}"
+
+                # Upload to MinIO
+                minio_client.upload_file(
+                    file_data=file_content,
+                    object_name=object_name,
+                    content_type=file.content_type or "application/octet-stream"
+                )
+
+                # Create attachment metadata
+                attachment_meta = {
+                    "file_name": file.filename,
+                    "file_size": file_size,
+                    "content_type": file.content_type or "application/octet-stream",
+                    "object_name": object_name,
+                    "uploaded_at": datetime.utcnow().isoformat()
+                }
+                attachments_metadata.append(attachment_meta)
+
+                logger.info(f"Uploaded attachment: {file.filename} ({file_size} bytes)")
+
+            except Exception as e:
+                logger.error(f"Error processing attachment {file.filename}: {str(e)}")
+                # Continue with other files, don't fail entire request
+
+        # Update issue with attachments metadata
+        if attachments_metadata:
+            issue.attachments = attachments_metadata
+            db.commit()
+            db.refresh(issue)
+            logger.info(f"Saved {len(attachments_metadata)} attachment metadata records")
 
     # Publish Kafka event
     await publish_event("issue.created", {
@@ -224,9 +273,10 @@ async def create_issue(
         "issue_code": issue.issue_code,
         "type": issue.type.value,
         "reporter_id": str(issue.reporter_id),
+        "attachments_count": len(attachments_metadata) if attachments_metadata else 0,
     })
 
-    logger.info(f"Created Issue {issue.issue_code} (role={role})")
+    logger.info(f"Created Issue {issue.issue_code} (role={role}, attachments={len(attachments_metadata) if attachments_metadata else 0})")
 
     return issue
 
@@ -244,7 +294,7 @@ async def update_issue(
     """Update existing issue (partial update)."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:
@@ -281,10 +331,10 @@ async def delete_issue(
     issue_id: str,
     db: Session = Depends(get_db),
 ):
-    """Soft delete issue (set is_deleted=True)."""
+    """Soft delete issue (set deleted_at timestamp)."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:
@@ -294,7 +344,7 @@ async def delete_issue(
         )
 
     # Soft delete
-    issue.is_deleted = True
+    issue.deleted_at = datetime.utcnow()
     db.commit()
 
     # Publish Kafka event
@@ -306,6 +356,236 @@ async def delete_issue(
     logger.info(f"Soft-deleted Issue {issue.issue_code}")
 
     return None
+
+
+# ============================================================
+# RESTORE SOFT-DELETED ISSUE
+# ============================================================
+
+@router.post("/{issue_id}/restore", response_model=IssueResponse)
+async def restore_issue(
+    issue_id: str,
+    db: Session = Depends(get_db),
+):
+    """Restore soft-deleted issue (clear deleted_at timestamp)."""
+    issue = db.query(Issue).filter(
+        Issue.id == uuid.UUID(issue_id),
+        Issue.deleted_at != None  # noqa: E711
+    ).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Soft-deleted issue {issue_id} not found"
+        )
+
+    # Restore (clear deleted_at)
+    issue.deleted_at = None
+    db.commit()
+    db.refresh(issue)
+
+    # Publish Kafka event
+    await publish_event("issue.restored", {
+        "id": str(issue.id),
+        "issue_code": issue.issue_code,
+    })
+
+    logger.info(f"Restored Issue {issue.issue_code}")
+
+    return issue
+
+
+# ============================================================
+# HARD DELETE ISSUE (Permanent)
+# ============================================================
+
+@router.delete("/{issue_id}/permanent", status_code=http_status.HTTP_204_NO_CONTENT)
+async def hard_delete_issue(
+    issue_id: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Permanently delete issue (hard delete from DB + MinIO files with audit trail).
+
+    Deletion order (CRITICAL):
+    1. Delete external resources (MinIO files) → Track each deletion
+    2. Verify deletion (Check files actually deleted)
+    3. Create audit log (Record what was deleted)
+    4. Delete from database (Only if all previous steps succeed)
+    5. Publish Kafka event (Notification + future async processing foundation)
+
+    If any step fails:
+    - Create audit log with status='failed' or 'partial'
+    - Raise HTTPException (rollback database changes)
+    """
+
+    # Find issue (including soft-deleted)
+    issue = db.query(Issue).filter(
+        Issue.id == uuid.UUID(issue_id)
+    ).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Create audit record
+    audit = DeletionAudit(
+        item_id=issue.id,
+        item_code=issue.issue_code,
+        item_type="issue",
+        status=DeletionStatus.PENDING,
+        started_at=datetime.utcnow()
+    )
+    db.add(audit)
+    db.commit()  # Commit audit record immediately
+    db.refresh(audit)
+
+    # Track deletion results
+    files_failed = []
+
+    try:
+        # === STEP 1: Delete external resources (MinIO files) ===
+        folder_prefix = f"{issue.id}/"
+
+        # List files first (for audit)
+        files = minio_client.list_files(prefix=folder_prefix)
+        audit.files_found = len(files)
+
+        # Delete each file and track failures
+        deleted_count = 0
+        for file_name in files:
+            try:
+                success = minio_client.delete_file(file_name)
+                if success:
+                    deleted_count += 1
+                else:
+                    files_failed.append({
+                        "file_name": file_name,
+                        "error": "MinIO delete_file returned False"
+                    })
+            except Exception as e:
+                logger.error(f"Failed to delete file {file_name}: {str(e)}")
+                files_failed.append({
+                    "file_name": file_name,
+                    "error": str(e)
+                })
+
+        audit.files_deleted = deleted_count
+        audit.files_failed = files_failed if files_failed else None
+
+        # === STEP 2: Check if any files failed ===
+        if files_failed:
+            # Partial deletion - some files failed
+            audit.status = DeletionStatus.PARTIAL
+            audit.error_message = f"Failed to delete {len(files_failed)} files"
+            audit.completed_at = datetime.utcnow()
+
+            # Link issue to failed deletion audit (for frontend red warning icon)
+            issue.deletion_audit_id = audit.id
+            db.commit()
+
+            logger.error(f"Partial deletion for issue {issue.issue_code}: {len(files_failed)} files failed")
+            raise HTTPException(
+                status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Partial deletion: {len(files_failed)} files failed to delete. Audit ID: {audit.id}"
+            )
+
+        # === STEP 3: All external resources deleted successfully ===
+        if deleted_count > 0:
+            logger.info(f"Deleted {deleted_count} files from MinIO folder: {folder_prefix}")
+        else:
+            logger.warning(f"No files found in MinIO folder: {folder_prefix}")
+
+        # === STEP 4: Delete from database (only after external cleanup succeeds) ===
+        issue_code = issue.issue_code
+        db.delete(issue)
+        db.commit()
+
+        # === STEP 5: Update audit record ===
+        audit.status = DeletionStatus.COMPLETED
+        audit.completed_at = datetime.utcnow()
+        db.commit()
+
+        # === STEP 6: Publish Kafka event ===
+        await publish_event("issue.permanently_deleted", {
+            "id": str(issue_id),
+            "issue_code": issue_code,
+            "files_deleted": deleted_count,
+            "audit_id": audit.id
+        })
+
+        logger.info(f"Permanently deleted issue {issue_code} (audit_id={audit.id})")
+        return None
+
+    except HTTPException:
+        # Re-raise HTTP exceptions (already handled above)
+        raise
+
+    except Exception as e:
+        # Unexpected error - mark as failed
+        audit.status = DeletionStatus.FAILED
+        audit.error_message = str(e)
+        audit.completed_at = datetime.utcnow()
+        db.commit()
+
+        logger.error(f"Failed to delete issue {issue.issue_code}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Deletion failed: {str(e)}"
+        )
+
+
+# ============================================================
+# GET: DELETION AUDIT DETAILS
+# ============================================================
+
+@router.get("/{issue_id}/deletion-audit", response_model=DeletionAuditResponse)
+async def get_deletion_audit(
+    issue_id: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Get deletion audit details for an issue.
+
+    Used by frontend to show audit log modal when deletion failed (partial status).
+    Shows: files_found, files_deleted, files_failed, error_message, timestamps.
+
+    Args:
+        issue_id: Issue UUID
+
+    Returns:
+        DeletionAuditResponse with audit details
+
+    Raises:
+        404: Issue not found or no deletion audit exists
+    """
+    # Find issue
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check if issue has deletion audit
+    if not issue.deletion_audit_id:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue.issue_code} has no deletion audit record"
+        )
+
+    # Fetch deletion audit
+    audit = db.query(DeletionAudit).filter(DeletionAudit.id == issue.deletion_audit_id).first()
+    if not audit:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Deletion audit {issue.deletion_audit_id} not found"
+        )
+
+    logger.info(f"Fetched deletion audit {audit.id} for issue {issue.issue_code}")
+    return audit
 
 
 # ============================================================
@@ -321,7 +601,7 @@ async def assign_issue(
     """Assign issue to developer."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:
@@ -368,7 +648,7 @@ async def resolve_issue(
     """Mark issue as resolved."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:
@@ -415,7 +695,7 @@ async def close_issue(
     """Close issue."""
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
-        Issue.is_deleted == False  # noqa: E712
+        Issue.deleted_at == None  # noqa: E711
     ).first()
 
     if not issue:

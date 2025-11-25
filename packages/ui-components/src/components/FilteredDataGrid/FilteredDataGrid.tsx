@@ -3,8 +3,11 @@
  * FILE: FilteredDataGrid.tsx
  * PATH: /packages/ui-components/src/components/FilteredDataGrid/FilteredDataGrid.tsx
  * DESCRIPTION: Wrapper combining FilterPanel + DataGrid with internal state management
- * VERSION: v1.0.0
- * UPDATED: 2025-11-06
+ * VERSION: v1.2.0
+ * UPDATED: 2025-11-24
+ * CHANGES:
+ *   - v1.2.0: Added sorting support (sortField, sortDirection, onSort)
+ *   - v1.1.0: Initial version with filtering and pagination
  * ================================================================
  */
 
@@ -12,8 +15,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { FilterPanel } from '../FilterPanel';
 import { DataGrid } from '../DataGrid';
 import { Pagination } from '../Pagination';
-import type { FilteredDataGridProps } from '../../types/FilteredDataGrid';
-import type { FilterGroup, QuickFilter } from '../../types/FilterPanel';
+import type { FilteredDataGridProps } from './FilteredDataGrid.types';
+import type { FilterGroup, QuickFilter } from '../FilterPanel/FilterPanel.types';
 import styles from './FilteredDataGrid.module.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic data type for flexible grid usage
@@ -23,6 +26,8 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   getRowId,
   getRowStatus,
   statusColors,
+  statusLabels,
+  showStatusLegend,
   enableSelection,
   selectedRows,
   onSelectionChange,
@@ -40,11 +45,14 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   enablePagination = true,
   onNewItem,
   newItemText,
+  newItemDisabled = false,
   inactiveField,
   showInactiveLabel,
   gridId,
   className,
   betweenContent,
+  autoRefreshInterval,
+  onRefresh,
 }: FilteredDataGridProps<T>) {
   // === INTERNAL STATE ===
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +62,8 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   const [itemsPerPageState, setItemsPerPageState] = useState(initialItemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationEnabled, setPaginationEnabled] = useState(enablePagination);
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // === DEFAULT SEARCH FUNCTION ===
   const defaultSearchFn = (item: T, query: string): boolean => {
@@ -116,25 +126,82 @@ export function FilteredDataGrid<T extends Record<string, any>>({
     activeQuickFilters.size > 0
   );
 
+  // === SORTING LOGIC ===
+  const sortedData = useMemo(() => {
+    if (!sortField) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+
+      // Handle null/undefined
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      // Compare values
+      let comparison = 0;
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal;
+      } else {
+        comparison = String(aVal).localeCompare(String(bVal));
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [filteredData, sortField, sortDirection]);
+
   // === RESET TO PAGE 1 WHEN FILTERS CHANGE ===
   useEffect(() => {
     setCurrentPage(1);
   }, [filteredData.length, itemsPerPageState]);
 
+  // === AUTO-REFRESH ===
+  useEffect(() => {
+    if (autoRefreshInterval && autoRefreshInterval > 0 && onRefresh) {
+      const interval = setInterval(() => {
+        onRefresh();
+      }, autoRefreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [autoRefreshInterval, onRefresh]);
+
+  // === RESET SHOW INACTIVE ON PERMISSION CHANGE ===
+  // When user switches to a role without permission, reset showInactive to false
+  useEffect(() => {
+    if (!showInactiveLabel && showInactive) {
+      setShowInactive(false);
+    }
+  }, [showInactiveLabel, showInactive]);
+
+  // === SORTING HANDLER ===
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New field, default to ascending
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   // === PAGINATION ===
-  const totalPages = Math.ceil(filteredData.length / itemsPerPageState);
+  const totalPages = Math.ceil(sortedData.length / itemsPerPageState);
 
   const paginatedData = useMemo(() => {
-    // If pagination disabled, show all filtered items
+    // If pagination disabled, show all sorted items
     if (!paginationEnabled) {
-      return filteredData;
+      return sortedData;
     }
 
     // Otherwise, paginate
     const startIndex = (currentPage - 1) * itemsPerPageState;
     const endIndex = startIndex + itemsPerPageState;
-    return filteredData.slice(startIndex, endIndex);
-  }, [filteredData, currentPage, itemsPerPageState, paginationEnabled]);
+    return sortedData.slice(startIndex, endIndex);
+  }, [sortedData, currentPage, itemsPerPageState, paginationEnabled]);
 
   // === FILTER GROUP TOGGLE HANDLERS ===
   const toggleFilter = (field: string, value: string) => {
@@ -216,9 +283,13 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         onItemsPerPageChange={setItemsPerPageState}
         onNewItem={onNewItem}
         newItemText={newItemText}
-        showInactive={inactiveField ? showInactive : undefined}
-        onShowInactiveChange={inactiveField ? setShowInactive : undefined}
+        newItemDisabled={newItemDisabled}
+        showInactive={inactiveField && showInactiveLabel ? showInactive : undefined}
+        onShowInactiveChange={inactiveField && showInactiveLabel ? setShowInactive : undefined}
         showInactiveLabel={showInactiveLabel}
+        statusColors={statusColors}
+        statusLabels={statusLabels}
+        showStatusLegend={showStatusLegend}
       />
 
       {/* Custom content between FilterPanel and DataGrid */}
@@ -242,13 +313,16 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         hasActiveFilters={hasActiveFilters}
         gridId={gridId}
         itemsPerPage={itemsPerPageState}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={handleSort}
       />
 
       {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={filteredData.length}
+        totalItems={sortedData.length}
         itemsPerPage={itemsPerPageState}
         onPageChange={setCurrentPage}
         enabled={paginationEnabled}

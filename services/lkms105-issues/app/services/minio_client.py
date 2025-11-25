@@ -120,6 +120,36 @@ class MinIOClient:
             logger.error(f"Error deleting file {object_name}: {e}")
             return False
 
+    def delete_folder(self, prefix: str) -> int:
+        """
+        Delete all files in a folder (prefix).
+
+        Args:
+            prefix: Folder prefix (e.g., "issue-uuid/")
+
+        Returns:
+            Number of files deleted
+        """
+        try:
+            # List all objects with prefix
+            objects = self.client.list_objects(self.bucket, prefix=prefix, recursive=True)
+
+            # Delete each object
+            deleted_count = 0
+            for obj in objects:
+                try:
+                    self.client.remove_object(self.bucket, obj.object_name)
+                    deleted_count += 1
+                except S3Error as e:
+                    logger.error(f"Error deleting object {obj.object_name}: {e}")
+                    # Continue with other objects
+
+            logger.info(f"Deleted {deleted_count} files with prefix: {prefix}")
+            return deleted_count
+        except S3Error as e:
+            logger.error(f"Error deleting folder {prefix}: {e}")
+            return 0
+
     def list_files(self, prefix: str = "") -> list[str]:
         """
         List files in bucket with optional prefix.

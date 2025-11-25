@@ -11,5 +11,5 @@
 .filteredDataGrid {
   display: flex;
   flex-direction: column;
-  gap: 0; /* FilterPanel has margin-bottom, no gap needed */
+  gap: var(--spacing-y-md, 16px); /* Consistent spacing between all cards */
 }

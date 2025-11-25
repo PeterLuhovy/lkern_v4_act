@@ -32,3 +32,7 @@ export type {
   PageAnalyticsMetrics,
   UsePageAnalyticsReturn
 } from './usePageAnalytics';
+
+// useAuth hook (mock implementation)
+export { useAuth } from './useAuth';
+export type { User, UserRole, Permission } from './useAuth';

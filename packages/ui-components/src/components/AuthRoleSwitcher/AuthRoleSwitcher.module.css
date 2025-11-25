@@ -1,0 +1,243 @@
+/*
+ * ================================================================
+ * FILE: AuthRoleSwitcher.module.css
+ * PATH: /packages/ui-components/src/components/AuthRoleSwitcher/AuthRoleSwitcher.module.css
+ * DESCRIPTION: Styles for authorization permission level switcher with slider
+ * VERSION: v3.2.0
+ * CREATED: 2025-11-22
+ * UPDATED: 2025-11-24
+ * CHANGES:
+ *   - v3.2.0: Small indicator to right of slider, range-based button highlighting
+ *   - v3.1.0: Slider-based UI with color-coded track and markers
+ *   - v3.0.0: Numeric permission system with indicator, input, and color coding
+ *   - v2.1.0: Horizontal layout (row), compact buttons with icon on top
+ *   - v2.0.0: Initial version with vertical layout
+ * ================================================================
+ */
+
+/* ================================================================
+ * MAIN CONTAINER
+ * ================================================================ */
+
+.authRoleSwitcher {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm, 12px);
+  width: 100%;
+}
+
+/* ================================================================
+ * SLIDER ROW (Slider + Indicator)
+ * ================================================================ */
+
+.authRoleSwitcher__sliderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md, 16px);
+  width: 100%;
+}
+
+/* ================================================================
+ * PERMISSION LEVEL INDICATOR - Small, Right of Slider
+ * ================================================================ */
+
+.authRoleSwitcher__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs, 8px);
+  background: var(--theme-input-background, #2a2a2a);
+  border: 2px solid var(--theme-input-border, #444444);
+  border-radius: var(--border-radius-md, 8px);
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.authRoleSwitcher__indicatorValue {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--theme-text, #ffffff);
+}
+
+/* ================================================================
+ * HORIZONTAL SLIDER
+ * ================================================================ */
+
+.authRoleSwitcher__sliderContainer {
+  position: relative;
+  flex: 1;
+  padding: var(--spacing-xs, 8px) 0;
+}
+
+.authRoleSwitcher__slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+/* Slider Track - Color variants based on permission level */
+
+.authRoleSwitcher__slider--green {
+  background: linear-gradient(
+    to right,
+    var(--color-status-success, #4CAF50) 0%,
+    var(--color-status-success, #4CAF50) 100%
+  );
+}
+
+.authRoleSwitcher__slider--yellow {
+  background: linear-gradient(
+    to right,
+    var(--color-status-success, #4CAF50) 0%,
+    var(--color-status-warning, #FF9800) 50%,
+    var(--color-status-warning, #FF9800) 100%
+  );
+}
+
+.authRoleSwitcher__slider--orange {
+  background: linear-gradient(
+    to right,
+    var(--color-status-success, #4CAF50) 0%,
+    var(--color-status-warning, #FF9800) 30%,
+    #FF6B35 70%,
+    #FF6B35 100%
+  );
+}
+
+.authRoleSwitcher__slider--red {
+  background: linear-gradient(
+    to right,
+    var(--color-status-success, #4CAF50) 0%,
+    var(--color-status-warning, #FF9800) 30%,
+    #FF6B35 60%,
+    var(--color-status-error, #f44336) 100%
+  );
+}
+
+/* Slider Thumb - Webkit (Chrome, Safari) */
+.authRoleSwitcher__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--theme-text, #ffffff);
+  border: 3px solid var(--color-brand-primary, #9c27b0);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.authRoleSwitcher__slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Slider Thumb - Firefox */
+.authRoleSwitcher__slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--theme-text, #ffffff);
+  border: 3px solid var(--color-brand-primary, #9c27b0);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.authRoleSwitcher__slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ================================================================
+ * SLIDER MARKERS (Circles at 30/60/100)
+ * ================================================================ */
+
+.authRoleSwitcher__markers {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  height: 8px;
+}
+
+.authRoleSwitcher__marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--theme-input-background, #2a2a2a);
+  border: 2px solid var(--theme-input-border, #444444);
+  box-shadow: 0 0 0 2px var(--theme-input-background, #2a2a2a);
+}
+
+/* ================================================================
+ * QUICK ACCESS BUTTONS
+ * ================================================================ */
+
+.authRoleSwitcher__buttonsContainer {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-xs, 8px);
+  width: 100%;
+  justify-content: space-between;
+}
+
+.authRoleSwitcher__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  padding: var(--spacing-sm, 12px) var(--spacing-xs, 8px);
+  background: var(--theme-input-background, #2a2a2a);
+  border: 2px solid var(--theme-input-border, #444444);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--theme-text, #ffffff);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.authRoleSwitcher__button:hover {
+  background: var(--theme-input-border, #444444);
+  border-color: var(--color-brand-primary, #9c27b0);
+}
+
+.authRoleSwitcher__button--active {
+  background: var(--color-brand-primary, #9c27b0);
+  border-color: var(--color-brand-primary, #9c27b0);
+  color: var(--theme-button-text-on-color, #ffffff);
+}
+
+.authRoleSwitcher__button--active:hover {
+  background: var(--color-brand-primary, #9c27b0);
+  opacity: 0.9;
+}
+
+.authRoleSwitcher__icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.authRoleSwitcher__label {
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

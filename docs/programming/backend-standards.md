@@ -2,15 +2,28 @@
 # L-KERN v4 - Backend Standards
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\backend-standards.md
-# Version: 1.0.0
+# Version: 2.1.0
 # Created: 2025-10-18
-# Updated: 2025-10-18
+# Updated: 2025-11-24
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Backend development standards for L-KERN v4 including
 #   Python 3.11, FastAPI, SQLAlchemy, Alembic, gRPC, Kafka, and database patterns.
+#
+# Changelog v2.1.0:
+#   - Added Deletion Audit Workflow (hybrid: Audit Table + Kafka Events)
+#   - Soft delete pattern (deleted_at timestamp)
+#   - Hard delete pattern with audit trail (external resources → audit → database)
+#   - DeletionAudit model with status tracking (pending, completed, failed, partial)
+#   - Kafka events for deletion notifications and future async processing
+#   - Mandatory checklist for all microservices
+#
+# Changelog v2.0.0:
+#   - Added database insert validation rules (SELECT before INSERT)
+#   - Added API endpoint design principles (query params, simplicity)
+#   - 4-step validation process with examples
 # ================================================================
 
 ---
@@ -793,6 +806,687 @@ async def delete_contact(
 - ✅ Log all operations (create, update, delete)
 - ✅ Return proper HTTP status codes (200, 201, 204, 404, 400)
 - ✅ Validate input with Pydantic schemas
+
+---
+
+### Database Insert Validation
+
+**⚠️ CRITICAL: ALWAYS validate data before database insert**
+
+**Validation steps (in order):**
+
+1. **Pydantic schema validation** (automatic via FastAPI)
+2. **Business rule validation** (custom logic)
+3. **Database constraint check** (SELECT before INSERT)
+4. **Insert operation** (only if all checks pass)
+
+**Example - Contact creation with full validation:**
+
+```python
+@router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
+async def create_contact(
+    contact: ContactCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Create new contact with comprehensive validation.
+
+    Validation steps:
+    1. Pydantic schema (automatic) - data types, required fields
+    2. Business rules - email format, phone format
+    3. Database constraints - unique email check
+    4. Insert operation - save to database
+    """
+
+    # === STEP 1: Pydantic validation ===
+    # Already done by FastAPI automatically
+
+    # === STEP 2: Business rule validation ===
+    # Example: Check if email domain is allowed
+    email_domain = contact.email.split('@')[1]
+    allowed_domains = ['company.com', 'partner.com']
+
+    if email_domain not in allowed_domains:
+        logger.warning(f"Invalid email domain: {email_domain}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Email domain {email_domain} is not allowed"
+        )
+
+    # === STEP 3: Database constraint check (SELECT before INSERT) ===
+    # Check for duplicate email
+    existing_email = db.query(Contact)\
+        .filter(Contact.email == contact.email)\
+        .first()
+
+    if existing_email:
+        logger.warning(f"Duplicate email: {contact.email}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Contact with email {contact.email} already exists"
+        )
+
+    # Check for duplicate phone (if provided)
+    if contact.phone:
+        existing_phone = db.query(Contact)\
+            .filter(Contact.phone == contact.phone)\
+            .first()
+
+        if existing_phone:
+            logger.warning(f"Duplicate phone: {contact.phone}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Contact with phone {contact.phone} already exists"
+            )
+
+    # === STEP 4: Insert operation ===
+    # All validations passed, safe to insert
+    db_contact = Contact(**contact.model_dump())
+    db.add(db_contact)
+
+    try:
+        db.commit()
+        db.refresh(db_contact)
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"Database integrity error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database constraint violation"
+        )
+
+    logger.info(f"Created contact: {db_contact.id} ({db_contact.email})")
+    return db_contact
+```
+
+**Validation checklist:**
+- ✅ Check unique constraints (email, phone, username)
+- ✅ Check foreign key existence (customer_id, user_id)
+- ✅ Check business rules (status transitions, permissions)
+- ✅ Check data integrity (date ranges, numeric limits)
+- ✅ Use try/except for db.commit() to catch IntegrityError
+- ✅ Log validation failures (security audit trail)
+
+**Why SELECT before INSERT?**
+- Provides clear error messages (not generic "IntegrityError")
+- Allows custom validation logic
+- Prevents unnecessary database operations
+- Better user feedback (specific field errors)
+
+---
+
+### Deletion Audit Workflow
+
+**⚠️ MANDATORY: All microservices with databases MUST implement audited deletion workflow**
+
+**Deletion Pattern:**
+1. **Soft Delete** - Set `deleted_at` timestamp, keep external resources (MinIO files) for recovery
+2. **Hard Delete** - Permanent removal from database + cleanup of external resources with audit trail
+
+**Architecture:**
+- **Audit Table** - For queryable deletion logs (easy debugging, failed deletion tracking)
+- **Kafka Events** - For notifications and future async processing (Phase 2)
+
+---
+
+#### Soft Delete Pattern
+
+**Database model:**
+```python
+from sqlalchemy import Column, DateTime
+from datetime import datetime
+
+class Issue(Base):
+    __tablename__ = "issues"
+
+    id = Column(UUID, primary_key=True, default=uuid.uuid4)
+    # ... other fields ...
+
+    # Soft delete timestamp
+    deleted_at = Column(
+        DateTime,
+        nullable=True,
+        index=True,
+        comment="Soft delete timestamp - null = active, datetime = deleted"
+    )
+```
+
+**Soft delete endpoint:**
+```python
+@router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_item(
+    item_id: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Soft delete item (set deleted_at timestamp).
+
+    - Sets deleted_at to current timestamp
+    - Keeps external resources (MinIO files) for potential recovery
+    - Publishes Kafka event
+    """
+    item = db.query(Item).filter(
+        Item.id == uuid.UUID(item_id),
+        Item.deleted_at == None  # noqa: E711
+    ).first()
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Item {item_id} not found"
+        )
+
+    # Soft delete
+    item.deleted_at = datetime.utcnow()
+    db.commit()
+
+    # Publish Kafka event
+    await publish_event("item.deleted", {
+        "id": str(item.id),
+        "item_code": item.code,
+    })
+
+    logger.info(f"Soft-deleted item {item.code}")
+    return None
+```
+
+**Query filters:**
+```python
+# Default: Exclude soft-deleted items
+@router.get("/", response_model=List[ItemResponse])
+async def list_items(
+    include_deleted: bool = Query(False, description="Include soft-deleted items"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Item)
+
+    # Soft delete filter (default: exclude deleted)
+    if not include_deleted:
+        query = query.filter(Item.deleted_at == None)  # noqa: E711
+
+    items = query.all()
+    return items
+```
+
+---
+
+#### Hard Delete Pattern with Audit Trail
+
+**⚠️ CRITICAL: Hard delete MUST follow this exact order:**
+
+1. **Delete external resources** (MinIO files, S3 objects, etc.) → Track each deletion
+2. **Verify deletion** (Check files actually deleted)
+3. **Create audit log** (Record what was deleted)
+4. **Delete from database** (Only if all previous steps succeed)
+5. **Publish Kafka event** (Notification + future async processing foundation)
+
+**Audit table model:**
+```python
+from sqlalchemy import Column, Integer, String, DateTime, JSON, Enum as SQLEnum
+from datetime import datetime
+import enum
+
+class DeletionStatus(str, enum.Enum):
+    """Deletion operation status."""
+    PENDING = "pending"           # Deletion started
+    COMPLETED = "completed"       # Fully deleted (DB + external resources)
+    FAILED = "failed"             # Complete failure (nothing deleted)
+    PARTIAL = "partial"           # Some resources deleted, some failed
+
+class DeletionAudit(Base):
+    """
+    Audit log for deletion operations.
+
+    Tracks:
+    - What was deleted (item_id, item_code)
+    - When deletion occurred (timestamps)
+    - What external resources were involved (files_found, files_deleted)
+    - Failures (files_failed, error_message)
+    - Final status (completed, partial, failed)
+    """
+    __tablename__ = "deletion_audit"
+
+    id = Column(Integer, primary_key=True)
+
+    # Item identification
+    item_id = Column(UUID, nullable=False, index=True, comment="ID of deleted item")
+    item_code = Column(String(50), nullable=False, comment="Human-readable code")
+    item_type = Column(String(50), nullable=False, comment="Type of item (issue, contact, etc.)")
+
+    # Deletion tracking
+    status = Column(
+        SQLEnum(DeletionStatus),
+        nullable=False,
+        default=DeletionStatus.PENDING,
+        comment="Deletion status"
+    )
+
+    # External resources tracking
+    files_found = Column(Integer, default=0, comment="Number of files found in MinIO")
+    files_deleted = Column(Integer, default=0, comment="Number of files successfully deleted")
+    files_failed = Column(JSON, nullable=True, comment="List of files that failed to delete")
+
+    # Error details
+    error_message = Column(String(1000), nullable=True, comment="Error message if deletion failed")
+
+    # Timestamps
+    started_at = Column(DateTime, nullable=False, default=datetime.utcnow, comment="Deletion start time")
+    completed_at = Column(DateTime, nullable=True, comment="Deletion completion time")
+
+    # Metadata
+    deleted_by = Column(UUID, nullable=True, comment="User who initiated deletion")
+```
+
+**Hard delete endpoint with audit:**
+```python
+@router.delete("/{item_id}/permanent", status_code=status.HTTP_204_NO_CONTENT)
+async def hard_delete_item(
+    item_id: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Permanently delete item (hard delete from DB + MinIO files with audit trail).
+
+    Deletion order (CRITICAL):
+    1. Delete external resources (MinIO files)
+    2. Verify deletion
+    3. Create audit log
+    4. Delete from database (only if external cleanup succeeds)
+    5. Publish Kafka event
+
+    If any step fails:
+    - Create audit log with status='failed' or 'partial'
+    - Raise HTTPException (rollback database changes)
+    - Item marked as 'incomplete deletion' if partial
+    """
+
+    # Find item (including soft-deleted)
+    item = db.query(Item).filter(Item.id == uuid.UUID(item_id)).first()
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Item {item_id} not found"
+        )
+
+    # Create audit record
+    audit = DeletionAudit(
+        item_id=item.id,
+        item_code=item.code,
+        item_type="issue",  # Or dynamically determine type
+        status=DeletionStatus.PENDING,
+        started_at=datetime.utcnow()
+    )
+    db.add(audit)
+    db.commit()  # Commit audit record immediately
+    db.refresh(audit)
+
+    # Track deletion results
+    files_failed = []
+
+    try:
+        # === STEP 1: Delete external resources (MinIO files) ===
+        folder_prefix = f"{item.id}/"
+
+        # List files first (for audit)
+        files = minio_client.list_files(prefix=folder_prefix)
+        audit.files_found = len(files)
+
+        # Delete each file and track failures
+        deleted_count = 0
+        for file_name in files:
+            try:
+                minio_client.delete_file(file_name)
+                deleted_count += 1
+            except Exception as e:
+                logger.error(f"Failed to delete file {file_name}: {str(e)}")
+                files_failed.append({
+                    "file_name": file_name,
+                    "error": str(e)
+                })
+
+        audit.files_deleted = deleted_count
+        audit.files_failed = files_failed if files_failed else None
+
+        # === STEP 2: Check if any files failed ===
+        if files_failed:
+            # Partial deletion - some files failed
+            audit.status = DeletionStatus.PARTIAL
+            audit.error_message = f"Failed to delete {len(files_failed)} files"
+            audit.completed_at = datetime.utcnow()
+            db.commit()
+
+            # Mark item as incomplete deletion
+            item.deletion_status = "incomplete"
+            item.deletion_audit_id = audit.id
+            db.commit()
+
+            logger.error(f"Partial deletion for item {item.code}: {len(files_failed)} files failed")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Partial deletion: {len(files_failed)} files failed to delete. Item marked for manual review."
+            )
+
+        # === STEP 3: All external resources deleted successfully ===
+        if deleted_count > 0:
+            logger.info(f"Deleted {deleted_count} files from MinIO folder: {folder_prefix}")
+        else:
+            logger.warning(f"No files found in MinIO folder: {folder_prefix}")
+
+        # === STEP 4: Delete from database (only after external cleanup succeeds) ===
+        item_code = item.code
+        db.delete(item)
+        db.commit()
+
+        # === STEP 5: Update audit record ===
+        audit.status = DeletionStatus.COMPLETED
+        audit.completed_at = datetime.utcnow()
+        db.commit()
+
+        # === STEP 6: Publish Kafka event ===
+        await publish_event("item.permanently_deleted", {
+            "id": str(item_id),
+            "item_code": item_code,
+            "files_deleted": deleted_count,
+            "audit_id": audit.id
+        })
+
+        logger.info(f"Permanently deleted item {item_code} (audit_id={audit.id})")
+        return None
+
+    except HTTPException:
+        # Re-raise HTTP exceptions (already handled above)
+        raise
+
+    except Exception as e:
+        # Unexpected error - mark as failed
+        audit.status = DeletionStatus.FAILED
+        audit.error_message = str(e)
+        audit.completed_at = datetime.utcnow()
+        db.commit()
+
+        logger.error(f"Failed to delete item {item.code}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Deletion failed: {str(e)}"
+        )
+```
+
+**Restore soft-deleted endpoint:**
+```python
+@router.post("/{item_id}/restore", response_model=ItemResponse)
+async def restore_item(
+    item_id: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Restore soft-deleted item (clear deleted_at timestamp).
+
+    - Clears deleted_at timestamp
+    - External resources (MinIO files) still exist
+    - Publishes Kafka event
+    """
+    item = db.query(Item).filter(
+        Item.id == uuid.UUID(item_id),
+        Item.deleted_at != None  # noqa: E711
+    ).first()
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Soft-deleted item {item_id} not found"
+        )
+
+    # Restore (clear deleted_at)
+    item.deleted_at = None
+    db.commit()
+    db.refresh(item)
+
+    # Publish Kafka event
+    await publish_event("item.restored", {
+        "id": str(item.id),
+        "item_code": item.code,
+    })
+
+    logger.info(f"Restored item {item.code}")
+    return item
+```
+
+**Query failed deletions:**
+```python
+# Get all items with incomplete deletion
+incomplete_deletions = db.query(Item)\
+    .filter(Item.deletion_status == "incomplete")\
+    .all()
+
+# Get audit logs for failed deletions
+failed_audits = db.query(DeletionAudit)\
+    .filter(DeletionAudit.status.in_([DeletionStatus.FAILED, DeletionStatus.PARTIAL]))\
+    .order_by(DeletionAudit.started_at.desc())\
+    .all()
+```
+
+---
+
+#### Kafka Events for Deletion
+
+**Events to publish:**
+
+1. **item.deleted** (soft delete)
+   ```python
+   {
+       "id": "uuid",
+       "item_code": "ISSUE-001",
+       "deleted_at": "2025-11-24T10:30:00Z"
+   }
+   ```
+
+2. **item.restored** (restore soft-deleted)
+   ```python
+   {
+       "id": "uuid",
+       "item_code": "ISSUE-001",
+       "restored_at": "2025-11-24T11:00:00Z"
+   }
+   ```
+
+3. **item.permanently_deleted** (hard delete)
+   ```python
+   {
+       "id": "uuid",
+       "item_code": "ISSUE-001",
+       "files_deleted": 5,
+       "audit_id": 123,
+       "deleted_at": "2025-11-24T12:00:00Z"
+   }
+   ```
+
+4. **item.deletion.failed** (deletion failed)
+   ```python
+   {
+       "id": "uuid",
+       "item_code": "ISSUE-001",
+       "audit_id": 124,
+       "error": "Failed to delete 3 files from MinIO",
+       "status": "partial",
+       "failed_at": "2025-11-24T12:05:00Z"
+   }
+   ```
+
+**Future use cases (Phase 2):**
+- Kafka consumer listens to `item.deleted` → schedules background cleanup task
+- Async job processes hard deletion (Celery/RQ)
+- Retries on failure
+- Notifies admin if cleanup fails
+
+---
+
+#### Deletion Workflow Checklist
+
+**✅ MANDATORY for all microservices:**
+
+- ✅ Soft delete uses `deleted_at` timestamp (nullable DateTime column)
+- ✅ Hard delete follows exact order: External resources → Audit → Database
+- ✅ Audit table tracks: item_id, status, files_found, files_deleted, files_failed, timestamps
+- ✅ Failed/partial deletions create audit record with error details
+- ✅ Items with incomplete deletion marked and referenced to audit record
+- ✅ All deletion operations publish Kafka events
+- ✅ Query filters exclude soft-deleted by default (require explicit `include_deleted=True`)
+- ✅ Restore endpoint for soft-deleted items
+- ✅ Logging for all deletion operations (info, warning, error levels)
+
+**Why this pattern?**
+- ✅ Easy debugging (query audit table for failed deletions)
+- ✅ Manual verification possible (admin can review incomplete deletions)
+- ✅ Kafka events provide notification mechanism
+- ✅ Foundation for Phase 2 async processing (background jobs)
+- ✅ Clear separation: Audit table = querying, Kafka = async processing
+- ✅ Prevents orphaned external resources (files deleted before DB record)
+
+---
+
+### API Endpoint Design Principles
+
+**⚠️ CRITICAL: Keep endpoints simple and use query parameters**
+
+**Design principles:**
+
+1. **Use query parameters for filtering/pagination** (NOT separate endpoints)
+2. **Keep endpoints RESTful and predictable**
+3. **Avoid overly complex endpoints**
+4. **Use standard HTTP methods correctly**
+
+**✅ CORRECT - Simple endpoints with query params:**
+
+```python
+# Get all contacts with optional filters
+@router.get("/", response_model=List[ContactResponse])
+async def get_contacts(
+    skip: int = Query(0, ge=0, description="Pagination offset"),
+    limit: int = Query(100, ge=1, le=1000, description="Page size"),
+    is_active: bool = Query(None, description="Filter by active status"),
+    search: str = Query(None, min_length=2, description="Search by name or email"),
+    sort_by: str = Query("name", description="Sort field (name, email, created_at)"),
+    sort_order: str = Query("asc", regex="^(asc|desc)$", description="Sort order"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get contacts with flexible filtering.
+
+    Query parameters:
+    - skip: Pagination offset (default: 0)
+    - limit: Page size (default: 100, max: 1000)
+    - is_active: Filter by active status (optional)
+    - search: Search in name/email (optional)
+    - sort_by: Sort field (default: name)
+    - sort_order: asc or desc (default: asc)
+    """
+    query = db.query(Contact)
+
+    # Apply filters
+    if is_active is not None:
+        query = query.filter(Contact.is_active == is_active)
+
+    if search:
+        query = query.filter(
+            or_(
+                Contact.name.ilike(f"%{search}%"),
+                Contact.email.ilike(f"%{search}%")
+            )
+        )
+
+    # Apply sorting
+    if sort_order == "desc":
+        query = query.order_by(getattr(Contact, sort_by).desc())
+    else:
+        query = query.order_by(getattr(Contact, sort_by).asc())
+
+    # Pagination
+    contacts = query.offset(skip).limit(limit).all()
+
+    return contacts
+```
+
+**❌ WRONG - Too many specialized endpoints:**
+
+```python
+# DON'T DO THIS - creates endpoint explosion
+@router.get("/active")  # ❌
+async def get_active_contacts():
+    pass
+
+@router.get("/inactive")  # ❌
+async def get_inactive_contacts():
+    pass
+
+@router.get("/search/{query}")  # ❌ Use query param
+async def search_contacts(query: str):
+    pass
+
+@router.get("/sorted-by-name")  # ❌
+async def get_contacts_sorted_by_name():
+    pass
+
+# Instead, use ONE endpoint with query params:
+# GET /contacts?is_active=true
+# GET /contacts?is_active=false
+# GET /contacts?search=john
+# GET /contacts?sort_by=name&sort_order=asc
+```
+
+**RESTful endpoint patterns:**
+
+```python
+# ✅ CORRECT - Standard CRUD with query params
+GET    /contacts                    # List with filters (query params)
+GET    /contacts/{id}               # Get single contact
+POST   /contacts                    # Create new contact
+PUT    /contacts/{id}               # Update existing contact
+PATCH  /contacts/{id}               # Partial update
+DELETE /contacts/{id}               # Delete contact
+
+# ✅ CORRECT - Related resources
+GET    /contacts/{id}/addresses     # Get contact's addresses
+POST   /contacts/{id}/addresses     # Add address to contact
+DELETE /contacts/{id}/addresses/{address_id}  # Remove address
+
+# ✅ CORRECT - Actions (when REST doesn't fit)
+POST   /contacts/{id}/activate      # Activate contact (state change)
+POST   /contacts/{id}/deactivate    # Deactivate contact
+POST   /contacts/{id}/send-email    # Send email to contact
+```
+
+**Query parameter validation:**
+
+```python
+from enum import Enum
+
+# Define allowed values
+class SortField(str, Enum):
+    NAME = "name"
+    EMAIL = "email"
+    CREATED_AT = "created_at"
+
+class SortOrder(str, Enum):
+    ASC = "asc"
+    DESC = "desc"
+
+@router.get("/")
+async def get_contacts(
+    sort_by: SortField = Query(SortField.NAME),  # Enum validation
+    sort_order: SortOrder = Query(SortOrder.ASC),
+    limit: int = Query(100, ge=1, le=1000)  # Range validation
+):
+    # Type-safe and validated
+    pass
+```
+
+**Benefits:**
+- ✅ Fewer endpoints to maintain
+- ✅ More flexible (combine filters)
+- ✅ Self-documenting via OpenAPI/Swagger
+- ✅ Standard RESTful design
+- ✅ Easy to extend (add new query param)
 
 ---
 

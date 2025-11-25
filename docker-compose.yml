@@ -34,6 +34,12 @@ volumes:
     name: ${VOLUME_NODE_MODULES}
   postgres_data:
     name: ${LKMS501_VOLUME_DATA}
+  zookeeper_data:
+    name: ${LKMS503_VOLUME_DATA}
+  zookeeper_logs:
+    name: ${LKMS503_VOLUME_LOGS}
+  kafka_data:
+    name: ${LKMS504_VOLUME_DATA}
 
 # ================================================================
 # SERVICES
@@ -61,6 +67,12 @@ services:
       - VITE_API_AUTH=${VITE_API_AUTH}
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=1000
+      # Nx daemon disabled for local development (Docker + Windows volumes issues)
+      # Enable in CI/CD production builds for faster task execution
+      - NX_DAEMON=false
+      - NX_SKIP_NX_CACHE=true
+      - NX_PARALLEL=1
+      - NX_NO_CLOUD=true
     ports:
       - "${LKMS201_PORT_EXTERNAL}:${LKMS201_PORT_INTERNAL}"
     volumes:
@@ -153,19 +165,23 @@ services:
   # DEVELOPMENT TOOLS (LKMS 900-999)
   # ============================================================
 
-  # lkms901-adminer:
-  #   image: ${LKMS901_IMAGE}
-  #   container_name: ${LKMS901_CONTAINER_NAME}
-  #   restart: ${LKMS901_RESTART_POLICY}
-  #   environment:
-  #     - ADMINER_DEFAULT_SERVER=${LKMS901_DEFAULT_SERVER}
-  #     - ADMINER_DESIGN=${LKMS901_DESIGN}
-  #   ports:
-  #     - "${LKMS901_PORT_EXTERNAL}:${LKMS901_PORT_INTERNAL}"
-  #   networks:
-  #     - database
-  #   depends_on:
-  #     - lkms501-postgres
+  lkms901-adminer:
+    image: ${LKMS901_IMAGE}
+    container_name: ${LKMS901_CONTAINER_NAME}
+    restart: ${LKMS901_RESTART_POLICY}
+    environment:
+      - ADMINER_DEFAULT_SERVER=${LKMS901_DEFAULT_SERVER}
+      - ADMINER_DESIGN=${LKMS901_DESIGN}
+    ports:
+      - "${LKMS901_PORT_EXTERNAL}:${LKMS901_PORT_INTERNAL}"
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${LKMS901_PORT_INTERNAL}/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 
 
@@ -188,6 +204,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   lkms105-minio:
@@ -210,6 +227,59 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  # ================================================================
+  # Message Broker - Zookeeper & Kafka
+  # ================================================================
+  lkms503-zookeeper:
+    image: ${LKMS503_IMAGE}
+    container_name: ${LKMS503_CONTAINER_NAME}
+    restart: ${LKMS503_RESTART_POLICY}
+    environment:
+      ZOOKEEPER_CLIENT_PORT: ${LKMS503_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${LKMS503_TICK_TIME}
+      ZOOKEEPER_SERVER_ID: ${LKMS503_SERVER_ID}
+    ports:
+      - "${LKMS503_PORT_EXTERNAL}:${LKMS503_PORT_INTERNAL}"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: ${LKMS503_HEALTHCHECK_INTERVAL}
+      timeout: ${LKMS503_HEALTHCHECK_TIMEOUT}
+      retries: ${LKMS503_HEALTHCHECK_RETRIES}
+      start_period: ${LKMS503_HEALTHCHECK_START_PERIOD}
+
+  lkms504-kafka:
+    image: ${LKMS504_IMAGE}
+    container_name: ${LKMS504_CONTAINER_NAME}
+    restart: ${LKMS504_RESTART_POLICY}
+    depends_on:
+      lkms503-zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: ${LKMS504_BROKER_ID}
+      KAFKA_ZOOKEEPER_CONNECT: ${LKMS504_ZOOKEEPER_CONNECT}
+      KAFKA_ADVERTISED_LISTENERS: ${LKMS504_ADVERTISED_LISTENERS}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${LKMS504_LISTENER_SECURITY_PROTOCOL_MAP}
+      KAFKA_INTER_BROKER_LISTENER_NAME: ${LKMS504_INTER_BROKER_LISTENER_NAME}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${LKMS504_OFFSETS_TOPIC_REPLICATION_FACTOR}
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${LKMS504_AUTO_CREATE_TOPICS_ENABLE}
+    ports:
+      - "${LKMS504_PORT_EXTERNAL}:${LKMS504_PORT_INTERNAL}"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: ${LKMS504_HEALTHCHECK_INTERVAL}
+      timeout: ${LKMS504_HEALTHCHECK_TIMEOUT}
+      retries: ${LKMS504_HEALTHCHECK_RETRIES}
+      start_period: ${LKMS504_HEALTHCHECK_START_PERIOD}
 
   # ================================================================
   # Issues Service - FastAPI Application
@@ -249,6 +319,12 @@ services:
     networks:
       - backend
       - database
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${LKMS105_REST_PORT}/health').read()\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
 # ================================================================

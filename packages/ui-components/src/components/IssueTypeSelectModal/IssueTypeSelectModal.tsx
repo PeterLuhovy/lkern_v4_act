@@ -14,13 +14,14 @@ import { useTranslation } from '@l-kern/config';
 import { Modal } from '../Modal';
 import styles from './IssueTypeSelectModal.module.css';
 
-export type IssueType = 'BUG' | 'FEATURE' | 'IMPROVEMENT' | 'QUESTION';
+export type IssueType = 'bug' | 'feature' | 'improvement' | 'question';
 
 export interface IssueTypeSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectType: (type: IssueType) => void;
   modalId?: string;
+  availableTypes?: IssueType[]; // Filter which types to show based on user role
 }
 
 /**
@@ -34,15 +35,21 @@ export const IssueTypeSelectModal: React.FC<IssueTypeSelectModalProps> = ({
   onClose,
   onSelectType,
   modalId = 'issue-type-select-modal',
+  availableTypes, // If undefined, show all types
 }) => {
   const { t } = useTranslation();
 
-  const issueTypes: Array<{ type: IssueType; icon: string; labelKey: string }> = [
-    { type: 'BUG', icon: '🐛', labelKey: 'pages.issues.types.bug' },
-    { type: 'FEATURE', icon: '✨', labelKey: 'pages.issues.types.feature' },
-    { type: 'IMPROVEMENT', icon: '📈', labelKey: 'pages.issues.types.improvement' },
-    { type: 'QUESTION', icon: '❓', labelKey: 'pages.issues.types.question' },
+  const allIssueTypes: Array<{ type: IssueType; icon: string; labelKey: string }> = [
+    { type: 'bug', icon: '🐛', labelKey: 'pages.issues.types.bug' },
+    { type: 'feature', icon: '✨', labelKey: 'pages.issues.types.feature' },
+    { type: 'improvement', icon: '📈', labelKey: 'pages.issues.types.improvement' },
+    { type: 'question', icon: '❓', labelKey: 'pages.issues.types.question' },
   ];
+
+  // Filter types based on availableTypes prop (if provided)
+  const issueTypes = availableTypes
+    ? allIssueTypes.filter(({ type }) => availableTypes.includes(type))
+    : allIssueTypes;
 
   const handleTypeClick = (type: IssueType) => {
     onSelectType(type);

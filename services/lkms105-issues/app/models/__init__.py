@@ -3,6 +3,7 @@ Issues Service - Database Models
 """
 
 from app.models.issue import Issue
+from app.models.deletion_audit import DeletionAudit, DeletionStatus
 from app.models.enums import (
     IssueType,
     IssueSeverity,
@@ -13,6 +14,8 @@ from app.models.enums import (
 
 __all__ = [
     "Issue",
+    "DeletionAudit",
+    "DeletionStatus",
     "IssueType",
     "IssueSeverity",
     "IssueCategory",

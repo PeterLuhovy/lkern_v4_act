@@ -9,7 +9,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderWithTranslation, screen, userEvent } from '../../test-utils';
 import { FilterPanel } from './FilterPanel';
-import type { QuickFilter, FilterGroup } from '../../types/FilterPanel';
+import type { QuickFilter, FilterGroup } from './FilterPanel.types';
 
 describe('FilterPanel', () => {
   const mockSearchChange = vi.fn();

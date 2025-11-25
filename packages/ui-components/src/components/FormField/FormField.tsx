@@ -275,9 +275,6 @@ export const FormField: React.FC<FormFieldProps> = ({
     ? cloneElement(children as React.ReactElement<any>, {
         value,
         onChange: handleChange,
-        hasError: !!displayError,
-        isValid: validate && !internalError && value.length > 0 && touched,
-        fullWidth,
         title: inputTitle,
         'aria-required': required ? 'true' : undefined,
         'aria-invalid': displayError ? 'true' : 'false',

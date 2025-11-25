@@ -18,13 +18,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme, useTranslation, usePageAnalytics, modalStack } from '@l-kern/config';
+import { useTheme, useTranslation, usePageAnalytics, modalStack, useAuthContext } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { Sidebar, SidebarNavItem } from '../Sidebar';
+import { AuthRoleSwitcher } from '../AuthRoleSwitcher';
 import { ReportButton } from '../ReportButton';
 import { IssueTypeSelectModal } from '../IssueTypeSelectModal';
 import { CreateIssueModal } from '../CreateIssueModal';
-import type { IssueType, IssueSeverity, IssueCategory, IssuePriority } from '../CreateIssueModal';
+import type { IssueType, IssueSeverity, IssueCategory, IssuePriority, UserRole } from '../CreateIssueModal';
 
 /**
  * Props for BasePage component
@@ -79,6 +80,11 @@ export interface BasePageProps {
    * @default false
    */
   sidebarDefaultCollapsed?: boolean;
+
+  /**
+   * Custom content to display at bottom of sidebar (above theme/language toggles)
+   */
+  sidebarBottomContent?: React.ReactNode;
 
   /**
    * Show report button for bug reports
@@ -148,6 +154,7 @@ export const BasePage: React.FC<BasePageProps> = ({
   sidebarItems,
   activePath,
   sidebarDefaultCollapsed = false,
+  sidebarBottomContent,
   showReportButton = true,
   onReportIssue,
   reportButtonPosition = 'top-right',
@@ -157,6 +164,7 @@ export const BasePage: React.FC<BasePageProps> = ({
   const analytics = usePageAnalytics(pageName);
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentRole, permissionLevel, permissions } = useAuthContext();
 
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
@@ -170,8 +178,16 @@ export const BasePage: React.FC<BasePageProps> = ({
     browser?: string;
     os?: string;
     url?: string;
-    description?: string;
     type?: IssueType;
+    system_info?: {
+      url?: string;
+      browser?: string;
+      os?: string;
+      viewport?: string;
+      screen?: string;
+      timestamp?: string;
+      userAgent?: string;
+    };
   }>({});
 
   // Handle ReportButton click - open type selection modal
@@ -215,28 +231,27 @@ export const BasePage: React.FC<BasePageProps> = ({
       osInfo = match ? `macOS ${match[1].replace('_', '.')}` : 'macOS';
     } else if (userAgent.includes('Linux')) osInfo = 'Linux';
 
-    // Build description with context
-    const timestamp = new Date().toLocaleString();
+    // Build system info object (same as Issues.tsx)
+    const timestamp = new Date().toISOString();
     const viewport = `${window.innerWidth}x${window.innerHeight}`;
-    const screen = `${window.screen.width}x${window.screen.height}`;
+    const screenSize = `${window.screen.width}x${window.screen.height}`;
 
-    const contextDescription = `**Browser Context:**
-- URL: ${url}
-- Browser: ${browserInfo}
-- OS: ${osInfo}
-- Viewport: ${viewport}
-- Screen: ${screen}
-- Timestamp: ${timestamp}
-
-**Issue Description:**
-`;
+    const systemInfo = {
+      url,
+      browser: browserInfo,
+      os: osInfo,
+      viewport,
+      screen: screenSize,
+      timestamp,
+      userAgent,
+    };
 
     setBrowserContext({
       browser: browserInfo,
       os: osInfo,
       url: url,
-      description: contextDescription,
       type, // Add selected type to initial data
+      system_info: systemInfo,
     });
 
     setIsCreateIssueModalOpen(true);
@@ -314,6 +329,7 @@ export const BasePage: React.FC<BasePageProps> = ({
               children: [
                 { path: '/testing/filtered-grid', labelKey: 'components.testing.filteredGridTitle', icon: '🔍', onClick: () => navigate('/testing/filtered-grid') },
                 { path: '/testing/template-page-datagrid', labelKey: 'components.testing.templatePageDatagridTitle', icon: '📋', onClick: () => navigate('/testing/template-page-datagrid') },
+                { path: '/testing/base-page-template', labelKey: 'components.testing.templatePageBaseTitle', icon: '📄', onClick: () => navigate('/testing/base-page-template') },
               ],
             },
           ],
@@ -488,6 +504,7 @@ export const BasePage: React.FC<BasePageProps> = ({
           onCollapseChange={setSidebarCollapsed}
           showThemeToggle={true}
           showLanguageToggle={true}
+          bottomContent={sidebarBottomContent || <AuthRoleSwitcher />}
         />
       )}
 
@@ -535,7 +552,14 @@ export const BasePage: React.FC<BasePageProps> = ({
           onClose={() => setIsCreateIssueModalOpen(false)}
           modalId="basepage-report-issue-modal"
           initialData={browserContext}
-          showRoleTabs={true}
+          showRoleTabs={false}
+          userRole={
+            permissionLevel >= 60
+              ? 'user_advance'
+              : permissionLevel >= 30
+              ? 'user_standard'
+              : 'user_basic'
+          }
           onSubmit={async (data) => {
             if (onReportIssue) {
               await onReportIssue(data);

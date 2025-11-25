@@ -3,8 +3,26 @@
 FILE: main.py
 PATH: /tools/lkern-control-panel/main.py
 DESCRIPTION: L-KERN Control Panel - Tkinter GUI with background threading (uses central services registry)
-VERSION: v1.13.1
-UPDATED: 2025-11-24 15:25:00
+VERSION: v1.18.0
+UPDATED: 2025-11-25 11:20:00
+CHANGELOG:
+  v1.18.0 - Unified status check logic: Now uses shared docker_utils.py functions
+         - check_container_status() now uses check_docker_status() from docker_utils
+         - check_native_status() now uses check_native_status() from docker_utils
+         - Ensures consistent status detection with orchestrators
+  v1.17.0 - Fixed LKMS801 not starting: Changed WorkingDirectory to absolute path (was relative, failed to start)
+  v1.16.0 - Removed ALL wait times from BOSS START - orchestrator checks longer until services respond
+  v1.15.0 - Added pulsing animation to status labels (bold/normal) when services are starting/restarting
+  v1.14.2 - Removed emoji from Docker-All button labels in config.json (cleaner UI)
+  v1.14.1 - Removed emoji processing from Docker-All buttons: Using labels as-is from config.json
+  v1.14.0 - Fixed emoji removal in Docker-All buttons: Using proper Unicode ranges instead of simple regex
+  v1.13.9 - Changed tab order: Microservices tab is now first (default), Build & Test second
+  v1.13.8 - Fixed BOSS Start input redirection error: Changed from "start /b" to PowerShell Start-Process
+  v1.13.7 - Fixed BOSS Start input redirection error: Added empty window title "" before /B and /b flags (didn't work)
+  v1.13.6 - Fixed UTF-8 BOM handling in config.json (use utf-8-sig encoding)
+  v1.13.5 - Faster status refresh: Changed interval from 1000ms to 500ms (2x faster updates)
+  v1.13.4 - Fixed BOSS buttons: Added /B flag to prevent console windows (BOSS Start, Stop, Clean)
+  v1.13.3 - Fixed native service CommandLine filter (*app.main*) + pythonw for hidden execution
 ================================================================
 """
 
@@ -131,6 +149,9 @@ class LKernControlPanel:
         # Background thread pool for container status checks (non-blocking)
         self.status_thread_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="status_check")
 
+        # Track status label animations (label -> after_id)
+        self.status_animations = {}
+
         # Setup window
         self.setup_window()
         self.setup_styles()
@@ -140,7 +161,7 @@ class LKernControlPanel:
         """Load configuration from config.json"""
         config_path = os.path.join(os.path.dirname(__file__), 'config.json')
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, 'r', encoding='utf-8-sig') as f:
                 return json.load(f)
         except FileNotFoundError:
             # Default config if file not found
@@ -239,6 +260,41 @@ class LKernControlPanel:
                   foreground=[('selected', '#ffffff')],
                   padding=[])
 
+    def start_status_animation(self, label):
+        """Start pulsing animation for status label (bold <-> normal)."""
+        if label in self.status_animations:
+            return  # Animation already running
+
+        bold_state = [True]  # Mutable state for closure
+
+        def animate():
+            try:
+                if bold_state[0]:
+                    label.config(font=('Segoe UI', 9, 'bold'))
+                else:
+                    label.config(font=('Segoe UI', 9))
+                bold_state[0] = not bold_state[0]
+
+                # Schedule next update
+                after_id = self.root.after(500, animate)
+                self.status_animations[label] = after_id
+            except:
+                # Label destroyed or error - stop animation
+                self.stop_status_animation(label)
+
+        animate()
+
+    def stop_status_animation(self, label):
+        """Stop pulsing animation for status label."""
+        if label in self.status_animations:
+            self.root.after_cancel(self.status_animations[label])
+            del self.status_animations[label]
+            try:
+                # Reset to normal font
+                label.config(font=('Segoe UI', 9))
+            except:
+                pass
+
     def create_ui(self):
         """Create main UI layout"""
         # Top toolbar
@@ -269,15 +325,15 @@ class LKernControlPanel:
         left_notebook = ttk.Notebook(left_panel)
         left_notebook.pack(fill=tk.BOTH, expand=True)
 
-        # Commands tab (first tab)
-        commands_tab = ttk.Frame(left_notebook)
-        left_notebook.add(commands_tab, text="🔧 Build & Test")
-        self.create_command_buttons(commands_tab)
-
-        # Microservices tab (second tab) - includes Docker and Native services
+        # Microservices tab (first tab) - includes Docker and Native services
         microservices_tab = ttk.Frame(left_notebook)
         left_notebook.add(microservices_tab, text="⚙️ Microservices")
         self.create_microservices_buttons(microservices_tab)
+
+        # Commands tab (second tab)
+        commands_tab = ttk.Frame(left_notebook)
+        left_notebook.add(commands_tab, text="🔧 Build & Test")
+        self.create_command_buttons(commands_tab)
 
         # Right panel - Terminal + History
         right_panel = ttk.Frame(self.paned_window)
@@ -397,22 +453,24 @@ class LKernControlPanel:
 
     def boss_start_system(self):
         """Start entire L-KERN system with orchestrator"""
+        working_dir = self.config['app']['working_directory']
+        lkms801_dir = f"{working_dir}\\services\\lkms801-system-ops"
         self.execute_command(
-            'powershell -Command "Get-Process python,pythonw -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -like \'*lkms801-system-ops*\'} | Stop-Process -Force" & timeout /t 1 & cd services\\lkms801-system-ops && start /b pythonw -m app.main & cd ..\\.. & timeout /t 2 & start "L-KERN Startup" cmd /c "python tools\\lkern-control-panel\\startup_orchestrator.py"',
+            f'powershell -Command "Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {{($_.Name -eq \'python.exe\' -or $_.Name -eq \'pythonw.exe\') -and $_.CommandLine -like \'*app.main*\'}} | ForEach-Object {{ Stop-Process -Id $_.ProcessId -Force }}; Start-Sleep -Seconds 1; Start-Process pythonw -ArgumentList \'-m\',\'app.main\' -WindowStyle Hidden -WorkingDirectory \'{lkms801_dir}\'; Start-Process pythonw -ArgumentList \'tools\\lkern-control-panel\\startup_orchestrator.py\' -WindowStyle Hidden"',
             "🚀 BOSS START"
         )
 
     def boss_stop_system(self):
         """Stop entire L-KERN system with orchestrator"""
         self.execute_command(
-            'start "L-KERN Shutdown" cmd /c "cd /d L:\\system\\lkern_codebase_v4_act && python tools\\lkern-control-panel\\shutdown_orchestrator.py"',
+            'powershell -Command "Start-Process pythonw -ArgumentList \'tools\\lkern-control-panel\\shutdown_orchestrator.py\' -WindowStyle Hidden"',
             "⏸️ BOSS STOP"
         )
 
     def boss_clean_system(self):
         """Clean L-KERN system with orchestrator (remove containers and volumes)"""
         self.execute_command(
-            'start "L-KERN Cleanup" cmd /c "cd /d L:\\system\\lkern_codebase_v4_act && python tools\\lkern-control-panel\\cleanup_orchestrator.py"',
+            'powershell -Command "Start-Process pythonw -ArgumentList \'tools\\lkern-control-panel\\cleanup_orchestrator.py\' -WindowStyle Hidden"',
             "🗑️ BOSS CLEAN"
         )
 
@@ -560,15 +618,11 @@ class LKernControlPanel:
         docker_all_commands = []
         for cmd_id, cmd_data in self.config['commands'].items():
             if cmd_data.get('category') == 'Docker-All':
-                # Remove emoji icons from labels (complete removal)
                 label_text = cmd_data['label']
-                # Remove all emojis - strip everything before the first alphabetic character
-                import re
-                label_text = re.sub(r'^[\W\d_\s]+', '', label_text).strip()
                 docker_all_commands.append((label_text, cmd_data['command'], cmd_data['label']))
 
-        # Sort by specific order for consistent layout (using original labels with emojis)
-        command_order = ['🚀 Start All', '🛑 Stop All', '🔄 Restart All', '🔨 Rebuild All', '📋 List Containers', '🗑️ Down (Remove)', '💥 Clean (+ Volumes)']
+        # Sort by specific order for consistent layout
+        command_order = ['Start All', 'Stop All', 'Restart All', 'Rebuild All', 'List Containers', 'Down (Remove)', 'Clean (+ Volumes)']
         docker_all_commands.sort(key=lambda x: command_order.index(x[2]) if x[2] in command_order else 999)
 
         # Create buttons in two rows (4 buttons per row) with wider width (~33% increase from 15 to 20)
@@ -959,30 +1013,11 @@ class LKernControlPanel:
         """
 
         def _check_health_background():
-            """Background task: run curl health check (runs in thread pool)"""
-            try:
-                import subprocess
-
-                # Try to reach health endpoint
-                result = subprocess.run(
-                    f'curl -s -o nul -w "%{{http_code}}" {health_url}',
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=2
-                )
-
-                if result.returncode == 0:
-                    http_code = result.stdout.strip()
-                    if http_code == '200':
-                        return ('running', None)
-                    else:
-                        return ('stopped', f'HTTP {http_code}')
-                else:
-                    return ('stopped', 'not responding')
-
-            except Exception:
-                return ('stopped', 'unknown')
+            """Background task: run health check (runs in thread pool)"""
+            # Use shared function from docker_utils (same logic as orchestrators)
+            from docker_utils import check_native_status
+            status, error = check_native_status(health_url)
+            return (status, error)
 
         def _update_ui_from_result(future):
             """Update UI with result from background thread (runs in main thread)"""
@@ -991,14 +1026,17 @@ class LKernControlPanel:
 
                 if status == 'running':
                     status_label.config(text="running", fg=COLORS['success'])
+                    self.start_status_animation(status_label)
                 else:
                     status_label.config(text="stopped", fg=COLORS['error'])
+                    self.stop_status_animation(status_label)
 
             except Exception:
                 status_label.config(text="unknown", fg=COLORS['text_muted'])
+                self.stop_status_animation(status_label)
 
-            # Schedule next check in 1 second
-            self.root.after(1000, lambda: self.check_native_status(service_name, status_label, health_url))
+            # Schedule next check in 500ms (faster refresh)
+            self.root.after(500, lambda: self.check_native_status(service_name, status_label, health_url))
 
         # Submit background task to thread pool (non-blocking)
         future = self.status_thread_pool.submit(_check_health_background)
@@ -1024,29 +1062,10 @@ class LKernControlPanel:
 
         def _check_status_background():
             """Background task: run docker inspect (runs in thread pool)"""
-            try:
-                import subprocess
-
-                # Get both status and health status (conditional health check)
-                result = subprocess.run(
-                    f'docker inspect -f "{{{{.State.Status}}}}|{{{{if .State.Health}}}}{{{{.State.Health.Status}}}}{{{{end}}}}" {container_name}',
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=2
-                )
-
-                if result.returncode == 0:
-                    output = result.stdout.strip()
-                    parts = output.split('|')
-                    status = parts[0].lower()
-                    health = parts[1].lower() if len(parts) > 1 and parts[1] else None
-                    return (status, health, None)
-                else:
-                    return (None, None, "not found")
-
-            except Exception:
-                return (None, None, "unknown")
+            # Use shared function from docker_utils (same logic as orchestrators)
+            from docker_utils import check_docker_status
+            state_status, health_status, error = check_docker_status(container_name)
+            return (state_status, health_status, error)
 
         def _update_ui_from_result(future):
             """Update UI with result from background thread (runs in main thread)"""
@@ -1055,33 +1074,43 @@ class LKernControlPanel:
 
                 if error:
                     status_label.config(text=error, fg=COLORS['text_muted'])
+                    self.stop_status_animation(status_label)
                 elif status == 'running':
                     # Check health status if available
                     if health == 'starting':
                         status_label.config(text="starting", fg=COLORS['warning'])
+                        self.start_status_animation(status_label)
                     elif health == 'unhealthy':
                         status_label.config(text="unhealthy", fg=COLORS['error'])
+                        self.stop_status_animation(status_label)
                     elif health == 'healthy':
                         status_label.config(text="running", fg=COLORS['success'])
+                        self.start_status_animation(status_label)
                     else:
                         # No health check configured, assume running is ready
                         status_label.config(text="running", fg=COLORS['success'])
+                        self.start_status_animation(status_label)
                 elif status in ['starting', 'restarting']:
                     status_label.config(text=status, fg=COLORS['warning'])
+                    self.start_status_animation(status_label)
                 elif status in ['exited', 'stopped']:
                     status_label.config(text=status, fg=COLORS['error'])
+                    self.stop_status_animation(status_label)
                 elif status in ['paused', 'dead']:
                     status_label.config(text=status, fg=COLORS['text_muted'])
+                    self.stop_status_animation(status_label)
                 else:
                     # Unknown status - show it anyway
                     status_label.config(text=status, fg=COLORS['text_muted'])
+                    self.stop_status_animation(status_label)
 
             except Exception:
                 status_label.config(text="unknown", fg=COLORS['text_muted'])
+                self.stop_status_animation(status_label)
 
-            # Schedule next check in 1 second (back to fast refresh!)
+            # Schedule next check in 500ms (faster refresh)
             # Background threads prevent UI lag during resize
-            self.root.after(1000, lambda: self.check_container_status(container_name, status_label))
+            self.root.after(500, lambda: self.check_container_status(container_name, status_label))
 
         # Submit background task to thread pool (non-blocking)
         future = self.status_thread_pool.submit(_check_status_background)
@@ -1182,7 +1211,7 @@ class LKernControlPanel:
         self.terminal.tag_config('error', foreground=COLORS['error'])
         self.terminal.tag_config('info', foreground=COLORS['info'])
         self.terminal.tag_config('stdout', foreground=COLORS['terminal_fg'])
-        self.terminal.tag_config('stderr', foreground=COLORS['error'])
+        self.terminal.tag_config('stderr', foreground=COLORS['terminal_fg'])
 
         # Configure ANSI color tags
         self.terminal.tag_config('black', foreground='#000000')
@@ -1257,7 +1286,7 @@ class LKernControlPanel:
         terminal.tag_config('error', foreground=COLORS['error'])
         terminal.tag_config('info', foreground=COLORS['info'])
         terminal.tag_config('stdout', foreground=COLORS['terminal_fg'])
-        terminal.tag_config('stderr', foreground=COLORS['error'])
+        terminal.tag_config('stderr', foreground=COLORS['terminal_fg'])
 
         # Configure ANSI color tags
         terminal.tag_config('black', foreground='#000000')

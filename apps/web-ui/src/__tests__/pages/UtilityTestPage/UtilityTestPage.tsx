@@ -28,11 +28,13 @@ import {
   convertDateLocale,
   extractDateComponents,
   type DateLocale,
+  exportToCSV,
+  exportToJSON,
   debounce,
   validateField,
   type ValidationType,
 } from '@l-kern/config';
-import { Input, Button, Card, Badge, BasePage } from '@l-kern/ui-components';
+import { Input, Button, Card, Badge, BasePage , ExportButton } from '@l-kern/ui-components';
 import styles from './UtilityTestPage.module.css';
 
 export function UtilityTestPage() {
@@ -714,6 +716,54 @@ export function UtilityTestPage() {
             </li>
           </ul>
         </div>
+
+        {/* Export Utils */}
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Export Utils (exportToCSV, exportToJSON)</h2>
+          
+          <div className={styles.card}>
+            <h3>Export Sample Data</h3>
+            <p className={styles.info}>Test exporting data to CSV and JSON formats</p>
+            
+            <ExportButton
+              onExport={(format) => {
+                const sampleData = [
+                  { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+421 905 123 456', status: 'active' },
+                  { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+421 907 987 654', status: 'inactive' },
+                  { id: 3, name: 'Bob Wilson', email: 'bob@example.com', phone: '+421 911 555 777', status: 'active' },
+                ];
+                
+                if (format === 'csv') {
+                  exportToCSV(
+                    sampleData.map(item => ({
+                      id: item.id.toString(),
+                      name: item.name,
+                      email: item.email,
+                      phone: item.phone,
+                      status: item.status,
+                    })),
+                    ['ID', 'Name', 'Email', 'Phone', 'Status'],
+                    'utility_test_export'
+                  );
+                } else if (format === 'json') {
+                  exportToJSON(sampleData, 'utility_test_export');
+                }
+              }}
+              formats={['csv', 'json']}
+            />
+            
+            <div className={styles.result}>
+              <strong>Features:</strong>
+              <ul>
+                <li>CSV: Exports data as comma-separated values with proper escaping</li>
+                <li>JSON: Exports full data structure with all fields</li>
+                <li>Automatic filename generation with current date</li>
+                <li>Browser download without page reload</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
     </BasePage>
   );

@@ -2,9 +2,9 @@
 # L-KERN v4 - Coding Standards (Core Rules)
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\coding-standards.md
-# Version: 2.1.0
+# Version: 2.2.0
 # Created: 2025-10-15
-# Updated: 2025-11-02
+# Updated: 2025-11-25
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -846,6 +846,51 @@ logger.debug("Processing request...")    # Debug info (development only)
 - ✅ `WARNING` and above → Visible in `docker logs`
 - ❌ `INFO` and below → Filtered out in production
 
+### Debug Middleware (FastAPI)
+
+**🚨 MANDATORY: Every FastAPI microservice MUST have debug middleware!**
+
+**Purpose:**
+- Log ALL incoming HTTP requests (method, URL, headers)
+- Log response status codes
+- Track errors before they're lost in CORS/network failures
+- Essential for troubleshooting production issues
+
+**✅ Required implementation in `main.py`:**
+
+```python
+from fastapi import FastAPI
+import logging
+
+logger = logging.getLogger(__name__)
+app = FastAPI()
+
+# === DEBUG MIDDLEWARE (MANDATORY) ===
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"🔍 DEBUG REQUEST: {request.method} {request.url}")
+    logger.info(f"🔍 DEBUG HEADERS: {dict(request.headers)}")
+    try:
+        response = await call_next(request)
+        logger.info(f"🔍 DEBUG RESPONSE: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.error(f"🔍 DEBUG ERROR: {str(e)}")
+        raise
+```
+
+**When to use:**
+- ✅ **Development** - Always enabled for debugging
+- ✅ **Staging** - Enabled for integration testing
+- ⚠️ **Production** - Enable when troubleshooting issues (can be disabled for performance)
+
+**What it catches:**
+- CORS preflight (OPTIONS) requests
+- Malformed POST/PUT requests
+- Authentication failures
+- Backend crashes before endpoint execution
+- Network timeout issues
+
 ---
 
 ## Summary
@@ -861,17 +906,17 @@ logger.debug("Processing request...")    # Debug info (development only)
 - ✅ Git Standards
 - ✅ Componentization & Code Reuse
 - ✅ Utility Functions (@l-kern/config)
-- ✅ Logging Standards
+- ✅ Logging Standards (Backend + Debug Middleware)
 
 **For detailed standards, see:**
 - 🎨 [frontend-standards.md](frontend-standards.md) - React 19, TypeScript 5.7, Vite 6, CSS Modules, REST API client
-- 🐍 [backend-standards.md](backend-standards.md) - Python 3.11, FastAPI, SQLAlchemy, Alembic, gRPC, Kafka
+- 🐍 [backend-standards.md](backend-standards.md) - Python 3.11, FastAPI, SQLAlchemy, Alembic, gRPC, Kafka, **Deletion Audit Workflow**
 - ✅ [testing-guide.md](testing-guide.md) - pytest (backend), Vitest (frontend), testing checklists, coverage requirements
 - 🐳 [docker-standards.md](docker-standards.md) - Dockerfile patterns, docker-compose, hot-reload configuration
 - 💡 [code-examples.md](code-examples.md) - Practical code examples for React, API, gRPC, Database, Testing
 
 ---
 
-**Last Updated:** 2025-10-18
+**Last Updated:** 2025-11-25
 **Maintainer:** BOSSystems s.r.o.
 **Documentation Location:** `L:\system\lkern_codebase_v4_act\docs\programming\`

@@ -228,6 +228,53 @@ response = stub.OpenFolder(request, metadata=metadata)
 print(f"Open folder: {response.message}")
 ```
 
+### **4. Automated Tests (pytest):**
+
+**Run all tests:**
+```bash
+cd services/lkms801-system-ops
+pytest
+```
+
+**Run tests with verbose output:**
+```bash
+pytest -v
+```
+
+**Run specific test file:**
+```bash
+pytest tests/test_file_operations.py
+pytest tests/test_security.py
+pytest tests/test_api.py
+```
+
+**Run only unit tests:**
+```bash
+pytest -m unit
+```
+
+**Run with coverage:**
+```bash
+pytest --cov=app --cov-report=html
+```
+
+**Windows shortcut:**
+```cmd
+run-tests.bat
+```
+
+**Test Suite Coverage:**
+- ✅ **test_file_operations.py** - 25+ tests for file operations (open, copy, move, delete, rename, list, info)
+- ✅ **test_security.py** - 15+ tests for API key auth and path validation
+- ✅ **test_api.py** - 20+ tests for REST endpoints (health, status, root, error handling)
+- ✅ **conftest.py** - Shared fixtures and pytest configuration
+- ✅ **pytest.ini** - Test discovery and markers configuration
+
+**Test Categories:**
+- Unit tests (fast, isolated) - `pytest -m unit`
+- Integration tests (slower) - `pytest -m integration`
+- All tests - `pytest` (default)
+
 ---
 
 ## 🔐 Security

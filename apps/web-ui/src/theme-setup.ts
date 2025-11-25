@@ -79,6 +79,14 @@ export function setupTheme(): void {
       --theme-input-border: ${COLORS.neutral.gray300};
       --theme-input-border-hover: ${COLORS.neutral.gray400};
 
+      /* Outline colors */
+      --color-outline: ${COLORS.neutral.black};
+      --color-outline-light: ${COLORS.neutral.gray400};
+
+      /* Pure colors */
+      --color-black: ${COLORS.neutral.black};
+      --color-white: ${COLORS.neutral.white};
+
       /* Input/Form colors */
       --theme-input-background: ${COLORS.neutral.white};
       --theme-input-background-focus: ${COLORS.neutral.gray200};
@@ -251,6 +259,7 @@ export function setupTheme(): void {
       --ease-in-out: ${ANIMATIONS.timing.easeInOut};
       --ease-bounce: ${ANIMATIONS.timing.bounce};
       --ease-smooth: ${ANIMATIONS.timing.smooth};
+      --ease-snappy: ${ANIMATIONS.timing.snappy};
 
       /* Hover Effects - Lift */
       --lift-subtle: ${HOVER_EFFECTS.lift.subtle};
@@ -297,6 +306,10 @@ export function setupTheme(): void {
       --theme-border: ${COLORS.neutral.gray600};
       --theme-input-border: ${COLORS.neutral.gray600};
       --theme-input-border-hover: ${COLORS.neutral.gray500};
+
+      /* Outline colors - Dark Mode Override */
+      --color-outline: ${COLORS.neutral.gray400};
+      --color-outline-light: ${COLORS.neutral.gray600};
 
       /* Input/Form colors - darker like v3 */
       --theme-input-background: ${COLORS.neutral.gray650};

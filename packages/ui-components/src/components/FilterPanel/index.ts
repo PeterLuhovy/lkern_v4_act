@@ -11,4 +11,4 @@ export type {
   QuickFilter,
   FilterGroup,
   RoleFilter,
-} from '../../types/FilterPanel';
+} from './FilterPanel.types';

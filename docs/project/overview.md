@@ -2,9 +2,9 @@
 # L-KERN v4 - Project Overview
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\overview.md
-# Version: 11.0.0
+# Version: 11.1.0
 # Created: 2025-10-13
-# Updated: 2025-11-08
+# Updated: 2025-11-24
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
@@ -310,6 +310,29 @@ services/lkms-template/
 
 ## 🔄 Recent Changes
 
+**v11.1.0 (2025-11-24):**
+- 🔧 **L-KERN Control Panel ENHANCED v1.11.3 → v1.13.1**
+- 🔧 **Orchestrators REWRITTEN v2.x → v3.0.0**
+- Timing System Implementation:
+  - ✅ Live timer with MM:SS:MS format (100ms updates)
+  - ✅ Statistics tracking (Last 50 executions, rolling average)
+  - ✅ Per-service timing breakdowns with color coding
+  - ✅ Startup Orchestrator: Parallel health checks (2-8x faster)
+  - ✅ Shutdown Orchestrator: Sequential verification with timing
+  - ✅ Cleanup Orchestrator: Two-step confirmation + destructive cleanup
+- Control Panel UI Improvements:
+  - ✅ Terminal wrapping controls (checkboxes for main + logs)
+  - ✅ Docker-All buttons reorganized (2 rows × 4 buttons, width +33%)
+  - ✅ Emoji icons removed from button labels
+  - ✅ Checkbox hover styling (green text on hover)
+  - ✅ Window size increased (1650 → 2200px width)
+- Infrastructure:
+  - ✅ Central services registry (services_registry.json - single source of truth)
+  - ✅ Comprehensive documentation (3 orchestrator .md files)
+  - ✅ Statistics files (startup_stats.json, shutdown_stats.json, cleanup_stats.json)
+- Updated roadmap to v8.4.0
+- Performance: Startup 15-40s (avg 25s), Shutdown 10-30s (avg 20s), Cleanup 15-40s (avg 30s)
+
 **v11.0.0 (2025-11-08):**
 - ✅ **Tasks 1.40, 1.50 Backend Infrastructure COMPLETED**
 - Task 1.40 Backend Infrastructure:
@@ -372,6 +395,6 @@ services/lkms-template/
 
 ---
 
-**Last Updated:** 2025-11-08
+**Last Updated:** 2025-11-24
 **Maintainer:** BOSSystems s.r.o.
 **Next Review:** Before starting Task 1.70 (Contact MDM)

@@ -84,7 +84,7 @@ export function formatDateTime(date: Date | string, locale: DateLocale): string 
 
   const dateStr = formatDate(dateObj, locale);
 
-  return `${dateStr} ${hours}:${minutes}`;
+  return `${dateStr}     ${hours}:${minutes}`;
 }
 
 /**
@@ -129,7 +129,7 @@ export function formatDateTimeFull(date: Date | string, locale: DateLocale): str
 
   const dateStr = formatDate(dateObj, locale);
 
-  return `${dateStr} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+  return `${dateStr}     ${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
 /**
@@ -563,9 +563,9 @@ export function formatUserDateTime(
 
   // Format according to locale
   if (locale === 'sk') {
-    return `${day}.${month}.${year} ${hour}:${minute}`;
+    return `${day}.${month}.${year}     ${hour}:${minute}`;
   } else {
-    return `${year}-${month}-${day} ${hour}:${minute}`;
+    return `${year}-${month}-${day}     ${hour}:${minute}`;
   }
 }
 

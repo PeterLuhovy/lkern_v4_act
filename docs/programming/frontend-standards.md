@@ -2,15 +2,20 @@
 # L-KERN v4 - Frontend Standards
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\programming\frontend-standards.md
-# Version: 1.0.0
+# Version: 2.0.0
 # Created: 2025-10-18
-# Updated: 2025-10-18
+# Updated: 2025-11-22
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Frontend development standards for L-KERN v4 including
 #   React 19, TypeScript 5.7, Vite 6, CSS patterns, and API client setup.
+#
+# Changelog v2.0.0:
+#   - Added 2-phase retry logic with toast notifications (max 10s + 20s)
+#   - Exponential backoff strategy for 500 errors
+#   - User feedback via toast (warning → error)
 # ================================================================
 
 ---
@@ -630,7 +635,15 @@ export const contactsApi = {
 
 ---
 
-### Retry Logic with Exponential Backoff
+### Retry Logic with Exponential Backoff & Toast Notifications
+
+**⚠️ CRITICAL: Server error handling with user feedback**
+
+**Strategy:**
+- First attempt: Max 10s total wait → Show toast notification
+- Second attempt: Max 20s total wait → Final failure
+- Total max waiting time: 30 seconds
+- User informed via toast after each phase
 
 **src/utils/retry.ts:**
 
@@ -639,79 +652,145 @@ export const contactsApi = {
  * ================================================================
  * FILE: retry.ts
  * PATH: /apps/web-ui/src/utils/retry.ts
- * DESCRIPTION: Retry utility with exponential backoff for API calls
- * VERSION: v1.0.0
- * UPDATED: 2025-10-18 15:30:00
+ * DESCRIPTION: Retry utility with exponential backoff and toast notifications
+ * VERSION: v2.0.0
+ * UPDATED: 2025-11-22 12:00:00
  * ================================================================
  */
+
+// === IMPORTS ===
+import { toast } from '@l-kern/ui-components';
+import { useTranslation } from '@l-kern/config';
 
 // === CONSTANTS ===
 // Retry delays in milliseconds (exponential backoff)
 // Why: Progressive delays give service time to recover
-const RETRY_DELAYS = [1000, 2000, 4000, 8000]; // 1s, 2s, 4s, 8s
+// Phase 1: [1000, 2000, 4000] = 7s total → Toast after phase 1
+// Phase 2: [1000, 2000, 4000, 8000] = 15s total → Final failure
+const RETRY_DELAYS_PHASE1 = [1000, 2000, 4000]; // First attempt: max 10s
+const RETRY_DELAYS_PHASE2 = [1000, 2000, 4000, 8000]; // Second attempt: max 20s
 
 // HTTP status codes that should trigger retry
 const RETRYABLE_STATUS_CODES = [500, 502, 503, 504];
 
 // === TYPES ===
 interface RetryOptions {
-  retries?: number;
-  delays?: number[];
-  onRetry?: (attempt: number, error: Error) => void;
+  showToast?: boolean;          // Show toast notifications (default: true)
+  phase1Only?: boolean;          // Only first phase (default: false)
+  onPhase1Complete?: () => void; // Callback after phase 1
+  onRetry?: (attempt: number, phase: number, error: Error) => void;
 }
 
-// === RETRY FUNCTION ===
+// === RETRY FUNCTION WITH PHASES ===
 export async function retryOnFailure<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {}
 ): Promise<T> {
   const {
-    retries = 4,
-    delays = RETRY_DELAYS,
+    showToast = true,
+    phase1Only = false,
+    onPhase1Complete,
     onRetry
   } = options;
 
   let lastError: Error | undefined;
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  // === PHASE 1: First attempt (max 10s) ===
+  console.info('🔄 Phase 1: Starting initial request with retry (max 10s)...');
+
+  for (let attempt = 0; attempt < RETRY_DELAYS_PHASE1.length; attempt++) {
     try {
       return await fn();
     } catch (error: any) {
       lastError = error;
 
       // Check if we should retry
-      let shouldRetry = false;
+      const shouldRetry = isRetryableError(error);
 
-      // HTTP error with retryable status code
-      if (error.response?.status && RETRYABLE_STATUS_CODES.includes(error.response.status)) {
-        shouldRetry = true;
+      if (!shouldRetry || attempt === RETRY_DELAYS_PHASE1.length - 1) {
+        break; // Exit phase 1, proceed to phase 2 or fail
       }
 
-      // Network errors
-      if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
-        shouldRetry = true;
+      const delay = RETRY_DELAYS_PHASE1[attempt];
+      console.warn(
+        `⚠️ Phase 1 retry ${attempt + 1}/${RETRY_DELAYS_PHASE1.length}: ` +
+        `Retrying in ${delay}ms... (${error.response?.status || error.code})`
+      );
+
+      if (onRetry) {
+        onRetry(attempt + 1, 1, error);
       }
 
-      // Don't retry on last attempt
-      if (!shouldRetry || attempt === retries) {
-        console.error(`Request failed after ${attempt + 1} attempts:`, error.message);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  // === PHASE 1 COMPLETE - Show toast ===
+  console.warn('⏱️ Phase 1 failed (10s timeout). Starting Phase 2...');
+
+  if (showToast) {
+    toast.warning(
+      'Server problem detected. Retrying...',
+      { duration: 3000 }
+    );
+  }
+
+  if (onPhase1Complete) {
+    onPhase1Complete();
+  }
+
+  // If phase1Only mode, fail now
+  if (phase1Only) {
+    console.error('❌ Request failed after Phase 1 (phase1Only mode)');
+    throw lastError;
+  }
+
+  // === PHASE 2: Second attempt (max 20s) ===
+  console.info('🔄 Phase 2: Extended retry attempt (max 20s)...');
+
+  for (let attempt = 0; attempt < RETRY_DELAYS_PHASE2.length; attempt++) {
+    try {
+      const result = await fn();
+
+      // Success after phase 2!
+      if (showToast) {
+        toast.success('Connection restored!', { duration: 2000 });
+      }
+
+      return result;
+    } catch (error: any) {
+      lastError = error;
+
+      // Check if we should retry
+      const shouldRetry = isRetryableError(error);
+
+      if (!shouldRetry || attempt === RETRY_DELAYS_PHASE2.length - 1) {
+        // Final failure after phase 2
+        console.error(
+          `❌ Request failed after Phase 2 (total ~30s). Final error:`,
+          error.message
+        );
+
+        if (showToast) {
+          toast.error(
+            'Server unavailable. Please try again later.',
+            { duration: 5000 }
+          );
+        }
+
         throw lastError;
       }
 
-      // Calculate delay
-      const delay = delays[attempt] || delays[delays.length - 1];
-
+      const delay = RETRY_DELAYS_PHASE2[attempt];
       console.warn(
-        `Request failed (attempt ${attempt + 1}/${retries + 1}), retrying in ${delay}ms:`,
-        error.message
+        `⚠️ Phase 2 retry ${attempt + 1}/${RETRY_DELAYS_PHASE2.length}: ` +
+        `Retrying in ${delay}ms... (${error.response?.status || error.code})`
       );
 
-      // Call onRetry callback
       if (onRetry) {
-        onRetry(attempt + 1, error);
+        onRetry(attempt + 1, 2, error);
       }
 
-      // Wait before retry
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -719,75 +798,105 @@ export async function retryOnFailure<T>(
   throw lastError;
 }
 
-// === AXIOS INTERCEPTOR FOR AUTOMATIC RETRY ===
-import axios from 'axios';
+// === HELPER FUNCTION ===
+function isRetryableError(error: any): boolean {
+  // HTTP error with retryable status code (500, 502, 503, 504)
+  if (error.response?.status && RETRYABLE_STATUS_CODES.includes(error.response.status)) {
+    return true;
+  }
 
-export const setupRetryInterceptor = () => {
-  axios.interceptors.response.use(
-    response => response,
-    async error => {
-      const config = error.config;
+  // Network errors (connection refused, timeout, etc.)
+  if (error.code === 'ECONNREFUSED' ||
+      error.code === 'ETIMEDOUT' ||
+      error.message?.includes('Network Error') ||
+      error.message?.includes('timeout')) {
+    return true;
+  }
 
-      // Check if already retried max times
-      if (!config || config.__retryCount >= 4) {
-        return Promise.reject(error);
+  return false;
+}
+
+```
+
+**Usage examples:**
+
+```typescript
+// === BASIC USAGE - Automatic toast notifications ===
+import { retryOnFailure } from '@/utils/retry';
+
+const fetchContacts = async () => {
+  return retryOnFailure(
+    () => apiClient.get('/api/v1/contacts')
+    // Default: showToast=true, both phases enabled
+  );
+};
+
+// === CUSTOM OPTIONS - Track retry attempts ===
+const saveContact = async (data: ContactData) => {
+  return retryOnFailure(
+    () => apiClient.post('/api/v1/contacts', data),
+    {
+      onRetry: (attempt, phase, error) => {
+        console.log(`Retry attempt ${attempt} in phase ${phase}:`, error.message);
+      },
+      onPhase1Complete: () => {
+        console.log('Phase 1 failed, moving to Phase 2...');
       }
+    }
+  );
+};
 
-      // Initialize retry count
-      config.__retryCount = config.__retryCount || 0;
+// === SILENT MODE - No toast notifications ===
+const backgroundSync = async () => {
+  return retryOnFailure(
+    () => apiClient.get('/api/v1/sync'),
+    {
+      showToast: false // No user notifications for background tasks
+    }
+  );
+};
 
-      // Check if error is retryable
-      const isRetryable =
-        error.response?.status && RETRYABLE_STATUS_CODES.includes(error.response.status) ||
-        error.code === 'ECONNREFUSED' ||
-        error.message?.includes('Network Error');
-
-      if (!isRetryable) {
-        return Promise.reject(error);
-      }
-
-      // Increment retry count
-      config.__retryCount++;
-
-      // Calculate delay
-      const delay = RETRY_DELAYS[config.__retryCount - 1] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
-
-      console.warn(
-        `Request failed (attempt ${config.__retryCount}/5), retrying in ${delay}ms:`,
-        error.message
-      );
-
-      // Wait and retry
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return axios(config);
+// === PHASE 1 ONLY - Quick fail for non-critical operations ===
+const fetchSuggestions = async (query: string) => {
+  return retryOnFailure(
+    () => apiClient.get('/api/v1/suggestions', { params: { q: query } }),
+    {
+      phase1Only: true // Only max 10s, fail faster for autocomplete
     }
   );
 };
 ```
 
-**Usage:**
+**Timeline example:**
 
-```typescript
-// Manual retry
-import { retryOnFailure } from '@/utils/retry';
-
-const fetchContacts = async () => {
-  return retryOnFailure(
-    () => apiClient.get('/api/v1/contacts'),
-    {
-      retries: 3,
-      onRetry: (attempt) => {
-        console.log(`Retry attempt ${attempt}`);
-      }
-    }
-  );
-};
-
-// Automatic retry via interceptor
-import { setupRetryInterceptor } from '@/utils/retry';
-
-// In main.tsx or App.tsx
-setupRetryInterceptor();
+```
+User action: Click "Save Contact"
+  ↓
+Phase 1 starts (max 10s):
+  - Try 1: Immediate → 500 error
+  - Wait 1s
+  - Try 2: → 500 error
+  - Wait 2s
+  - Try 3: → 500 error
+  - Wait 4s
+  - Try 4: → 500 error (total ~7s elapsed)
+  ↓
+Phase 1 complete → Toast: "Server problem detected. Retrying..."
+  ↓
+Phase 2 starts (max 20s):
+  - Try 1: Immediate → 500 error
+  - Wait 1s
+  - Try 2: → 500 error
+  - Wait 2s
+  - Try 3: → 500 error
+  - Wait 4s
+  - Try 4: → 500 error
+  - Wait 8s
+  - Try 5: → 500 error (total ~15s elapsed)
+  ↓
+Phase 2 failed → Toast: "Server unavailable. Please try again later."
+  ↓
+Total elapsed: ~22s (within 30s limit)
 ```
 
 ---

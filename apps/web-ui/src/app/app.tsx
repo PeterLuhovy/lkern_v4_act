@@ -30,7 +30,9 @@ import { GlassModalTestPage } from '../__tests__/pages/GlassModalTestPage';
 import { ToastTestPage } from '../__tests__/pages/ToastTestPage';
 import { IconsTest } from '../__tests__/pages/IconsTest';
 import { DataGridTestPage } from '../__tests__/pages/DataGridTestPage';
-import { FilteredGridDemo, TemplatePageDatagridDemo } from '../pages/demo';
+import { FilteredGridDemo } from '../__tests__/pages/FilteredGridDemo';
+import { TemplatePageDatagridDemo } from '../__tests__/_templates/TemplatePageDatagridDemo';
+import { TemplatePageBaseDemo } from '../__tests__/_templates/TemplatePageBaseDemo';
 
 export function App() {
   return (
@@ -61,6 +63,7 @@ export function App() {
         <Route path="/testing/datagrid" element={<DataGridTestPage />} />
         <Route path="/testing/filtered-grid" element={<FilteredGridDemo />} />
         <Route path="/testing/template-page-datagrid" element={<TemplatePageDatagridDemo />} />
+        <Route path="/testing/base-page-template" element={<TemplatePageBaseDemo />} />
       </Routes>
       <ToastContainer position="bottom-center" />
     </>

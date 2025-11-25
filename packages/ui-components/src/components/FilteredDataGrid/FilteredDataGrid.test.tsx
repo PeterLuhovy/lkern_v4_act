@@ -12,7 +12,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderWithTranslation as render, screen } from '../../test-utils';
 import { FilteredDataGrid } from './FilteredDataGrid';
-import type { FilteredDataGridProps } from '../../types/FilteredDataGrid';
+import type { FilteredDataGridProps } from './FilteredDataGrid.types';
 
 // ================================================
 // MOCK DATA - 25 items (18 active, 7 inactive)

@@ -216,22 +216,31 @@ function generatePage(config) {
   const statusCol = columns.find(col => col.type === 'status' && col.field === 'status');
   if (statusCol && statusCol.options) {
     const statusColorsMap = {
-      'active': '#4CAF50',
-      'pending': '#FF9800',
-      'inactive': '#f44336',
-      'completed': '#2196F3',
-      'cancelled': '#9e9e9e',
-      'draft': '#FF9800',
-      'published': '#4CAF50',
-      'archived': '#757575',
+      'active': 'COLORS.status.success',
+      'pending': 'COLORS.status.warning',
+      'inactive': 'COLORS.status.error',
+      'completed': 'COLORS.status.info',
+      'cancelled': 'COLORS.status.muted',
+      'draft': 'COLORS.status.warning',
+      'published': 'COLORS.status.success',
+      'archived': 'COLORS.status.muted',
     };
 
     const statusColorsOld = /const statusColors = \{[^\}]+\};/s;
     const statusColorsNew = `const statusColors = {\n${statusCol.options.map(opt =>
-      `    ${opt}: '${statusColorsMap[opt] || '#9e9e9e'}'`
-    ).join(',\n')}\n  };`;
+      `    ${opt}: ${statusColorsMap[opt] || 'COLORS.status.muted'}`
+    ).join(',\n')},\n    deleted: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Deleted items - theme-aware red\n  };`;
     generatedTsx = generatedTsx.replace(statusColorsOld, statusColorsNew);
   }
+
+  // ============================================================
+  // FIX GET ROW STATUS - Always check is_deleted first
+  // ============================================================
+
+  // Replace getRowStatus to check is_deleted first (for deleted item red background)
+  const getRowStatusOld = /getRowStatus=\{\(row\) => row\.\w+\}/;
+  const getRowStatusNew = `getRowStatus={(row) => row.is_deleted ? 'deleted' : row.status}`;
+  generatedTsx = generatedTsx.replace(getRowStatusOld, getRowStatusNew);
 
   // ============================================================
   // FIX ACTIONS - Replace item.name with first string field

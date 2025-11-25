@@ -2,15 +2,19 @@
 # Testing Guide - L-KERN v4
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\setup\testing.md
-# Version: 1.0.0
+# Version: 1.1.0
 # Created: 2025-10-18
-# Updated: 2025-10-18
+# Updated: 2025-11-22
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Description:
 #   Comprehensive testing guide covering Vitest (frontend) and
 #   pytest (backend) with Docker integration and coverage reporting.
+#
+# Changelog:
+#   v1.1.0 (2025-11-22) - Added CSS variables and translations testing guide
+#   v1.0.0 (2025-10-18) - Initial version
 # ================================================================
 
 ---
@@ -228,6 +232,120 @@ describe('RadioGroup', () => {
 ```
 
 **See:** [programming/code-examples.md#frontend-testing](programming/code-examples.md#frontend-testing) for more examples.
+
+---
+
+### Testing CSS Variables and Styling
+
+**CRITICAL:** Unit tests MUST verify that components use CSS variables instead of hardcoded values.
+
+**Why Test CSS Variables?**
+- Prevents hardcoded colors, spacing, and other DRY violations
+- Ensures theme consistency across components
+- Catches missing CSS imports or undefined variables
+- Detects when fallback values are being used unexpectedly
+
+**Example: Testing CSS Variable Usage**
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import { FilteredDataGrid } from './FilteredDataGrid';
+
+describe('FilteredDataGrid - CSS Variables', () => {
+  it('uses CSS variable --spacing-y-sm for gap', () => {
+    const { container } = render(<FilteredDataGrid />);
+    const element = container.querySelector('.filteredDataGrid');
+
+    const styles = window.getComputedStyle(element);
+    const gap = styles.gap;
+
+    // Verify computed value matches expected spacing
+    expect(gap).toBe('8px'); // or expected value from design-tokens.ts
+  });
+
+  it('verifies --theme-text CSS variable is defined', () => {
+    const root = document.documentElement;
+    const textColor = getComputedStyle(root).getPropertyValue('--theme-text');
+
+    expect(textColor).toBeTruthy();
+    expect(textColor.trim()).not.toBe('');
+  });
+
+  it('applies theme colors correctly', () => {
+    const { container } = render(<FilteredDataGrid />);
+    const element = container.querySelector('.filteredDataGrid');
+
+    const styles = window.getComputedStyle(element);
+
+    // Verify color comes from --theme-text variable
+    expect(styles.color).toBe('rgb(33, 33, 33)'); // #212121 converted to RGB
+  });
+});
+```
+
+**Example: Testing Translation Keys**
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@l-kern/config';
+import { MyComponent } from './MyComponent';
+
+describe('MyComponent - Translations', () => {
+  it('renders translated text in Slovak', () => {
+    i18n.changeLanguage('sk');
+    render(
+      <I18nextProvider i18n={i18n}>
+        <MyComponent />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByText('Uložiť')).toBeInTheDocument();
+  });
+
+  it('renders translated text in English', () => {
+    i18n.changeLanguage('en');
+    render(
+      <I18nextProvider i18n={i18n}>
+        <MyComponent />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByText('Save')).toBeInTheDocument();
+  });
+
+  it('does NOT contain hardcoded text', () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <MyComponent />
+      </I18nextProvider>
+    );
+
+    // Verify component source uses t() function
+    // This is a code review check - see coding-standards.md
+  });
+});
+```
+
+**When to Test CSS Variables:**
+- ✅ **Every new component** - Verify theme variables used
+- ✅ **After refactoring** - Ensure no hardcoded values introduced
+- ✅ **Global theme changes** - Verify all components still work
+- ✅ **Before production** - Coverage report should include CSS tests
+
+**Debugging CSS Variable Issues:**
+
+Use browser DevTools to inspect computed styles:
+1. Right-click element → Inspect (or press F12)
+2. In **Styles** panel, see which CSS variable is active
+3. If fallback value is used, variable is undefined or missing
+4. Check **Computed** tab for final calculated value
+
+**See Also:**
+- [coding-standards.md#dry-principle](programming/coding-standards.md#dry-principle) - DRY compliance rules
+- [coding-standards.md#theme-css-variables](programming/coding-standards.md#theme-css-variables) - Available theme variables
 
 ---
 

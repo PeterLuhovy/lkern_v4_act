@@ -49,6 +49,8 @@ export interface TranslationKeys {
     save: string;
     cancel: string;
     delete: string;
+    restore: string;
+    permanentDelete: string;
     edit: string;
     add: string;
     close: string;
@@ -62,6 +64,8 @@ export interface TranslationKeys {
     error: string;
     success: string;
     confirm: string;
+    confirmDelete: string;
+    confirmDeleteMessage: string;
     yes: string;
     no: string;
     submit: string;
@@ -128,6 +132,56 @@ export interface TranslationKeys {
       url: string;
       attachments: string;
       submit: string;
+      dropzoneText: string;
+      dropzoneHint: string;
+      fileHint: string;
+      removeFile: string;
+      systemInfo: string;
+      systemInfoHint: string;
+    };
+    validation: {
+      titleMinLength: string;
+      titleMaxLength: string;
+      descriptionMinLength: string;
+    };
+    modal: {
+      title: string;
+      basic: string;
+      standard: string;
+      advanced: string;
+    };
+    roles: {
+      basic: string;
+      standard: string;
+      advanced: string;
+    };
+    types: {
+      bug: string;
+      feature: string;
+      improvement: string;
+      question: string;
+    };
+    severity: {
+      minor: string;
+      moderate: string;
+      major: string;
+      blocker: string;
+    };
+    priority: {
+      low: string;
+      medium: string;
+      high: string;
+      critical: string;
+    };
+    category: {
+      placeholder: string;
+      ui: string;
+      backend: string;
+      database: string;
+      integration: string;
+      docs: string;
+      performance: string;
+      security: string;
     };
   };
   components: {
@@ -1027,6 +1081,10 @@ export interface TranslationKeys {
       bulkDeleteSuccess: string;
       deleteConfirm: string;
       deleteSuccess: string;
+      restoreConfirm: string;
+      restoreSuccess: string;
+      permanentDeleteConfirm: string;
+      permanentDeleteSuccess: string;
       detailsTitle: string;
       filters: {
         statusTitle: string;
@@ -1109,6 +1167,17 @@ export interface TranslationKeys {
     notes: string;
   };
 
+  auth: {
+    switchRole: string;
+    selectRole: string;
+    roles: {
+      admin: string;
+      manager: string;
+      user: string;
+      guest: string;
+    };
+  };
+
   helperTexts: {
     emailExample: string;
     phoneExample: string;
@@ -1132,6 +1201,7 @@ export interface TranslationKeys {
       itemsPerPageLabel: string;
       filterLabel: string;
       itemsCount: string;
+      statusLegend: string;
       previous: string;
       next: string;
       page: string;

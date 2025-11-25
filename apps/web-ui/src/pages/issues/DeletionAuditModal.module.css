@@ -1,0 +1,117 @@
+/*
+ * ================================================================
+ * FILE: DeletionAuditModal.module.css
+ * PATH: /apps/web-ui/src/pages/Issues/DeletionAuditModal.module.css
+ * DESCRIPTION: Styles for deletion audit modal
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-24 13:40:00
+ * ================================================================
+ */
+
+.container {
+  padding: 16px 0;
+}
+
+.error {
+  padding: 12px;
+  background: var(--color-status-error-light, #ffebee);
+  border: 1px solid var(--color-status-error, #f44336);
+  border-radius: 4px;
+  color: var(--color-status-error, #f44336);
+  margin-bottom: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--theme-text, #212121);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: var(--theme-button-text-on-color, #ffffff);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-text-muted, #9e9e9e);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 14px;
+  color: var(--theme-text, #212121);
+}
+
+.errorBox {
+  padding: 12px;
+  background: var(--color-status-error-light, #ffebee);
+  border: 1px solid var(--color-status-error, #f44336);
+  border-radius: 4px;
+  color: var(--color-status-error, #f44336);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.filesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.fileItem {
+  padding: 12px;
+  background: var(--theme-input-background, #ffffff);
+  border: 1px solid var(--theme-input-border, #e0e0e0);
+  border-radius: 4px;
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--theme-text, #212121);
+  margin-bottom: 4px;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.fileError {
+  font-size: 12px;
+  color: var(--color-status-error, #f44336);
+  font-family: 'Courier New', monospace;
+}

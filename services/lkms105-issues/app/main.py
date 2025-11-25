@@ -36,7 +36,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
-# CORS middleware
+# CORS middleware (MUST be first to handle preflight)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -45,6 +45,19 @@ app.add_middleware(
     allow_headers=["*"],
     max_age=settings.CORS_MAX_AGE,
 )
+
+# Debug middleware - log all requests (AFTER CORS so it sees all requests)
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"🔍 DEBUG REQUEST: {request.method} {request.url}")
+    logger.info(f"🔍 DEBUG HEADERS: {dict(request.headers)}")
+    try:
+        response = await call_next(request)
+        logger.info(f"🔍 DEBUG RESPONSE: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.error(f"🔍 DEBUG ERROR: {str(e)}")
+        raise
 
 # Include routers
 app.include_router(issues.router)

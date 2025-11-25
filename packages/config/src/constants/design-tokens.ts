@@ -3,9 +3,12 @@
  * FILE: design-tokens.ts
  * PATH: packages/config/src/constants/design-tokens.ts
  * DESCRIPTION: Design tokens for L-KERN v4 ERP system
- * VERSION: v2.0.0
- * UPDATED: 2025-11-06 18:00:00
+ * VERSION: v2.1.0
+ * UPDATED: 2025-11-23 00:00:00
  * ================================================================
+ * CHANGELOG v2.1.0:
+ *   - Improved sidebar animation: duration 350ms → 250ms (faster)
+ *   - Added snappy easing: cubic-bezier(0.25, 0.1, 0.25, 1)
  * CHANGELOG v2.0.0:
  *   - Added GRADIENTS (6 patterns for backgrounds/interactive elements)
  *   - Enhanced ANIMATIONS (hover, stateChange durations + bounce, smooth easings)
@@ -38,6 +41,8 @@ export const COLORS = {
     error: '#f44336',        // Red for errors
     info: '#2196F3',         // Blue for info
     muted: '#9E9E9E',        // Gray for disabled
+    inactive: '#CC0000',     // Dark saturated red for inactive/deleted items (dark mode)
+    inactiveLight: '#EE0000', // Brighter saturated red for light mode
 
     // Darker variants for borders (better contrast)
     errorDark: '#d32f2f',    // Darker red for error borders
@@ -336,7 +341,7 @@ export const ANIMATIONS = {
     stateChange: 220,    // 220ms - Checkbox, radio state changes (playful bounce)
     normal: 200,         // 200ms - Standard transitions
     modal: 300,          // 300ms - Modal open/close, complex animations
-    sidebar: 350,        // 350ms - Sidebar expand/collapse (smooth, fluid)
+    sidebar: 250,        // 250ms - Sidebar expand/collapse (fast, responsive)
     slow: 500,           // 500ms - Slow transitions (rare)
   },
   timing: {
@@ -347,6 +352,7 @@ export const ANIMATIONS = {
     easeInOut: 'ease-in-out',                          // General transitions
     bounce: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)', // State changes (playful bounce)
     smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',            // Material Design smooth
+    snappy: 'cubic-bezier(0.25, 0.1, 0.25, 1)',        // Snappy sidebar animation
   },
 } as const;
 
@@ -432,4 +438,4 @@ export const SIDEBAR = {
 /**
  * VERSION TRACKING
  */
-export const DESIGN_TOKENS_VERSION = '2.0.0';
+export const DESIGN_TOKENS_VERSION = '2.1.0';

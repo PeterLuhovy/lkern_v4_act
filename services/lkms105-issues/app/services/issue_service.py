@@ -28,14 +28,14 @@ def generate_issue_code(db: Session, issue_type: IssueType) -> str:
     Generate unique issue_code: TYP-RRMM-NNNN.
 
     Format:
-    - TYP: Issue type prefix (BUG, FEAT, IMPR, QUES)
+    - TYP: Issue type prefix (BUG, FEA, IMP, QUE) - always 3 letters
     - RRMM: Year-Month (e.g., 2511 = November 2025)
     - NNNN: Sequential number per type per month (0001, 0002, ...)
 
     Examples:
     - BUG-2511-0001  (first bug in November 2025)
-    - FEAT-2511-0042 (42nd feature in November 2025)
-    - IMPR-2512-0003 (3rd improvement in December 2025)
+    - FEA-2511-0042 (42nd feature in November 2025)
+    - IMP-2512-0003 (3rd improvement in December 2025)
 
     Args:
         db: SQLAlchemy session
@@ -48,25 +48,36 @@ def generate_issue_code(db: Session, issue_type: IssueType) -> str:
     now = datetime.utcnow()
     year_month = now.strftime("%y%m")  # "2511" for November 2025
 
-    # Type prefix mapping
+    # Type prefix mapping (always 3 letters)
     type_prefix = {
         IssueType.BUG: "BUG",
-        IssueType.FEATURE: "FEAT",
-        IssueType.IMPROVEMENT: "IMPR",
-        IssueType.QUESTION: "QUES",
+        IssueType.FEATURE: "FEA",
+        IssueType.IMPROVEMENT: "IMP",
+        IssueType.QUESTION: "QUE",
     }
     prefix = type_prefix[issue_type]
 
-    # Count existing issues of this type in current month
+    # Find max sequential number for this type in current month
     # Pattern: "BUG-2511-%"
     pattern = f"{prefix}-{year_month}-%"
-    count = db.query(Issue).filter(
+    existing_issues = db.query(Issue.issue_code).filter(
         Issue.issue_code.like(pattern),
-        Issue.is_deleted == False  # noqa: E712 - SQLAlchemy expression
-    ).count()
+        Issue.deleted_at.is_(None)  # Only count non-deleted issues
+    ).all()
 
-    # Generate code with sequential number
-    issue_code = f"{prefix}-{year_month}-{count + 1:04d}"
+    # Extract sequential numbers and find max
+    max_num = 0
+    for (code,) in existing_issues:
+        # Extract last 4 digits from code (e.g., "BUG-2511-0042" → 42)
+        try:
+            seq_num = int(code.split('-')[-1])
+            if seq_num > max_num:
+                max_num = seq_num
+        except (ValueError, IndexError):
+            continue
+
+    # Generate code with next sequential number
+    issue_code = f"{prefix}-{year_month}-{max_num + 1:04d}"
 
     return issue_code
 

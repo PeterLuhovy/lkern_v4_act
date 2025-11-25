@@ -14,7 +14,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Badge, BasePage } from '@l-kern/ui-components';
 import { useTranslation } from '@l-kern/config';
-import { ContactFormWizard } from '../../demos/ContactFormWizard';
+import { ContactFormWizard } from '../ContactFormWizard';
 import styles from './WizardVariantsDemo.module.css';
 
 // === COMPONENT ===

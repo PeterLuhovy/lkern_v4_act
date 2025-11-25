@@ -41,6 +41,7 @@ export interface DataGridAction<T = any> {
   onClick: (row: T, e: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
   disabled?: (row: T) => boolean;
+  hidden?: (row: T) => boolean; // Hide action button for specific rows
   title?: string; // Tooltip text on hover
 }
 
@@ -59,6 +60,8 @@ export interface DataGridProps<T = any> {
   getRowId?: (row: T) => string;
   getRowStatus?: (row: T) => string;
   statusColors?: Record<string, string>;
+  statusLabels?: Record<string, string>; // Labels for legend items
+  showStatusLegend?: boolean; // Show status color legend
   hasActiveFilters?: boolean;
   selectedRows?: Set<string>;
   onSelectionChange?: (selectedIds: Set<string>) => void;
@@ -87,6 +90,8 @@ const DataGrid = <T extends Record<string, any>>({
   getRowId = (row) => row.id || String(Math.random()),
   getRowStatus,
   statusColors = {},
+  statusLabels = {},
+  showStatusLegend = false,
   hasActiveFilters = false,
   selectedRows = new Set(),
   onSelectionChange,
@@ -149,21 +154,23 @@ const DataGrid = <T extends Record<string, any>>({
         width,
         render: (_, row: T) => (
           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-            {actions.map((action, idx) => (
-              <Button
-                key={idx}
-                variant={action.variant || 'secondary'}
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  action.onClick(row, e);
-                }}
-                disabled={action.disabled ? action.disabled(row) : false}
-                title={action.title}
-              >
-                {action.label}
-              </Button>
-            ))}
+            {actions
+              .filter((action) => !action.hidden || !action.hidden(row))
+              .map((action, idx) => (
+                <Button
+                  key={idx}
+                  variant={action.variant || 'secondary'}
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    action.onClick(row, e);
+                  }}
+                  disabled={action.disabled ? action.disabled(row) : false}
+                  title={action.title}
+                >
+                  {action.label}
+                </Button>
+              ))}
           </div>
         ),
       };
@@ -221,6 +228,9 @@ const DataGrid = <T extends Record<string, any>>({
   // === CHECKBOX SELECTION HANDLERS ===
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number>(-1);
 
+  // Track mousedown position to distinguish click from drag
+  const mouseDownPos = useRef<{ x: number; y: number } | null>(null);
+
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!onSelectionChange) return;
 
@@ -246,6 +256,21 @@ const DataGrid = <T extends Record<string, any>>({
 
   // Handle row click with Ctrl/Shift modifiers
   const handleRowClickWithModifiers = (rowId: string, index: number, e: React.MouseEvent) => {
+    // Check if this was a drag (text selection) instead of a click
+    const DRAG_THRESHOLD = 5; // pixels
+    if (mouseDownPos.current) {
+      const deltaX = Math.abs(e.clientX - mouseDownPos.current.x);
+      const deltaY = Math.abs(e.clientY - mouseDownPos.current.y);
+
+      // If mouse moved more than threshold, it's a drag - don't expand
+      if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
+        mouseDownPos.current = null;
+        return;
+      }
+    }
+
+    mouseDownPos.current = null;
+
     if (!enableSelection || !onSelectionChange) {
       toggleExpand(rowId);
       return;
@@ -282,6 +307,11 @@ const DataGrid = <T extends Record<string, any>>({
     // Regular click - toggle expand
     toggleExpand(rowId);
     setLastSelectedIndex(index);
+  };
+
+  // Capture mousedown position
+  const handleRowMouseDown = (e: React.MouseEvent) => {
+    mouseDownPos.current = { x: e.clientX, y: e.clientY };
   };
 
   // Calculate "Select All" checkbox state
@@ -458,11 +488,17 @@ const DataGrid = <T extends Record<string, any>>({
   const isEmpty = data.length === 0;
 
   // === RENDER ===
-  // Calculate fixed height to prevent page jumping when row count changes
-  const fixedHeight = `calc(${HOVER_EFFECTS.dataGrid.headerHeight}px + ((${itemsPerPage} + 1) * ${HOVER_EFFECTS.dataGrid.rowHeight}px))`;
+  // Fixed heights for different items per page values
+  // Formula: headerHeight (60px) + ((itemsPerPage + 1) * rowHeight (48px))
+  const heightMap: Record<number, string> = {
+    5: '300px',
+    10: '588px',   // 60 + (11 * 48) = 588
+    20: '1068px',  // 60 + (21 * 48) = 1068
+    50: '2508px',  // 60 + (51 * 48) = 2508
+    100: '4908px', // 60 + (101 * 48) = 4908
+  };
+  const fixedHeight = heightMap[itemsPerPage] || `${HOVER_EFFECTS.dataGrid.headerHeight + ((itemsPerPage + 1) * HOVER_EFFECTS.dataGrid.rowHeight)}px`;
 
-
-  
   return (
     <div
       className={`${styles.dataGrid} ${compactMode ? styles.dataGridCompact : ''}`}
@@ -592,7 +628,7 @@ const DataGrid = <T extends Record<string, any>>({
           }
 
           return (
-            <div key={rowId}>
+            <div key={rowId} style={{ width: 'max-content', minWidth: '100%' }}>
               {/* MAIN ROW */}
               <div
                 ref={(el) => {
@@ -614,6 +650,7 @@ const DataGrid = <T extends Record<string, any>>({
                 aria-selected={isSelected}
                 aria-expanded={renderExpandedContent ? isExpanded : undefined}
                 tabIndex={0}
+                onMouseDown={handleRowMouseDown}
                 onClick={(e) => handleRowClickWithModifiers(rowId, rowIndex, e)}
                 onKeyDown={(e) => handleRowKeyDown(e, row, rowIndex)}
               >
@@ -667,7 +704,9 @@ const DataGrid = <T extends Record<string, any>>({
                   aria-rowindex={rowIndex + 2}
                 >
                   <div role="gridcell" aria-colindex={1} style={{ gridColumn: `1 / -1` }}>
-                    {renderExpandedContent(row)}
+                    <div className={styles.expandedContent}>
+                      {renderExpandedContent(row)}
+                    </div>
                   </div>
                 </div>
               )}

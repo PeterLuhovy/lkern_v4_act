@@ -23,10 +23,10 @@ class IssueType(str, Enum):
         IMPROVEMENT: Enhancement to existing feature
         QUESTION: User question or clarification
     """
-    BUG = "BUG"
-    FEATURE = "FEATURE"
-    IMPROVEMENT = "IMPROVEMENT"
-    QUESTION = "QUESTION"
+    BUG = "bug"
+    FEATURE = "feature"
+    IMPROVEMENT = "improvement"
+    QUESTION = "question"
 
 
 class IssueSeverity(str, Enum):
@@ -39,10 +39,10 @@ class IssueSeverity(str, Enum):
         MAJOR: High impact, affects functionality
         BLOCKER: Critical, blocks workflow
     """
-    MINOR = "MINOR"
-    MODERATE = "MODERATE"
-    MAJOR = "MAJOR"
-    BLOCKER = "BLOCKER"
+    MINOR = "minor"
+    MODERATE = "moderate"
+    MAJOR = "major"
+    BLOCKER = "blocker"
 
 
 class IssueCategory(str, Enum):
@@ -58,13 +58,13 @@ class IssueCategory(str, Enum):
         PERFORMANCE: Performance optimization
         SECURITY: Security vulnerabilities
     """
-    UI = "UI"
-    BACKEND = "BACKEND"
-    DATABASE = "DATABASE"
-    INTEGRATION = "INTEGRATION"
-    DOCS = "DOCS"
-    PERFORMANCE = "PERFORMANCE"
-    SECURITY = "SECURITY"
+    UI = "ui"
+    BACKEND = "backend"
+    DATABASE = "database"
+    INTEGRATION = "integration"
+    DOCS = "docs"
+    PERFORMANCE = "performance"
+    SECURITY = "security"
 
 
 class IssueStatus(str, Enum):
@@ -84,12 +84,12 @@ class IssueStatus(str, Enum):
         CLOSED: Verified and closed
         REJECTED: Rejected (not a bug, won't fix, etc.)
     """
-    OPEN = "OPEN"
-    ASSIGNED = "ASSIGNED"
-    IN_PROGRESS = "IN_PROGRESS"
-    RESOLVED = "RESOLVED"
-    CLOSED = "CLOSED"
-    REJECTED = "REJECTED"
+    OPEN = "open"
+    ASSIGNED = "assigned"
+    IN_PROGRESS = "in_progress"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
+    REJECTED = "rejected"
 
 
 class IssuePriority(str, Enum):
@@ -102,7 +102,7 @@ class IssuePriority(str, Enum):
         HIGH: Should be fixed soon
         CRITICAL: Must be fixed immediately
     """
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-    CRITICAL = "CRITICAL"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"

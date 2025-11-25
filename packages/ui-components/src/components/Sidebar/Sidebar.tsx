@@ -117,6 +117,11 @@ export interface SidebarProps {
   showLanguageToggle?: boolean;
 
   /**
+   * Custom content to display at the bottom (above theme/language toggles)
+   */
+  bottomContent?: React.ReactNode;
+
+  /**
    * Show floating action button at bottom
    * @default false
    */
@@ -411,6 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   showUploadBox = false,
   showThemeToggle = false,
   showLanguageToggle = false,
+  bottomContent,
   showFloatingAction = false,
   onFloatingAction,
   resizable = true,
@@ -650,6 +656,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {/* Custom bottom content (e.g., auth switcher) */}
+        {bottomContent && (
+          React.isValidElement(bottomContent) && typeof bottomContent.type === 'function'
+            ? React.cloneElement(bottomContent as React.ReactElement<{ isCollapsed?: boolean }>, { isCollapsed })
+            : bottomContent
         )}
 
         {/* Theme & Language toggles (horizontal layout) */}

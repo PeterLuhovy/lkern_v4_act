@@ -70,3 +70,6 @@ export {
   type ValidationResult,
   type ValidationType,
 } from './validation';
+
+// Export utilities
+export { exportToCSV, exportToJSON } from './exportUtils';

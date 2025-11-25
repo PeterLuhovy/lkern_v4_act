@@ -2,14 +2,34 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 8.3.0
+# Version: 8.5.0
 # Created: 2025-10-13
-# Updated: 2025-11-23
+# Updated: 2025-11-24
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 8.2.0
+# Previous Version: 8.4.0
+#
+# Key Changes from v8.4.0:
+# - ✨ Task 2.07 Async Background Cleanup & Deletion Retry ADDED (Phase 2, 40-50h)
+# - 📚 Deletion Audit Workflow documentation added to backend-standards.md (v2.1.0)
+# - 🏗️ Hybrid architecture: Audit Table (queryable logs) + Kafka Events (async processing)
+# - 🔄 Soft delete: deleted_at timestamp, keep MinIO files for recovery
+# - 🔁 Hard delete: External resources → Audit → Database (with retry logic in Phase 2)
+# - 📊 Phase 2 progress: 0/12 tasks (includes 2.05 optional, 2.07 new)
+# - 🎯 Foundation for robust deletion workflow: Phase 1 = sync, Phase 2 = async + retry
+#
+# Key Changes from v8.3.0:
+# - 🔧 L-KERN Control Panel ENHANCED v1.11.3 → v1.13.1 (UI improvements + timing system)
+# - 🔧 Orchestrators REWRITTEN v2.x → v3.0.0 (comprehensive timing system, live updates)
+# - ✨ Startup Orchestrator: Live timer (MM:SS:MS), parallel health checks, 50-entry statistics
+# - ✨ Shutdown Orchestrator: Live timer, per-service timing, sequential verification
+# - ✨ Cleanup Orchestrator: Two-step confirmation, live timer, destructive cleanup
+# - ✨ Control Panel: Terminal wrapping controls, Docker-All button layout (2 rows), hover styling
+# - ✨ Central Services Registry: services_registry.json (single source of truth for all services)
+# - 📚 Documentation: 3 orchestrator .md files (startup, shutdown, cleanup) - comprehensive guides
+# - ⚡ Performance: Startup 2-8x faster (parallel health checks), shutdown 20s avg, cleanup 30s avg
 #
 # Key Changes from v8.2.0:
 # - ✨ Timezone configuration ADDED to Configuration Service (LKMS199) scope
@@ -1601,7 +1621,7 @@ start-service.bat
 
 **Goal:** Harden security, fix bugs, stabilize for production, add advanced features
 **Start:** After Phase 1 complete (target: Apr 2026)
-**Progress:** 0/11 tasks (~0%, includes 2.05 optional)
+**Progress:** 0/12 tasks (~0%, includes 2.05 optional)
 **Status:** ⏸️ PLANNED
 
 ---
@@ -2005,6 +2025,135 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 - ✅ Historical metrics stored for 30 days
 - ✅ Admin can configure alert thresholds via UI
 - ✅ No false positives in alerting (< 5% false positive rate)
+
+---
+
+### **2.07 Async Background Cleanup & Deletion Retry** ⏸️ PLANNED (NEW)
+**Dependencies:** Phase 1 complete (deletion audit workflow implemented in all microservices)
+**Estimated:** 40-50h (10-13 days)
+**Target:** September 2026 (after Advanced Health Monitoring)
+
+⚠️ **Testing Strategy Required:** Before implementation, define retry logic tests (exponential backoff, max retries), failed deletion recovery scenarios, MinIO connection failure simulation, Kafka consumer offset management tests.
+
+**Async Background Jobs for Robust Deletion with Retry Logic**
+
+**Why this task is needed:**
+- Phase 1 implements **synchronous deletion** (user waits for MinIO files to delete)
+- If MinIO is down or slow, user experiences long wait times or errors
+- Background jobs enable: Delete database → User sees instant success → Cleanup happens later
+- Retry logic handles transient failures (MinIO temporarily unavailable)
+
+**Context from Phase 1:**
+- ✅ Deletion Audit Workflow implemented (see `docs/programming/backend-standards.md`)
+- ✅ Soft delete (sets `deleted_at` timestamp, keeps MinIO files)
+- ✅ Hard delete (deletes MinIO files → database, with audit trail)
+- ✅ DeletionAudit table tracks: status (pending, completed, failed, partial), files_found, files_deleted, files_failed
+- ✅ Kafka events published: `item.deleted`, `item.restored`, `item.permanently_deleted`
+
+**What Phase 2 adds:**
+- 🔄 **Async Cleanup** - Soft delete instant → Background job handles MinIO cleanup
+- 🔁 **Retry Logic** - Exponential backoff for failed deletions (3 retries max)
+- 📊 **Admin Dashboard** - View failed deletions, manually trigger retry
+- 🚨 **Alerting** - Slack/Email notification if deletion fails after all retries
+
+#### Key Features:
+- 🔄 **Celery Background Workers** - Process deletion jobs asynchronously
+- 📡 **Kafka Consumer** - Listen to `*.deleted` events → schedule cleanup jobs
+- 🔁 **Retry Logic** - Exponential backoff (30s, 2min, 10min) with max 3 retries
+- 📊 **Admin Dashboard** - Failed deletion queue, manual retry, audit log viewer
+- 🚨 **Alerting Integration** - Notify ops team if deletion permanently fails
+- 🗄️ **DeletionAudit Enhancement** - Track retry attempts, last_retry_at, retry_count
+
+#### **2.07.1 Celery Worker Setup (10-12h)**
+- ⏸️ Install Celery + Redis (task queue backend)
+- ⏸️ Docker container: lkern-celery-worker
+- ⏸️ Configure Celery app (broker=Redis, result_backend=Redis)
+- ⏸️ Task definition: `async_delete_external_resources(item_id, item_type)`
+- ⏸️ Retry decorator: `@task(bind=True, max_retries=3, default_retry_delay=30)`
+- ⏸️ Exponential backoff logic (30s, 2min, 10min)
+
+#### **2.07.2 Kafka Consumer for Deletion Events (8-10h)**
+- ⏸️ Subscribe to `lkern.*.deleted` events (all microservices)
+- ⏸️ Extract metadata: item_id, item_type, service_name
+- ⏸️ Schedule Celery task: `async_delete_external_resources.apply_async()`
+- ⏸️ Update DeletionAudit: status='pending', scheduled_at=now()
+- ⏸️ Error handling: If Celery unavailable, log warning + keep item soft-deleted
+
+#### **2.07.3 Async Cleanup Task Implementation (12-15h)**
+- ⏸️ Task logic:
+  1. Fetch item from database (by item_id)
+  2. List MinIO files (prefix=`{item_id}/`)
+  3. Delete each file, track failures
+  4. Update DeletionAudit: files_found, files_deleted, files_failed
+  5. If all files deleted → Delete from database + status='completed'
+  6. If some files failed → status='partial', raise exception to trigger retry
+  7. If all retries exhausted → status='failed', publish `item.deletion.failed` event
+- ⏸️ Idempotency: Handle case where item already deleted (no-op)
+- ⏸️ Logging: Detailed logs for each retry attempt
+
+#### **2.07.4 DeletionAudit Table Enhancements (5-6h)**
+- ⏸️ Add columns:
+  - `retry_count` (Integer, default=0)
+  - `last_retry_at` (DateTime, nullable)
+  - `scheduled_at` (DateTime, nullable) - when Celery task scheduled
+  - `celery_task_id` (String, nullable) - Celery task UUID
+- ⏸️ Alembic migration for new columns
+- ⏸️ Update schemas: DeletionAuditResponse includes retry info
+
+#### **2.07.5 Admin Dashboard for Failed Deletions (8-10h)**
+- ⏸️ Backend API:
+  - GET /api/admin/deletion-audit?status=failed (list failed deletions)
+  - GET /api/admin/deletion-audit?status=partial (list partial deletions)
+  - POST /api/admin/deletion-audit/{audit_id}/retry (manually trigger retry)
+  - GET /api/admin/deletion-audit/{audit_id} (detailed audit log)
+- ⏸️ Frontend UI (web-ui):
+  - Failed Deletions page (/admin/failed-deletions)
+  - Table: item_code, item_type, status, retry_count, last_retry_at, error_message
+  - Actions: "Retry Now", "View Details"
+  - Pagination + filtering (by service, by date range)
+
+#### **2.07.6 Alerting Integration (5-7h)**
+- ⏸️ Publish Kafka event: `item.deletion.failed` (after all retries exhausted)
+- ⏸️ Alerting Service (2.06) consumes event
+- ⏸️ Send Slack notification: "#ops-alerts - Deletion Failed: {item_code} after 3 retries"
+- ⏸️ Send Email notification (critical alert)
+- ⏸️ Admin dashboard shows notification badge (unread failed deletions count)
+
+**Updated Workflow:**
+
+**Phase 1 (Current - Synchronous):**
+1. User clicks "Permanently Delete"
+2. Backend deletes MinIO files (user waits 5-10s)
+3. Backend deletes database record
+4. User sees success message
+
+**Phase 2 (New - Asynchronous):**
+1. User clicks "Permanently Delete"
+2. Backend sets `deleted_at` timestamp (instant - 100ms)
+3. User sees success message immediately
+4. Backend publishes Kafka event: `item.deleted`
+5. Kafka consumer schedules Celery task
+6. Background worker deletes MinIO files (5-10s, user already moved on)
+7. If success → Delete database record + audit status='completed'
+8. If failure → Retry 3 times with backoff → If still fails, alert ops team
+
+**Success Criteria:**
+- ✅ Celery worker running and processing deletion tasks
+- ✅ Kafka consumer scheduling tasks on `*.deleted` events
+- ✅ Retry logic working (exponential backoff, max 3 retries)
+- ✅ DeletionAudit tracks retry attempts and task IDs
+- ✅ Admin dashboard shows failed deletions with retry button
+- ✅ Manual retry from admin dashboard triggers new Celery task
+- ✅ Alerting fires on permanent failure (Slack + Email)
+- ✅ User experience improved (instant deletion feedback, no waiting)
+- ✅ Failed deletions < 1% (due to retry logic handling transient failures)
+
+**Benefits:**
+- ⚡ **Instant user feedback** - No waiting for MinIO cleanup
+- 🔁 **Resilient to failures** - Transient MinIO issues auto-retry
+- 📊 **Observability** - Admin can see and retry failed deletions
+- 🚨 **Proactive alerts** - Ops team notified of persistent failures
+- 🎯 **Production-ready** - Robust deletion workflow for high-scale systems
 
 ---
 

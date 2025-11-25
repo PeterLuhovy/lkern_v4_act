@@ -10,4 +10,4 @@ export type {
   FilteredDataGridProps,
   FilterConfig,
   QuickFilterConfig,
-} from '../../types/FilteredDataGrid';
+} from './FilteredDataGrid.types';

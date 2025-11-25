@@ -17,7 +17,6 @@
   border: var(--border-width-thin) solid var(--theme-border);
   border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--radius-md);
-  margin-top: var(--spacing-md);
 }
 
 /* Left: Record count info */

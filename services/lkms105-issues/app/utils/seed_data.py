@@ -71,7 +71,7 @@ def create_mock_issues(db: Session) -> None:
     # Issue 2: FEATURE - Dark mode support (IN_PROGRESS)
     issue2 = Issue(
         id=uuid.UUID("550e8400-e29b-41d4-a716-446655440002"),
-        issue_code="FEAT-2511-0001",
+        issue_code="FEA-2511-0001",
         title="Dark mode support for application",
         description=(
             "Users have requested a dark mode option for the application to reduce eye strain during night-time usage. "
@@ -120,7 +120,7 @@ def create_mock_issues(db: Session) -> None:
     # Issue 4: IMPROVEMENT - Performance optimization (ASSIGNED)
     issue4 = Issue(
         id=uuid.UUID("550e8400-e29b-41d4-a716-446655440004"),
-        issue_code="IMPR-2511-0001",
+        issue_code="IMP-2511-0001",
         title="Optimize API response time for contact list",
         description=(
             "Contact list endpoint takes 3-4 seconds to respond with 1000+ contacts. "
@@ -141,7 +141,7 @@ def create_mock_issues(db: Session) -> None:
     # Issue 5: QUESTION - API documentation (OPEN)
     issue5 = Issue(
         id=uuid.UUID("550e8400-e29b-41d4-a716-446655440005"),
-        issue_code="QUES-2511-0001",
+        issue_code="QUE-2511-0001",
         title="How to implement file upload with progress tracking?",
         description=(
             "Need guidance on implementing file upload with progress bar for attachments feature. "

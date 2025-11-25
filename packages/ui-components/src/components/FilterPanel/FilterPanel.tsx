@@ -10,7 +10,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from '@l-kern/config';
-import type { FilterPanelProps } from '../../types/FilterPanel';
+import type { FilterPanelProps } from './FilterPanel.types';
 import { Checkbox } from '../Checkbox';
 import styles from './FilterPanel.module.css';
 
@@ -27,6 +27,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onItemsPerPageChange,
   onNewItem,
   newItemText,
+  newItemDisabled = false,
   children,
   showInactive = false,
   onShowInactiveChange,
@@ -34,6 +35,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   collapsed: initialCollapsed = false,
   onCollapseChange,
   panelTitle,
+  statusColors,
+  statusLabels,
+  showStatusLegend = false,
 }) => {
   const { t } = useTranslation();
   const placeholder = searchPlaceholder || t('pageTemplate.filter.searchPlaceholder');
@@ -52,28 +56,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   return (
     <div className={`${styles.filterPanel} ${isCollapsed ? styles.filterPanelCollapsed : ''}`}>
-      {/* Collapsed Header - Single line with title and expand button */}
-      {isCollapsed && (
-        <div className={styles.collapsedHeader} onClick={handleToggleCollapse}>
-          <span className={styles.collapsedTitle}>{title}</span>
-          <button className={styles.expandButton} type="button">
-            ▼ {t('pageTemplate.filter.expand')}
-          </button>
-        </div>
-      )}
+      {/* Header - Always visible with title and toggle arrow */}
+      <div className={styles.panelHeader} onClick={handleToggleCollapse}>
+        <span className={styles.panelTitle}>{title}</span>
+        <span className={styles.toggleArrow}>{isCollapsed ? '▼' : '▲'}</span>
+      </div>
 
       {/* Expanded Content - All filters visible */}
       {!isCollapsed && (
         <>
-          {/* Collapse button in top-right corner */}
-          <button
-            className={styles.collapseButton}
-            onClick={handleToggleCollapse}
-            type="button"
-            title={t('pageTemplate.filter.collapse')}
-          >
-            ▲
-          </button>
       {/* Search Bar - V2 Style with Icon Inside */}
       <div className={styles.searchContainer}>
         <div className={styles.searchWrapper}>
@@ -108,85 +99,91 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         </div>
       )}
 
-      {/* V2 Layout: 3 columns - STATUS | PRIORITY | Controls (right-aligned) */}
-      <div className={styles.layout}>
-        {/* Left: STATUS and PRIORITY filters */}
-        {filterGroups.length > 0 && (
-          <div className={styles.groups}>
-            {filterGroups.map((group, groupIndex) => (
-              <div key={groupIndex} className={styles.group}>
-                <div className={styles.groupTitle}>{group.title}</div>
-                <div
-                  className={`${styles.groupOptions} ${
-                    useCheckboxes ? styles.groupOptionsCheckboxes : ''
-                  }`}
-                >
-                  {group.options.map((option) => {
-                    const isSelected = group.selectedValues.has(option.value);
+      {/* Filter Groups - STATUS | PRIORITY */}
+      {filterGroups.length > 0 && (
+        <div className={styles.groups}>
+          {filterGroups.map((group, groupIndex) => (
+            <div key={groupIndex} className={styles.group}>
+              <div className={styles.groupTitle}>{group.title}</div>
+              <div
+                className={`${styles.groupOptions} ${
+                  useCheckboxes ? styles.groupOptionsCheckboxes : ''
+                }`}
+              >
+                {group.options.map((option) => {
+                  const isSelected = group.selectedValues.has(option.value);
 
-                    if (useCheckboxes) {
-                      return (
-                        <Checkbox
-                          key={option.value}
-                          label={option.label}
-                          checked={isSelected}
-                          onChange={() => group.onChange(option.value)}
-                        />
-                      );
-                    }
-
+                  if (useCheckboxes) {
                     return (
-                      <button
+                      <Checkbox
                         key={option.value}
-                        className={`${styles.option} ${
-                          isSelected ? styles.optionActive : ''
-                        }`}
-                        onClick={() => group.onChange(option.value)}
-                      >
-                        {option.label}
-                      </button>
+                        label={option.label}
+                        checked={isSelected}
+                        onChange={() => group.onChange(option.value)}
+                      />
                     );
-                  })}
-                </div>
+                  }
+
+                  return (
+                    <button
+                      key={option.value}
+                      className={`${styles.option} ${
+                        isSelected ? styles.optionActive : ''
+                      }`}
+                      onClick={() => group.onChange(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Right: Controls (Items-per-page + New Item) */}
-        <div className={styles.controls}>
-          <div className={styles.itemsPerPage}>
-            <span className={styles.itemsLabel}>{t('pageTemplate.filter.itemsPerPageLabel')}</span>
-            <select
-              className={styles.itemsSelect}
-              value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange?.(Number(e.target.value))}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-
-          {onNewItem && (
-            <button
-              className={styles.newItemButton}
-              onClick={onNewItem}
-              title={buttonText}
-              data-click-id="add-new-item-button"
-            >
-              {buttonText}
-            </button>
-          )}
+            </div>
+          ))}
         </div>
-      </div>
+      )}
 
       {/* Custom Filter Content */}
       {children && <div className={styles.custom}>{children}</div>}
 
-      {/* Bottom Row - Two Columns: Filter Count (left) | Show Inactive (right) */}
+      {/* Status Legend - Above bottom row */}
+      {showStatusLegend && statusColors && Object.keys(statusColors).length > 0 && (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 'var(--spacing-md)',
+          paddingBottom: 'var(--spacing-xs)',
+          marginBottom: '0',
+          marginTop: 'var(--spacing-lg)',
+        }}>
+          <span style={{
+            width: '100%',
+            fontWeight: 'var(--font-weight-bold)',
+            color: 'var(--theme-text)',
+            marginBottom: '0',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            fontSize: 'var(--font-size-sm)'
+          }}>
+            {t('pageTemplate.filter.statusLegend')}
+          </span>
+          {Object.entries(statusColors).map(([status, color]) => (
+            <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}>
+              <span style={{
+                width: 'var(--spacing-md)',
+                height: 'var(--spacing-md)',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: color,
+                flexShrink: 0
+              }} />
+              <span style={{ color: 'var(--theme-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                {statusLabels?.[status] || status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Bottom Row - Two Columns: Filter Count (left) | Controls (right) */}
       <div className={styles.bottomRow}>
         {/* Left Column: Filter Result Count */}
         <div className={styles.bottomLeft}>
@@ -196,16 +193,48 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           </span>
         </div>
 
-        {/* Right Column: Show Inactive Checkbox */}
-        {onShowInactiveChange && (
-          <div className={styles.bottomRight}>
+        {/* Right Column: Controls (Items per page + New Item + Show Inactive) */}
+        <div className={styles.bottomRight}>
+          {/* Items per page selector */}
+          {onItemsPerPageChange && (
+            <div className={styles.itemsPerPage}>
+              <span className={styles.itemsLabel}>{t('pageTemplate.filter.itemsPerPageLabel')}</span>
+              <select
+                className={styles.itemsSelect}
+                value={itemsPerPage}
+                onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          )}
+
+          {/* New Item button */}
+          {onNewItem && (
+            <button
+              className={styles.newItemButton}
+              onClick={onNewItem}
+              disabled={newItemDisabled}
+              title={buttonText}
+              data-click-id="add-new-item-button"
+            >
+              {buttonText}
+            </button>
+          )}
+
+          {/* Show Inactive Checkbox */}
+          {onShowInactiveChange && (
             <Checkbox
               label={inactiveLabel}
               checked={showInactive}
               onChange={(e) => onShowInactiveChange((e.target as HTMLInputElement).checked)}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
         </>
       )}

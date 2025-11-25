@@ -3,53 +3,53 @@
  * FILE: CreateIssueModal.module.css
  * PATH: /apps/web-ui/src/components/modals/CreateIssueModal/CreateIssueModal.module.css
  * DESCRIPTION: Styles for Create Issue Modal
- * VERSION: v1.0.0
+ * VERSION: v1.1.0
  * CREATED: 2025-11-08
- * UPDATED: 2025-11-08
+ * UPDATED: 2025-11-21
  * ================================================================
  */
 
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 4px;
+  gap: var(--spacing-sm, 8px);
+  padding: 0;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-xs, 4px);
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--spacing-sm, 8px);
 }
 
 .label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-md, 14px);
+  font-weight: var(--font-weight-medium, 500);
   color: var(--theme-text, #212121);
 }
 
 .required {
   color: var(--color-status-error, #f44336);
-  margin-left: 4px;
+  margin-left: var(--spacing-xs, 4px);
 }
 
 .textarea {
   width: 100%;
-  padding: 12px;
-  font-size: 14px;
+  padding: var(--spacing-sm, 8px);
+  font-size: var(--font-size-md, 14px);
   font-family: inherit;
   color: var(--theme-text, #212121);
   background: var(--theme-input-background, #ffffff);
   border: 2px solid var(--theme-input-border, #e0e0e0);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   resize: vertical;
-  transition: border-color 0.2s ease;
+  transition: border-color var(--duration-hover, 0.2s) ease;
 }
 
 .textarea:focus {
@@ -62,16 +62,16 @@
 }
 
 .charCount {
-  font-size: 12px;
+  font-size: var(--font-size-xs, 10px);
   color: var(--theme-text-muted, #9e9e9e);
   text-align: right;
-  margin-top: -4px;
+  margin-top: calc(-1 * var(--spacing-xs, 4px));
 }
 
 .error {
-  font-size: 12px;
+  font-size: var(--font-size-xs, 10px);
   color: var(--color-status-error, #f44336);
-  margin-top: -4px;
+  margin-top: calc(-1 * var(--spacing-xs, 4px));
 }
 
 .readOnlyField {
@@ -84,59 +84,124 @@
   border-radius: var(--radius-sm, 4px);
 }
 
-.fileInput {
+/* Dropzone container */
+.dropzone {
   width: 100%;
-  padding: 12px;
-  font-size: 14px;
-  color: var(--theme-text, #212121);
-  background: var(--theme-input-background, #ffffff);
-  border: 2px dashed var(--theme-input-border, #e0e0e0);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
 }
 
-.fileInput:hover {
+.fileInputHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs, 4px);
+  width: 100%;
+  padding: var(--spacing-sm, 8px);
+  box-sizing: border-box;
+  background: var(--theme-input-background, #ffffff);
+  border: 2px dashed var(--theme-input-border, #e0e0e0);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: border-color var(--duration-hover, 0.2s) ease, background-color var(--duration-hover, 0.2s) ease;
+}
+
+.dropzoneContent:hover {
   border-color: var(--color-brand-primary, #9c27b0);
   background: var(--color-neutral-gray50, #fafafa);
 }
 
-.fileInput:focus {
-  outline: none;
-  border-color: var(--color-brand-primary, #9c27b0);
+.dropzoneIcon {
+  font-size: var(--font-size-xxl, 24px);
+}
+
+.dropzoneText {
+  font-size: var(--font-size-sm, 12px);
+  color: var(--theme-text, #212121);
+}
+
+.dropzoneHint {
+  font-size: var(--font-size-xs, 10px);
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+.dropzoneHint kbd {
+  display: inline-block;
+  padding: 1px var(--spacing-xs, 4px);
+  font-size: var(--font-size-xs, 10px);
+  font-family: monospace;
+  color: var(--theme-text, #212121);
+  background: var(--color-neutral-gray100, #f5f5f5);
+  border: 1px solid var(--theme-input-border, #e0e0e0);
+  border-radius: var(--radius-sm, 4px);
+  box-shadow: 0 1px 0 var(--theme-input-border, #e0e0e0);
 }
 
 .fileHint {
-  font-size: 12px;
+  font-size: var(--font-size-xs, 10px);
   color: var(--theme-text-muted, #9e9e9e);
-  margin-top: -4px;
+  margin-top: var(--spacing-xs, 4px);
 }
 
 .fileList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  gap: var(--spacing-xs, 4px);
+  margin-top: var(--spacing-xs, 4px);
 }
 
 .fileItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  font-size: 13px;
+  justify-content: space-between;
+  gap: var(--spacing-sm, 8px);
+  padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+  font-size: var(--font-size-sm, 12px);
   color: var(--theme-text, #212121);
   background: var(--color-neutral-gray50, #fafafa);
   border: 1px solid var(--theme-input-border, #e0e0e0);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.removeFileBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-md, 16px);
+  height: var(--spacing-md, 16px);
+  padding: 0;
+  font-size: var(--font-size-xs, 10px);
+  color: var(--theme-text-muted, #9e9e9e);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: color var(--duration-hover, 0.2s) ease, background-color var(--duration-hover, 0.2s) ease;
+}
+
+.removeFileBtn:hover {
+  color: var(--color-status-error, #f44336);
+  background: var(--color-neutral-gray100, #f5f5f5);
 }
 
 .formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 20px;
+  gap: var(--spacing-sm, 8px);
+  margin-top: var(--spacing-xs, 4px);
+  padding-top: var(--spacing-sm, 8px);
   border-top: 1px solid var(--theme-border, #e0e0e0);
 }
 
@@ -146,10 +211,10 @@
 
 .roleTabs {
   display: flex;
-  gap: var(--spacing-sm, 8px);
-  padding: 0 0 var(--spacing-md, 16px) 0;
+  gap: var(--spacing-xs, 4px);
+  padding: 0 0 var(--spacing-sm, 8px) 0;
   border-bottom: 2px solid var(--theme-border, #e0e0e0);
-  margin-bottom: var(--spacing-lg, 24px);
+  margin-bottom: var(--spacing-sm, 8px);
 }
 
 .roleTab {
@@ -186,9 +251,95 @@
   background: transparent;
 }
 
+/* ============================================================
+   HEADER COLORS - Based on issue type
+   ============================================================ */
+
+.headerBug,
+.headerFeature,
+.headerImprovement,
+.headerQuestion {
+  color: var(--theme-button-text-on-color, #ffffff) !important;
+}
+
+/* Make close button visible on colored headers */
+.headerBug button,
+.headerFeature button,
+.headerImprovement button,
+.headerQuestion button {
+  color: var(--theme-button-text-on-color, #ffffff) !important;
+  opacity: 0.9;
+}
+
+.headerBug button:hover,
+.headerFeature button:hover,
+.headerImprovement button:hover,
+.headerQuestion button:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.headerBug {
+  background: var(--color-status-error, #f44336) !important;
+}
+
+.headerFeature {
+  background: var(--color-status-success, #4CAF50) !important;
+}
+
+.headerImprovement {
+  background: var(--color-status-info, #2196F3) !important;
+}
+
+.headerQuestion {
+  background: var(--color-status-warning, #FF9800) !important;
+}
+
+/* ============================================================
+   SYSTEM INFO BOX (Read-only, advance users only)
+   ============================================================ */
+
+.systemInfoBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs, 4px) var(--spacing-md, 16px);
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  background: var(--color-neutral-gray100, #f5f5f5);
+  border: 1px solid var(--theme-input-border, #e0e0e0);
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--font-size-xs, 12px);
+}
+
+.systemInfoRow {
+  display: flex;
+  gap: var(--spacing-xs, 4px);
+}
+
+.systemInfoLabel {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--theme-text-muted, #9e9e9e);
+  white-space: nowrap;
+}
+
+.systemInfoValue {
+  color: var(--theme-text, #212121);
+  word-break: break-all;
+}
+
+.hint {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-xs, 10px);
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-top: var(--spacing-xs, 4px);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .systemInfoBox {
     grid-template-columns: 1fr;
   }
 

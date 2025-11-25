@@ -12,6 +12,10 @@ from app.schemas.issue import (
     IssueClose,
     IssueResponse,
 )
+from app.schemas.deletion_audit import (
+    DeletionAuditResponse,
+    DeletionAuditListResponse,
+)
 
 __all__ = [
     "IssueCreateUserBasic",
@@ -22,4 +26,6 @@ __all__ = [
     "IssueResolve",
     "IssueClose",
     "IssueResponse",
+    "DeletionAuditResponse",
+    "DeletionAuditListResponse",
 ]

@@ -17,14 +17,26 @@ import logging
 # NOTE: Run compile script first: python -m grpc_tools.protoc ...
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent / "proto"))
+
+# Add app directory to sys.path so generated proto files can import each other
+app_dir = Path(__file__).parent
+if str(app_dir) not in sys.path:
+    sys.path.insert(0, str(app_dir))
 
 try:
-    import system_ops_pb2
-    import system_ops_pb2_grpc
-except ImportError:
-    logger = logging.getLogger(__name__)
-    logger.error("Proto files not compiled! Run: python -m grpc_tools.protoc -I./proto --python_out=./app --grpc_python_out=./app ./proto/system_ops.proto")
+    from . import system_ops_pb2
+    from . import system_ops_pb2_grpc
+except ImportError as e:
+    import traceback
+    print("=" * 60)
+    print("ERROR: Failed to import proto files!")
+    print(f"Exception: {e}")
+    print("-" * 60)
+    traceback.print_exc()
+    print("=" * 60)
+    print("Proto files not compiled! Run:")
+    print("python -m grpc_tools.protoc -I./proto --python_out=./app --grpc_python_out=./app ./proto/system_ops.proto")
+    print("=" * 60)
     sys.exit(1)
 
 from app.config import settings

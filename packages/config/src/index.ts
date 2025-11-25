@@ -24,6 +24,10 @@ export * from './theme/index';
 // Export utility functions (phone, email, date)
 export * from './utils/index';
 
+// === PERMISSIONS EXPORTS ===
+// Export permission system (thresholds, checks, storage)
+export * from './permissions';
+
 // === HOOKS EXPORTS ===
 // Export custom React hooks
 export * from './hooks/useModal/useModal';
@@ -32,11 +36,14 @@ export * from './hooks/usePageAnalytics/usePageAnalytics';
 export * from './hooks/useToast/useToast';
 export * from './hooks/useFormDirty/useFormDirty';
 export * from './hooks/useConfirm/useConfirm';
+export * from './hooks/useAuth/useAuth';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers
 export * from './contexts/ModalContext/ModalContext';
 export * from './contexts/ToastContext/ToastContext';
+export * from './contexts/AuthContext/AuthContext';
+export type { Permissions } from './contexts/AuthContext/AuthContext';
 
 // === TYPES EXPORTS ===
 // Export all TypeScript types

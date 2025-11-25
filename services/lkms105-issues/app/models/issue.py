@@ -11,13 +11,13 @@ Description:
   ID Systems:
     - id (UUID): Internal primary key for database relations
     - issue_code (String): User-visible code (TYP-RRMM-NNNN)
-      Examples: BUG-2511-0042, FEAT-2512-0123
+      Examples: BUG-2511-0042, FEA-2512-0123
 ================================================================
 """
 
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, Boolean, DateTime, JSON, Enum as SQLEnum
+from sqlalchemy import Column, String, Text, Boolean, DateTime, JSON, Integer, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database import Base
@@ -172,22 +172,15 @@ class Issue(Base):
         comment="Error type/exception class"
     )
 
-    browser = Column(
-        String(100),
-        nullable=True,
-        comment="Browser name and version"
-    )
+    # ============================================================
+    # SYSTEM INFO (Auto-generated browser context)
+    # ============================================================
+    # NOTE: browser, os, url stored in system_info JSON (no duplicate columns)
 
-    os = Column(
-        String(100),
+    system_info = Column(
+        JSON,
         nullable=True,
-        comment="Operating system"
-    )
-
-    url = Column(
-        String(500),
-        nullable=True,
-        comment="URL where issue occurred"
+        comment="Auto-generated system info: {browser, os, url, viewport, screen, timestamp, userAgent}"
     )
 
     # ============================================================
@@ -235,12 +228,23 @@ class Issue(Base):
     # SOFT DELETE
     # ============================================================
 
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
+    deleted_at = Column(
+        DateTime,
+        nullable=True,
         index=True,
-        comment="Soft delete flag"
+        comment="Soft delete timestamp - null = active, datetime = deleted"
+    )
+
+    # ============================================================
+    # DELETION AUDIT
+    # ============================================================
+
+    deletion_audit_id = Column(
+        Integer,
+        ForeignKey("deletion_audit.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Link to deletion_audit record if hard delete failed (partial status)"
     )
 
     def __repr__(self):

@@ -3,8 +3,8 @@
 FILE: main.py
 PATH: /services/lkms801-system-ops/app/main.py
 DESCRIPTION: FastAPI + gRPC server for system operations service
-VERSION: v1.0.0
-UPDATED: 2025-11-23 12:00:00
+VERSION: v1.1.0
+UPDATED: 2025-11-24 15:30:00
 ================================================================
 """
 
@@ -13,14 +13,27 @@ from fastapi import FastAPI, Header, HTTPException
 import uvicorn
 import logging
 import threading
+from datetime import datetime
 
 from app.config import settings
 from app.grpc_server import serve as grpc_serve
 
 # === LOGGING ===
+# Create logs directory if not exists
+import os
+from pathlib import Path
+log_dir = Path(__file__).parent.parent / 'logs'
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / 'service.log'
+
+# Configure logging to FILE ONLY (no console spam in main terminal)
+# Logs visible via Log button in Control Panel
 logging.basicConfig(
-    level=settings.LOG_LEVEL,
-    format=settings.LOG_FORMAT
+    level=getattr(logging, settings.LOG_LEVEL.upper()),
+    format=settings.LOG_FORMAT,
+    handlers=[
+        logging.FileHandler(log_file, mode='a', encoding='utf-8')  # File output only
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -61,11 +74,15 @@ async def health_check():
     Returns:
         Service status and version
     """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    logger.info(f"💓 Health check - {timestamp}")
+
     return {
         "status": "healthy",
         "service": settings.SERVICE_CODE,
         "version": settings.SERVICE_VERSION,
-        "grpc_port": settings.GRPC_PORT
+        "grpc_port": settings.GRPC_PORT,
+        "timestamp": timestamp
     }
 
 
@@ -135,10 +152,46 @@ if __name__ == "__main__":
     logger.info(f"🔌 gRPC API: {settings.HOST}:{settings.GRPC_PORT}")
     logger.info(f"📁 Allowed paths: {settings.ALLOWED_PATHS}")
 
+    # Uvicorn log configuration with timestamps
+    uvicorn_log_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": settings.LOG_FORMAT,  # Use our LOG_FORMAT with timestamps
+            },
+            "access": {
+                "format": settings.LOG_FORMAT,  # Use our LOG_FORMAT with timestamps
+            },
+        },
+        "handlers": {
+            "default": {
+                "formatter": "default",
+                "class": "logging.FileHandler",
+                "filename": log_file,
+                "mode": "a",
+                "encoding": "utf-8",
+            },
+            "access": {
+                "formatter": "access",
+                "class": "logging.FileHandler",
+                "filename": log_file,
+                "mode": "a",
+                "encoding": "utf-8",
+            },
+        },
+        "loggers": {
+            "uvicorn": {"handlers": ["default"], "level": settings.LOG_LEVEL.upper()},
+            "uvicorn.error": {"level": settings.LOG_LEVEL.upper()},
+            "uvicorn.access": {"handlers": ["access"], "level": settings.LOG_LEVEL.upper(), "propagate": False},
+        },
+    }
+
     uvicorn.run(
         "app.main:app",
         host=settings.HOST,
         port=settings.REST_PORT,
         reload=False,  # No hot-reload for native service
-        log_level=settings.LOG_LEVEL.lower()
+        log_level=settings.LOG_LEVEL.lower(),
+        log_config=uvicorn_log_config  # Apply our log config with timestamps
     )

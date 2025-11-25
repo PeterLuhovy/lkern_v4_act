@@ -35,144 +35,60 @@ class IssueCreateUserBasic(BaseModel):
     """
     Schema for creating Issue - user_basic role.
 
-    Minimal fields:
-    - title (required)
-    - description (required)
-    - type (required)
-    - 1 screenshot (required in attachments)
+    All fields available, basic user fills only: title, description, type.
+    Other fields will be null if not provided.
     """
-    title: str = Field(
-        ...,
-        min_length=5,
-        max_length=200,
-        description="Issue title/summary"
-    )
-    description: str = Field(
-        ...,
-        min_length=10,
-        description="Issue description"
-    )
-    type: IssueType = Field(
-        ...,
-        description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION"
-    )
-    attachments: Optional[List[Dict[str, Any]]] = Field(
-        None,
-        description="File metadata array (at least 1 screenshot required)"
-    )
+    title: str = Field(..., min_length=5, max_length=200, description="Issue title/summary")
+    description: str = Field(..., min_length=10, description="Issue description")
+    type: IssueType = Field(..., description="Issue type: bug, feature, improvement, question")
 
-    @field_validator('attachments')
-    @classmethod
-    def validate_screenshot_required(cls, v):
-        """At least 1 screenshot required for user_basic."""
-        if not v or len(v) < 1:
-            raise ValueError("user_basic role requires at least 1 screenshot")
-        return v
+    severity: Optional[IssueSeverity] = None
+    category: Optional[IssueCategory] = None
+    priority: Optional[IssuePriority] = None
+    error_message: Optional[str] = None
+    error_type: Optional[str] = Field(None, max_length=100)
+    system_info: Optional[Dict[str, Any]] = None
+    attachments: Optional[List[Dict[str, Any]]] = Field(None, max_length=5)
 
 
 class IssueCreateUserStandard(BaseModel):
     """
     Schema for creating Issue - user_standard role.
 
-    Basic fields:
-    - All user_basic fields
-    - severity (required)
-    - attachments (optional, up to 5 files)
+    All fields available, standard user fills: title, description, type, severity, attachments.
+    Other fields will be null if not provided.
     """
-    title: str = Field(
-        ...,
-        min_length=5,
-        max_length=200,
-        description="Issue title/summary"
-    )
-    description: str = Field(
-        ...,
-        min_length=10,
-        description="Issue description"
-    )
-    type: IssueType = Field(
-        ...,
-        description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION"
-    )
-    severity: IssueSeverity = Field(
-        ...,
-        description="Severity: MINOR, MODERATE, MAJOR, BLOCKER"
-    )
-    attachments: Optional[List[Dict[str, Any]]] = Field(
-        None,
-        max_length=5,
-        description="Optional file metadata array (max 5 files)"
-    )
+    title: str = Field(..., min_length=5, max_length=200, description="Issue title/summary")
+    description: str = Field(..., min_length=10, description="Issue description")
+    type: IssueType = Field(..., description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION")
+
+    severity: Optional[IssueSeverity] = None
+    category: Optional[IssueCategory] = None
+    priority: Optional[IssuePriority] = None
+    error_message: Optional[str] = None
+    error_type: Optional[str] = Field(None, max_length=100)
+    system_info: Optional[Dict[str, Any]] = None
+    attachments: Optional[List[Dict[str, Any]]] = Field(None, max_length=5)
 
 
 class IssueCreateUserAdvance(BaseModel):
     """
     Schema for creating Issue - user_advance role.
 
-    Full fields:
-    - All user_standard fields
-    - category (optional)
-    - Developer fields: error_message, error_type, browser, os, url
+    All fields available, advance user can fill all.
+    Other fields will be null if not provided.
     """
-    title: str = Field(
-        ...,
-        min_length=5,
-        max_length=200,
-        description="Issue title/summary"
-    )
-    description: str = Field(
-        ...,
-        min_length=10,
-        description="Issue description"
-    )
-    type: IssueType = Field(
-        ...,
-        description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION"
-    )
-    severity: IssueSeverity = Field(
-        ...,
-        description="Severity: MINOR, MODERATE, MAJOR, BLOCKER"
-    )
-    category: Optional[IssueCategory] = Field(
-        None,
-        description="Category: UI, BACKEND, DATABASE, INTEGRATION, DOCS, PERFORMANCE, SECURITY"
-    )
-    priority: Optional[IssuePriority] = Field(
-        IssuePriority.MEDIUM,
-        description="Priority: LOW, MEDIUM, HIGH, CRITICAL"
-    )
+    title: str = Field(..., min_length=5, max_length=200, description="Issue title/summary")
+    description: str = Field(..., min_length=10, description="Issue description")
+    type: IssueType = Field(..., description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION")
 
-    # Developer fields
-    error_message: Optional[str] = Field(
-        None,
-        description="Error message from logs"
-    )
-    error_type: Optional[str] = Field(
-        None,
-        max_length=100,
-        description="Error type/exception class"
-    )
-    browser: Optional[str] = Field(
-        None,
-        max_length=100,
-        description="Browser name and version"
-    )
-    os: Optional[str] = Field(
-        None,
-        max_length=100,
-        description="Operating system"
-    )
-    url: Optional[str] = Field(
-        None,
-        max_length=500,
-        description="URL where issue occurred"
-    )
-
-    attachments: Optional[List[Dict[str, Any]]] = Field(
-        None,
-        max_length=5,
-        description="Optional file metadata array (max 5 files)"
-    )
+    severity: Optional[IssueSeverity] = None
+    category: Optional[IssueCategory] = None
+    priority: Optional[IssuePriority] = None
+    error_message: Optional[str] = None
+    error_type: Optional[str] = Field(None, max_length=100)
+    system_info: Optional[Dict[str, Any]] = None
+    attachments: Optional[List[Dict[str, Any]]] = Field(None, max_length=5)
 
 
 # ============================================================
@@ -199,9 +115,9 @@ class IssueUpdate(BaseModel):
     # Developer fields
     error_message: Optional[str] = None
     error_type: Optional[str] = None
-    browser: Optional[str] = None
-    os: Optional[str] = None
-    url: Optional[str] = None
+
+    # System info
+    system_info: Optional[Dict[str, Any]] = None
 
 
 # ============================================================
@@ -268,9 +184,9 @@ class IssueResponse(BaseModel):
     # Developer fields
     error_message: Optional[str] = None
     error_type: Optional[str] = None
-    browser: Optional[str] = None
-    os: Optional[str] = None
-    url: Optional[str] = None
+
+    # System info
+    system_info: Optional[Dict[str, Any]] = None
 
     # Attachments
     attachments: Optional[List[Dict[str, Any]]] = None
@@ -282,7 +198,13 @@ class IssueResponse(BaseModel):
     closed_at: Optional[datetime] = None
 
     # Soft delete
-    is_deleted: bool
+    deleted_at: Optional[datetime] = None
+
+    # Deletion audit
+    deletion_audit_id: Optional[int] = Field(
+        None,
+        description="Link to deletion_audit record if hard delete failed (partial status)"
+    )
 
     class Config:
         from_attributes = True  # Pydantic v2 (was orm_mode in v1)

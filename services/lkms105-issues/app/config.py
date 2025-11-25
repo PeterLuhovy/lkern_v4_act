@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Server Configuration
     REST_HOST: str = "0.0.0.0"
-    REST_PORT: int = 4105
+    REST_PORT: int = 4105  # Changed from 4105 to avoid WSL relay conflict
     GRPC_HOST: str = "0.0.0.0"
     GRPC_PORT: int = 5105
 
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
     CORS_ALLOW_CREDENTIALS: bool = True
-    CORS_MAX_AGE: int = 3600
+    CORS_MAX_AGE: int = 0  # Disable CORS cache for development debugging
 
     class Config:
         env_file = ".env"

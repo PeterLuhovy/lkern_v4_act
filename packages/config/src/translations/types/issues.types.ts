@@ -19,6 +19,10 @@ export interface IssuesPageTranslations {
   showInactiveLabel: string;
   deleteConfirm: string;
   deleteSuccess: string;
+  restoreConfirm: string;
+  restoreSuccess: string;
+  permanentDeleteConfirm: string;
+  permanentDeleteSuccess: string;
   detailsTitle: string;
   selectedCount: string;
   clearSelection: string;
@@ -80,5 +84,25 @@ export interface IssuesPageTranslations {
   };
   typeSelect: {
     title: string;
+  };
+  deletionAudit: {
+    title: string;
+    status: string;
+    summary: string;
+    itemCode: string;
+    filesFound: string;
+    filesDeleted: string;
+    startedAt: string;
+    completedAt: string;
+    errorMessage: string;
+    failedFiles: string;
+    viewAuditLog: string;
+    deletionFailed: string;
+    statusValues: {
+      pending: string;
+      completed: string;
+      failed: string;
+      partial: string;
+    };
   };
 }

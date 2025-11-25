@@ -1,0 +1,43 @@
+/*
+ * ================================================================
+ * FILE: ExportButton.module.css
+ * PATH: /packages/ui-components/src/components/ExportButton/ExportButton.module.css
+ * DESCRIPTION: Styles for ExportButton component
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-24 15:00:00
+ * ================================================================
+ */
+
+.exportButton {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--button-primary-from) 0%, var(--button-primary-to) 100%);
+  color: var(--theme-button-text-on-color);
+  cursor: pointer;
+  box-shadow: var(--shadow-button-default);
+  transition: transform var(--duration-state) var(--ease-out), box-shadow var(--duration-state) var(--ease-out);
+}
+
+.exportButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1),
+              0 4px 8px rgba(0, 0, 0, 0.15),
+              0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
+}
+
+.exportButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-button-active);
+}
+
+.exportButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportButton option {
+  padding: 8px;
+}

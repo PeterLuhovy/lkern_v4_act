@@ -11,8 +11,8 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from '@l-kern/config';
-import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card, BasePage } from '@l-kern/ui-components';
+import { useTranslation, exportToCSV, exportToJSON } from '@l-kern/config';
+import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card, BasePage, ExportButton } from '@l-kern/ui-components';
 import styles from './FormsTestPage.module.css';
 
 export const FormsTestPage: React.FC = () => {
@@ -86,12 +86,48 @@ export const FormsTestPage: React.FC = () => {
           </div>
 
           <h4 className={styles.sectionTitle}>{t('components.testing.iconOnlyButtons')}</h4>
-          <div className={styles.buttonRowLast}>
+          <div className={styles.buttonRow}>
             <Button variant="ghost" size="small"><span role="img" aria-label="pencil">✏️</span></Button>
             <Button variant="danger" size="small"><span role="img" aria-label="trash">🗑️</span></Button>
             <Button variant="primary" size="small"><span role="img" aria-label="star">⭐</span></Button>
             <Button variant="secondary" size="small"><span role="img" aria-label="clipboard">📋</span></Button>
             <Button variant="success" size="small"><span role="img" aria-label="checkmark">✓</span></Button>
+          </div>
+
+          <h4 className={styles.sectionTitle}>Export Button</h4>
+          <div className={styles.buttonRow}>
+            <ExportButton
+              onExport={(format) => {
+                const sampleData = [
+                  { id: 1, name: 'John Doe', email: 'john@example.com', age: 30 },
+                  { id: 2, name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+                  { id: 3, name: 'Bob Wilson', email: 'bob@example.com', age: 35 },
+                ];
+
+                if (format === 'csv') {
+                  exportToCSV(
+                    sampleData.map(item => ({
+                      ...item,
+                      email: item.email,
+                      age: item.age.toString(),
+                    })),
+                    ['ID', 'Name', 'Email', 'Age'],
+                    'test_export'
+                  );
+                } else if (format === 'json') {
+                  exportToJSON(sampleData, 'test_export');
+                }
+              }}
+              formats={['csv', 'json']}
+            />
+          </div>
+          <p className={styles.description}>
+            Click dropdown to export sample data in CSV or JSON format
+          </p>
+
+          <h4 className={styles.sectionTitle}>{t('common.submit')}</h4>
+          <div className={styles.buttonRowLast}>
+            <Button variant="primary">{t('common.submit')}</Button>
           </div>
         </Card>
 
@@ -201,10 +237,6 @@ export const FormsTestPage: React.FC = () => {
                 ]}
               />
             </FormField>
-          </div>
-
-          <div className={styles.submitSection}>
-            <Button variant="primary">{t('common.submit')}</Button>
           </div>
         </Card>
 
