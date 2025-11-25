@@ -1,0 +1,154 @@
+/*
+ * ================================================================
+ * FILE: FileUpload.module.css
+ * PATH: /packages/ui-components/src/components/FileUpload/FileUpload.module.css
+ * DESCRIPTION: Styling for FileUpload component
+ * VERSION: v1.0.0
+ * CREATED: 2025-11-24
+ * UPDATED: 2025-11-24
+ * ================================================================
+ */
+
+/* Container */
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Dropzone */
+.dropzone {
+  border: 2px dashed var(--theme-input-border, #e0e0e0);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--theme-input-background, #ffffff);
+}
+
+.dropzone:hover {
+  border-color: var(--color-brand-primary, #9c27b0);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(51, 102, 204, 0.05) 100%);
+}
+
+.dropzone:focus-within {
+  outline: 2px solid var(--color-brand-primary, #9c27b0);
+  outline-offset: 2px;
+}
+
+/* Dragging Over State */
+.dropzoneDragging {
+  border-color: var(--color-brand-primary, #9c27b0);
+  border-width: 3px;
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(51, 102, 204, 0.1) 100%);
+  transform: scale(1.02);
+}
+
+/* Error State */
+.dropzoneError {
+  border-color: var(--color-status-error, #f44336);
+  background: rgba(244, 67, 54, 0.05);
+}
+
+/* Hidden File Input */
+.fileInputHidden {
+  display: none;
+}
+
+/* Dropzone Content */
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.dropzoneIcon {
+  font-size: 2rem;
+  display: block;
+}
+
+.dropzoneText {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--theme-text, #212121);
+}
+
+.dropzoneHint {
+  font-size: 0.875rem;
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+/* File Hint */
+.fileHint {
+  font-size: 0.875rem;
+  color: var(--theme-text-muted, #9e9e9e);
+  padding: 0 4px;
+}
+
+/* Error Message */
+.error {
+  color: var(--color-status-error, #f44336);
+  font-size: 0.875rem;
+  padding: 0 4px;
+}
+
+/* File List */
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid var(--theme-input-border, #e0e0e0);
+  border-radius: 4px;
+  background-color: var(--theme-input-background, #ffffff);
+  transition: background-color 0.15s ease;
+}
+
+.fileItem:hover {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.03) 0%, rgba(51, 102, 204, 0.03) 100%);
+}
+
+.fileName {
+  font-size: 0.875rem;
+  color: var(--theme-text, #212121);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-left: 4px;
+}
+
+.removeFileBtn {
+  background: none;
+  border: none;
+  color: var(--color-status-error, #f44336);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.removeFileBtn:hover {
+  transform: scale(1.2);
+}
+
+.removeFileBtn:active {
+  transform: scale(0.9);
+}

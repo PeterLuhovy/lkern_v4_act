@@ -52,6 +52,9 @@ export type { DashboardCardProps } from './components/DashboardCard';
 export { Sidebar } from './components/Sidebar';
 export type { SidebarProps, SidebarNavItem } from './components/Sidebar';
 
+export { AuthRoleSwitcher } from './components/AuthRoleSwitcher';
+export type { AuthRoleSwitcherProps } from './components/AuthRoleSwitcher';
+
 export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 
@@ -100,8 +103,22 @@ export type { PaginationProps } from './components/Pagination';
 export { ReportButton } from './components/ReportButton';
 export type { ReportButtonProps } from './components/ReportButton';
 
+export { FileUpload } from './components/FileUpload';
+export type { FileUploadProps } from './components/FileUpload';
+
 export { CreateIssueModal } from './components/CreateIssueModal';
 export type { UserRole, IssueType, IssueSeverity, IssueCategory, IssuePriority } from './components/CreateIssueModal';
 
 export { IssueTypeSelectModal } from './components/IssueTypeSelectModal';
 export type { IssueTypeSelectModalProps } from './components/IssueTypeSelectModal';
+
+export { AssignIssueModal } from './components/AssignIssueModal';
+
+export { ResolveIssueModal } from './components/ResolveIssueModal';
+
+export { CloseIssueModal } from './components/CloseIssueModal';
+
+export { EditIssueModal } from './components/EditIssueModal';
+
+export { ExportButton } from './components/ExportButton';
+export type { ExportButtonProps, ExportFormat } from './components/ExportButton';
