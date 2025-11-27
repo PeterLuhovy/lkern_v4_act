@@ -173,7 +173,7 @@
 /* === BODY === */
 
 .modalBody {
-  padding: var(--spacing-lg, 24px);
+  padding: var(--spacing-md, 24px);
   overflow-y: auto;
   flex: 1;
 }

@@ -379,12 +379,25 @@ class LKernControlPanel:
         )
         subtitle_label.pack()
 
+        # Docker status indicator (above buttons)
+        docker_status_frame = tk.Frame(panel, bg='#2c3e50')
+        docker_status_frame.pack(pady=(5, 5))
+
+        self.docker_status_label = tk.Label(
+            docker_status_frame,
+            text="🐳 Docker: Kontrolujem...",
+            font=('Segoe UI', 10, 'bold'),
+            fg='#95a5a6',
+            bg='#2c3e50'
+        )
+        self.docker_status_label.pack()
+
         # Buttons section
         buttons_frame = tk.Frame(panel, bg='#2c3e50')
         buttons_frame.pack(pady=(5, 10), padx=20)
 
         # START button (green)
-        start_button = tk.Button(
+        self.boss_start_button = tk.Button(
             buttons_frame,
             text="🚀 BOSS START",
             font=('Segoe UI', 11, 'bold'),
@@ -399,10 +412,10 @@ class LKernControlPanel:
             cursor='hand2',
             command=lambda: self.boss_start_system()
         )
-        start_button.pack(side=tk.LEFT, padx=5)
+        self.boss_start_button.pack(side=tk.LEFT, padx=5)
 
         # STOP button (orange)
-        stop_button = tk.Button(
+        self.boss_stop_button = tk.Button(
             buttons_frame,
             text="⏸️ BOSS STOP",
             font=('Segoe UI', 11, 'bold'),
@@ -417,10 +430,10 @@ class LKernControlPanel:
             cursor='hand2',
             command=lambda: self.boss_stop_system()
         )
-        stop_button.pack(side=tk.LEFT, padx=5)
+        self.boss_stop_button.pack(side=tk.LEFT, padx=5)
 
         # CLEAN button (red)
-        clean_button = tk.Button(
+        self.boss_clean_button = tk.Button(
             buttons_frame,
             text="🗑️ BOSS CLEAN",
             font=('Segoe UI', 11, 'bold'),
@@ -435,7 +448,10 @@ class LKernControlPanel:
             cursor='hand2',
             command=lambda: self.boss_clean_system()
         )
-        clean_button.pack(side=tk.LEFT, padx=5)
+        self.boss_clean_button.pack(side=tk.LEFT, padx=5)
+
+        # Start Docker status check
+        self.check_docker_daemon_status()
 
         # Status info section
         info_frame = tk.Frame(panel, bg='#34495e', relief=tk.SUNKEN, bd=1)
@@ -472,6 +488,41 @@ class LKernControlPanel:
         self.execute_command(
             'powershell -Command "Start-Process pythonw -ArgumentList \'tools\\lkern-control-panel\\cleanup_orchestrator.py\' -WindowStyle Hidden"',
             "🗑️ BOSS CLEAN"
+        )
+
+    def check_docker_daemon_status(self):
+        """Check if Docker daemon is running and update UI accordingly."""
+        from docker_utils import is_docker_running
+
+        def check_status():
+            return is_docker_running()
+
+        def update_ui(is_running):
+            if is_running:
+                # Docker is running - enable buttons, show green status
+                self.docker_status_label.config(
+                    text="🐳 Docker: ✅ Aktívny",
+                    fg='#2ecc71'  # Green
+                )
+                self.boss_start_button.config(state='normal', cursor='hand2')
+                self.boss_stop_button.config(state='normal', cursor='hand2')
+                self.boss_clean_button.config(state='normal', cursor='hand2')
+            else:
+                # Docker is not running - disable buttons, show red status
+                self.docker_status_label.config(
+                    text="🐳 Docker: ❌ Neaktívny (spusti Docker Desktop)",
+                    fg='#e74c3c'  # Red
+                )
+                self.boss_start_button.config(state='disabled', cursor='arrow')
+                self.boss_stop_button.config(state='disabled', cursor='arrow')
+                self.boss_clean_button.config(state='disabled', cursor='arrow')
+
+            # Schedule next check in 5 seconds
+            self.root.after(5000, self.check_docker_daemon_status)
+
+        # Run check in background thread to avoid UI freeze
+        self.status_thread_pool.submit(check_status).add_done_callback(
+            lambda future: self.root.after(0, lambda: update_ui(future.result()))
         )
 
     def create_toolbar(self):
@@ -769,10 +820,18 @@ class LKernControlPanel:
         # Button specs: height=1 (text lines), font=Arial 9, padx=5
         BUTTON_FONT = ('Arial', 9)
 
-        # Create logs button first (needed for restart/rebuild auto-follow)
-        logs_btn = tk.Button(
+        # Get REST port for this service (for log level API)
+        rest_port = None
+        for service in self.get_services_registry():
+            if service.get('container') == container_name or service.get('code') == container_name:
+                if service.get('ports', {}).get('rest'):
+                    rest_port = service['ports']['rest']
+                break
+
+        # Create logs menubutton with dropdown (needed for restart/rebuild auto-follow)
+        logs_btn = tk.Menubutton(
             row_frame,
-            text="Logs",
+            text="Logs ▼",
             bg=COLORS['button_bg'],
             fg=COLORS['fg'],
             font=BUTTON_FONT,
@@ -782,7 +841,34 @@ class LKernControlPanel:
             cursor='hand2',
             activebackground=COLORS['button_hover']
         )
-        # Configure command after menu is created
+
+        # Create logs dropdown menu
+        logs_menu = tk.Menu(logs_btn, tearoff=0, bg=COLORS['button_bg'], fg=COLORS['fg'], font=('Arial', 9))
+        logs_btn['menu'] = logs_menu
+
+        # Add Follow Logs option (primary function)
+        logs_menu.add_command(
+            label="📜 Follow Logs",
+            command=lambda btn=logs_btn: self.toggle_log_follow(container_name, service_name, btn, is_native=is_native)
+        )
+
+        # Add Log Level submenu only for services with REST API
+        if rest_port:
+            logs_menu.add_separator()
+            logs_menu.add_command(
+                label="🔍 Current Level",
+                command=lambda p=rest_port: self.show_current_log_level(p, service_name)
+            )
+
+            # Log Level submenu
+            level_menu = tk.Menu(logs_menu, tearoff=0, bg=COLORS['button_bg'], fg=COLORS['fg'], font=('Arial', 9))
+            logs_menu.add_cascade(label="📊 Set Log Level", menu=level_menu)
+
+            for level in ["debug", "info", "warning", "error"]:
+                level_menu.add_command(
+                    label=f"{'🔬' if level == 'debug' else '📝' if level == 'info' else '⚠️' if level == 'warning' else '❌'} {level.upper()}",
+                    command=lambda l=level, p=rest_port, sn=service_name: self.set_service_log_level(p, l, sn)
+                )
 
         # Menubutton with dropdown
         menu_btn = tk.Menubutton(
@@ -920,17 +1006,9 @@ class LKernControlPanel:
         # Add tooltip to refresh button
         self.create_tooltip(refresh_btn, "Refresh status")
 
-        # Logs button - for all services (Docker and Native)
-        if not is_native:
-            # Docker: toggle log follow
-            logs_btn.config(command=lambda btn=logs_btn: self.toggle_log_follow(container_name, service_name, btn, is_native=False))
-            logs_btn.pack(side=tk.LEFT, padx=5)
-            self.create_tooltip(logs_btn, "Toggle log follow")
-        else:
-            # Native: toggle log follow from file
-            logs_btn.config(command=lambda btn=logs_btn: self.toggle_log_follow(container_name, service_name, btn, is_native=True))
-            logs_btn.pack(side=tk.LEFT, padx=5)
-            self.create_tooltip(logs_btn, "Toggle log follow")
+        # Logs menubutton - pack after refresh button
+        logs_btn.pack(side=tk.LEFT, padx=5)
+        self.create_tooltip(logs_btn, "Logs menu: Follow logs, set log level")
 
         # Database UI button (only for database containers, not native) - AFTER Logs button
         if not is_native and container_name in ['lkms105-issues-db', 'lkms105-minio', 'lkms901-adminer']:
@@ -961,6 +1039,79 @@ class LKernControlPanel:
 
         # Auto-check status on creation
         self.root.after(500, lambda: self.check_service_status(container_name, status_label, is_native, health_url))
+
+    def get_services_registry(self):
+        """Load services registry from JSON file."""
+        try:
+            registry_file = os.path.join(os.path.dirname(__file__), 'services_registry.json')
+            with open(registry_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('services', [])
+        except Exception as e:
+            self.append_terminal(f"❌ Failed to load services registry: {e}", "error")
+            return []
+
+    def show_current_log_level(self, port: int, service_name: str):
+        """Show current log level for a service."""
+        import urllib.request
+        import urllib.error
+
+        url = f"http://localhost:{port}/config/log-level"
+
+        def fetch_level():
+            try:
+                with urllib.request.urlopen(url, timeout=5) as response:
+                    data = json.loads(response.read().decode())
+                    level = data.get('level', 'unknown').upper()
+                    self.root.after(0, lambda: self.append_terminal(
+                        f"📊 {service_name} log level: {level}", "info"
+                    ))
+            except urllib.error.URLError as e:
+                self.root.after(0, lambda: self.append_terminal(
+                    f"❌ Failed to get log level for {service_name}: {e.reason}", "error"
+                ))
+            except Exception as e:
+                self.root.after(0, lambda: self.append_terminal(
+                    f"❌ Error: {e}", "error"
+                ))
+
+        # Run in background thread
+        self.status_thread_pool.submit(fetch_level)
+
+    def set_service_log_level(self, port: int, level: str, service_name: str):
+        """Set log level for a service via API."""
+        import urllib.request
+        import urllib.error
+
+        url = f"http://localhost:{port}/config/log-level"
+        data = json.dumps({"level": level}).encode('utf-8')
+
+        def set_level():
+            try:
+                req = urllib.request.Request(
+                    url,
+                    data=data,
+                    headers={'Content-Type': 'application/json'},
+                    method='PUT'
+                )
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    result = json.loads(response.read().decode())
+                    new_level = result.get('level', level).upper()
+                    self.root.after(0, lambda: self.append_terminal(
+                        f"✅ {service_name} log level set to: {new_level}", "success"
+                    ))
+            except urllib.error.URLError as e:
+                self.root.after(0, lambda: self.append_terminal(
+                    f"❌ Failed to set log level for {service_name}: {e.reason}", "error"
+                ))
+            except Exception as e:
+                self.root.after(0, lambda: self.append_terminal(
+                    f"❌ Error: {e}", "error"
+                ))
+
+        # Run in background thread
+        self.status_thread_pool.submit(set_level)
+        self.append_terminal(f"🔄 Setting {service_name} log level to {level.upper()}...", "info")
 
     def create_tooltip(self, widget, text):
         """Create a tooltip that appears on hover"""
@@ -1085,11 +1236,11 @@ class LKernControlPanel:
                         self.stop_status_animation(status_label)
                     elif health == 'healthy':
                         status_label.config(text="running", fg=COLORS['success'])
-                        self.start_status_animation(status_label)
+                        self.stop_status_animation(status_label)  # Stop animation when healthy
                     else:
                         # No health check configured, assume running is ready
                         status_label.config(text="running", fg=COLORS['success'])
-                        self.start_status_animation(status_label)
+                        self.stop_status_animation(status_label)  # Stop animation when ready
                 elif status in ['starting', 'restarting']:
                     status_label.config(text=status, fg=COLORS['warning'])
                     self.start_status_animation(status_label)
@@ -1460,7 +1611,7 @@ class LKernControlPanel:
             self.append_terminal(f"   Server: lkms105-issues-db", "info")
             self.append_terminal(f"   Database: lkern_issues", "info")
             self.append_terminal(f"   User: lkern_admin", "info")
-            self.append_terminal(f"   Password: ••••• (copied to clipboard)", "success")
+            self.append_terminal(f"   Password: {password} (copied to clipboard)", "success")
             webbrowser.open(url)
         elif container_name == 'lkms105-minio':
             # MinIO - Open MinIO Console
@@ -1473,7 +1624,7 @@ class LKernControlPanel:
 
             self.append_terminal(f"🗄️ Opening MinIO Console...", "info")
             self.append_terminal(f"   User: lkern_admin", "info")
-            self.append_terminal(f"   Password: ••••• (copied to clipboard)", "success")
+            self.append_terminal(f"   Password: {password} (copied to clipboard)", "success")
             webbrowser.open(url)
         else:
             self.append_terminal(f"⚠️ No database UI available for {container_name}", "error")
@@ -1572,14 +1723,59 @@ class LKernControlPanel:
         if container_name in self.terminal_tabs:
             self.append_to_tab_terminal(container_name, f"⏹ Log follow stopped (exit code: {exit_code})", "info")
 
+    def restart_log_follow(self, container_name: str):
+        """
+        Restart log follow on existing tab after container restart.
+        Called automatically when container restarts and log follow was active.
+        """
+        if container_name not in self.terminal_tabs:
+            return
+
+        tab_data = self.terminal_tabs[container_name]
+        executor = tab_data['executor']
+        service_name = tab_data['service_name']
+
+        # Check if it's a native service
+        is_native = any(c.get('is_native', False) and c['name'] == container_name for c in self.containers)
+
+        # Build command
+        if is_native:
+            command = f'powershell -Command "Get-Content services\\{container_name}\\logs\\console.log -Wait -Tail 50 -Encoding UTF8"'
+        else:
+            command = f"docker logs --follow --tail=50 {container_name}"
+
+        # Show info message
+        self.append_to_tab_terminal(container_name, f"🔄 Restarting log follow for {service_name}...", "info")
+
+        # Execute on tab's executor
+        executor.execute(
+            command,
+            output_callback=lambda line, line_type='stdout': self.append_to_tab_terminal(container_name, line, line_type),
+            completion_callback=lambda exit_code, duration: self.on_tab_command_complete(container_name, exit_code, duration)
+        )
+
     def on_command_complete(self, exit_code: int, duration: float):
         """Called when command completes"""
         self.stop_button.config(state='disabled')
 
-        # Reset all active log buttons when command completes
-        for _, (button, _) in list(self.active_log_buttons.items()):
+        # Reset active log buttons - but restart log follow if tab exists but executor stopped
+        for container_name, (button, is_auto) in list(self.active_log_buttons.items()):
+            # Check if this container has an active tab
+            if container_name in self.terminal_tabs:
+                tab_data = self.terminal_tabs[container_name]
+                if tab_data['executor'].is_running:
+                    # Tab still running - keep button green
+                    button.config(bg='#4CAF50')
+                    continue
+                else:
+                    # Tab exists but executor stopped (container restarted) - restart log follow
+                    button.config(bg='#4CAF50')
+                    self.restart_log_follow(container_name)
+                    continue
+
+            # Tab doesn't exist - reset button
             button.config(bg=COLORS['button_bg'], state='normal')
-        self.active_log_buttons.clear()
+            del self.active_log_buttons[container_name]
 
         # Add to history
         timestamp = datetime.now().strftime("%H:%M")

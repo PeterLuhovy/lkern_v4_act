@@ -118,4 +118,23 @@ export const issuesPageSk = {
     hardMessage: 'NATRVALO vymazať {count} položiek? Túto akciu NEMOŽNO vrátiť späť! Napíšte "ano" pre potvrdenie.',
     mixedMessage: 'Soft delete {softCount} aktívnych + Hard delete {hardCount} vymazaných položiek? Napíšte "ano" pre potvrdenie.',
   },
+  minioUnavailable: {
+    title: '⚠️ Úložisko nedostupné',
+    message: 'Súborové úložisko (MinIO) je momentálne nedostupné. Položka {code} sa nedá vymazať hneď. Chcete ju označiť na neskoršie zmazanie? Upratovací servis sa pokúsi súbory vymazať, keď bude úložisko dostupné.',
+    okButton: 'Rozumiem',
+    markForDeletion: 'Označiť na zmazanie',
+    markedForDeletion: 'Položka {code} bola označená na neskoršie zmazanie',
+  },
+  minioCreateError: {
+    title: '⚠️ Úložisko súborov nedostupné',
+    message: 'Súborové úložisko (MinIO) je momentálne nedostupné. Nedá sa nahrať {count} súborov. Chcete vytvoriť položku BEZ príloh? Súbory si uložte na disk a pridajte ich neskôr.',
+    createWithoutFiles: 'Vytvoriť bez príloh',
+    cancel: 'Zrušiť',
+  },
+  createError: {
+    title: '❌ Chyba pri vytváraní',
+    serviceUnavailable: 'Služba je momentálne nedostupná. Skúste to prosím neskôr.',
+    generic: 'Nastala neočakávaná chyba pri vytváraní položky.',
+  },
+  createSuccess: 'Položka {code} bola úspešne vytvorená',
 };

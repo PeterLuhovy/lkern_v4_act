@@ -846,50 +846,180 @@ logger.debug("Processing request...")    # Debug info (development only)
 - ✅ `WARNING` and above → Visible in `docker logs`
 - ❌ `INFO` and below → Filtered out in production
 
-### Debug Middleware (FastAPI)
+### Structured Request Logging (FastAPI)
 
-**🚨 MANDATORY: Every FastAPI microservice MUST have debug middleware!**
+**🚨 MANDATORY: Every FastAPI microservice MUST have structured request logging!**
 
 **Purpose:**
-- Log ALL incoming HTTP requests (method, URL, headers)
-- Log response status codes
-- Track errors before they're lost in CORS/network failures
+- Clear visual separation of requests in logs
+- Human-readable operation names (not just HTTP methods)
+- Identify WHO is making the request (Web UI, curl, Postman)
+- Track request duration and status
 - Essential for troubleshooting production issues
+
+**Example log output:**
+```
+============================================================
+📋 LIST ISSUES | 🌐 Web UI
+   📍 GET /issues/?include_deleted=true
+   📝 Fetch list of all issues
+   ... (SQL queries, debug info) ...
+   ✅ Response: 200 (34ms)
+──────────────────────────────────────────────────────────── END
+
+============================================================
+🔍 GET ISSUE | 🔧 curl
+   📍 GET /issues/abc123
+   📝 Fetch single issue details
+   ... (SQL queries) ...
+   ✅ Response: 200 (12ms)
+──────────────────────────────────────────────────────────── END
+
+```
+
+**Log structure:**
+- `=====` (60x) → **START** of request block
+- Operation emoji + name → **WHAT** is happening
+- Caller emoji → **WHO** is making request
+- 📍 → **WHERE** (full URL with query params)
+- 📝 → **WHY** (human description)
+- ✅/❌ → **RESULT** with status + duration
+- `─────` + END → **CLEAR END** of request block
+- Empty line → Visual separation before next request
 
 **✅ Required implementation in `main.py`:**
 
 ```python
 from fastapi import FastAPI
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
 
-# === DEBUG MIDDLEWARE (MANDATORY) ===
+# ============================================================
+# REQUEST LOGGING MIDDLEWARE - Clear operation context
+# ============================================================
+
+def get_operation_info(method: str, path: str) -> tuple[str, str, str]:
+    """
+    Get human-readable operation info based on HTTP method and path.
+    Returns: (emoji, operation_name, description)
+    """
+    # Health checks - minimal logging
+    if path in ["/health", "/"]:
+        return ("💓", "HEALTH", "System health check")
+
+    # API docs
+    if path in ["/docs", "/redoc", "/openapi.json"]:
+        return ("📖", "DOCS", "API documentation")
+
+    # Define your service-specific endpoints here
+    if "/your-endpoint" in path:
+        if method == "GET":
+            return ("📋", "LIST", "Fetch list of items")
+        elif method == "POST":
+            return ("➕", "CREATE", "Create new item")
+        elif method == "PUT":
+            return ("✏️", "UPDATE", "Update item")
+        elif method == "DELETE":
+            if "/permanent" in path:
+                return ("🗑️💀", "PERMANENT DELETE", "Hard delete")
+            return ("🗑️", "SOFT DELETE", "Soft delete")
+
+    return ("❓", f"{method}", f"Unknown: {path}")
+
+
+def get_caller_info(headers: dict) -> str:
+    """Identify who is making the request."""
+    origin = headers.get("origin", "")
+    user_agent = headers.get("user-agent", "")
+
+    if "localhost:4201" in origin:
+        return "🌐 Web UI"
+    elif "curl" in user_agent.lower():
+        return "🔧 curl"
+    elif "python" in user_agent.lower():
+        return "🐍 Python (health check)"
+    elif "postman" in user_agent.lower():
+        return "📮 Postman"
+    return "❓ Unknown"
+
+
 @app.middleware("http")
 async def log_requests(request, call_next):
-    logger.info(f"🔍 DEBUG REQUEST: {request.method} {request.url}")
-    logger.info(f"🔍 DEBUG HEADERS: {dict(request.headers)}")
+    """Enhanced request logging with clear visual structure."""
+    method = request.method
+    path = request.url.path
+    query = str(request.url.query) if request.url.query else ""
+    headers = dict(request.headers)
+
+    emoji, operation, description = get_operation_info(method, path)
+    caller = get_caller_info(headers)
+
+    # Skip verbose logging for health checks
+    is_health_check = path in ["/health", "/"]
+
+    start_time = time.time()
+
+    if not is_health_check:
+        logger.info("=" * 60)
+        logger.info(f"{emoji} {operation} | {caller}")
+        logger.info(f"   📍 {method} {path}{'?' + query if query else ''}")
+        logger.info(f"   📝 {description}")
+
     try:
         response = await call_next(request)
-        logger.info(f"🔍 DEBUG RESPONSE: {response.status_code}")
+        duration_ms = (time.time() - start_time) * 1000
+
+        if not is_health_check:
+            status_emoji = "✅" if response.status_code < 400 else "❌"
+            logger.info(f"   {status_emoji} Response: {response.status_code} ({duration_ms:.0f}ms)")
+            logger.info("─" * 60 + " END")  # Clear end separator
+            logger.info("")  # Empty line between requests
+
         return response
+
     except Exception as e:
-        logger.error(f"🔍 DEBUG ERROR: {str(e)}")
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(f"   💥 ERROR: {str(e)} ({duration_ms:.0f}ms)")
+        logger.info("─" * 60 + " END")
+        logger.info("")
         raise
 ```
 
-**When to use:**
-- ✅ **Development** - Always enabled for debugging
-- ✅ **Staging** - Enabled for integration testing
-- ⚠️ **Production** - Enable when troubleshooting issues (can be disabled for performance)
+**Operation emoji reference:**
 
-**What it catches:**
-- CORS preflight (OPTIONS) requests
-- Malformed POST/PUT requests
-- Authentication failures
-- Backend crashes before endpoint execution
-- Network timeout issues
+| Emoji | Operation | Use for |
+|-------|-----------|---------|
+| 📋 | LIST | GET all items |
+| 🔍 | GET | GET single item |
+| ➕ | CREATE | POST new item |
+| ✏️ | UPDATE | PUT/PATCH item |
+| 🗑️ | SOFT DELETE | DELETE (soft) |
+| 🗑️💀 | PERMANENT DELETE | DELETE (hard) |
+| 👤 | ASSIGN | Assign to user |
+| ✅ | RESOLVE | Mark resolved |
+| 🔒 | CLOSE | Close item |
+| ♻️ | RESTORE | Restore deleted |
+| 📜 | AUDIT | Get audit log |
+| 💓 | HEALTH | Health check |
+| 📖 | DOCS | API documentation |
+
+**Caller identification:**
+
+| Emoji | Caller | Detection |
+|-------|--------|-----------|
+| 🌐 | Web UI | Origin: localhost:4201 |
+| 🔧 | curl | User-Agent contains "curl" |
+| 🐍 | Python | User-Agent contains "python" |
+| 📮 | Postman | User-Agent contains "postman" |
+| ❓ | Unknown | Default fallback |
+
+**When to use:**
+- ✅ **Development** - Always enabled
+- ✅ **Staging** - Always enabled
+- ✅ **Production** - Keep enabled (minimal overhead, essential for debugging)
 
 ---
 

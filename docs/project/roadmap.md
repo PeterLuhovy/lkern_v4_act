@@ -2,14 +2,20 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 8.5.0
+# Version: 8.6.0
 # Created: 2025-10-13
-# Updated: 2025-11-24
+# Updated: 2025-11-27
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 8.4.0
+# Previous Version: 8.5.0
+#
+# Key Changes from v8.5.0:
+# - ✨ Task 1.90.3 Deletion Cleanup Service ADDED (Phase 1, 3-4h, cron job)
+# - 🔄 Eventual Deletion Pattern implemented in Issues Service (frontend + backend)
+# - 📊 Cleanup cron job: Daily 02:00, calls /cleanup/retry on all services
+# - 🎯 Phase 1 simplified cleanup (REST endpoints), Phase 2 adds Celery + alerting
 #
 # Key Changes from v8.4.0:
 # - ✨ Task 2.07 Async Background Cleanup & Deletion Retry ADDED (Phase 2, 40-50h)
@@ -1213,10 +1219,10 @@ start-service.bat
 
 ---
 
-### **1.90 System Health & Backup API** ⏸️ PLANNED
+### **1.90 System Health, Backup & Cleanup API** ⏸️ PLANNED
 **Dependencies:** 1.70, 1.80 complete
-**Estimated:** 2-3h
-**Target:** 2025-12-02
+**Estimated:** 5-7h
+**Target:** 2025-12-02 - 2025-12-03
 
 #### **1.90.1 Health Monitoring**
 - ⏸️ GET /api/v1/system/health
@@ -1224,6 +1230,71 @@ start-service.bat
 #### **1.90.2 Backup Management**
 - ⏸️ POST /api/v1/system/backup
 - ⏸️ GET /api/v1/system/backup/status
+
+#### **1.90.3 Deletion Cleanup Service** (3-4h)
+**Purpose:** Retry pending deletions when MinIO unavailable during hard delete
+
+**Why this is needed (Phase 1 foundation):**
+- ✅ Eventual Deletion Pattern implemented in Issues Service (2025-11-27)
+- ✅ When MinIO unavailable → Item marked with `deletion_audit_id` (status=PENDING)
+- ✅ REST endpoints exist: GET /cleanup/pending, POST /cleanup/retry, POST /cleanup/retry/{id}
+- ⏸️ Need automated retry mechanism (cron job)
+
+**Implementation:**
+- ⏸️ **Cron Job Container:** `lkern-cleanup-cron` (Alpine + curl)
+- ⏸️ **Schedule:** Daily at 02:00 (after backup at 01:00)
+- ⏸️ **Logic:**
+  1. Call GET /cleanup/pending for each microservice
+  2. If pending items found → Call POST /cleanup/retry
+  3. Log results to cleanup.log
+  4. On failure after 5 retries → Alert (Phase 2: Slack/Email)
+- ⏸️ **Docker Compose:** Add cleanup-cron service
+- ⏸️ **Environment:** CLEANUP_SERVICES=lkms105-issues,lkms101-contacts,...
+
+**Endpoints per microservice (already implemented pattern):**
+```
+GET  /cleanup/pending        - List pending deletions
+POST /cleanup/retry          - Retry all pending
+POST /cleanup/retry/{id}     - Retry specific deletion
+```
+
+**Workflow:**
+```
+02:00 Daily → Cron triggers
+  → For each service in CLEANUP_SERVICES:
+    → GET http://{service}:port/cleanup/pending
+    → If count > 0:
+      → POST http://{service}:port/cleanup/retry
+      → Log: "Service X: Y items retried, Z succeeded, W failed"
+  → Summary log: "Cleanup complete: Total X items processed"
+```
+
+**Audit Record Retention (cleanup old audit logs):**
+- ⏸️ **PENDING:** Never delete (waiting for cleanup to complete)
+- ⏸️ **COMPLETED:** Delete after 90 days (historical, no longer needed)
+- ⏸️ **FAILED/PARTIAL:** Delete after 180 days (longer for investigation)
+- ⏸️ **Endpoint:** DELETE /cleanup/audit?older_than=90&status=completed
+- ⏸️ **Schedule:** Weekly (Sunday 03:00) - after daily cleanup
+
+**Workflow for audit cleanup:**
+```
+03:00 Sunday → Audit retention cleanup
+  → For each service:
+    → DELETE completed audits older than 90 days
+    → DELETE failed/partial audits older than 180 days
+  → Log: "Audit cleanup: X completed, Y failed/partial removed"
+```
+
+**Success Criteria:**
+- ✅ Cron job runs daily at 02:00 (pending deletions retry)
+- ✅ Cron job runs weekly Sunday 03:00 (audit record cleanup)
+- ✅ All services with deletion_audit support are called
+- ✅ Pending deletions retried automatically
+- ✅ Old audit records cleaned up per retention policy
+- ✅ Results logged to /var/log/lkern/cleanup.log
+- ✅ Failed items remain in PENDING status for next retry
+
+**Note:** This is simplified Phase 1 approach. Phase 2 (Task 2.07) will add Celery workers, exponential backoff, and alerting.
 
 ---
 

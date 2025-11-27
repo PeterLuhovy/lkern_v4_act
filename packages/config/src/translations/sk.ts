@@ -171,6 +171,8 @@ export const sk: TranslationKeys = {
       failedFiles: 'Zlyhané Súbory',
       viewAuditLog: 'Zobraziť Audit Log',
       deletionFailed: 'Vymazanie zlyhalo',
+      deletionPending: 'Čaká na vymazanie (úložisko nedostupné)',
+      softDeleted: 'Vymazaná položka',
       statusValues: {
         pending: 'Čakajúce',
         completed: 'Dokončené',
@@ -511,6 +513,9 @@ export const sk: TranslationKeys = {
       dropzoneHint: 'Môžete nahrať až {{max}} súborov (alebo vložte obrázok cez Ctrl+V)',
       fileHint: 'Maximálna veľkosť súboru: {{max}}MB. Podporované typy: obrázky, PDF, log, txt',
       removeFile: 'Odstrániť súbor',
+      removeToSubmit: 'Odstráňte súbory pre odoslanie formulára',
+      limitReached: 'Dosiahnutý maximálny počet príloh',
+      removeToAdd: 'Odstráňte prílohu pre pridanie ďalšej',
       errors: {
         maxFiles: 'Maximálny počet súborov: {{max}}',
         maxSize: 'Každý súbor musí byť menší ako {{max}}MB',

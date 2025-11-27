@@ -61,8 +61,7 @@ def generate_issue_code(db: Session, issue_type: IssueType) -> str:
     # Pattern: "BUG-2511-%"
     pattern = f"{prefix}-{year_month}-%"
     existing_issues = db.query(Issue.issue_code).filter(
-        Issue.issue_code.like(pattern),
-        Issue.deleted_at.is_(None)  # Only count non-deleted issues
+        Issue.issue_code.like(pattern)
     ).all()
 
     # Extract sequential numbers and find max

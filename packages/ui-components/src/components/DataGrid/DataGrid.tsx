@@ -66,6 +66,7 @@ export interface DataGridProps<T = any> {
   selectedRows?: Set<string>;
   onSelectionChange?: (selectedIds: Set<string>) => void;
   enableSelection?: boolean;
+  isRowSelectable?: (row: T) => boolean; // Disable selection for specific rows (e.g., pending deletion)
   compact?: boolean; // Alias for compactMode
   compactMode?: boolean;
   actions?: DataGridAction<T>[];
@@ -96,6 +97,7 @@ const DataGrid = <T extends Record<string, any>>({
   selectedRows = new Set(),
   onSelectionChange,
   enableSelection = false,
+  isRowSelectable,
   compactMode = false,
   actions,
   actionsLabel,
@@ -235,7 +237,11 @@ const DataGrid = <T extends Record<string, any>>({
     if (!onSelectionChange) return;
 
     if (e.target.checked) {
-      const allIds = new Set(data.map((row) => getRowId(row)));
+      // Only select rows that pass isRowSelectable check
+      const selectableRows = isRowSelectable
+        ? data.filter((row) => isRowSelectable(row))
+        : data;
+      const allIds = new Set(selectableRows.map((row) => getRowId(row)));
       onSelectionChange(allIds);
     } else {
       onSelectionChange(new Set());
@@ -314,9 +320,10 @@ const DataGrid = <T extends Record<string, any>>({
     mouseDownPos.current = { x: e.clientX, y: e.clientY };
   };
 
-  // Calculate "Select All" checkbox state
-  const allSelected = enableSelection && data.length > 0 && data.every((row) => selectedRows.has(getRowId(row)));
-  const someSelected = enableSelection && data.some((row) => selectedRows.has(getRowId(row)));
+  // Calculate "Select All" checkbox state (only considering selectable rows)
+  const selectableData = isRowSelectable ? data.filter((row) => isRowSelectable(row)) : data;
+  const allSelected = enableSelection && selectableData.length > 0 && selectableData.every((row) => selectedRows.has(getRowId(row)));
+  const someSelected = enableSelection && selectableData.some((row) => selectedRows.has(getRowId(row)));
 
   // === COLUMN RESIZING ===
   const [isResizing, setIsResizing] = useState(false);
@@ -672,6 +679,7 @@ const DataGrid = <T extends Record<string, any>>({
                           <Checkbox
                             checked={isSelected}
                             onChange={(e) => handleRowSelect(rowId, e as unknown as React.ChangeEvent<HTMLInputElement>)}
+                            disabled={isRowSelectable ? !isRowSelectable(row) : false}
                             aria-label={t('common.selectRow') || 'Select row'}
                           />
                         )}

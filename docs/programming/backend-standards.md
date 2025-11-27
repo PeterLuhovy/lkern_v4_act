@@ -277,6 +277,164 @@ logger.info(f"Contact created: {contact.id}")     # INFO for normal operations
 
 ---
 
+### Runtime Configuration (Log Level API)
+
+**⚠️ MANDATORY: All microservices with REST API MUST implement runtime log level configuration**
+
+**Purpose:**
+- Change log level at runtime (without restart)
+- Persist settings between restarts
+- Enable debugging in production without redeployment
+
+**Implementation:**
+
+**1. Create config router (`app/api/rest/config.py`):**
+
+```python
+"""
+================================================================
+Configuration API - Runtime log level management
+================================================================
+"""
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+import logging
+import json
+import os
+
+router = APIRouter(prefix="/config", tags=["Configuration"])
+
+# Runtime config file path (persists between restarts)
+CONFIG_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+RUNTIME_CONFIG_FILE = os.path.join(CONFIG_DIR, "runtime_config.json")
+
+VALID_LOG_LEVELS = ["debug", "info", "warning", "error", "critical"]
+
+
+class LogLevelRequest(BaseModel):
+    level: str
+
+
+class LogLevelResponse(BaseModel):
+    level: str
+    valid_levels: list[str] = VALID_LOG_LEVELS
+
+
+def load_runtime_config() -> dict:
+    """Load runtime configuration from file."""
+    if os.path.exists(RUNTIME_CONFIG_FILE):
+        try:
+            with open(RUNTIME_CONFIG_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+
+def save_runtime_config(config: dict) -> None:
+    """Save runtime configuration to file."""
+    with open(RUNTIME_CONFIG_FILE, "w") as f:
+        json.dump(config, f, indent=2)
+
+
+def get_current_log_level() -> str:
+    """Get current log level from root logger."""
+    root_logger = logging.getLogger()
+    return logging.getLevelName(root_logger.level).lower()
+
+
+def set_log_level(level: str) -> None:
+    """Set log level for all loggers at runtime."""
+    numeric_level = getattr(logging, level.upper())
+    root_logger = logging.getLogger()
+    root_logger.setLevel(numeric_level)
+
+    # Also set for all existing loggers
+    for name in logging.root.manager.loggerDict:
+        logging.getLogger(name).setLevel(numeric_level)
+
+
+@router.get("/log-level", response_model=LogLevelResponse)
+async def get_log_level():
+    """Get current log level."""
+    return LogLevelResponse(level=get_current_log_level())
+
+
+@router.put("/log-level", response_model=LogLevelResponse)
+async def set_log_level_endpoint(request: LogLevelRequest):
+    """
+    Set log level at runtime.
+
+    Changes take effect immediately without restart.
+    Setting is persisted and restored on next startup.
+    """
+    level = request.level.lower()
+
+    if level not in VALID_LOG_LEVELS:
+        raise HTTPException(status_code=400, detail=f"Invalid log level: {level}")
+
+    set_log_level(level)
+
+    # Persist to config file
+    config = load_runtime_config()
+    config["log_level"] = level
+    save_runtime_config(config)
+
+    return LogLevelResponse(level=level)
+
+
+def apply_persisted_config():
+    """Apply persisted configuration on startup."""
+    config = load_runtime_config()
+    if "log_level" in config:
+        level = config["log_level"]
+        if level in VALID_LOG_LEVELS:
+            set_log_level(level)
+```
+
+**2. Register router in main.py:**
+
+```python
+from app.api.rest import config as config_api
+
+# Include routers
+app.include_router(config_api.router)
+
+@app.on_event("startup")
+async def startup_event():
+    # Apply persisted runtime config (log level, etc.)
+    config_api.apply_persisted_config()
+
+    # ... rest of startup code
+```
+
+**3. API Endpoints:**
+
+```bash
+# Get current log level
+GET /config/log-level
+Response: {"level": "info", "valid_levels": ["debug", "info", "warning", "error", "critical"]}
+
+# Set log level (runtime, no restart needed)
+PUT /config/log-level
+Body: {"level": "debug"}
+Response: {"level": "debug", "valid_levels": [...]}
+```
+
+**4. Control Panel Integration:**
+
+L-KERN Control Panel automatically shows log level dropdown for services with REST API.
+
+**Checklist:**
+- ✅ Create `app/api/rest/config.py` with log level endpoints
+- ✅ Register router: `app.include_router(config_api.router)`
+- ✅ Call `apply_persisted_config()` in startup event
+- ✅ Runtime config saved to `runtime_config.json` in service root
+- ✅ Control Panel shows log level dropdown (automatic for services with REST port)
+
+---
+
 ## 2. SQLAlchemy + Alembic
 
 ### Database Connection
@@ -1265,6 +1423,71 @@ failed_audits = db.query(DeletionAudit)\
     .order_by(DeletionAudit.started_at.desc())\
     .all()
 ```
+
+---
+
+#### Eventual Deletion Pattern (External Storage Unavailable)
+
+**🚨 MANDATORY PATTERN: All microservices with external storage (MinIO, S3) MUST implement this!**
+
+When external storage is unavailable during permanent delete, the item is **marked for deletion** (not failed). A cleanup service will retry later.
+
+**Flow Diagram:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. User clicks "Permanent Delete"                              │
+├─────────────────────────────────────────────────────────────────┤
+│  2. Backend tries external storage                              │
+│     ├─ Storage OK → delete files → delete from DB → COMPLETED  │
+│     └─ Storage FAIL → audit PENDING + link item → 503          │
+├─────────────────────────────────────────────────────────────────┤
+│  3. Cleanup Service (cron or manual trigger)                    │
+│     ├─ Finds audit records with status=PENDING                 │
+│     ├─ For each: retry storage operation                       │
+│     │   ├─ OK → delete files → delete from DB → COMPLETED      │
+│     │   └─ FAIL → retry_count++, last_retry_at = now           │
+│     └─ Logs each attempt for audit trail                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Implementation Points:**
+
+1. **DeletionAudit model** - retry tracking fields:
+   - `retry_count` - number of retry attempts
+   - `last_retry_at` - timestamp of last retry
+   - `status = PENDING` - item waiting for cleanup
+
+2. **Item model** - marker field:
+   - `deletion_audit_id` - when set, item is pending cleanup
+   - Frontend shows warning icon (🔴) for these items
+
+3. **Storage unavailable handler:**
+```python
+except StorageConnectionError as e:
+    # Get file count from DB (works without storage)
+    db_attachments = item.attachments or []
+    audit.files_found = len(db_attachments)
+    audit.status = DeletionStatus.PENDING  # Will be retried
+    audit.error_message = f"Storage unavailable: {str(e)}"
+
+    # Link item to audit (marks for deletion)
+    item.deletion_audit_id = audit.id
+    db.commit()
+
+    raise HTTPException(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail="Storage unavailable. Item marked for cleanup."
+    )
+```
+
+4. **Cleanup service endpoints:**
+   - `GET /cleanup/pending` - List pending deletions
+   - `POST /cleanup/retry` - Retry all pending deletions
+   - `POST /cleanup/retry/{audit_id}` - Retry specific deletion
+
+5. **Frontend handling:**
+   - Show modal: "Storage unavailable. Item marked for deletion."
+   - Single "I Understand" button
 
 ---
 

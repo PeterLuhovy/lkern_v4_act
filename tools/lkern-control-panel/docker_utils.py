@@ -21,6 +21,25 @@ import platform
 CREATE_NO_WINDOW = 0x08000000 if platform.system() == 'Windows' else 0
 
 
+def is_docker_running():
+    """Check if Docker daemon is running.
+
+    Returns:
+        bool: True if Docker is running and responsive, False otherwise
+    """
+    try:
+        result = subprocess.run(
+            ['docker', 'info'],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            creationflags=CREATE_NO_WINDOW
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
 def check_docker_status(container_name):
     """Check Docker container status (single check, no waiting).
 
@@ -109,14 +128,15 @@ def is_service_healthy(state_status, health_status):
 def wait_for_docker_healthy(container_name, timeout=120):
     """Wait for Docker container to become healthy (used by orchestrators).
 
-    This function calls check_docker_status() in a loop.
+    This function calls check_docker_status() in a loop until healthy or timeout.
 
     Args:
         container_name: Docker container name
         timeout: Maximum time to wait in seconds
 
     Returns:
-        str: "healthy" if ready, "starting" if timeout, "not_found" if container not found
+        str: "healthy" if ready, "starting" if timeout expired but container exists,
+             "not_found" if container doesn't exist after timeout
     """
     import time
     start = time.time()
@@ -124,7 +144,7 @@ def wait_for_docker_healthy(container_name, timeout=120):
     while time.time() - start < timeout:
         state_status, health_status, error = check_docker_status(container_name)
 
-        # If error, retry
+        # If error (container doesn't exist yet), keep waiting - docker-compose is creating it
         if error:
             time.sleep(2)
             continue
@@ -133,21 +153,26 @@ def wait_for_docker_healthy(container_name, timeout=120):
         if is_service_healthy(state_status, health_status):
             return "healthy"
 
-        # If container is not running, it's not found
-        if state_status in ["exited", "stopped", "paused", "dead"]:
-            return "not_found"
-
-        # Container is running but not healthy yet - continue waiting
+        # Container exists but not healthy yet - keep waiting (even if exited/stopped)
+        # Docker-compose might be restarting it or it's still initializing
         time.sleep(2)
 
     # Timeout expired - check final state
     state_status, health_status, error = check_docker_status(container_name)
 
-    # If container is running, consider it healthy (timeout but at least running)
-    if state_status == "running":
+    if error:
+        # Container never appeared
+        return "not_found"
+
+    if is_service_healthy(state_status, health_status):
         return "healthy"
 
-    return "starting"
+    if state_status == "running":
+        # Running but healthcheck not done yet
+        return "starting"
+
+    # Container exists but stopped/exited after timeout
+    return "not_found"
 
 
 def wait_for_native_healthy(health_url, timeout=120):

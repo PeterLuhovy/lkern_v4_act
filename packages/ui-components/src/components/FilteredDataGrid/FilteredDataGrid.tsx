@@ -31,6 +31,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   enableSelection,
   selectedRows,
   onSelectionChange,
+  isRowSelectable,
   expandedRows,
   onRowToggle,
   renderExpandedContent,
@@ -305,6 +306,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         enableSelection={enableSelection}
         selectedRows={selectedRows}
         onSelectionChange={onSelectionChange}
+        isRowSelectable={isRowSelectable}
         expandedRows={expandedRows}
         onRowToggle={onRowToggle}
         renderExpandedContent={renderExpandedContent}

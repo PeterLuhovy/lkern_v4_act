@@ -17,6 +17,7 @@ from datetime import datetime
 
 from app.config import settings
 from app.grpc_server import serve as grpc_serve
+from app.api.rest import config as config_api
 
 # === LOGGING ===
 # Create logs directory if not exists
@@ -37,6 +38,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Silence noisy third-party loggers (only show WARNING+)
+logging.getLogger("grpc").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+
 # === FASTAPI APP ===
 app = FastAPI(
     title=settings.SERVICE_NAME,
@@ -46,12 +52,18 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Include routers
+app.include_router(config_api.router)
+
 
 # === STARTUP EVENT ===
 @app.on_event("startup")
 async def startup_event():
     """Start gRPC server in background thread."""
     logger.info(f"🚀 {settings.SERVICE_NAME} v{settings.SERVICE_VERSION} starting...")
+
+    # Apply persisted runtime config (log level, etc.)
+    config_api.apply_persisted_config()
 
     # Start gRPC server in separate thread
     grpc_thread = threading.Thread(target=grpc_serve, daemon=True)
@@ -75,7 +87,9 @@ async def health_check():
         Service status and version
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logger.info(f"💓 Health check - {timestamp}")
+    # Note: Health check logging disabled (too verbose on INFO)
+    # Enable DEBUG level to see health checks
+    logger.debug(f"💓 Health check - {timestamp}")
 
     return {
         "status": "healthy",

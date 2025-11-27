@@ -69,6 +69,8 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   selectedRows?: DataGridProps<T>['selectedRows'];
   /** Selection change handler */
   onSelectionChange?: DataGridProps<T>['onSelectionChange'];
+  /** Disable selection for specific rows (e.g., pending deletion items) */
+  isRowSelectable?: DataGridProps<T>['isRowSelectable'];
   /** Expandable rows */
   expandable?: DataGridProps<T>['expandable'];
   /** Expanded rows */

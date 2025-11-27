@@ -509,6 +509,19 @@ export interface TranslationKeys {
       tech3: string;
       tech4: string;
     };
+    fileUpload: {
+      dropzoneText: string;
+      dropzoneHint: string;
+      fileHint: string;
+      removeFile: string;
+      removeToSubmit: string;
+      limitReached: string;
+      removeToAdd: string;
+      errors: {
+        maxFiles: string;
+        maxSize: string;
+      };
+    };
     modalV3: {
       pageTitle: string;
       test1: {

@@ -17,6 +17,7 @@ Description:
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, status as http_status, Form, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from datetime import datetime
 import uuid
@@ -38,7 +39,7 @@ from app.schemas import (
 )
 from app.services.issue_service import generate_issue_code, validate_status_transition
 from app.events.producer import publish_event
-from app.services.minio_client import minio_client
+from app.services.minio_client import minio_client, MinIOConnectionError
 
 logger = logging.getLogger(__name__)
 
@@ -221,12 +222,37 @@ async def create_issue(
     )
 
     db.add(issue)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"IntegrityError creating issue {issue_code}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_409_CONFLICT,
+            detail=f"Duplicate issue code '{issue_code}'. A deleted issue with this code may exist. Please try again."
+        )
     db.refresh(issue)
 
     # Process file attachments if provided
     attachments_metadata = []
     if files:
+        # Check MinIO availability BEFORE processing files
+        if not minio_client.check_health():
+            # MinIO is down - return 503 so frontend can offer to create without files
+            # Note: Issue is already created in DB, but we'll delete it
+            db.delete(issue)
+            db.commit()
+            logger.warning(f"MinIO unavailable - cannot upload {len(files)} files, issue creation aborted")
+            raise HTTPException(
+                status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "error": "minio_unavailable",
+                    "message": "File storage (MinIO) is currently unavailable. Cannot upload attachments.",
+                    "files_count": len(files),
+                    "suggestion": "Create issue without attachments, or try again later."
+                }
+            )
+
         logger.info(f"Processing {len(files)} file attachments for issue {issue.issue_code}")
         for file in files:
             try:
@@ -402,10 +428,15 @@ async def restore_issue(
 @router.delete("/{issue_id}/permanent", status_code=http_status.HTTP_204_NO_CONTENT)
 async def hard_delete_issue(
     issue_id: str,
+    force: bool = Query(False, description="If true, mark for deletion even if MinIO is unavailable (skip file deletion)"),
     db: Session = Depends(get_db),
 ):
     """
     Permanently delete issue (hard delete from DB + MinIO files with audit trail).
+
+    Args:
+        force: If False (default), checks MinIO first and returns 503 if unavailable (no changes made).
+               If True, marks issue for eventual deletion even if MinIO is down.
 
     Deletion order (CRITICAL):
     1. Delete external resources (MinIO files) → Track each deletion
@@ -430,6 +461,52 @@ async def hard_delete_issue(
             detail=f"Issue {issue_id} not found"
         )
 
+    # === PRE-CHECK: If not force, check MinIO availability FIRST (before any DB changes) ===
+    if not force:
+        if not minio_client.check_health():
+            # MinIO unavailable - return 503 WITHOUT making any changes
+            # Frontend will show dialog asking user to confirm or cancel
+            db_attachments = issue.attachments or []
+            logger.warning(f"MinIO unavailable (pre-check) for issue {issue.issue_code}, files_expected={len(db_attachments)}")
+            raise HTTPException(
+                status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "error": "minio_unavailable",
+                    "message": f"File storage (MinIO) is currently unavailable.",
+                    "issue_code": issue.issue_code,
+                    "files_count": len(db_attachments),
+                    "suggestion": "Click 'Mark for deletion' to schedule cleanup when storage becomes available, or 'Cancel' to abort."
+                }
+            )
+
+    # === FORCE MODE: Skip MinIO, mark for eventual deletion ===
+    if force:
+        db_attachments = issue.attachments or []
+
+        # Create audit record for eventual deletion
+        audit = DeletionAudit(
+            item_id=issue.id,
+            item_code=issue.issue_code,
+            item_type="issue",
+            status=DeletionStatus.PENDING,
+            started_at=datetime.utcnow(),
+            files_found=len(db_attachments),
+            error_message="Force mode - MinIO skipped, marked for cleanup service"
+        )
+        db.add(audit)
+        db.commit()
+        db.refresh(audit)
+
+        # Link issue to audit record (marks item for deletion)
+        issue.deletion_audit_id = audit.id
+        db.commit()
+
+        logger.info(f"Force delete: issue {issue.issue_code} marked for cleanup (audit_id={audit.id}, files_expected={len(db_attachments)})")
+
+        # Return success - item is now marked for deletion
+        return None
+
+    # === NORMAL MODE: Try to delete files from MinIO ===
     # Create audit record
     audit = DeletionAudit(
         item_id=issue.id,
@@ -465,6 +542,9 @@ async def hard_delete_issue(
                         "file_name": file_name,
                         "error": "MinIO delete_file returned False"
                     })
+            except MinIOConnectionError:
+                # Re-raise connection errors - let outer handler return 503
+                raise
             except Exception as e:
                 logger.error(f"Failed to delete file {file_name}: {str(e)}")
                 files_failed.append({
@@ -522,6 +602,25 @@ async def hard_delete_issue(
     except HTTPException:
         # Re-raise HTTP exceptions (already handled above)
         raise
+
+    except MinIOConnectionError as e:
+        # MinIO storage service unavailable - mark for later cleanup (PENDING status)
+        # Get expected file count from database attachments (works without MinIO)
+        db_attachments = issue.attachments or []
+        audit.files_found = len(db_attachments)
+        audit.status = DeletionStatus.PENDING  # Will be retried by cleanup service
+        audit.error_message = f"MinIO unavailable - marked for cleanup: {str(e)}"
+        # Don't set completed_at - deletion is still pending
+
+        # Link issue to audit record (marks item for deletion)
+        issue.deletion_audit_id = audit.id
+        db.commit()
+
+        logger.warning(f"MinIO unavailable - issue {issue.issue_code} marked for cleanup (audit_id={audit.id}, files_expected={len(db_attachments)})")
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"File storage unavailable. Issue {issue.issue_code} marked for deletion - cleanup service will retry later."
+        )
 
     except Exception as e:
         # Unexpected error - mark as failed

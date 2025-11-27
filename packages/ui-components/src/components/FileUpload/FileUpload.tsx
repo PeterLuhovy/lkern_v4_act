@@ -3,13 +3,15 @@
  * FILE: FileUpload.tsx
  * PATH: /packages/ui-components/src/components/FileUpload/FileUpload.tsx
  * DESCRIPTION: Reusable file upload component with click, drag&drop, and paste support
- * VERSION: v1.0.0
+ *              - Paste (Ctrl+V): Hard limit - won't add if at max, modal can still submit
+ *              - Drag&Drop/Click: Soft limit - adds all, modal disabled until files removed
+ * VERSION: v1.1.0
  * CREATED: 2025-11-24
- * UPDATED: 2025-11-24
+ * UPDATED: 2025-11-27
  * ================================================================
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from '@l-kern/config';
 import styles from './FileUpload.module.css';
 
@@ -46,6 +48,16 @@ export interface FileUploadProps {
    */
   onError?: (error: string) => void;
   /**
+   * Callback when file count exceeds maxFiles limit
+   * Used by parent to disable submit button
+   */
+  onFileLimitExceeded?: (exceeded: boolean) => void;
+  /**
+   * Callback when paste is blocked due to max files limit
+   * Used by parent to show toast notification
+   */
+  onPasteLimitReached?: () => void;
+  /**
    * Custom dropzone text
    */
   dropzoneText?: string;
@@ -78,6 +90,8 @@ export function FileUpload({
   accept = 'image/*,.pdf,.log,.txt',
   error,
   onError,
+  onFileLimitExceeded,
+  onPasteLimitReached,
   dropzoneText,
   dropzoneHint,
   enablePaste = true,
@@ -86,24 +100,35 @@ export function FileUpload({
 }: FileUploadProps) {
   const { t } = useTranslation();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  // Info message for paste limit (non-blocking, just informational)
+  const [pasteInfoMessage, setPasteInfoMessage] = useState<string>('');
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Drag counter to handle child element enter/leave events
+  const dragCounterRef = useRef(0);
+
+  // ============================================================
+  // NOTIFY PARENT WHEN FILE COUNT EXCEEDS LIMIT
+  // ============================================================
+
+  useEffect(() => {
+    if (onFileLimitExceeded) {
+      onFileLimitExceeded(value.length > maxFiles);
+    }
+    // Clear paste info message when files are removed below limit
+    if (value.length <= maxFiles && pasteInfoMessage) {
+      setPasteInfoMessage('');
+    }
+  }, [value.length, maxFiles, onFileLimitExceeded, pasteInfoMessage]);
 
   // ============================================================
   // FILE VALIDATION
   // ============================================================
 
-  const validateFiles = (files: File[]): { valid: File[]; error?: string } => {
-    // Check file count
-    const totalFiles = value.length + files.length;
-    if (totalFiles > maxFiles) {
-      return {
-        valid: [],
-        error: t('components.fileUpload.errors.maxFiles', { max: maxFiles }),
-      };
-    }
-
-    // Check file sizes
+  /**
+   * Validate file sizes only (no count limit)
+   */
+  const validateFileSizes = useCallback((files: File[]): { valid: File[]; error?: string } => {
     const oversizedFiles = files.filter((file) => file.size > maxSize);
     if (oversizedFiles.length > 0) {
       const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
@@ -112,16 +137,20 @@ export function FileUpload({
         error: t('components.fileUpload.errors.maxSize', { max: maxSizeMB }),
       };
     }
-
     return { valid: files };
-  };
+  }, [maxSize, t]);
 
   // ============================================================
   // FILE HANDLERS
   // ============================================================
 
-  const handleFilesAdded = (files: File[]) => {
-    const validation = validateFiles(files);
+  /**
+   * Handler for Drag & Drop and File Input (click)
+   * SOFT LIMIT: Allows adding ANY number of files
+   * Parent uses onFileLimitExceeded to disable submit when count > maxFiles
+   */
+  const handleFilesAddedFromDropOrClick = useCallback((files: File[]) => {
+    const validation = validateFileSizes(files);
 
     if (validation.error) {
       if (onError) {
@@ -130,21 +159,56 @@ export function FileUpload({
       return;
     }
 
-    // Clear any previous errors
-    if (onError && error) {
-      onError('');
+    // Clear paste info message (user is using different method now)
+    setPasteInfoMessage('');
+
+    // Add ALL files (no count limit) - parent will disable submit if > maxFiles
+    const newFiles = [...value, ...validation.valid];
+    onChange(newFiles);
+  }, [value, validateFileSizes, onError, onChange]);
+
+  /**
+   * Handler for Ctrl+V Paste
+   * HARD LIMIT: Will NOT add file if already at maxFiles
+   * Triggers toast notification via onPasteLimitReached callback
+   */
+  const handleFilesAddedFromPaste = useCallback((files: File[]) => {
+    // Hard limit check for paste
+    if (value.length >= maxFiles) {
+      // Notify parent to show toast
+      if (onPasteLimitReached) {
+        onPasteLimitReached();
+      }
+      return;
     }
 
-    // Add files to current value (merge with existing)
-    const newFiles = [...value, ...validation.valid].slice(0, maxFiles);
+    const validation = validateFileSizes(files);
+
+    if (validation.error) {
+      if (onError) {
+        onError(validation.error);
+      }
+      return;
+    }
+
+    // Add files up to the limit
+    const remainingSlots = maxFiles - value.length;
+    const filesToAdd = validation.valid.slice(0, remainingSlots);
+    const newFiles = [...value, ...filesToAdd];
     onChange(newFiles);
-  };
+
+    // If we couldn't add all pasted files, notify parent
+    if (validation.valid.length > remainingSlots && onPasteLimitReached) {
+      onPasteLimitReached();
+    }
+  }, [value, maxFiles, validateFileSizes, onError, onChange, onPasteLimitReached]);
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    handleFilesAdded(Array.from(files));
+    // Use soft limit handler for file input (click)
+    handleFilesAddedFromDropOrClick(Array.from(files));
 
     // Reset input value to allow re-selecting same file
     event.target.value = '';
@@ -153,19 +217,28 @@ export function FileUpload({
   const handleRemoveFile = (index: number) => {
     const newFiles = value.filter((_, i) => i !== index);
     onChange(newFiles);
+    // Clear errors when removing files
+    if (onError && error) {
+      onError('');
+    }
   };
 
   // ============================================================
   // DRAG & DROP HANDLERS
   // ============================================================
 
-  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     if (!enableDragDrop) return;
 
     event.preventDefault();
     event.stopPropagation();
-    setIsDraggingOver(true);
-  };
+    
+    // Increment counter - handles child element events
+    dragCounterRef.current++;
+    if (dragCounterRef.current === 1) {
+      setIsDraggingOver(true);
+    }
+  }, [enableDragDrop]);
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     if (!enableDragDrop) return;
@@ -174,33 +247,43 @@ export function FileUpload({
     event.stopPropagation();
   };
 
-  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     if (!enableDragDrop) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    // Only set to false if leaving the dropzone itself (not child elements)
-    if (event.currentTarget === event.target) {
+    // Decrement counter - only hide highlight when fully leaving dropzone
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) {
       setIsDraggingOver(false);
     }
-  };
+  }, [enableDragDrop]);
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     if (!enableDragDrop) return;
 
     event.preventDefault();
     event.stopPropagation();
+
+    // Reset counter and hide highlight
+    dragCounterRef.current = 0;
     setIsDraggingOver(false);
+
+    // Don't accept drops when at limit
+    if (value.length >= maxFiles) {
+      return;
+    }
 
     const files = event.dataTransfer.files;
     if (files && files.length > 0) {
-      handleFilesAdded(Array.from(files));
+      // Use soft limit handler for drop
+      handleFilesAddedFromDropOrClick(Array.from(files));
     }
-  };
+  }, [enableDragDrop, value.length, maxFiles, handleFilesAddedFromDropOrClick]);
 
   // ============================================================
-  // PASTE HANDLER (Ctrl+V)
+  // PASTE HANDLER (Ctrl+V) - Hard limit enforcement
   // ============================================================
 
   useEffect(() => {
@@ -226,13 +309,14 @@ export function FileUpload({
 
       if (imageFiles.length > 0) {
         event.preventDefault();
-        handleFilesAdded(imageFiles);
+        // Use HARD limit handler for paste
+        handleFilesAddedFromPaste(imageFiles);
       }
     };
 
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
-  }, [enablePaste, value, maxFiles, maxSize, error, onError]);
+  }, [enablePaste, handleFilesAddedFromPaste]);
 
   // ============================================================
   // COMPUTED VALUES
@@ -241,6 +325,12 @@ export function FileUpload({
   const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
   const displayDropzoneText = dropzoneText || t('components.fileUpload.dropzoneText');
   const displayDropzoneHint = dropzoneHint || t('components.fileUpload.dropzoneHint', { max: maxFiles });
+
+  // Check if file count exceeds limit (for warning display)
+  const isOverLimit = value.length > maxFiles;
+
+  // Check if at max files limit (disable dropzone)
+  const isAtLimit = value.length >= maxFiles;
 
   // ============================================================
   // RENDER
@@ -251,28 +341,41 @@ export function FileUpload({
       {/* Dropzone */}
       <div
         ref={dropzoneRef}
-        className={`${styles.dropzone} ${isDraggingOver ? styles.dropzoneDragging : ''} ${error ? styles.dropzoneError : ''}`}
+        className={`${styles.dropzone} ${isDraggingOver && !isAtLimit ? styles.dropzoneDragging : ''} ${error || isOverLimit ? styles.dropzoneError : ''} ${isAtLimit ? styles.dropzoneDisabled : ''}`}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         data-testid="file-upload-dropzone"
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept={accept}
-          onChange={handleFileInputChange}
-          className={styles.fileInputHidden}
-          id="file-upload-input"
-          data-testid="file-upload-input"
-        />
-        <label htmlFor="file-upload-input" className={styles.dropzoneContent}>
-          <span className={styles.dropzoneIcon}>📎</span>
-          <span className={styles.dropzoneText}>{displayDropzoneText}</span>
-          <span className={styles.dropzoneHint}>{displayDropzoneHint}</span>
-        </label>
+        {/* Only show file input when not at limit */}
+        {!isAtLimit && (
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept={accept}
+            onChange={handleFileInputChange}
+            className={styles.fileInputHidden}
+            id="file-upload-input"
+            data-testid="file-upload-input"
+          />
+        )}
+
+        {/* Clickable label when not at limit, non-clickable span when at limit */}
+        {isAtLimit ? (
+          <div className={styles.dropzoneContent}>
+            <span className={styles.dropzoneIconDisabled}>🚫</span>
+            <span className={styles.dropzoneText}>{t('components.fileUpload.limitReached')}</span>
+            <span className={styles.dropzoneHint}>{t('components.fileUpload.removeToAdd')}</span>
+          </div>
+        ) : (
+          <label htmlFor="file-upload-input" className={styles.dropzoneContent}>
+            <span className={styles.dropzoneIcon}>📎</span>
+            <span className={styles.dropzoneText}>{displayDropzoneText}</span>
+            <span className={styles.dropzoneHint}>{displayDropzoneHint}</span>
+          </label>
+        )}
       </div>
 
       {/* Hint */}
@@ -282,8 +385,24 @@ export function FileUpload({
         </div>
       )}
 
-      {/* Error */}
+      {/* Error (from size validation) */}
       {error && <span className={styles.error}>{error}</span>}
+
+      {/* Warning when too many files (from drag&drop/click) - blocks form submission */}
+      {/* Always rendered with reserved space to prevent modal height jumping */}
+      <span
+        className={`${styles.warning} ${!isOverLimit ? styles.warningHidden : ''}`}
+        data-testid="file-upload-warning"
+      >
+        ⚠️ {t('components.fileUpload.errors.maxFiles', { max: maxFiles })} - {t('components.fileUpload.removeToSubmit')}
+      </span>
+
+      {/* Info message for paste limit (doesn't block form submission) */}
+      {pasteInfoMessage && !isOverLimit && (
+        <span className={styles.info} data-testid="file-upload-info">
+          ℹ️ {pasteInfoMessage}
+        </span>
+      )}
 
       {/* File List */}
       {value.length > 0 && (

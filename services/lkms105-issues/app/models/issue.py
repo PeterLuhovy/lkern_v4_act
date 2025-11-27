@@ -236,15 +236,18 @@ class Issue(Base):
     )
 
     # ============================================================
-    # DELETION AUDIT
+    # DELETION AUDIT (Delete Pending Marker)
     # ============================================================
+    # When this field is set, the item is marked for deletion.
+    # Cleanup service will retry deleting files from MinIO.
+    # Frontend shows warning icon (🔴) for items with deletion_audit_id.
 
     deletion_audit_id = Column(
         Integer,
         ForeignKey("deletion_audit.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="Link to deletion_audit record if hard delete failed (partial status)"
+        comment="Link to deletion_audit - when set, item is pending cleanup (MinIO files not yet deleted)"
     )
 
     def __repr__(self):

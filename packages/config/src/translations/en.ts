@@ -171,6 +171,8 @@ export const en: TranslationKeys = {
       failedFiles: 'Failed Files',
       viewAuditLog: 'View Audit Log',
       deletionFailed: 'Deletion Failed',
+      deletionPending: 'Pending deletion (storage unavailable)',
+      softDeleted: 'Deleted item',
       statusValues: {
         pending: 'Pending',
         completed: 'Completed',
@@ -511,6 +513,9 @@ export const en: TranslationKeys = {
       dropzoneHint: 'You can upload up to {{max}} files (or paste image via Ctrl+V)',
       fileHint: 'Maximum file size: {{max}}MB. Supported types: images, PDF, log, txt',
       removeFile: 'Remove file',
+      removeToSubmit: 'Remove files to submit the form',
+      limitReached: 'Maximum number of attachments reached',
+      removeToAdd: 'Remove an attachment to add another',
       errors: {
         maxFiles: 'Maximum files allowed: {{max}}',
         maxSize: 'Each file must be less than {{max}}MB',

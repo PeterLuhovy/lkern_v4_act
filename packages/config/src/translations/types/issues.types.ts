@@ -98,6 +98,8 @@ export interface IssuesPageTranslations {
     failedFiles: string;
     viewAuditLog: string;
     deletionFailed: string;
+    deletionPending: string;
+    softDeleted: string;
     statusValues: {
       pending: string;
       completed: string;

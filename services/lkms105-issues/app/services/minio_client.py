@@ -15,17 +15,24 @@ from minio.error import S3Error
 from io import BytesIO
 import logging
 from typing import Optional
+from urllib3.exceptions import MaxRetryError, NewConnectionError
+import socket
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 
+class MinIOConnectionError(Exception):
+    """Raised when MinIO server is not reachable."""
+    pass
+
+
 class MinIOClient:
     """MinIO client wrapper for file operations."""
 
     def __init__(self):
-        """Initialize MinIO client and ensure bucket exists."""
+        """Initialize MinIO client (lazy bucket creation)."""
         self.client = Minio(
             f"{settings.MINIO_HOST}:{settings.MINIO_PORT}",
             access_key=settings.MINIO_ACCESS_KEY,
@@ -33,9 +40,35 @@ class MinIOClient:
             secure=settings.MINIO_SECURE
         )
         self.bucket = settings.MINIO_BUCKET
+        self._bucket_checked = False
 
-        # Create bucket if doesn't exist
-        self._ensure_bucket()
+        # Try to ensure bucket exists, but don't fail startup if MinIO is down
+        try:
+            self._ensure_bucket()
+            self._bucket_checked = True
+        except MinIOConnectionError:
+            logger.warning("MinIO not available at startup - will retry on first operation")
+        except Exception as e:
+            logger.warning(f"Could not verify MinIO bucket at startup: {e}")
+
+    def _handle_connection_error(self, e: Exception, operation: str) -> None:
+        """Handle MinIO connection errors with clear logging."""
+        error_msg = f"MinIO unavailable during {operation}: {str(e)}"
+        logger.error(error_msg)
+        raise MinIOConnectionError(error_msg) from e
+
+    def _is_connection_error(self, e: Exception) -> bool:
+        """Check if exception is a connection error."""
+        return isinstance(e, (
+            MaxRetryError,
+            NewConnectionError,
+            socket.gaierror,
+            ConnectionRefusedError,
+            TimeoutError,
+            OSError
+        )) or (
+            hasattr(e, '__cause__') and self._is_connection_error(e.__cause__)
+        )
 
     def _ensure_bucket(self):
         """Create bucket if it doesn't exist."""
@@ -47,6 +80,10 @@ class MinIOClient:
                 logger.info(f"MinIO bucket exists: {self.bucket}")
         except S3Error as e:
             logger.error(f"Error ensuring bucket: {e}")
+            raise
+        except Exception as e:
+            if self._is_connection_error(e):
+                self._handle_connection_error(e, "bucket check")
             raise
 
     def upload_file(
@@ -111,6 +148,9 @@ class MinIOClient:
 
         Returns:
             True if deleted, False otherwise
+
+        Raises:
+            MinIOConnectionError: When MinIO server is not reachable
         """
         try:
             self.client.remove_object(self.bucket, object_name)
@@ -119,6 +159,10 @@ class MinIOClient:
         except S3Error as e:
             logger.error(f"Error deleting file {object_name}: {e}")
             return False
+        except Exception as e:
+            if self._is_connection_error(e):
+                self._handle_connection_error(e, f"delete file {object_name}")
+            raise
 
     def delete_folder(self, prefix: str) -> int:
         """
@@ -159,6 +203,9 @@ class MinIOClient:
 
         Returns:
             List of object names
+
+        Raises:
+            MinIOConnectionError: When MinIO server is not reachable
         """
         try:
             objects = self.client.list_objects(self.bucket, prefix=prefix)
@@ -168,6 +215,25 @@ class MinIOClient:
         except S3Error as e:
             logger.error(f"Error listing files: {e}")
             return []
+        except Exception as e:
+            if self._is_connection_error(e):
+                self._handle_connection_error(e, f"list files with prefix {prefix}")
+            raise
+
+    def check_health(self) -> bool:
+        """
+        Check if MinIO is available.
+
+        Returns:
+            True if MinIO is reachable and bucket accessible, False otherwise
+        """
+        try:
+            # Simple bucket_exists check - fast and reliable
+            self.client.bucket_exists(self.bucket)
+            return True
+        except Exception as e:
+            logger.warning(f"MinIO health check failed: {e}")
+            return False
 
 
 # Global MinIO client instance

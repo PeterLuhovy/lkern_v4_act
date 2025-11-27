@@ -10,7 +10,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useTranslation, useFormDirty, useConfirm } from '@l-kern/config';
+import { useTranslation, useFormDirty, useConfirm, useToast } from '@l-kern/config';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { Input } from '../Input';
@@ -51,6 +51,12 @@ interface CreateIssueModalProps {
    * When provided, overrides selectedRole state and hides tabs
    */
   userRole?: UserRole;
+  /**
+   * Loading state for submit button (shown while creating issue)
+   * When true, submit button shows spinner and is disabled
+   * @default false
+   */
+  isLoading?: boolean;
 }
 
 interface SystemInfo {
@@ -79,11 +85,14 @@ interface IssueFormData {
   system_info?: SystemInfo;
 }
 
-export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-issue-modal', showClearButton = true, initialData, showRoleTabs = true, userRole }: CreateIssueModalProps) {
+export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-issue-modal', showClearButton = true, initialData, showRoleTabs = true, userRole, isLoading = false }: CreateIssueModalProps) {
   const { t } = useTranslation();
 
   // Unsaved changes confirmation for Cancel button
   const unsavedConfirm = useConfirm();
+
+  // Toast notifications
+  const toast = useToast();
 
   // Role selection state (tabs)
   const [selectedRole, setSelectedRole] = useState<UserRole>('user_basic');
@@ -119,6 +128,9 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
   // Clear form confirmation modal state
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
+  // File limit exceeded state (for disabling submit when too many files via drag&drop)
+  const [fileLimitExceeded, setFileLimitExceeded] = useState(false);
+
   // Dirty tracking - compare current vs initial (including initialData props)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { isDirty } = useFormDirty(initialFormState as any, formData as any);
@@ -137,6 +149,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
   };
 
   // Reset form when modal opens, merge with initialData if provided
+  // NOTE: t is intentionally NOT in deps - we don't want to reset form on language change
   useEffect(() => {
     if (isOpen) {
       const mergedData = {
@@ -145,6 +158,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
       };
       setFormData(mergedData);
       setInitialFormState(mergedData); // Track for dirty comparison
+      setFileLimitExceeded(false); // Reset file limit state
 
       // Initial validation - mark required fields as invalid immediately
       const initialErrors: Record<string, string> = {};
@@ -158,7 +172,8 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
 
       setErrors(initialErrors);
     }
-  }, [isOpen, initialData, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialData]);
 
   // Validate form
   const validateForm = (): boolean => {
@@ -181,10 +196,10 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
 
   // Handle submit
   const handleSubmit = () => {
-    if (!validateForm()) return;
+    if (!validateForm() || isLoading) return;
 
     onSubmit(formData);
-    onClose(); // Just close, no reset (reset happens on next open via useEffect)
+    // NOTE: Don't call onClose() here - parent controls closing after async operation completes
   };
 
   // Handle cancel button click - same behavior as X and ESC (confirm if dirty)
@@ -208,7 +223,9 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
   // Handle clear form confirmation
   const handleClearConfirm = () => {
     setFormData(baseFormData);
+    setInitialFormState(baseFormData); // Reset initial state so form is "clean" after clearing
     setErrors({});
+    setFileLimitExceeded(false); // Reset file limit state
     setShowClearConfirm(false);
   };
 
@@ -217,8 +234,11 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
     setShowClearConfirm(false);
   };
 
-  // Check if there are any validation errors
-  const hasValidationErrors = Object.keys(errors).length > 0;
+  // Check if there are any validation errors (excluding attachments - handled by fileLimitExceeded)
+  const hasValidationErrors = Object.keys(errors).filter(key => key !== 'attachments').length > 0;
+
+  // Submit is disabled if validation errors OR file limit exceeded OR loading
+  const isSubmitDisabled = hasValidationErrors || fileLimitExceeded || isLoading;
 
   // Role-based title with issue type
   const getModalTitle = () => {
@@ -243,6 +263,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
       <Button
         variant="danger-subtle"
         onClick={handleClearClick}
+        disabled={isLoading}
         data-testid="create-issue-modal-clear"
       >
         {t('components.modalV3.sectionEditModal.clearButton')}
@@ -255,6 +276,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
         <Button
           variant="ghost"
           onClick={handleCancel}
+          disabled={isLoading}
           data-testid="create-issue-modal-cancel"
         >
           {t('common.cancel')}
@@ -262,7 +284,8 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
         <Button
           variant="primary"
           onClick={handleSubmit}
-          disabled={hasValidationErrors}
+          disabled={isSubmitDisabled}
+          loading={isLoading}
           data-testid="create-issue-modal-submit"
         >
           {t('issues.form.submit')}
@@ -508,7 +531,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
                       name="error_message"
                       id="error_message"
                       placeholder="Paste error message or stack trace here..."
-                      rows={6}
+                      rows={5}
                     />
                   </FormField>
                 </div>
@@ -569,6 +592,10 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
             error={errors.attachments}
             onError={(error) => {
               setErrors((prev) => ({ ...prev, attachments: error }));
+            }}
+            onFileLimitExceeded={(exceeded) => setFileLimitExceeded(exceeded)}
+            onPasteLimitReached={() => {
+              toast.info(t('components.fileUpload.errors.maxFiles', { max: 5 }));
             }}
           />
         </div>

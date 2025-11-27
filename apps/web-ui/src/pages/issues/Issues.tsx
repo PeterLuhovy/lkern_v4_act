@@ -128,6 +128,21 @@ export function Issues() {
   const [bulkDeleteType, setBulkDeleteType] = useState<'soft' | 'hard' | 'mixed' | null>(null);
   const [bulkDeleteCounts, setBulkDeleteCounts] = useState({ active: 0, deleted: 0 });
 
+  // MinIO unavailable modal state (for delete)
+  const [minioUnavailableIssue, setMinioUnavailableIssue] = useState<Issue | null>(null);
+
+  // MinIO unavailable during create - ask to create without files
+  const [minioCreateError, setMinioCreateError] = useState<{
+    formData: any;
+    filesCount: number;
+  } | null>(null);
+
+  // Generic create error
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  // Loading state for create operation
+  const [isCreating, setIsCreating] = useState(false);
+
   // ============================================================
   // FETCH ISSUES FROM API
   // ============================================================
@@ -283,9 +298,13 @@ export function Issues() {
       width: 150,
       render: (value: string, row: Issue) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {row.deleted_at !== null && <span style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title="Deleted issue">⚠️</span>}
+          {/* Delete pending (waiting for cleanup) = ⚠️⚠️ (two warnings) */}
           {row.deletion_audit_id && (
-            <span style={{ color: "var(--color-status-error, #f44336)", fontSize: "1.1em" }} title={t("issues.deletionAudit.deletionFailed")}>🔴</span>
+            <span style={{ color: 'var(--color-status-error, #f44336)', fontSize: '1.1em' }} title={t('issues.deletionAudit.deletionPending')}>⚠️⚠️</span>
+          )}
+          {/* Soft deleted (but not pending) = ⚠️ (one warning) */}
+          {row.deleted_at !== null && !row.deletion_audit_id && (
+            <span style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title={t('issues.deletionAudit.softDeleted')}>⚠️</span>
           )}
           <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{value}</span>
         </span>
@@ -346,7 +365,7 @@ export function Issues() {
         // TODO: Open edit modal
       },
       variant: 'primary' as const,
-      disabled: () => !canEdit, // Disabled if no permission
+      disabled: (item: Issue) => !canEdit || !!item.deletion_audit_id, // Disabled if no permission or pending deletion
       hidden: (item: Issue) => item.deleted_at !== null, // Hidden for soft-deleted items
     },
     {
@@ -356,7 +375,7 @@ export function Issues() {
         setIssueToDelete(item);
       },
       variant: 'danger' as const,
-      disabled: () => !canDelete, // Disabled if no permission
+      disabled: (item: Issue) => !canDelete || !!item.deletion_audit_id, // Disabled if no permission or pending deletion
       hidden: (item: Issue) => item.deleted_at !== null, // Hidden for soft-deleted items
     },
     {
@@ -366,7 +385,7 @@ export function Issues() {
         setIssueToRestore(item);
       },
       variant: 'primary' as const,
-      disabled: () => !canDelete, // Disabled if no permission
+      disabled: (item: Issue) => !canDelete || !!item.deletion_audit_id, // Disabled if no permission or pending deletion
       hidden: (item: Issue) => item.deleted_at === null, // Hidden for active items (only show for soft-deleted)
     },
     {
@@ -376,7 +395,7 @@ export function Issues() {
         setIssueToPermanentlyDelete(item);
       },
       variant: 'danger' as const,
-      disabled: () => !canDelete, // Disabled if no permission
+      disabled: (item: Issue) => !canDelete || !!item.deletion_audit_id, // Disabled if no permission or pending deletion
       hidden: (item: Issue) => item.deleted_at === null, // Hidden for active items (only show for soft-deleted)
     },
     {
@@ -703,7 +722,11 @@ export function Issues() {
     setIsCreateModalOpen(true);
   };
 
-  const handleCreateIssue = async (formData: any) => {
+  const handleCreateIssue = async (formData: any, skipFiles = false) => {
+    // Clear any previous errors
+    setCreateError(null);
+    setIsCreating(true);
+
     try {
       // Determine role based on permission level
       const role = getBackendRole(permissionLevel);
@@ -730,12 +753,15 @@ export function Issues() {
       // Add role
       formDataToSend.append('role', role);
 
-      // Add files if present (formData.attachments is array of File objects)
-      if (formData.attachments && Array.isArray(formData.attachments)) {
+      // Add files if present AND not skipping files
+      const hasFiles = formData.attachments && Array.isArray(formData.attachments) && formData.attachments.length > 0;
+      if (hasFiles && !skipFiles) {
         formData.attachments.forEach((file: File) => {
           formDataToSend.append('files', file);
         });
         console.log(`[Issues] Adding ${formData.attachments.length} files to upload`);
+      } else if (skipFiles && hasFiles) {
+        console.log(`[Issues] Skipping ${formData.attachments.length} files (user chose to create without)`);
       }
 
       const response = await fetch(`${API_BASE_URL}/issues/`, {
@@ -745,25 +771,78 @@ export function Issues() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Issues] API error:', errorText);
-        throw new Error(`Failed to create issue: ${response.status} ${response.statusText}`);
+        // Try to parse error response
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { message: response.statusText };
+        }
+
+        // Check for MinIO unavailable (503)
+        if (response.status === 503 && errorData.detail?.error === 'minio_unavailable') {
+          console.log('[Issues] ⚠️ MinIO unavailable - offering to create without files');
+          // Store form data for retry without files
+          setMinioCreateError({
+            formData: formData,
+            filesCount: errorData.detail?.files_count || formData.attachments?.length || 0,
+          });
+          // Don't close modal, don't show generic error
+          return;
+        }
+
+        // Check for service unavailable (network error, service down)
+        if (response.status === 0 || response.status >= 500) {
+          const errorMsg = t('pages.issues.createError.serviceUnavailable');
+          setCreateError(errorMsg);
+          toast.error(errorMsg);
+          return;
+        }
+
+        // Other errors (validation, etc.)
+        const errorMsg = errorData.detail?.message || errorData.detail || t('pages.issues.createError.generic');
+        setCreateError(errorMsg);
+        toast.error(errorMsg);
+        return;
       }
 
       const createdIssue = await response.json();
       console.log('[Issues] ✅ Issue created:', createdIssue.issue_code);
 
-      // Close modal
+      // Clear any error states
+      setMinioCreateError(null);
+      setCreateError(null);
+
+      // Close modal ONLY on success
       setIsCreateModalOpen(false);
 
       // Refresh issues list
       await fetchIssues();
 
-      // TODO: Show toast notification
+      // Show success toast
+      toast.success(t('pages.issues.createSuccess', { code: createdIssue.issue_code }));
     } catch (err) {
       console.error('[Issues] Error creating issue:', err);
-      // TODO: Show error toast notification
+      // Network error or other unexpected error
+      const errorMsg = err instanceof Error ? err.message : t('pages.issues.createError.generic');
+      setCreateError(errorMsg);
+      toast.error(errorMsg);
+      // Modal stays open so user doesn't lose data
+    } finally {
+      setIsCreating(false);
     }
+  };
+
+  // Handler for "Create without files" option
+  const handleCreateWithoutFiles = async () => {
+    if (!minioCreateError) return;
+
+    // Close the error dialog
+    const savedFormData = minioCreateError.formData;
+    setMinioCreateError(null);
+
+    // Retry without files
+    await handleCreateIssue(savedFormData, true);
   };
 
   const handleBulkExport = () => {
@@ -889,7 +968,27 @@ export function Issues() {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to permanently delete issue: ${response.statusText}`);
+        // Check for MinIO unavailable (503)
+        if (response.status === 503) {
+          console.log('[Issues] ⚠️ MinIO unavailable - showing special modal (no changes made yet)');
+          // Close the permanent delete modal and show MinIO unavailable modal
+          // NOTE: Backend did NOT mark the issue yet - user can cancel safely
+          const issueToHandle = issueToPermanentlyDelete;
+          setIssueToPermanentlyDelete(null);
+          setMinioUnavailableIssue(issueToHandle);
+          // DON'T refresh - nothing has changed yet
+          return;
+        }
+
+        // Try to get detailed error message from response body
+        let errorDetail = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.detail || errorDetail;
+        } catch {
+          // JSON parse failed, use statusText
+        }
+        throw new Error(errorDetail);
       }
 
       console.log(`[Issues] ✅ Issue ${issueToPermanentlyDelete.issue_code} permanently deleted`);
@@ -911,6 +1010,49 @@ export function Issues() {
       // Show error toast with details
       const errorMessage = err instanceof Error ? err.message : String(err);
       toast.error(t('pages.issues.permanentDeleteError', { code: issueToPermanentlyDelete.issue_code, error: errorMessage }));
+    }
+  };
+
+  // Handler for "Mark for deletion anyway" when MinIO is unavailable
+  const handleForceMarkForDeletion = async () => {
+    if (!minioUnavailableIssue) return;
+
+    try {
+      // Call with force=true to mark for eventual deletion
+      const response = await fetch(`${API_BASE_URL}/issues/${minioUnavailableIssue.id}/permanent?force=true`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        let errorDetail = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.detail || errorDetail;
+        } catch {
+          // JSON parse failed
+        }
+        throw new Error(errorDetail);
+      }
+
+      console.log(`[Issues] ✅ Issue ${minioUnavailableIssue.issue_code} marked for deletion (force mode)`);
+
+      // Close modal
+      setMinioUnavailableIssue(null);
+
+      // Refresh to show updated status (item now has deletion_audit_id)
+      await fetchIssues();
+
+      // Show info toast
+      toast.success(t('pages.issues.minioUnavailable.markedForDeletion', { code: minioUnavailableIssue.issue_code }));
+    } catch (err) {
+      console.error('[Issues] ✗ Error marking issue for deletion:', err);
+
+      // Close modal
+      setMinioUnavailableIssue(null);
+
+      // Show error toast
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(t('pages.issues.permanentDeleteError', { code: minioUnavailableIssue.issue_code, error: errorMessage }));
     }
   };
 
@@ -1001,6 +1143,7 @@ export function Issues() {
           enableSelection
           selectedRows={selectedRows}
           onSelectionChange={setSelectedRows}
+          isRowSelectable={(row: Issue) => !row.deletion_audit_id} // Disable selection for pending deletion items
           // Expandable Rows
           expandable
           expandedRows={expandedRows}
@@ -1079,6 +1222,7 @@ export function Issues() {
           showRoleTabs={false}
           userRole={getBackendRole(permissionLevel)}
           modalId="create-issue-modal"
+          isLoading={isCreating}
         />
 
         {/* Delete Confirmation Modal */}
@@ -1167,6 +1311,46 @@ export function Issues() {
           onClose={() => setAuditModalOpen(false)}
           issueId={selectedAuditIssueId || ''}
         />
+
+        {/* MinIO Unavailable Modal (for permanent delete) */}
+        {minioUnavailableIssue && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setMinioUnavailableIssue(null)}
+            onConfirm={handleForceMarkForDeletion}
+            title={t('pages.issues.minioUnavailable.title')}
+            message={t('pages.issues.minioUnavailable.message', { code: minioUnavailableIssue.issue_code })}
+            confirmButtonLabel={t('pages.issues.minioUnavailable.markForDeletion')}
+            cancelButtonLabel={t('common.cancel')}
+          />
+        )}
+
+        {/* MinIO Unavailable during Create - offer to create without files */}
+        {minioCreateError && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setMinioCreateError(null)}
+            onConfirm={handleCreateWithoutFiles}
+            title={t('pages.issues.minioCreateError.title')}
+            message={t('pages.issues.minioCreateError.message', { count: minioCreateError.filesCount })}
+            confirmButtonLabel={t('pages.issues.minioCreateError.createWithoutFiles')}
+            cancelButtonLabel={t('pages.issues.minioCreateError.cancel')}
+          />
+        )}
+
+        {/* Generic Create Error Modal */}
+        {createError && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setCreateError(null)}
+            onConfirm={() => setCreateError(null)}
+            title={t('pages.issues.createError.title')}
+            message={createError}
+            confirmButtonLabel={t('common.ok')}
+            cancelButtonLabel=""
+            isDanger={true}
+          />
+        )}
       </div>
     </BasePage>
   );

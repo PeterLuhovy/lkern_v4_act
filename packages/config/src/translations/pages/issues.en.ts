@@ -118,4 +118,21 @@ export const issuesPageEn = {
     hardMessage: 'PERMANENTLY delete {count} items? This action CANNOT be undone! Type "yes" to confirm.',
     mixedMessage: 'Soft delete {softCount} active + Hard delete {hardCount} deleted items? Type "yes" to confirm.',
   },
+  minioUnavailable: {
+    title: '⚠️ Storage Unavailable',
+    message: 'File storage (MinIO) is currently unavailable. Issue {code} has been marked for deletion. A cleanup service will attempt to delete the files later when storage becomes available.',
+    okButton: 'I Understand',
+  },
+  minioCreateError: {
+    title: '⚠️ File Storage Unavailable',
+    message: 'File storage (MinIO) is currently unavailable. Cannot upload {count} files. Would you like to create the issue WITHOUT attachments? Save the files to disk and add them later.',
+    createWithoutFiles: 'Create without attachments',
+    cancel: 'Cancel',
+  },
+  createError: {
+    title: '❌ Creation Error',
+    serviceUnavailable: 'Service is currently unavailable. Please try again later.',
+    generic: 'An unexpected error occurred while creating the issue.',
+  },
+  createSuccess: 'Issue {code} has been successfully created',
 };
