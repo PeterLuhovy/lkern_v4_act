@@ -209,7 +209,7 @@ export function EditIssueModal({ isOpen, onClose, onSubmit, issueCode, initialDa
 
         {/* Form Actions */}
         <div className={styles.formActions}>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>

@@ -5,8 +5,8 @@
  * FILE: generate-page.js
  * PATH: /scripts/page-generator/generate-page.js
  * DESCRIPTION: Generator for DataGrid pages from template
- * VERSION: v1.0.1
- * UPDATED: 2025-11-08
+ * VERSION: v1.1.0
+ * UPDATED: 2025-11-27
  *
  * USAGE:
  * node scripts/page-generator/generate-page.js configs/config.json
@@ -457,6 +457,73 @@ export interface ${pascalEntity}PageTranslations ${objectToInterface(skTranslati
 }
 
 /**
+ * Standard MinIO/bulkDelete translations (auto-included in all pages)
+ */
+const STANDARD_TRANSLATIONS = {
+  sk: {
+    permanentDeleteError: 'Chyba pri trvalom vymazaní položky {name}: {error}',
+    restoreConfirm: 'Naozaj chcete obnoviť položku {name}?',
+    restoreSuccess: 'Položka {name} bola úspešne obnovená',
+    permanentDeleteConfirm: 'Naozaj chcete TRVALO vymazať položku {name}? Táto akcia je NEVRATNÁ!',
+    permanentDeleteSuccess: 'Položka {name} bola trvalo vymazaná',
+    bulkDelete: {
+      title: 'Vymazať položky',
+      titlePermanent: 'NATRVALO vymazať',
+      titleMixed: 'Vymazať položky',
+      softMessage: 'Naozaj chcete vymazať {count} položiek? Položky budú označené ako vymazané.',
+      hardMessage: 'NATRVALO vymazať {count} položiek? Túto akciu NEMOŽNO vrátiť späť! Napíšte "ano" pre potvrdenie.',
+      mixedMessage: 'Soft delete {softCount} aktívnych + Hard delete {hardCount} vymazaných položiek? Napíšte "ano" pre potvrdenie.',
+      minioMessage: 'Súborové úložisko (MinIO) je nedostupné. {count} položiek sa nedá trvalo vymazať. Chcete ich označiť na neskoršie zmazanie?',
+    },
+    minioUnavailable: {
+      title: '⚠️ Úložisko nedostupné',
+      message: 'Súborové úložisko (MinIO) je momentálne nedostupné. Položka {code} sa nedá vymazať hneď. Chcete ju označiť na neskoršie zmazanie?',
+      markForDeletion: 'Označiť na zmazanie',
+      markedForDeletion: 'Položka {code} bola označená na neskoršie zmazanie',
+      retryDelete: 'Skúsiť znova',
+    },
+  },
+  en: {
+    permanentDeleteError: 'Error permanently deleting item {name}: {error}',
+    restoreConfirm: 'Are you sure you want to restore item {name}?',
+    restoreSuccess: 'Item {name} has been successfully restored',
+    permanentDeleteConfirm: 'Are you sure you want to PERMANENTLY delete item {name}? This action is IRREVERSIBLE!',
+    permanentDeleteSuccess: 'Item {name} has been permanently deleted',
+    bulkDelete: {
+      title: 'Delete Items',
+      titlePermanent: 'PERMANENTLY Delete',
+      titleMixed: 'Delete Items',
+      softMessage: 'Are you sure you want to delete {count} items? Items will be marked as deleted.',
+      hardMessage: 'PERMANENTLY delete {count} items? This action CANNOT be undone! Type "yes" to confirm.',
+      mixedMessage: 'Soft delete {softCount} active + Hard delete {hardCount} deleted items? Type "yes" to confirm.',
+      minioMessage: 'File storage (MinIO) is unavailable. {count} items cannot be permanently deleted. Do you want to mark them for later deletion?',
+    },
+    minioUnavailable: {
+      title: '⚠️ Storage Unavailable',
+      message: 'File storage (MinIO) is currently unavailable. Item {code} cannot be deleted immediately. Do you want to mark it for later deletion?',
+      markForDeletion: 'Mark for deletion',
+      markedForDeletion: 'Item {code} has been marked for later deletion',
+      retryDelete: 'Retry',
+    },
+  },
+};
+
+/**
+ * Deep merge two objects
+ */
+function deepMerge(target, source) {
+  const result = { ...target };
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      result[key] = deepMerge(result[key] || {}, source[key]);
+    } else {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
+/**
  * Generate translation files (SK, EN, Types)
  */
 function generateTranslationFiles(config, entityName, entityLower) {
@@ -470,12 +537,16 @@ function generateTranslationFiles(config, entityName, entityLower) {
 
   console.log('\n📝 Generating translation files...\n');
 
+  // Merge standard translations with config translations
+  const mergedSk = deepMerge(STANDARD_TRANSLATIONS.sk, config.translations.sk);
+  const mergedEn = deepMerge(STANDARD_TRANSLATIONS.en, config.translations.en);
+
   // Generate SK translation file
   const skContent = generateTranslationFile(
     entityName,
     entityLower,
     'sk',
-    config.translations.sk
+    mergedSk
   );
   writeFile(
     path.join(TRANSLATIONS_PAGES_DIR, `${entityLower}.ts`),
@@ -487,7 +558,7 @@ function generateTranslationFiles(config, entityName, entityLower) {
     entityName,
     entityLower,
     'en',
-    config.translations.en
+    mergedEn
   );
   writeFile(
     path.join(TRANSLATIONS_PAGES_DIR, `${entityLower}.en.ts`),
@@ -498,7 +569,7 @@ function generateTranslationFiles(config, entityName, entityLower) {
   const typeContent = generateTypeDefinition(
     entityName,
     entityLower,
-    config.translations.sk
+    mergedSk
   );
   writeFile(
     path.join(TRANSLATIONS_TYPES_DIR, `${entityLower}.types.ts`),

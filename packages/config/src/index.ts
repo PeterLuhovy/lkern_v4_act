@@ -37,6 +37,9 @@ export * from './hooks/useToast/useToast';
 export * from './hooks/useFormDirty/useFormDirty';
 export * from './hooks/useConfirm/useConfirm';
 export * from './hooks/useAuth/useAuth';
+export * from './hooks/useServiceFetch';
+export * from './hooks/useFieldPermission';
+export * from './hooks/useEntityLookup';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers
@@ -44,6 +47,8 @@ export * from './contexts/ModalContext/ModalContext';
 export * from './contexts/ToastContext/ToastContext';
 export * from './contexts/AuthContext/AuthContext';
 export type { Permissions } from './contexts/AuthContext/AuthContext';
+export * from './contexts/AnalyticsContext/AnalyticsContext';
+export type { AnalyticsSettings } from './contexts/AnalyticsContext/AnalyticsContext';
 
 // === TYPES EXPORTS ===
 // Export all TypeScript types

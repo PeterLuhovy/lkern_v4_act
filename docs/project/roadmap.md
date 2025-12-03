@@ -2,14 +2,36 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 8.6.0
+# Version: 8.9.0
 # Created: 2025-10-13
-# Updated: 2025-11-27
+# Updated: 2025-11-29
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 8.5.0
+# Previous Version: 8.8.0
+#
+# Key Changes from v8.8.0:
+# - ✨ useEntityLookup hook IMPLEMENTED - universal entity fetch with health check workflow
+# - 🔗 Contacts Service integration PREPARED for Issues (mock API, ready for real service)
+# - 🎯 People section now shows contact name + position (with loading/error states)
+# - 🪝 Hook features: health check, caching (TTL), retry logic, batch support
+# - 📁 Files: hooks/useEntityLookup, services/contactsService.ts, IssueViewModal.tsx
+# - 🚀 Pattern ready for: MinIO export, any external service integration
+#
+# Key Changes from v8.7.0:
+# - ✨ Field-Level Permissions IMPLEMENTED for Issues Service
+# - 🔐 Frontend: useFieldPermission hook, disabled/blurred fields based on user level
+# - 🔐 Backend: PUT endpoint validates per-field permissions (403 if forbidden)
+# - 📊 Permission matrix: viewLevel + editLevel per field (0-100 numeric levels)
+# - 🎯 Files: permissions/types.ts, issueFieldPermissions.ts, fieldPermissions.ts
+# - 🪝 New hook: useIssueFieldPermissions (batch permission check for UI)
+#
+# Key Changes from v8.6.0:
+# - ✨ Task 1.60.4 Manager Issue Dashboard ADDED (Phase 1, 15-20h)
+# - 📊 Kanban board view, bulk operations, team management, statistics
+# - 🔐 Manager-only access (permission level ≥50)
+# - 🎯 Separate route: /dashboard/issues (distinct from user /issues page)
 #
 # Key Changes from v8.5.0:
 # - ✨ Task 1.90.3 Deletion Cleanup Service ADDED (Phase 1, 3-4h, cron job)
@@ -918,6 +940,34 @@ start-service.bat
   - 5 integration tests (API calls, role-based rendering)
   - **Total: 20 frontend tests**
 
+#### **1.60.4 Manager Issue Dashboard** ⏸️ PLANNED
+**Estimated:** 15-20h (4-5 days)
+
+**Separate dashboard for managers to manage all issues across the organization**
+
+- ⏸️ **Route:** `/dashboard/issues` (separate from user `/issues` page)
+- ⏸️ **Kanban Board View:**
+  - Columns: Open → Assigned → In Progress → Resolved → Closed
+  - Drag & drop to change status
+  - Visual indicators (priority colors, severity badges)
+- ⏸️ **Bulk Operations:**
+  - Bulk assign to team member
+  - Bulk status change
+  - Bulk priority update
+- ⏸️ **Team Management:**
+  - Filter by assignee/team
+  - Workload distribution view
+  - Unassigned issues queue
+- ⏸️ **Statistics Panel:**
+  - Open/closed ratio
+  - Average resolution time
+  - Issues by type/severity charts
+  - Trend over time
+- ⏸️ **Permissions:**
+  - Only accessible to Manager+ roles (permission level ≥50)
+  - Edit all issues (not just own)
+  - Assign to any team member
+
 **Success Criteria:**
 - ✅ All tests passing (70 tests total)
 - ✅ REST API functional (10 endpoints including file upload)
@@ -939,6 +989,12 @@ start-service.bat
 **Database:** lkms101_contacts
 
 **📄 Implementation Plan:** [docs/temp/contacts-mdm-implementation-plan.md](../temp/contacts-mdm-implementation-plan.md) (3413 lines, fully validated)
+
+**🔗 Integration Prepared (v8.9.0):**
+- ✅ `useEntityLookup` hook - Universal service fetch with health check, caching, retry
+- ✅ Mock ContactsService API - Ready to replace with real API when service is built
+- ✅ Issues Service integration - People section shows contact name + position
+- ⏸️ Remaining: Build actual service, replace mock with real API endpoints
 
 **Master Data Management - Single Source of Truth for Contact Data**
 
@@ -1120,6 +1176,29 @@ start-service.bat
 - ✅ GDPR data ownership matrix respected (NO sensitive data in Contact MDM)
 - ✅ Multi-role support working (one contact can have multiple roles simultaneously)
 - ✅ Dynamic role types working (new roles can be added without schema changes)
+
+#### Integration Requirements (Cross-Service Dependencies):
+
+**🔗 Frontend Integration Hooks:**
+- ⏸️ **useGrpcService hook** - First gRPC hook for frontend (gRPC-web client)
+  - Required for: Contact lookup in Issues (assignee_id → contact info)
+  - Pattern: Health check → gRPC call → error handling (unavailable, notFound)
+  - Implementation: packages/config/src/hooks/useGrpcService/
+  - Note: useServiceFetch (REST version) already exists, gRPC version needed
+
+**🔗 Issues Service Integration:**
+- ⏸️ **Assignee Contact Lookup** - IssueViewModal needs contact info
+  - Field: `assignee_id` (UUID) → Contact name, work position, avatar
+  - Workflow: Check Contact Service health → Fetch contact → Handle errors
+  - Error states: Service unavailable (503), Contact not found (404/deleted)
+  - UI: Show assignee name + position, fallback to "Unknown" if service down
+
+**🔗 Universal Service Fetch Pattern:**
+Already implemented in `useServiceFetch` hook (packages/config/src/hooks/useServiceFetch/):
+- Health check before data fetch
+- Status states: idle, checking, unavailable, loading, success, notFound, error
+- Pre-defined service configs (SERVICES.contacts, SERVICES.issues, etc.)
+- TODO: Add gRPC version for services that prefer gRPC over REST
 
 ---
 

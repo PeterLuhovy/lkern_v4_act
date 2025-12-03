@@ -17,6 +17,28 @@
  */
 
 // ================================================================
+// HELPER FUNCTIONS
+// ================================================================
+
+/**
+ * Check if modal stack logging is enabled via analytics settings
+ * Reads directly from localStorage (same key as AnalyticsContext)
+ */
+function isLoggingEnabled(): boolean {
+  try {
+    const stored = localStorage.getItem('analytics-settings');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Default to true if not set
+      return parsed.logModalStack !== false;
+    }
+  } catch {
+    // Ignore errors, default to enabled
+  }
+  return true;
+}
+
+// ================================================================
 // INTERFACES
 // ================================================================
 
@@ -84,7 +106,9 @@ class ModalStackManager {
 
     this.stack.push({ id: modalId, parentId, onClose, onConfirm, zIndex });
 
-    console.log('[ModalStack] PUSH:', modalId, 'parent:', parentId, 'zIndex:', zIndex, 'hasConfirm:', !!onConfirm, 'stack:', this.stack.map(m => m.id));
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] PUSH:', modalId, 'parent:', parentId, 'zIndex:', zIndex, 'hasConfirm:', !!onConfirm, 'stack:', this.stack.map(m => m.id));
+    }
 
     return zIndex;
   }
@@ -106,12 +130,16 @@ class ModalStackManager {
    * ```
    */
   pop(modalId: string, closeChildren = false): boolean {
-    console.log('[ModalStack] POP called:', modalId, 'closeChildren:', closeChildren, 'stack before:', this.stack.map(m => m.id));
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] POP called:', modalId, 'closeChildren:', closeChildren, 'stack before:', this.stack.map(m => m.id));
+    }
 
     const index = this.stack.findIndex((item) => item.id === modalId);
     if (index === -1) {
       // Modal not in stack - already popped, ignore (prevents double-pop race condition)
-      console.log('[ModalStack] POP ignored - not in stack:', modalId);
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] POP ignored - not in stack:', modalId);
+      }
       return false;
     }
 
@@ -119,12 +147,16 @@ class ModalStackManager {
 
     // Remove this modal from stack
     this.stack = this.stack.filter((m) => m.id !== modalId);
-    console.log('[ModalStack] POP removed:', modalId, 'stack after:', this.stack.map(m => m.id));
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] POP removed:', modalId, 'stack after:', this.stack.map(m => m.id));
+    }
 
     // Close all child modals ONLY if explicitly requested (user close, not cleanup)
     if (closeChildren) {
       const childModals = this.stack.filter((m) => m.parentId === modalId);
-      console.log('[ModalStack] Closing children:', childModals.map(m => m.id));
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] Closing children:', childModals.map(m => m.id));
+      }
       childModals.forEach((child) => {
         if (child.onClose) {
           // Remove child from stack first
@@ -162,16 +194,22 @@ class ModalStackManager {
     const item = this.stack.find((m) => m.id === modalId);
 
     if (!item) {
-      console.log('[ModalStack] closeModal - modal not found:', modalId);
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] closeModal - modal not found:', modalId);
+      }
       return false;
     }
 
     if (!item.onClose) {
-      console.log('[ModalStack] closeModal - no onClose callback:', modalId);
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] closeModal - no onClose callback:', modalId);
+      }
       return false;
     }
 
-    console.log('[ModalStack] closeModal - calling onClose:', modalId);
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] closeModal - calling onClose:', modalId);
+    }
     item.onClose();
     return true;
   }
@@ -199,16 +237,22 @@ class ModalStackManager {
     const item = this.stack.find((m) => m.id === modalId);
 
     if (!item) {
-      console.log('[ModalStack] confirmModal - modal not found:', modalId);
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] confirmModal - modal not found:', modalId);
+      }
       return false;
     }
 
     if (!item.onConfirm) {
-      console.log('[ModalStack] confirmModal - no onConfirm callback:', modalId);
+      if (isLoggingEnabled()) {
+        console.log('[ModalStack] confirmModal - no onConfirm callback:', modalId);
+      }
       return false;
     }
 
-    console.log('[ModalStack] confirmModal - calling onConfirm:', modalId);
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] confirmModal - calling onConfirm:', modalId);
+    }
     item.onConfirm();
     return true;
   }
@@ -280,7 +324,9 @@ class ModalStackManager {
       if (item.onClose) item.onClose();
     });
 
-    console.log('[ModalStack] CLEAR - all modals closed');
+    if (isLoggingEnabled()) {
+      console.log('[ModalStack] CLEAR - all modals closed');
+    }
   }
 }
 

@@ -96,7 +96,23 @@ class IssueCreateUserAdvance(BaseModel):
 # ============================================================
 
 class IssueUpdate(BaseModel):
-    """Schema for updating existing Issue."""
+    """Schema for updating existing Issue.
+
+    NOTE: status field added for Admin-level direct editing (v1.1.0).
+    NOTE: issue_code added for Super Admin editing (v1.2.0).
+    Permission check in endpoint validates field access by permission level.
+
+    IMMUTABLE FIELDS (not in this schema):
+    - id: Primary key, NEVER editable (foreign key integrity)
+    """
+
+    # Business identifier (Super Admin only - level 100)
+    issue_code: Optional[str] = Field(
+        None,
+        min_length=5,
+        max_length=20,
+        description="User-visible code (e.g., BUG-2511-0042). Super Admin only!"
+    )
 
     title: Optional[str] = Field(
         None,
@@ -109,6 +125,7 @@ class IssueUpdate(BaseModel):
     )
     type: Optional[IssueType] = None
     severity: Optional[IssueSeverity] = None
+    status: Optional[IssueStatus] = None  # Admin-only via permission check
     category: Optional[IssueCategory] = None
     priority: Optional[IssuePriority] = None
 
@@ -118,6 +135,12 @@ class IssueUpdate(BaseModel):
 
     # System info
     system_info: Optional[Dict[str, Any]] = None
+
+    # People (assignee can be updated via PUT)
+    assignee_id: Optional[UUID4] = Field(
+        None,
+        description="UUID of assignee (from Contact service)"
+    )
 
 
 # ============================================================

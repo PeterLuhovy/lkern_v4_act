@@ -35,7 +35,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, useTheme, modalStack, usePageAnalytics, useConfirm } from '@l-kern/config';
+import { useTranslation, useTheme, modalStack, usePageAnalytics, useConfirm, useAnalyticsContext } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { ConfirmModal } from '../ConfirmModal';
 import styles from './Modal.module.css';
@@ -335,6 +335,18 @@ export const Modal: React.FC<ModalProps> = ({
   // Analytics for DebugBar (modal context)
   const analytics = usePageAnalytics(pageName || modalId, 'modal');
 
+  // Try to get showDebugBarModal from AnalyticsContext (sidebar toggle)
+  let contextShowDebugBarModal = true;
+  try {
+    const analyticsContext = useAnalyticsContext();
+    contextShowDebugBarModal = analyticsContext.settings.showDebugBarModal;
+  } catch {
+    // AnalyticsContext not available, use prop value
+  }
+
+  // Final effectiveShowDebugBar = prop AND context (both must be true)
+  const effectiveShowDebugBar = showDebugBar && contextShowDebugBarModal;
+
   // Check if dark mode is active
   const isDarkMode = theme === 'dark';
 
@@ -371,12 +383,12 @@ export const Modal: React.FC<ModalProps> = ({
   // ================================================================
 
   useEffect(() => {
-    if (isOpen && showDebugBar) {
+    if (isOpen && effectiveShowDebugBar) {
       analytics.startSession();
     }
 
     return () => {
-      if (showDebugBar) {
+      if (effectiveShowDebugBar) {
         // End session if still active
         if (analytics.isSessionActive) {
           analytics.endSession('dismissed');
@@ -389,14 +401,14 @@ export const Modal: React.FC<ModalProps> = ({
     };
     // analytics functions are stable (useCallback), safe to exclude from deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, showDebugBar, pageName, modalId]);
+  }, [isOpen, effectiveShowDebugBar, pageName, modalId]);
 
   // ================================================================
   // DEBUG BAR HEIGHT MEASUREMENT
   // ================================================================
 
   useEffect(() => {
-    if (isOpen && showDebugBar && debugBarRef.current) {
+    if (isOpen && effectiveShowDebugBar && debugBarRef.current) {
       // Measure debug bar height after render
       const measureHeight = () => {
         if (debugBarRef.current) {
@@ -417,7 +429,7 @@ export const Modal: React.FC<ModalProps> = ({
     } else {
       setDebugBarHeight(0);
     }
-  }, [isOpen, showDebugBar]);
+  }, [isOpen, effectiveShowDebugBar]);
 
   // ================================================================
   // MODAL STACK REGISTRATION
@@ -474,7 +486,7 @@ export const Modal: React.FC<ModalProps> = ({
       }
 
       // Track keyboard event in analytics (BOTH keydown and keyup for topmost modal)
-      if (showDebugBar) {
+      if (effectiveShowDebugBar) {
         analytics.trackKeyboard(e);
       }
 
@@ -737,7 +749,7 @@ export const Modal: React.FC<ModalProps> = ({
           e.stopPropagation();
 
           // Track mousedown inside modal
-          if (showDebugBar) {
+          if (effectiveShowDebugBar) {
             const target = e.target as HTMLElement;
             const elementType = target.tagName.toLowerCase();
 
@@ -764,7 +776,7 @@ export const Modal: React.FC<ModalProps> = ({
           const isFromHeader = target.closest(`.${styles.modalHeader}`) !== null;
 
           // Track mouseup inside modal (but NOT if from header - header already tracked it)
-          if (showDebugBar && !eventFromChildModal && !isFromHeader) {
+          if (effectiveShowDebugBar && !eventFromChildModal && !isFromHeader) {
             const elementType = target.tagName.toLowerCase();
 
             // Get meaningful element identifier (priority order)
@@ -786,13 +798,13 @@ export const Modal: React.FC<ModalProps> = ({
         }}
       >
         {/* Debug Bar - Top of modal */}
-        {showDebugBar && (
+        {effectiveShowDebugBar && (
           <DebugBar
             ref={debugBarRef}
             modalName={pageName || modalId}
             isDarkMode={isDarkMode}
             analytics={analytics}
-            show={showDebugBar}
+            show={effectiveShowDebugBar}
             contextType="modal"
           />
         )}
@@ -803,7 +815,7 @@ export const Modal: React.FC<ModalProps> = ({
             className={`${styles.modalHeader} ${headerClassName || ''}`}
             onMouseDown={(e) => {
               // Track mousedown on header (for drag analytics)
-              if (showDebugBar) {
+              if (effectiveShowDebugBar) {
                 const target = e.target as HTMLElement;
                 const elementType = target.tagName.toLowerCase();
                 const elementId =
@@ -821,7 +833,7 @@ export const Modal: React.FC<ModalProps> = ({
             }}
             onMouseUp={(e) => {
               // Track mouseup on header (for drag analytics)
-              if (showDebugBar) {
+              if (effectiveShowDebugBar) {
                 const target = e.target as HTMLElement;
                 const elementType = target.tagName.toLowerCase();
                 const elementId =
@@ -837,7 +849,7 @@ export const Modal: React.FC<ModalProps> = ({
             style={{
               cursor: disableDrag ? 'default' : isDragging ? 'grabbing' : 'grab',
               userSelect: 'none',
-              paddingTop: showDebugBar && debugBarHeight > 0 ? `${debugBarHeight + 4}px` : undefined,
+              paddingTop: effectiveShowDebugBar && debugBarHeight > 0 ? `${debugBarHeight + 4}px` : undefined,
             }}
           >
             {title && (

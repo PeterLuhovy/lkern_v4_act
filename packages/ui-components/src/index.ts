@@ -25,6 +25,9 @@ export type { ButtonProps } from './components/Button';
 export { Input } from './components/Input';
 export type { InputProps } from './components/Input';
 
+export { Textarea } from './components/Textarea';
+export type { TextareaProps } from './components/Textarea';
+
 export { FormField } from './components/FormField';
 export type { FormFieldProps } from './components/FormField';
 
@@ -122,3 +125,15 @@ export { EditIssueModal } from './components/EditIssueModal';
 
 export { ExportButton } from './components/ExportButton';
 export type { ExportButtonProps, ExportFormat } from './components/ExportButton';
+
+export { InfoHint } from './components/InfoHint';
+export type { InfoHintProps, InfoHintPosition, InfoHintSize } from './components/InfoHint';
+
+export { ThemeCustomizer } from './components/ThemeCustomizer';
+export type { ThemeCustomizerProps } from './components/ThemeCustomizer';
+
+export { KeyboardShortcutsButton } from './components/KeyboardShortcutsButton';
+export type { KeyboardShortcutsButtonProps, KeyboardShortcut } from './components/KeyboardShortcutsButton';
+
+export { StatusBar } from './components/StatusBar';
+export type { StatusBarProps, ServiceStatus, BackupInfo, CurrentUser, DataSource } from './components/StatusBar';

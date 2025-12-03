@@ -53,6 +53,7 @@ export interface DataGridProps<T = any> {
   sortDirection?: 'asc' | 'desc';
   onSort?: (field: string) => void;
   onRowClick?: (row: T) => void; // Row click handler
+  onRowDoubleClick?: (row: T) => void; // Row double-click handler (e.g., open edit modal)
   expandable?: boolean; // Enable row expansion
   expandedRows?: Set<string>;
   onRowToggle?: (rowId: string) => void;
@@ -74,6 +75,10 @@ export interface DataGridProps<T = any> {
   actionsWidth?: number;
   gridId?: string; // For localStorage persistence and ARIA
   itemsPerPage?: number; // For min-height calculation (prevents page jumping)
+  /** Error message to show (e.g., "Service unavailable") - displays instead of empty state */
+  error?: string | null;
+  /** Retry callback for error state */
+  onRetry?: () => void;
 }
 
 // === COMPONENT ===
@@ -85,6 +90,7 @@ const DataGrid = <T extends Record<string, any>>({
   sortField = '',
   sortDirection = 'asc',
   onSort,
+  onRowDoubleClick,
   expandedRows = new Set(),
   onRowToggle,
   renderExpandedContent,
@@ -104,6 +110,8 @@ const DataGrid = <T extends Record<string, any>>({
   actionsWidth,
   gridId = 'dataGrid',
   itemsPerPage = 10,
+  error = null,
+  onRetry,
 }: DataGridProps<T>) => {
   const { t } = useTranslation();
 
@@ -594,8 +602,24 @@ const DataGrid = <T extends Record<string, any>>({
         ))}
       </div>
 
+      {/* ERROR STATE ROW */}
+      {error && (
+        <div className={styles.emptyRow} role="row">
+          <div className={styles.emptyRowContent} role="gridcell">
+            <div className={styles.errorIcon}>⚠️</div>
+            <div className={styles.errorTitle}>{t('pageTemplate.dataGrid.serviceUnavailable', { defaultValue: 'Servis nedostupný' })}</div>
+            <div className={styles.errorHint}>{error}</div>
+            {onRetry && (
+              <button className={styles.retryButton} onClick={onRetry}>
+                {t('common.retry', { defaultValue: 'Skúsiť znova' })}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* EMPTY STATE ROW */}
-      {isEmpty && (
+      {isEmpty && !error && (
         <div className={styles.emptyRow} role="row">
           <div className={styles.emptyRowContent} role="gridcell">
             {hasActiveFilters ? (
@@ -659,6 +683,7 @@ const DataGrid = <T extends Record<string, any>>({
                 tabIndex={0}
                 onMouseDown={handleRowMouseDown}
                 onClick={(e) => handleRowClickWithModifiers(rowId, rowIndex, e)}
+                onDoubleClick={() => onRowDoubleClick?.(row)}
                 onKeyDown={(e) => handleRowKeyDown(e, row, rowIndex)}
               >
                 {finalColumns.map((column, colIndex) => (

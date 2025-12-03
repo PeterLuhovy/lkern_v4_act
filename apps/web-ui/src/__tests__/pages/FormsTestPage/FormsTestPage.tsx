@@ -12,7 +12,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation, exportToCSV, exportToJSON } from '@l-kern/config';
-import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card, BasePage, ExportButton } from '@l-kern/ui-components';
+import { Button, ArrowLeftIcon, ArrowRightIcon, Input, FormField, Select, Checkbox, RadioGroup, Card, BasePage, ExportButton, InfoHint } from '@l-kern/ui-components';
 import styles from './FormsTestPage.module.css';
 
 export const FormsTestPage: React.FC = () => {
@@ -184,6 +184,62 @@ export const FormsTestPage: React.FC = () => {
           </div>
         </Card>
 
+        {/* InfoHint Component */}
+        <Card variant="outlined">
+          <h2 className={styles.cardTitle}>InfoHint</h2>
+
+          <h4 className={styles.sectionTitle}>Positions</h4>
+          <div className={styles.buttonRow}>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Popup appears on top" position="top" />
+              <span>Top</span>
+            </div>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Popup appears on bottom" position="bottom" />
+              <span>Bottom</span>
+            </div>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Popup appears on left" position="left" />
+              <span>Left</span>
+            </div>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Popup appears on right" position="right" />
+              <span>Right</span>
+            </div>
+          </div>
+
+          <h4 className={styles.sectionTitle}>Sizes</h4>
+          <div className={styles.buttonRow}>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Small info icon" size="small" />
+              <span>Small</span>
+            </div>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Medium info icon (default)" size="medium" />
+              <span>Medium</span>
+            </div>
+            <div className={styles.infoHintDemo}>
+              <InfoHint content="Large info icon" size="large" />
+              <span>Large</span>
+            </div>
+          </div>
+
+          <h4 className={styles.sectionTitle}>Example: Severity vs Priority</h4>
+          <div className={styles.buttonRow}>
+            <div className={styles.infoHintDemo}>
+              <InfoHint
+                content={t('pages.issues.edit.severityVsPriorityInfo')}
+                position="top"
+                maxWidth={900}
+              />
+              <span>{t('common.info')}</span>
+            </div>
+          </div>
+          <p className={styles.description}>
+            Click the icon to show explanatory tooltip. Click outside or press Escape to close.
+          </p>
+        </Card>
+
         {/* Radio Component */}
         <Card variant="outlined">
           <h2 className={styles.cardTitle}>RadioGroup</h2>
@@ -236,6 +292,22 @@ export const FormsTestPage: React.FC = () => {
                   { value: 'cz', label: 'Czech' }
                 ]}
               />
+            </FormField>
+
+            <FormField
+              label="Title with char count"
+              required
+              htmlFor="title-demo"
+              maxLength={100}
+              reserveMessageSpace
+              validate={(value) => {
+                if (!value || value.length < 5) {
+                  return 'Minimum 5 characters required';
+                }
+                return undefined;
+              }}
+            >
+              <Input id="title-demo" placeholder="Type to see char count..." />
             </FormField>
           </div>
         </Card>

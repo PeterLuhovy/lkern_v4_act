@@ -3,8 +3,13 @@
  * FILE: FormField.module.css
  * PATH: /packages/ui-components/src/components/FormField/FormField.module.css
  * DESCRIPTION: FormField styles with reserved space for validation messages
- * VERSION: v2.0.0
- * UPDATED: 2025-10-19 18:00:00
+ * VERSION: v2.1.0
+ * UPDATED: 2025-11-29 14:00:00
+ *
+ * CHANGES (v2.1.0):
+ *   - ADDED: .messageRow for inline error + char count layout
+ *   - ADDED: .messageLeft for left-aligned error/helper text
+ *   - ADDED: .charCount for right-aligned character counter
  *
  * CHANGES (v2.0.0):
  *   - ADDED: .messageArea and .messageArea--reserved for layout shift prevention
@@ -31,6 +36,15 @@
 /* ================================================================
  * LABEL
  * ================================================================ */
+
+/**
+ * Label row container (for label + optional InfoHint)
+ */
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
+}
 
 .label {
   display: block;
@@ -77,7 +91,7 @@
  * Calculation: font-size (10px) + line-height (1.5) + icon (12px) + gap (4px) ≈ 28px
  */
 .messageArea--reserved {
-  min-height: calc(var(--spacing-lg, 24px) + var(--spacing-xs, 4px));
+  min-height: var(--spacing-xs, 4px);
   display: flex;
   align-items: flex-start;
 }
@@ -125,6 +139,42 @@
 .successIcon {
   font-size: var(--font-size-sm, 12px);
   flex-shrink: 0;
+}
+
+/* ================================================================
+ * MESSAGE ROW (Inline Error + Char Count)
+ * ================================================================ */
+
+/**
+ * Message row container
+ * Displays error/helper text on left, char count on right
+ */
+.messageRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm, 8px);
+  width: 100%;
+}
+
+/**
+ * Left side of message row
+ * Contains error/success/helper text
+ */
+.messageLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+/**
+ * Character counter
+ * Displayed on right side of message row (e.g., "45/200")
+ */
+.charCount {
+  font-size: var(--font-size-xs, 10px);
+  color: var(--theme-text-muted, #9e9e9e);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ================================================================

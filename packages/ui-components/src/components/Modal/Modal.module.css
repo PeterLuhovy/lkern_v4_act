@@ -3,10 +3,11 @@
  * FILE: Modal.module.css
  * PATH: /packages/ui-components/src/components/Modal/Modal.module.css
  * DESCRIPTION: Styles for Modal component (3 variants)
- * VERSION: v1.1.2
- * UPDATED: 2025-11-07 00:00:00
+ * VERSION: v1.2.0
+ * UPDATED: 2025-11-30
  *
  * CHANGES:
+ *   - v1.2.0: Added subtle accent color gradient to modal header (ThemeCustomizer integration)
  *   - v1.1.2: Fixed hardcoded font-size and outline-offset (6 violations)
  *   - v1.1.1: Design token migration - border-radius, transitions (Phase 2.3)
  *
@@ -132,8 +133,14 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-lg, 20px) var(--spacing-lg, 24px);
-  border-bottom: 1px solid var(--theme-border, #e0e0e0);
+  border-bottom: 1px solid var(--modal-header-border, var(--theme-border, #e0e0e0));
   flex-shrink: 0;
+  /* Subtle accent color gradient from ThemeCustomizer */
+  background: linear-gradient(
+    180deg,
+    var(--modal-header-gradient-start, rgba(156, 39, 176, 0.06)) 0%,
+    var(--modal-header-gradient-end, rgba(156, 39, 176, 0.02)) 100%
+  );
 }
 
 .modalTitle {

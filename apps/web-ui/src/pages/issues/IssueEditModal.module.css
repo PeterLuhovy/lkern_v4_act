@@ -1,0 +1,110 @@
+/*
+ * ================================================================
+ * FILE: IssueEditModal.module.css
+ * PATH: /apps/web-ui/src/pages/Issues/IssueEditModal.module.css
+ * DESCRIPTION: Styles for Issue Edit Modal - layout only
+ * VERSION: v1.3.0
+ * CREATED: 2025-11-29
+ * UPDATED: 2025-11-30
+ *
+ * CHANGES (v1.3.0):
+ *   - REMOVED: Permission toggle styles (moved to sidebar AuthRoleSwitcher)
+ *
+ * CHANGES (v1.2.0):
+ *   - ADDED: .permissionToggle styles (now removed)
+ *
+ * CHANGES (v1.1.0):
+ *   - REMOVED: .field, .input, .textarea, .select, .errorArea, .errorText,
+ *              .errorIcon, .labelWithHint (now using FormField, Input, Textarea, Select)
+ *   - KEPT: Layout styles only (.content, .grid, .stack, .footer)
+ * ================================================================
+ */
+
+/* Content wrapper */
+.content {
+  padding: var(--spacing-md, 16px) 0;
+}
+
+/* Grid layout for Overview section */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md, 16px);
+}
+
+/* Stack layout for Developer Info section */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 16px);
+}
+
+/* Footer with buttons */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm, 8px);
+  padding-top: var(--spacing-md, 16px);
+  margin-top: var(--spacing-md, 16px);
+  border-top: 1px solid var(--theme-border, #e0e0e0);
+}
+
+/* Blurred field - for fields user cannot view (data hidden on backend) */
+.blurredField {
+  position: relative;
+}
+
+.blurredField input,
+.blurredField textarea,
+.blurredField select {
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.blurredField::after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+/* No edit access - visual indicator for readonly */
+.noEditAccess input,
+.noEditAccess textarea,
+.noEditAccess select {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--theme-input-background-disabled, #f5f5f5) !important;
+}
+
+/* Placeholder section for Timeline/Activity (coming soon) */
+.placeholderSection {
+  padding: var(--spacing-lg, 24px);
+  text-align: center;
+  background: var(--theme-input-background, #ffffff);
+  border: 2px dashed var(--theme-border, #e0e0e0);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.placeholderText {
+  color: var(--theme-text, #212121);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+.placeholderHint {
+  color: var(--theme-text-muted, #9e9e9e);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

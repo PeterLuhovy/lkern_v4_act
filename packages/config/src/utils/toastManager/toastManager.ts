@@ -8,6 +8,26 @@
  * ================================================================
  */
 
+// === HELPER FUNCTIONS ===
+
+/**
+ * Check if toast logging is enabled via analytics settings
+ * Reads directly from localStorage (same key as AnalyticsContext)
+ */
+function isLoggingEnabled(): boolean {
+  try {
+    const stored = localStorage.getItem('analytics-settings');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Default to true if not set
+      return parsed.logToasts !== false;
+    }
+  } catch {
+    // Ignore errors, default to enabled
+  }
+  return true;
+}
+
 // === TYPES ===
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -44,13 +64,15 @@ class ToastManager {
       message,
       timestamp,
       type: options.type || 'success',
-      duration: options.duration !== undefined ? options.duration : 3000,
+      duration: options.duration !== undefined ? options.duration : 5000, // 5 seconds default
       copiedContent: options.copiedContent,
       position: options.position || 'bottom-center',
     };
 
     this.emit('show', toast);
-    console.log('[ToastManager] Show:', { id, message, type: toast.type });
+    if (isLoggingEnabled()) {
+      console.log('[ToastManager] Show:', { id, message, type: toast.type });
+    }
     return id;
   }
 
@@ -62,13 +84,17 @@ class ToastManager {
       type: 'success',
     };
     this.emit('hide', toast);
-    console.log('[ToastManager] Hide:', id);
+    if (isLoggingEnabled()) {
+      console.log('[ToastManager] Hide:', id);
+    }
   }
 
   clearAll(): void {
     this.emitClearAll();
     this.toastCounter = 0; // Reset counter for testing
-    console.log('[ToastManager] Clear all');
+    if (isLoggingEnabled()) {
+      console.log('[ToastManager] Clear all');
+    }
   }
 
   on(event: ToastEvent, callback: ToastEventListener): void;

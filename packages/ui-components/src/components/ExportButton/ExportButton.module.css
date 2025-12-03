@@ -38,6 +38,11 @@
   cursor: not-allowed;
 }
 
+/* Note: Native <select> dropdown styling has LIMITED browser support */
+/* Firefox: partial support, Chrome/Safari: mostly ignored */
 .exportButton option {
-  padding: 8px;
+  padding: 8px 12px;
+  background: var(--color-brand-primary, #9c27b0);
+  color: var(--theme-button-text-on-color, #ffffff);
+  font-weight: var(--font-weight-medium, 500);
 }

@@ -286,11 +286,11 @@ export function setupTheme(): void {
       --color-background: ${COLORS.neutral.gray900};
       --color-background-alt: ${COLORS.neutral.gray800};
 
-      /* Text colors */
-      --color-text: ${COLORS.neutral.gray100};
+      /* Text colors - softer gray for less eye strain (not pure white) */
+      --color-text: ${COLORS.neutral.gray300};
       --color-text-secondary: ${COLORS.neutral.gray400};
-      --theme-text: ${COLORS.neutral.gray100};
-      --theme-text-muted: ${COLORS.neutral.gray300};
+      --theme-text: ${COLORS.neutral.gray300};
+      --theme-text-muted: ${COLORS.neutral.gray500};
 
       /* Input text - dark for better contrast on lighter input background */
       --theme-input-text: ${COLORS.neutral.gray900};
@@ -311,11 +311,11 @@ export function setupTheme(): void {
       --color-outline: ${COLORS.neutral.gray400};
       --color-outline-light: ${COLORS.neutral.gray600};
 
-      /* Input/Form colors - darker like v3 */
-      --theme-input-background: ${COLORS.neutral.gray650};
-      --theme-input-background-focus: ${COLORS.neutral.gray600};
-      --theme-input-background-valid: ${COLORS.neutral.gray650};
-      --theme-input-background-disabled: ${COLORS.neutral.gray700};
+      /* Input/Form colors - lighter for better visibility */
+      --theme-input-background: ${COLORS.neutral.gray700};
+      --theme-input-background-focus: ${COLORS.neutral.gray650};
+      --theme-input-background-valid: ${COLORS.neutral.gray700};
+      --theme-input-background-disabled: ${COLORS.neutral.gray750};
       --theme-hover-background: ${COLORS.neutral.gray700};
       --theme-button-text-on-color: ${COLORS.neutral.white};
 

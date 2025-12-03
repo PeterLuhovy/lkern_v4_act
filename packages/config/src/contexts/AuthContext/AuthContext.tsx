@@ -25,7 +25,7 @@ import {
   canDelete,
   canExport,
   canViewDeleted,
-} from '../../permissions';
+} from '../../permissions/index';
 
 /**
  * User permission levels in the system (DEPRECATED - Use permissionLevel instead)

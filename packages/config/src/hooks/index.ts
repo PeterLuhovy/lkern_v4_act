@@ -36,3 +36,45 @@ export type {
 // useAuth hook (mock implementation)
 export { useAuth } from './useAuth';
 export type { User, UserRole, Permission } from './useAuth';
+
+// useServiceFetch hook - universal service availability + data fetching
+export { useServiceFetch, SERVICE_CONFIGS } from './useServiceFetch';
+export type {
+  ServiceFetchStatus,
+  ServiceFetchState,
+  ServiceConfig,
+  UseServiceFetchOptions,
+  UseServiceFetchReturn,
+  ServiceName,
+} from './useServiceFetch';
+
+// useFieldPermission hook - field-level access control
+export {
+  useFieldPermission,
+  useFieldPermissions,
+  useIssueFieldPermissions,
+} from './useFieldPermission';
+export type {
+  UseFieldPermissionResult,
+  UseFieldPermissionsResult,
+} from './useFieldPermission';
+
+// useEntityLookup hook - universal entity fetch with health check & caching
+export {
+  useEntityLookup,
+  useBatchEntityLookup,
+} from './useEntityLookup';
+export type {
+  EntityLookupStatus,
+  UseEntityLookupOptions,
+  UseEntityLookupResult,
+  UseBatchEntityLookupOptions,
+  UseBatchEntityLookupResult,
+} from './useEntityLookup';
+
+// useStorageOperation hook - validated CRUD operations with health checks
+export { useStorageOperation } from './useStorageOperation';
+export type {
+  UseStorageOperationOptions,
+  UseStorageOperationReturn,
+} from './useStorageOperation';

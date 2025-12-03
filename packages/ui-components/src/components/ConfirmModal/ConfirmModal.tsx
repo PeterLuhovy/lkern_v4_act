@@ -69,6 +69,27 @@ export interface ConfirmModalProps {
   cancelButtonLabel?: string;
 
   /**
+   * Optional secondary action button (appears between cancel and confirm)
+   * Useful for modals that need 3 options (e.g., Cancel / Retry / Proceed)
+   */
+  secondaryButtonLabel?: string;
+
+  /**
+   * Called when user clicks the secondary action button
+   */
+  onSecondary?: () => void;
+
+  /**
+   * Show loading spinner on confirm button
+   */
+  isLoading?: boolean;
+
+  /**
+   * Show loading spinner on secondary button
+   */
+  isSecondaryLoading?: boolean;
+
+  /**
    * Parent modal ID (for nested modals)
    */
   parentModalId?: string;
@@ -124,6 +145,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isDanger = false,
   confirmButtonLabel,
   cancelButtonLabel,
+  secondaryButtonLabel,
+  onSecondary,
+  isLoading = false,
+  isSecondaryLoading = false,
   parentModalId,
 }) => {
   const { t } = useTranslation();
@@ -186,12 +211,30 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       footer={{
         right: (
           <>
-            <Button variant="ghost" onClick={onClose} data-testid="confirm-modal-cancel">
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              disabled={isLoading || isSecondaryLoading}
+              data-testid="confirm-modal-cancel"
+            >
               {cancelButtonLabel || t('components.modalV3.confirmModal.simple.defaultCancel')}
             </Button>
+            {secondaryButtonLabel && onSecondary && (
+              <Button
+                variant="secondary"
+                onClick={onSecondary}
+                loading={isSecondaryLoading}
+                disabled={isLoading}
+                data-testid="confirm-modal-secondary"
+              >
+                {secondaryButtonLabel}
+              </Button>
+            )}
             <Button
               variant={isDanger ? 'danger' : 'primary'}
               onClick={handleConfirm}
+              loading={isLoading}
+              disabled={isSecondaryLoading}
               data-testid="confirm-modal-confirm"
             >
               {confirmButtonLabel || (isDanger ? t('components.modalV3.confirmModal.danger.defaultConfirm') : t('components.modalV3.confirmModal.simple.defaultConfirm'))}
@@ -202,9 +245,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     >
       <div className={styles.content}>
         {/* Message */}
-        <p className={styles.message}>
+        <div className={styles.message}>
           {message || (isDanger && actualKeyword ? t('components.modalV3.confirmModal.danger.defaultMessage', { keyword: actualKeyword }) : t('components.modalV3.confirmModal.simple.defaultMessage'))}
-        </p>
+        </div>
 
         {/* Danger mode - keyword input */}
         {!isSimpleMode && !!actualKeyword && (

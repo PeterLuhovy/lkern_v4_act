@@ -3,8 +3,8 @@
  * FILE: DataGrid.module.css
  * PATH: /packages/ui-components/src/components/DataGrid/DataGrid.module.css
  * DESCRIPTION: DataGrid styles - 100% design tokens (ZERO hardcoded values)
- * VERSION: v1.1.0
- * UPDATED: 2025-11-07 00:00:00
+ * VERSION: v1.2.0
+ * UPDATED: 2025-11-29 00:00:00
  *
  * MIGRATED FROM: L-KERN v3 DataGrid.css v2.1.0
  * CHANGES:
@@ -50,6 +50,41 @@
   font-size: var(--font-size-sm);
   color: var(--theme-text-muted);
   opacity: 0.7;
+}
+
+/* === ERROR STATE === */
+.errorIcon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.errorTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-status-warning, #ff9800);
+  margin-bottom: var(--spacing-xs);
+}
+
+.errorHint {
+  font-size: var(--font-size-sm);
+  color: var(--theme-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.retryButton {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--theme-button-text-on-color, #ffffff);
+  background: var(--color-brand-primary, #9c27b0);
+  border: none;
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.retryButton:hover {
+  background: var(--color-brand-primary-dark, #7b1fa2);
 }
 
 /* === HEADER === */
@@ -526,3 +561,4 @@
 .row[style*="#ee0000"] span[title="Deleted issue"] {
   color: var(--color-status-warning, #FFD700) !important;
 }
+

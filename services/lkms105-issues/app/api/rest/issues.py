@@ -3,18 +3,32 @@
 Issues Service - Issues REST API
 ================================================================
 File: services/lkms105-issues/app/api/rest/issues.py
-Version: v1.0.0
+Version: v1.2.0
 Created: 2025-11-08
+Updated: 2025-11-30
 Description:
   FastAPI router for Issue CRUD operations with:
   - Role-based create (user_basic, user_standard, user_advance)
   - 8 filters (type, severity, status, category, priority, assignee, reporter, search)
   - Soft delete
   - Actions (assign, resolve, close)
+  - 9-level permission system (0-100 scale)
+
+PERMISSION LEVELS (0-100 scale):
+  - 0-29 (Basic lvl 1-3): View only, id hidden
+  - 30-59 (Standard lvl 1-3): Can edit description, id hidden
+  - 60-69 (Admin lvl 1): id hidden, can view technical fields
+  - 70-99 (Admin lvl 2-3): id visible, full edit (except type, status, code)
+  - 100 (Super Admin): Full access (except id - NEVER editable)
+
+CHANGES (v1.2.0):
+  - UPDATED: Permission levels now use 0-100 scale (was 1-3)
+  - ADDED: list_issues now filters fields based on permission level
+  - UPDATED: id field hidden for levels below 70 (Admin lvl 2+)
 ================================================================
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Body, status as http_status, Form, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, status as http_status, Form, UploadFile, File, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError
@@ -24,7 +38,7 @@ import uuid
 import logging
 import json
 
-from app.database import get_db
+from app.database import get_db_safe
 from app.models import Issue, IssueType, IssueSeverity, IssueCategory, IssueStatus, IssuePriority, DeletionAudit, DeletionStatus
 from app.schemas import (
     IssueCreateUserBasic,
@@ -40,6 +54,12 @@ from app.schemas import (
 from app.services.issue_service import generate_issue_code, validate_status_transition
 from app.events.producer import publish_event
 from app.services.minio_client import minio_client, MinIOConnectionError
+from app.permissions import (
+    validate_update_fields,
+    filter_issue_response,
+    validate_update_fields_by_frontend_level,
+    filter_issue_response_by_frontend_level,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +70,7 @@ router = APIRouter(prefix="/issues", tags=["Issues"])
 # LIST ISSUES (with 8 filters)
 # ============================================================
 
-@router.get("/", response_model=List[IssueResponse])
+@router.get("/")
 async def list_issues(
     skip: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(100, ge=1, le=500, description="Pagination limit"),
@@ -67,10 +87,21 @@ async def list_issues(
 
     include_deleted: bool = Query(False, description="Include soft-deleted issues"),
 
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
+    # Permission level (0-100 scale) - controls field visibility
+    # SECURITY: Default to 0 (no access) - frontend MUST send actual level
+    x_permission_level: int = Header(default=0, alias="X-Permission-Level", description="Permission level (0-100 scale)"),
 ):
     """
-    Get list of issues with optional filters.
+    Get list of issues with optional filters and field-level permission filtering.
+
+    Headers:
+        X-Permission-Level: Permission level (0-100 scale)
+        - 0-29 (Basic): id hidden, limited fields visible
+        - 30-59 (Standard): id hidden, more fields visible
+        - 60-69 (Admin lvl 1): id hidden, technical fields visible
+        - 70-99 (Admin lvl 2-3): id visible, full access
+        - 100 (Super Admin): all fields visible
 
     Filters:
     - type, severity, status, category, priority (enum filters)
@@ -115,19 +146,63 @@ async def list_issues(
     # Pagination and ordering
     issues = query.order_by(Issue.created_at.desc()).offset(skip).limit(limit).all()
 
-    return issues
+    # Convert issues to dicts and filter fields based on permission level
+    filtered_issues = []
+    for issue in issues:
+        issue_dict = {
+            "id": str(issue.id),
+            "issue_code": issue.issue_code,
+            "title": issue.title,
+            "description": issue.description,
+            "type": issue.type.value if issue.type else None,
+            "severity": issue.severity.value if issue.severity else None,
+            "status": issue.status.value if issue.status else None,
+            "priority": issue.priority.value if issue.priority else None,
+            "category": issue.category.value if issue.category else None,
+            "resolution": issue.resolution,
+            "error_type": issue.error_type,
+            "error_message": issue.error_message,
+            "system_info": issue.system_info,
+            "reporter_id": str(issue.reporter_id) if issue.reporter_id else None,
+            "assignee_id": str(issue.assignee_id) if issue.assignee_id else None,
+            "attachments": issue.attachments,
+            "created_at": issue.created_at.isoformat() if issue.created_at else None,
+            "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
+            "resolved_at": issue.resolved_at.isoformat() if issue.resolved_at else None,
+            "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+            "deleted_at": issue.deleted_at.isoformat() if issue.deleted_at else None,
+            "deletion_audit_id": issue.deletion_audit_id,
+        }
+        # Filter response based on permission level
+        filtered_issue = filter_issue_response_by_frontend_level(issue_dict, x_permission_level)
+        filtered_issues.append(filtered_issue)
+
+    return filtered_issues
 
 
 # ============================================================
 # GET SINGLE ISSUE
 # ============================================================
 
-@router.get("/{issue_id}", response_model=IssueResponse)
+@router.get("/{issue_id}")
 async def get_issue(
     issue_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
+    # Permission level (0-100 scale) - controls field visibility
+    # SECURITY: Default to 0 (no access) - frontend MUST send actual level
+    x_permission_level: int = Header(default=0, alias="X-Permission-Level", description="Permission level (0-100 scale)"),
 ):
-    """Get single issue by UUID."""
+    """
+    Get single issue by UUID with field-level permission filtering.
+
+    Headers:
+        X-Permission-Level: Permission level (0-100 scale)
+        - 0-29 (Basic): id hidden, limited fields visible
+        - 30-59 (Standard): id hidden, more fields visible
+        - 60-69 (Admin lvl 1): id hidden, technical fields visible
+        - 70-99 (Admin lvl 2-3): id visible, full access
+        - 100 (Super Admin): all fields visible
+    """
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
         Issue.deleted_at == None  # noqa: E711
@@ -139,7 +214,38 @@ async def get_issue(
             detail=f"Issue {issue_id} not found"
         )
 
-    return issue
+    # Convert issue to dict for filtering
+    issue_dict = {
+        "id": str(issue.id),
+        "issue_code": issue.issue_code,
+        "title": issue.title,
+        "description": issue.description,
+        "type": issue.type.value if issue.type else None,
+        "severity": issue.severity.value if issue.severity else None,
+        "status": issue.status.value if issue.status else None,
+        "priority": issue.priority.value if issue.priority else None,
+        "category": issue.category.value if issue.category else None,
+        "resolution": issue.resolution,
+        "error_type": issue.error_type,
+        "error_message": issue.error_message,
+        "system_info": issue.system_info,
+        "reporter_id": str(issue.reporter_id) if issue.reporter_id else None,
+        "assignee_id": str(issue.assignee_id) if issue.assignee_id else None,
+        "attachments": issue.attachments,
+        "created_at": issue.created_at.isoformat() if issue.created_at else None,
+        "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
+        "resolved_at": issue.resolved_at.isoformat() if issue.resolved_at else None,
+        "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+        "deleted_at": issue.deleted_at.isoformat() if issue.deleted_at else None,
+        "deletion_audit_id": issue.deletion_audit_id,
+    }
+
+    # Filter response based on permission level
+    filtered_response = filter_issue_response_by_frontend_level(issue_dict, x_permission_level)
+
+    logger.debug(f"Get issue {issue.issue_code} with permission level {x_permission_level}")
+
+    return filtered_response
 
 
 # ============================================================
@@ -151,7 +257,7 @@ async def create_issue(
     data: str = Form(..., description="JSON string with issue data"),
     role: str = Form(..., description="User role: user_basic | user_standard | user_advance"),
     files: List[UploadFile] = File(default=[], description="Optional file attachments"),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     Create new issue - role-based schema validation with file attachments.
@@ -315,9 +421,25 @@ async def create_issue(
 async def update_issue(
     issue_id: str,
     update_data: IssueUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
+    # Permission level (0-100 scale) - controls which fields can be edited
+    # SECURITY: Default to 0 (no edit access) - frontend MUST send actual level
+    x_permission_level: int = Header(default=0, alias="X-Permission-Level", description="Permission level (0-100 scale)"),
 ):
-    """Update existing issue (partial update)."""
+    """
+    Update existing issue (partial update) with field-level permission check.
+
+    SECURITY: Each field has required permission level for editing.
+    Fields the user cannot edit will be rejected with 403 Forbidden.
+
+    Headers:
+        X-Permission-Level: Permission level (0-100 scale)
+        - 0-29 (Basic): Cannot edit any fields (view only)
+        - 30-59 (Standard): Can edit description only
+        - 60-69 (Admin lvl 1): Limited edit (assignee, resolution, etc.)
+        - 70-99 (Admin lvl 2-3): Full edit except type, status, issue_code
+        - 100 (Super Admin): Can edit all fields (except id - NEVER editable)
+    """
     issue = db.query(Issue).filter(
         Issue.id == uuid.UUID(issue_id),
         Issue.deleted_at == None  # noqa: E711
@@ -329,8 +451,28 @@ async def update_issue(
             detail=f"Issue {issue_id} not found"
         )
 
-    # Update only provided fields
+    # Get fields being updated
     update_dict = update_data.model_dump(exclude_unset=True)
+
+    # === FIELD-LEVEL PERMISSION CHECK ===
+    # Validate user has permission to edit each field based on frontend level
+    forbidden_fields = validate_update_fields_by_frontend_level(update_dict, x_permission_level)
+    if forbidden_fields:
+        logger.warning(
+            f"Permission denied: user (level={x_permission_level}) "
+            f"tried to edit forbidden fields {forbidden_fields} on issue {issue_id}"
+        )
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "field_permission_denied",
+                "message": f"Insufficient permission to edit fields: {', '.join(forbidden_fields)}",
+                "forbidden_fields": forbidden_fields,
+                "permission_level": x_permission_level,
+            }
+        )
+
+    # Update only provided (and permitted) fields
     for key, value in update_dict.items():
         setattr(issue, key, value)
 
@@ -341,9 +483,10 @@ async def update_issue(
     await publish_event("issue.updated", {
         "id": str(issue.id),
         "issue_code": issue.issue_code,
+        "updated_fields": list(update_dict.keys()),
     })
 
-    logger.info(f"Updated Issue {issue.issue_code}")
+    logger.info(f"Updated Issue {issue.issue_code} (fields: {list(update_dict.keys())}, permission_level={x_permission_level})")
 
     return issue
 
@@ -355,7 +498,7 @@ async def update_issue(
 @router.delete("/{issue_id}", status_code=http_status.HTTP_204_NO_CONTENT)
 async def delete_issue(
     issue_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """Soft delete issue (set deleted_at timestamp)."""
     issue = db.query(Issue).filter(
@@ -391,7 +534,7 @@ async def delete_issue(
 @router.post("/{issue_id}/restore", response_model=IssueResponse)
 async def restore_issue(
     issue_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """Restore soft-deleted issue (clear deleted_at timestamp)."""
     issue = db.query(Issue).filter(
@@ -429,7 +572,7 @@ async def restore_issue(
 async def hard_delete_issue(
     issue_id: str,
     force: bool = Query(False, description="If true, mark for deletion even if MinIO is unavailable (skip file deletion)"),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     Permanently delete issue (hard delete from DB + MinIO files with audit trail).
@@ -643,7 +786,7 @@ async def hard_delete_issue(
 @router.get("/{issue_id}/deletion-audit", response_model=DeletionAuditResponse)
 async def get_deletion_audit(
     issue_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     Get deletion audit details for an issue.
@@ -695,7 +838,7 @@ async def get_deletion_audit(
 async def assign_issue(
     issue_id: str,
     assign_data: IssueAssign,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """Assign issue to developer."""
     issue = db.query(Issue).filter(
@@ -742,7 +885,7 @@ async def assign_issue(
 async def resolve_issue(
     issue_id: str,
     resolve_data: IssueResolve,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """Mark issue as resolved."""
     issue = db.query(Issue).filter(
@@ -789,7 +932,7 @@ async def resolve_issue(
 async def close_issue(
     issue_id: str,
     close_data: IssueClose,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """Close issue."""
     issue = db.query(Issue).filter(
@@ -833,3 +976,439 @@ async def close_issue(
     logger.info(f"Closed Issue {issue.issue_code}")
 
     return issue
+
+
+# ============================================================
+# HEALTH CHECK: MinIO
+# ============================================================
+
+@router.get("/health/minio")
+async def health_minio():
+    """
+    Check MinIO (file storage) availability.
+
+    Returns:
+        200 OK with status='healthy' if MinIO is available
+        503 Service Unavailable if MinIO is down
+    """
+    if minio_client.check_health():
+        return {"status": "healthy", "service": "minio"}
+    else:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"status": "unhealthy", "service": "minio", "message": "MinIO storage is unavailable"}
+        )
+
+
+# ============================================================
+# LIST ATTACHMENTS (Compare DB vs MinIO)
+# ============================================================
+
+@router.get("/{issue_id}/attachments")
+async def list_attachments(
+    issue_id: str,
+    db: Session = Depends(get_db_safe),
+):
+    """
+    List attachments for an issue - compare DB metadata vs actual MinIO files.
+
+    Returns:
+        - db_attachments: What's recorded in database
+        - minio_files: What's actually in MinIO storage
+        - missing_in_minio: Files in DB but not in MinIO (deleted manually)
+        - orphaned_in_minio: Files in MinIO but not in DB
+    """
+    # Find issue
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Get DB metadata
+    db_attachments = issue.attachments or []
+    db_filenames = {a.get('file_name') for a in db_attachments}
+
+    # Get actual MinIO files
+    minio_files = []
+    missing_in_minio = []
+    orphaned_in_minio = []
+
+    if minio_client.check_health():
+        folder_prefix = f"{issue_id}/"
+        minio_objects = minio_client.list_files(prefix=folder_prefix)
+        minio_filenames = {obj.split('/')[-1] for obj in minio_objects}
+        minio_files = list(minio_filenames)
+
+        # Compare
+        missing_in_minio = list(db_filenames - minio_filenames)
+        orphaned_in_minio = list(minio_filenames - db_filenames)
+    else:
+        minio_files = ["MinIO unavailable"]
+
+    return {
+        "issue_code": issue.issue_code,
+        "db_attachments": db_attachments,
+        "minio_files": minio_files,
+        "missing_in_minio": missing_in_minio,
+        "orphaned_in_minio": orphaned_in_minio,
+        "status": "synced" if not missing_in_minio and not orphaned_in_minio else "out_of_sync"
+    }
+
+
+# ============================================================
+# DOWNLOAD ATTACHMENT
+# ============================================================
+
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+
+@router.head("/{issue_id}/attachments/{filename}")
+async def check_attachment_exists(
+    issue_id: str,
+    filename: str,
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Check if attachment exists (HEAD request - no download).
+
+    Returns:
+        200: File exists
+        404: Issue not found, attachment not in metadata, or file missing in MinIO
+        503: MinIO unavailable
+    """
+    # Find issue (including soft-deleted)
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check if attachment exists in issue metadata
+    attachments = issue.attachments or []
+    attachment_meta = next((a for a in attachments if a.get('file_name') == filename), None)
+
+    if not attachment_meta:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Attachment '{filename}' not found in issue {issue.issue_code}"
+        )
+
+    # Check MinIO availability
+    if not minio_client.check_health():
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) is currently unavailable"
+        )
+
+    # Check if file exists in MinIO
+    object_name = attachment_meta.get('object_name', f"{issue_id}/{filename}")
+    try:
+        file_data = minio_client.download_file(object_name)
+        if file_data is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail=f"File '{filename}' not found in storage"
+            )
+        # File exists - return 200 OK with metadata headers
+        return {
+            "exists": True,
+            "file_name": filename,
+            "file_size": attachment_meta.get('file_size'),
+            "content_type": attachment_meta.get('content_type'),
+        }
+    except MinIOConnectionError:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) connection failed"
+        )
+
+
+# ============================================================
+# UPLOAD ATTACHMENTS TO EXISTING ISSUE
+# ============================================================
+
+@router.post("/{issue_id}/attachments", status_code=http_status.HTTP_201_CREATED)
+async def upload_attachments(
+    issue_id: str,
+    files: List[UploadFile] = File(..., description="Files to upload"),
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Upload attachments to an existing issue.
+
+    Args:
+        issue_id: Issue UUID
+        files: List of files to upload
+
+    Returns:
+        201 Created with list of uploaded attachment metadata
+
+    Raises:
+        404: Issue not found
+        400: Attachment limit exceeded (max 5)
+        503: MinIO unavailable
+    """
+    # Find issue (including soft-deleted - allow attachment management)
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check attachment limit (max 5)
+    existing_attachments = issue.attachments or []
+    total_after_upload = len(existing_attachments) + len(files)
+    if total_after_upload > 5:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Attachment limit exceeded. Maximum 5 attachments allowed. Current: {len(existing_attachments)}, Trying to add: {len(files)}"
+        )
+
+    # Check MinIO availability
+    if not minio_client.check_health():
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) is currently unavailable"
+        )
+
+    uploaded_attachments = []
+    try:
+        for file in files:
+            # Read file content
+            file_content = await file.read()
+            file_size = len(file_content)
+
+            # Generate object name (issue_id/filename)
+            object_name = f"{issue_id}/{file.filename}"
+
+            # Upload to MinIO
+            minio_client.upload_file(
+                file_data=file_content,
+                object_name=object_name,
+                content_type=file.content_type or "application/octet-stream"
+            )
+
+            # Create attachment metadata
+            attachment_meta = {
+                "file_name": file.filename,
+                "file_path": f"/issues/{issue_id}/attachments/{file.filename}",
+                "file_size": file_size,
+                "content_type": file.content_type or "application/octet-stream",
+                "object_name": object_name,
+                "uploaded_at": datetime.utcnow().isoformat()
+            }
+            uploaded_attachments.append(attachment_meta)
+            logger.info(f"Uploaded attachment '{file.filename}' ({file_size} bytes) to issue {issue.issue_code}")
+
+        # Update issue attachments in DB
+        issue.attachments = existing_attachments + uploaded_attachments
+        db.commit()
+
+        logger.info(f"Successfully uploaded {len(uploaded_attachments)} attachments to issue {issue.issue_code}")
+
+        # Publish Kafka event
+        await publish_event("issue.attachments_uploaded", {
+            "id": str(issue.id),
+            "issue_code": issue.issue_code,
+            "attachments": [a["file_name"] for a in uploaded_attachments],
+        })
+
+        return {"uploaded": uploaded_attachments}
+
+    except MinIOConnectionError:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) connection failed"
+        )
+    except Exception as e:
+        logger.error(f"Error uploading attachments: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error uploading files: {str(e)}"
+        )
+
+
+# ============================================================
+# DELETE SINGLE ATTACHMENT
+# ============================================================
+
+@router.delete("/{issue_id}/attachments/{filename}", status_code=http_status.HTTP_204_NO_CONTENT)
+async def delete_attachment(
+    issue_id: str,
+    filename: str,
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Delete a single attachment from an issue.
+
+    Args:
+        issue_id: Issue UUID
+        filename: Attachment filename to delete
+
+    Returns:
+        204 No Content on success
+
+    Raises:
+        404: Issue not found or attachment not found
+        503: MinIO unavailable
+    """
+    # Find issue (including soft-deleted - allow attachment management)
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check if attachment exists in issue metadata
+    attachments = issue.attachments or []
+    attachment_meta = next((a for a in attachments if a.get('file_name') == filename), None)
+
+    if not attachment_meta:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Attachment '{filename}' not found in issue {issue.issue_code}"
+        )
+
+    # Check MinIO availability
+    if not minio_client.check_health():
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) is currently unavailable"
+        )
+
+    # Get object name from metadata or construct it
+    object_name = attachment_meta.get('object_name', f"{issue_id}/{filename}")
+
+    try:
+        # Delete file from MinIO
+        success = minio_client.delete_file(object_name)
+
+        if not success:
+            logger.warning(f"MinIO delete_file returned False for {object_name}")
+            # File might already be deleted - continue with DB cleanup
+
+        # Remove attachment from issue metadata
+        updated_attachments = [a for a in attachments if a.get('file_name') != filename]
+        issue.attachments = updated_attachments if updated_attachments else None
+        db.commit()
+
+        logger.info(f"Deleted attachment '{filename}' from issue {issue.issue_code}")
+
+        # Publish Kafka event
+        await publish_event("issue.attachment_deleted", {
+            "id": str(issue.id),
+            "issue_code": issue.issue_code,
+            "filename": filename,
+        })
+
+        return None
+
+    except MinIOConnectionError:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) connection failed"
+        )
+    except Exception as e:
+        logger.error(f"Error deleting attachment {filename}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting file: {str(e)}"
+        )
+
+
+# ============================================================
+# DOWNLOAD ATTACHMENT
+# ============================================================
+
+@router.get("/{issue_id}/attachments/{filename}")
+async def download_attachment(
+    issue_id: str,
+    filename: str,
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Download attachment file from MinIO.
+
+    Args:
+        issue_id: Issue UUID
+        filename: Attachment filename
+
+    Returns:
+        File stream with proper content-type
+
+    Raises:
+        404: Issue not found or attachment not found
+        503: MinIO unavailable
+    """
+    # Find issue (including soft-deleted - attachments should still be downloadable)
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check if attachment exists in issue metadata
+    attachments = issue.attachments or []
+    attachment_meta = next((a for a in attachments if a.get('file_name') == filename), None)
+
+    if not attachment_meta:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Attachment '{filename}' not found in issue {issue.issue_code}"
+        )
+
+    # Check MinIO availability
+    if not minio_client.check_health():
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) is currently unavailable"
+        )
+
+    # Get object name from metadata or construct it
+    object_name = attachment_meta.get('object_name', f"{issue_id}/{filename}")
+
+    try:
+        # Download file from MinIO
+        file_data = minio_client.download_file(object_name)
+
+        if file_data is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail=f"File '{filename}' not found in storage"
+            )
+
+        # Get content type from metadata
+        content_type = attachment_meta.get('content_type', 'application/octet-stream')
+
+        logger.info(f"Downloaded attachment: {filename} for issue {issue.issue_code}")
+
+        return StreamingResponse(
+            BytesIO(file_data),
+            media_type=content_type,
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Length": str(len(file_data))
+            }
+        )
+
+    except MinIOConnectionError:
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) connection failed"
+        )
+    except Exception as e:
+        logger.error(f"Error downloading attachment {filename}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error downloading file: {str(e)}"
+        )

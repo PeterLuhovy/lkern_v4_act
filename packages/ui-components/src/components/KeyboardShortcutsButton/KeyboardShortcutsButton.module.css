@@ -1,0 +1,224 @@
+/*
+ * ================================================================
+ * FILE: KeyboardShortcutsButton.module.css
+ * PATH: packages/ui-components/src/components/KeyboardShortcutsButton/KeyboardShortcutsButton.module.css
+ * DESCRIPTION: Keyboard shortcuts button and modal styles - CSS modules
+ * VERSION: v1.0.0
+ * UPDATED: 2025-11-30
+ * PORTED FROM: v3 packages/page-templates/src/components/KeyboardShortcutsButton/
+ * ================================================================
+ */
+
+/* === FLOATING BUTTON === */
+.button {
+  position: fixed;
+  width: 48px;
+  height: 48px;
+  /* Gray background */
+  background: rgb(97, 97, 97);
+  border-radius: 50%;
+  border: 3px solid white;
+  cursor: pointer;
+  z-index: 998;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.buttonIcon {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  user-select: none;
+}
+
+/* Position variants - bottom is set dynamically via inline style */
+.buttonBottomRight {
+  right: 24px;
+}
+
+.buttonBottomLeft {
+  left: 24px;
+}
+
+.buttonTopRight {
+  top: 80px;
+}
+
+.buttonTopLeft {
+  top: 80px;
+}
+
+/* === MODAL OVERLAY === */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* === MODAL CONTENT === */
+.content {
+  background: var(--theme-card-background, white);
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === MODAL HEADER === */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--theme-border, #e5e5e5);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--theme-text, #1a1a1a);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--theme-text-muted, #757575);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--theme-hover-background, rgba(0, 0, 0, 0.05));
+  color: var(--theme-text, #1a1a1a);
+}
+
+/* === MODAL BODY === */
+.body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.shortcuts {
+  display: grid;
+  gap: 12px;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.key {
+  display: inline-block;
+  min-width: 100px;
+  padding: 8px 12px;
+  background: var(--theme-card-background, #f5f5f5);
+  border: 1px solid var(--theme-border, #d5d5d5);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-text, #1a1a1a);
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.description {
+  flex: 1;
+  font-size: 14px;
+  color: var(--theme-text-secondary, #64748b);
+}
+
+/* === MODAL FOOTER === */
+.footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--theme-border, #e5e5e5);
+  background: var(--theme-card-background, #fafafa);
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--theme-text-muted, #757575);
+  text-align: center;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .buttonIcon {
+    font-size: 14px;
+  }
+
+  .content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .header {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .body {
+    padding: 16px;
+  }
+
+  .key {
+    min-width: 80px;
+    font-size: 11px;
+  }
+}

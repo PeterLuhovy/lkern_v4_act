@@ -3,9 +3,19 @@
  * FILE: CreateIssueModal.tsx
  * PATH: /packages/ui-components/src/components/CreateIssueModal/CreateIssueModal.tsx
  * DESCRIPTION: Create Issue Modal with role-based form variants
- * VERSION: v1.1.0
+ * VERSION: v1.3.0
  * CREATED: 2025-11-08
- * UPDATED: 2025-11-21
+ * UPDATED: 2025-11-29
+ *
+ * CHANGES (v1.3.0):
+ *   - FIXED: Validation messages now translate dynamically on language change
+ *   - REFACTORED: Using FormField's validate + onValidChange instead of external errors
+ *   - FIXED: System Info labels now use translations (not hardcoded English)
+ *   - ADDED: titleValid/descriptionValid state for validity tracking
+ *
+ * CHANGES (v1.2.0):
+ *   - REFACTORED: Using Textarea component instead of native textarea
+ *   - REMOVED: InfoHint import (using FormField labelHint prop)
  * ================================================================
  */
 
@@ -14,6 +24,7 @@ import { useTranslation, useFormDirty, useConfirm, useToast } from '@l-kern/conf
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { Input } from '../Input';
+import { Textarea } from '../Textarea';
 import { Select } from '../Select';
 import { FormField } from '../FormField';
 import { ConfirmModal } from '../ConfirmModal';
@@ -125,6 +136,10 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Field validity tracking (for FormField onValidChange)
+  const [titleValid, setTitleValid] = useState(false);
+  const [descriptionValid, setDescriptionValid] = useState(false);
+
   // Clear form confirmation modal state
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -136,9 +151,11 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
   const { isDirty } = useFormDirty(initialFormState as any, formData as any);
 
   // Handle input changes
+  // NOTE: Title/description validation is handled by FormField's validate prop + onValidChange
   const handleChange = (field: keyof IssueFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field
+
+    // Clear error for other fields if it exists
     if (errors[field]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -148,55 +165,76 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
     }
   };
 
+  // Auto-detect system info (browser, OS, viewport, etc.)
+  const collectSystemInfo = (): SystemInfo => {
+    const ua = navigator.userAgent;
+    let browser = 'Unknown';
+    let os = 'Unknown';
+
+    // Detect browser
+    if (ua.includes('Firefox/')) {
+      const version = ua.match(/Firefox\/(\d+)/)?.[1];
+      browser = `Firefox ${version || ''}`.trim();
+    } else if (ua.includes('Edg/')) {
+      const version = ua.match(/Edg\/(\d+)/)?.[1];
+      browser = `Edge ${version || ''}`.trim();
+    } else if (ua.includes('Chrome/')) {
+      const version = ua.match(/Chrome\/(\d+)/)?.[1];
+      browser = `Chrome ${version || ''}`.trim();
+    } else if (ua.includes('Safari/') && !ua.includes('Chrome')) {
+      const version = ua.match(/Version\/(\d+)/)?.[1];
+      browser = `Safari ${version || ''}`.trim();
+    }
+
+    // Detect OS
+    if (ua.includes('Windows NT 10')) os = 'Windows 10/11';
+    else if (ua.includes('Windows NT 6.3')) os = 'Windows 8.1';
+    else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
+    else if (ua.includes('Mac OS X')) os = 'macOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+    return {
+      browser,
+      os,
+      url: window.location.href,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      screen: `${window.screen.width}x${window.screen.height}`,
+      timestamp: new Date().toISOString(),
+    };
+  };
+
   // Reset form when modal opens, merge with initialData if provided
   // NOTE: t is intentionally NOT in deps - we don't want to reset form on language change
   useEffect(() => {
     if (isOpen) {
+      // Auto-collect system info
+      const systemInfo = collectSystemInfo();
+
       const mergedData = {
         ...baseFormData,
-        ...initialData, // Override with initialData if provided
+        system_info: systemInfo, // Auto-populate system info
+        ...initialData, // Override with initialData if provided (can override system_info)
       };
       setFormData(mergedData);
       setInitialFormState(mergedData); // Track for dirty comparison
       setFileLimitExceeded(false); // Reset file limit state
+      setErrors({}); // Clear any previous errors
 
-      // Initial validation - mark required fields as invalid immediately
-      const initialErrors: Record<string, string> = {};
-
-      if (!mergedData.title || mergedData.title.length < 5) {
-        initialErrors.title = t('issues.validation.titleMinLength');
-      }
-      if (!mergedData.description || mergedData.description.length < 10) {
-        initialErrors.description = t('issues.validation.descriptionMinLength');
-      }
-
-      setErrors(initialErrors);
+      // Set initial validity based on merged data
+      // FormField's validate will run immediately and call onValidChange
+      setTitleValid(!!mergedData.title && mergedData.title.length >= 5 && mergedData.title.length <= 200);
+      setDescriptionValid(!!mergedData.description && mergedData.description.length >= 10);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialData]);
 
-  // Validate form
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    // Common validations
-    if (!formData.title || formData.title.length < 5) {
-      newErrors.title = t('issues.validation.titleMinLength');
-    }
-    if (formData.title.length > 200) {
-      newErrors.title = t('issues.validation.titleMaxLength');
-    }
-    if (!formData.description || formData.description.length < 10) {
-      newErrors.description = t('issues.validation.descriptionMinLength');
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   // Handle submit
+  // NOTE: Validation is handled by FormField's validate prop + onValidChange
+  // isSubmitDisabled already checks titleValid && descriptionValid
   const handleSubmit = () => {
-    if (!validateForm() || isLoading) return;
+    if (isLoading || !titleValid || !descriptionValid) return;
 
     onSubmit(formData);
     // NOTE: Don't call onClose() here - parent controls closing after async operation completes
@@ -225,6 +263,8 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
     setFormData(baseFormData);
     setInitialFormState(baseFormData); // Reset initial state so form is "clean" after clearing
     setErrors({});
+    setTitleValid(false); // Reset validity state
+    setDescriptionValid(false); // Reset validity state
     setFileLimitExceeded(false); // Reset file limit state
     setShowClearConfirm(false);
   };
@@ -235,10 +275,11 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
   };
 
   // Check if there are any validation errors (excluding attachments - handled by fileLimitExceeded)
-  const hasValidationErrors = Object.keys(errors).filter(key => key !== 'attachments').length > 0;
+  // Title and description validity are tracked via FormField's onValidChange
+  const hasOtherErrors = Object.keys(errors).filter(key => key !== 'attachments').length > 0;
 
-  // Submit is disabled if validation errors OR file limit exceeded OR loading
-  const isSubmitDisabled = hasValidationErrors || fileLimitExceeded || isLoading;
+  // Submit is disabled if required fields are invalid OR other errors OR file limit exceeded OR loading
+  const isSubmitDisabled = !titleValid || !descriptionValid || hasOtherErrors || fileLimitExceeded || isLoading;
 
   // Role-based title with issue type
   const getModalTitle = () => {
@@ -344,11 +385,12 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
           <FormField
             label={t('issues.form.title')}
             required
-            error={errors.title}
             value={formData.title}
             onChange={(e) => handleChange('title', e.target.value)}
             htmlFor="title"
             helperText={t('issues.form.titleHint')}
+            maxLength={200}
+            reserveMessageSpace
             validate={(value) => {
               if (!value || value.length < 5) {
                 return t('issues.validation.titleMinLength');
@@ -358,6 +400,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               }
               return undefined;
             }}
+            onValidChange={setTitleValid}
           >
             <Input
               type="text"
@@ -367,31 +410,31 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               maxLength={200}
             />
           </FormField>
-          <span className={styles.charCount}>{formData.title.length}/200</span>
         </div>
 
         <div className={styles.formGroup}>
           <FormField
             label={t('issues.form.description')}
             required
-            error={errors.description}
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
             htmlFor="description"
             helperText={t('issues.form.descriptionHint')}
+            reserveMessageSpace
             validate={(value) => {
               if (!value || value.length < 10) {
                 return t('issues.validation.descriptionMinLength');
               }
               return undefined;
             }}
+            onValidChange={setDescriptionValid}
           >
-            <textarea
-              className={styles.textarea}
+            <Textarea
               name="description"
               id="description"
               placeholder={t('issues.form.descriptionPlaceholder')}
               rows={3}
+              fullWidth
             />
           </FormField>
         </div>
@@ -403,6 +446,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
           <div className={styles.formGroup}>
             <FormField
               label={t('issues.form.severity')}
+              labelHint={t('pages.issues.edit.severityVsPriorityInfo')}
               required
               error={errors.severity}
               value={formData.severity || ''}
@@ -456,6 +500,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               <div className={styles.formGroup}>
                 <FormField
                   label={t('issues.form.priority')}
+                  labelHint={t('pages.issues.edit.severityVsPriorityInfo')}
                   error={errors.priority}
                   value={formData.priority || ''}
                   onChange={(e) => handleChange('priority', e.target.value as IssuePriority)}
@@ -491,7 +536,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
                         type="text"
                         name="error_type"
                         id="error_type"
-                        placeholder="e.g., TypeError, NetworkError"
+                        placeholder={t('pages.issues.details.errorTypePlaceholder')}
                         maxLength={100}
                       />
                     </FormField>
@@ -499,6 +544,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
                   <div className={styles.formGroup}>
                     <FormField
                       label={t('issues.form.severity')}
+                      labelHint={t('pages.issues.edit.severityVsPriorityInfo')}
                       required
                       error={errors.severity}
                       value={formData.severity || ''}
@@ -526,12 +572,12 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
                     onChange={(e) => handleChange('error_message', e.target.value)}
                     htmlFor="error_message"
                   >
-                    <textarea
-                      className={styles.textarea}
+                    <Textarea
                       name="error_message"
                       id="error_message"
-                      placeholder="Paste error message or stack trace here..."
+                      placeholder={t('pages.issues.details.errorMessagePlaceholder')}
                       rows={5}
+                      fullWidth
                     />
                   </FormField>
                 </div>
@@ -548,27 +594,27 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
             </label>
             <div className={styles.systemInfoBox}>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>Browser:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.browser')}:</span>
                 <span className={styles.systemInfoValue}>{formData.system_info.browser}</span>
               </div>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>OS:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.os')}:</span>
                 <span className={styles.systemInfoValue}>{formData.system_info.os}</span>
               </div>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>URL:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.url')}:</span>
                 <span className={styles.systemInfoValue}>{formData.system_info.url}</span>
               </div>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>Viewport:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.viewport')}:</span>
                 <span className={styles.systemInfoValue}>{formData.system_info.viewport}</span>
               </div>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>Screen:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.screen')}:</span>
                 <span className={styles.systemInfoValue}>{formData.system_info.screen}</span>
               </div>
               <div className={styles.systemInfoRow}>
-                <span className={styles.systemInfoLabel}>Timestamp:</span>
+                <span className={styles.systemInfoLabel}>{t('issues.form.systemInfoLabels.timestamp')}:</span>
                 <span className={styles.systemInfoValue}>
                   {formData.system_info.timestamp ? new Date(formData.system_info.timestamp).toLocaleString() : '-'}
                 </span>

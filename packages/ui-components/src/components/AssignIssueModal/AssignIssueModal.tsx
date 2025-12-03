@@ -80,7 +80,7 @@ export function AssignIssueModal({ isOpen, onClose, onSubmit, issueCode }: Assig
         </div>
 
         <div className={styles.actions}>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>

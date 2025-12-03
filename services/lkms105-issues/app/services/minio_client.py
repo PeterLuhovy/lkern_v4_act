@@ -16,9 +16,14 @@ from io import BytesIO
 import logging
 from typing import Optional
 from urllib3.exceptions import MaxRetryError, NewConnectionError
+from urllib3 import HTTPConnectionPool, HTTPSConnectionPool
+import urllib3
 import socket
 
 from app.config import settings
+
+# Short timeout for health checks (seconds)
+HEALTH_CHECK_TIMEOUT = 3
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +132,9 @@ class MinIOClient:
 
         Returns:
             File bytes or None if not found
+
+        Raises:
+            MinIOConnectionError: When MinIO server is not reachable
         """
         try:
             response = self.client.get_object(self.bucket, object_name)
@@ -136,7 +144,15 @@ class MinIOClient:
             logger.info(f"Downloaded file: {object_name}")
             return data
         except S3Error as e:
-            logger.error(f"Error downloading file {object_name}: {e}")
+            # S3Error includes NoSuchKey (file not found)
+            logger.warning(f"S3Error downloading file {object_name}: {e.code} - {e.message}")
+            return None
+        except Exception as e:
+            # Check if it's a connection error - should raise MinIOConnectionError
+            if self._is_connection_error(e):
+                self._handle_connection_error(e, f"download file {object_name}")
+            # For other errors (file corruption, etc.), treat as not found
+            logger.warning(f"Error downloading file {object_name}: {type(e).__name__} - {str(e)}")
             return None
 
     def delete_file(self, object_name: str) -> bool:
@@ -222,17 +238,32 @@ class MinIOClient:
 
     def check_health(self) -> bool:
         """
-        Check if MinIO is available.
+        Check if MinIO is available with a short timeout.
 
         Returns:
             True if MinIO is reachable and bucket accessible, False otherwise
         """
         try:
-            # Simple bucket_exists check - fast and reliable
-            self.client.bucket_exists(self.bucket)
+            # Create a separate client with short timeout for health check
+            # This prevents blocking the request for 30+ seconds when MinIO is down
+            http_client = urllib3.PoolManager(
+                timeout=urllib3.Timeout(connect=HEALTH_CHECK_TIMEOUT, read=HEALTH_CHECK_TIMEOUT),
+                retries=urllib3.Retry(total=0, backoff_factor=0)  # No retries for health check
+            )
+
+            health_client = Minio(
+                f"{settings.MINIO_HOST}:{settings.MINIO_PORT}",
+                access_key=settings.MINIO_ACCESS_KEY,
+                secret_key=settings.MINIO_SECRET_KEY,
+                secure=settings.MINIO_SECURE,
+                http_client=http_client
+            )
+
+            # Quick bucket check with timeout
+            health_client.bucket_exists(self.bucket)
             return True
         except Exception as e:
-            logger.warning(f"MinIO health check failed: {e}")
+            logger.warning(f"MinIO health check failed (timeout={HEALTH_CHECK_TIMEOUT}s): {type(e).__name__}")
             return False
 
 

@@ -43,7 +43,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const placeholder = searchPlaceholder || t('pageTemplate.filter.searchPlaceholder');
   const buttonText = newItemText || t('pageTemplate.filter.newItem');
   const inactiveLabel = showInactiveLabel || t('pageTemplate.filter.showInactive');
-  const title = panelTitle || 'Filters & Search';
+  const title = panelTitle || t('pageTemplate.filter.panelTitle');
 
   // Collapse state
   const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);

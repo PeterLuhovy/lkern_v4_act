@@ -5,8 +5,8 @@
  * FILE: TemplatePageDatagrid.tsx
  * PATH: /apps/web-ui/src/pages/TemplatePageDatagrid/TemplatePageDatagrid.tsx
  * DESCRIPTION: Universal template for DataGrid pages with FilteredDataGrid
- * VERSION: v1.0.0
- * UPDATED: 2025-11-08
+ * VERSION: v1.1.0
+ * UPDATED: 2025-11-27
  *
  * 📖 USAGE:
  * This is a REFERENCE TEMPLATE for creating new DataGrid pages.
@@ -29,7 +29,7 @@
  */
 
 import { useState } from 'react';
-import { BasePage, PageHeader, ConfirmModal, ExportButton } from '@l-kern/ui-components';
+import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
 import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
 import { useTranslation, useAuthContext, useTheme, useToast, COLORS, formatDate, exportToCSV, exportToJSON } from '@l-kern/config';
@@ -102,6 +102,30 @@ export function TemplatePageDatagrid() {
   const [itemToDelete, setItemToDelete] = useState<TemplateItem | null>(null);
   const [itemToRestore, setItemToRestore] = useState<TemplateItem | null>(null);
   const [itemToPermanentlyDelete, setItemToPermanentlyDelete] = useState<TemplateItem | null>(null);
+
+  // Bulk delete states
+  const [bulkDeleteType, setBulkDeleteType] = useState<'soft' | 'hard' | 'mixed' | null>(null);
+  const [bulkDeleteCounts, setBulkDeleteCounts] = useState({ active: 0, deleted: 0 });
+
+  // MinIO unavailable - items that failed delete (unified for single and bulk)
+  const [minioFailedItems, setMinioFailedItems] = useState<TemplateItem[]>([]);
+
+  // Loading states
+  const [isPermanentDeleting, setIsPermanentDeleting] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [isRetryingDelete, setIsRetryingDelete] = useState(false);
+
+  // ZIP export states
+  const [isExportingZip, setIsExportingZip] = useState(false);
+  const [exportErrors, setExportErrors] = useState<{
+    deletedRecords: string[];
+    missingAttachments: string[];
+    minioErrors: string[];
+    successCount: number;
+    selectedItems: (TemplateItem & { isActive: boolean })[];
+    pendingZipBlob?: Blob;
+    zipFileName?: string;
+  } | null>(null);
 
   // ============================================================
   // STATUS COLORS
@@ -374,40 +398,281 @@ export function TemplatePageDatagrid() {
   };
 
   /**
-   * Handle bulk export
+   * Handle bulk export - CSV format
+   * Exports selected items with all fields flattened for CSV
    */
   const handleExportCSV = () => {
     if (selectedRows.size === 0) return;
-    const selectedItems = mockData.filter(item => selectedRows.has(item.id));
-    
-    const headers = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Created'];
+    const selectedItems = dataWithActive.filter(item => selectedRows.has(item.id));
+
+    // Headers matching TemplateItem fields
+    const headers = [
+      t('pages.template.columns.id'),
+      t('pages.template.columns.name'),
+      t('pages.template.columns.email'),
+      t('pages.template.columns.status'),
+      t('pages.template.columns.priority'),
+      t('pages.template.columns.value'),
+      t('pages.template.columns.date'),
+      t('pages.template.details.isDeleted'),
+    ];
+
+    // Map data to export format
     const data = selectedItems.map(item => ({
       id: item.id,
       name: item.name,
       email: item.email,
-      phone: item.phone || 'N/A',
       status: item.status,
-      created: new Date(item.createdAt).toLocaleString('sk-SK'),
+      priority: item.priority,
+      value: item.value,
+      date: item.date,
+      is_deleted: item.is_deleted ? 'Yes' : 'No',
     }));
-    
-    exportToCSV(data, headers, `template_export_${new Date().toISOString().split('T')[0]}`);
-  };
 
-  const handleExportJSON = () => {
-    if (selectedRows.size === 0) return;
-    const selectedItems = mockData.filter(item => selectedRows.has(item.id));
-    exportToJSON(selectedItems, `template_export_${new Date().toISOString().split('T')[0]}`);
+    exportToCSV(data, headers, `template_export_${new Date().toISOString().split('T')[0]}`);
+    toast.success(t('pages.template.exportSuccess', { count: selectedItems.length, format: 'CSV' }));
   };
 
   /**
-   * Handle bulk delete
+   * Handle bulk export - JSON format
+   * Exports selected items with full data structure
+   */
+  const handleExportJSON = () => {
+    if (selectedRows.size === 0) return;
+    const selectedItems = dataWithActive.filter(item => selectedRows.has(item.id));
+
+    // Remove computed isActive field before export
+    const exportData = selectedItems.map(item => {
+      const { isActive, ...cleanItem } = item;
+      return cleanItem;
+    });
+
+    exportToJSON(exportData, `template_export_${new Date().toISOString().split('T')[0]}`);
+    toast.success(t('pages.template.exportSuccess', { count: selectedItems.length, format: 'JSON' }));
+  };
+
+  /**
+   * Handle bulk export - ZIP format with full data
+   * Creates ZIP archive with JSON and CSV for each item
+   *
+   * Error handling:
+   * - MinIO unavailable (503): Show modal, offer export without attachments
+   * - Missing attachments (404): Include in error report, continue export
+   *
+   * 🔧 TODO: Implement attachment download from MinIO when entity has attachments
+   */
+  const handleExportZIP = async (skipAttachments = false) => {
+    if (selectedRows.size === 0) return;
+
+    const selectedItems = dataWithActive.filter(item => selectedRows.has(item.id));
+
+    // Start loading
+    setIsExportingZip(true);
+
+    // Track errors (for future attachment support)
+    const deletedRecords: string[] = [];
+    const missingAttachments: string[] = [];
+    const minioErrors: string[] = [];
+    let successCount = 0;
+
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const dateStr = new Date().toISOString().split('T')[0];
+
+      // CSV headers for individual item export
+      const csvHeaders = [
+        'ID', 'Name', 'Email', 'Status', 'Priority', 'Value', 'Date', 'Is Deleted',
+      ];
+
+      for (const item of selectedItems) {
+        try {
+          // Folder name: id
+          const folderName = item.id;
+          const folder = zip.folder(folderName);
+
+          if (!folder) continue;
+
+          // Clean item data (remove isActive)
+          const { isActive, ...cleanItem } = item;
+
+          // Add item.json (full data)
+          folder.file('item.json', JSON.stringify(cleanItem, null, 2));
+
+          // Create CSV content for single item
+          const csvRow = [
+            item.id,
+            item.name,
+            item.email,
+            item.status,
+            item.priority,
+            item.value,
+            item.date,
+            item.is_deleted ? 'Yes' : 'No',
+          ].map(val => {
+            const str = String(val);
+            // Escape quotes and wrap in quotes if contains comma or newline
+            if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+              return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+          });
+
+          const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
+          folder.file('item.csv', csvContent);
+
+          // 🔧 TODO: Download and add attachments when entity has attachments
+          // Example from Issues:
+          // if (!skipAttachments && item.attachments && item.attachments.length > 0) {
+          //   const attachmentsFolder = folder.folder('attachments');
+          //   for (const attachment of item.attachments) {
+          //     const response = await fetch(`${API_BASE_URL}/items/${item.id}/attachments/${attachment.file_name}`);
+          //     if (response.ok) {
+          //       const blob = await response.blob();
+          //       attachmentsFolder.file(attachment.file_name, blob);
+          //     } else if (response.status === 404) {
+          //       missingAttachments.push(`${item.id}: ${attachment.file_name}`);
+          //     } else if (response.status === 503) {
+          //       if (!minioErrors.includes(item.id)) minioErrors.push(item.id);
+          //     }
+          //   }
+          // }
+
+          successCount++;
+        } catch (err) {
+          console.error(`[Template] ❌ Error exporting item ${item.id}:`, err);
+        }
+      }
+
+      // Generate and download ZIP
+      if (successCount > 0) {
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const zipFileName = `template_export_${dateStr}.zip`;
+
+        // If there were errors, show modal (for future attachment support)
+        if (minioErrors.length > 0 || missingAttachments.length > 0) {
+          setExportErrors({
+            deletedRecords,
+            missingAttachments,
+            minioErrors,
+            successCount,
+            selectedItems,
+            pendingZipBlob: zipBlob,
+            zipFileName,
+          });
+          setIsExportingZip(false);
+          return;
+        }
+
+        // No errors - download directly
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = zipFileName;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        toast.success(t('pages.template.exportSuccess', { count: successCount, format: 'ZIP' }));
+      }
+    } catch (error) {
+      console.error('[Template] ZIP export failed:', error);
+      toast.error(t('pages.template.exportZipError'));
+    } finally {
+      setIsExportingZip(false);
+    }
+  };
+
+  /**
+   * Handle bulk delete - opens appropriate confirmation modal based on item states
+   *
+   * 🔧 NOTE: This determines soft vs hard delete based on is_deleted status
    */
   const handleBulkDelete = () => {
     if (selectedRows.size === 0) return;
-    if (confirm(t('pages.template.bulkDeleteConfirm', { count: selectedRows.size }))) {
-      alert(t('pages.template.bulkDeleteSuccess', { count: selectedRows.size }));
-      setSelectedRows(new Set());
-      // TODO: Implement bulk delete API call
+
+    const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+    const activeItems = selectedItems.filter(item => !item.is_deleted);
+    const deletedItems = selectedItems.filter(item => item.is_deleted);
+
+    // Determine delete type
+    if (activeItems.length > 0 && deletedItems.length === 0) {
+      setBulkDeleteType('soft');
+      setBulkDeleteCounts({ active: activeItems.length, deleted: 0 });
+    } else if (deletedItems.length > 0 && activeItems.length === 0) {
+      setBulkDeleteType('hard');
+      setBulkDeleteCounts({ active: 0, deleted: deletedItems.length });
+    } else {
+      setBulkDeleteType('mixed');
+      setBulkDeleteCounts({ active: activeItems.length, deleted: deletedItems.length });
+    }
+  };
+
+  /**
+   * Execute bulk delete with MinIO 503 handling
+   *
+   * 🔧 TODO: Replace mock implementation with actual API calls
+   */
+  const executeBulkDelete = async () => {
+    setIsBulkDeleting(true);
+    try {
+      const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+      const activeItems = selectedItems.filter(item => !item.is_deleted);
+      const deletedItems = selectedItems.filter(item => item.is_deleted);
+
+      // Soft delete active items
+      if (activeItems.length > 0) {
+        for (const item of activeItems) {
+          // TODO: Replace with actual API call
+          // await fetch(`${API_BASE_URL}/template/${item.id}`, { method: 'DELETE' });
+          console.log(`[Template] ✅ Soft deleted ${item.id}`);
+        }
+      }
+
+      // Hard delete soft-deleted items (with MinIO 503 handling)
+      const failedItems: TemplateItem[] = [];
+      const successfulHardDeletes: TemplateItem[] = [];
+
+      if (deletedItems.length > 0) {
+        for (const item of deletedItems) {
+          // TODO: Replace with actual API call
+          // const response = await fetch(`${API_BASE_URL}/template/${item.id}/permanent`, { method: 'DELETE' });
+          //
+          // if (response.status === 503) {
+          //   failedItems.push(item);
+          // } else if (response.ok) {
+          //   successfulHardDeletes.push(item);
+          // }
+
+          // Mock: Simulate success
+          successfulHardDeletes.push(item);
+          console.log(`[Template] ✅ Hard deleted ${item.id}`);
+        }
+      }
+
+      // Close bulk delete modal
+      setBulkDeleteType(null);
+
+      // If any items failed due to MinIO, show special modal
+      if (failedItems.length > 0) {
+        console.log(`[Template] ⚠️ ${failedItems.length} items failed due to MinIO`);
+        setMinioFailedItems(failedItems);
+        const failedIds = new Set(failedItems.map(i => i.id));
+        setSelectedRows(new Set([...selectedRows].filter(id => failedIds.has(id))));
+      } else {
+        setSelectedRows(new Set());
+      }
+
+      // TODO: Refresh list
+      // await fetchItems();
+
+      const totalDeleted = activeItems.length + successfulHardDeletes.length;
+      if (totalDeleted > 0) {
+        toast.success(t('pages.template.bulkDeleteSuccess', { count: totalDeleted }));
+      }
+    } catch (error) {
+      console.error('[Template] ❌ Error during bulk delete:', error);
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -432,10 +697,14 @@ export function TemplatePageDatagrid() {
   };
 
   /**
-   * Handle permanent delete confirmation
+   * Handle permanent delete confirmation with MinIO 503 handling
+   *
+   * 🔧 TODO: Replace mock implementation with actual API calls
    */
   const handlePermanentDeleteConfirm = async () => {
     if (!itemToPermanentlyDelete) return;
+
+    setIsPermanentDeleting(true);
 
     try {
       // TODO: Implement permanent delete API call
@@ -444,6 +713,14 @@ export function TemplatePageDatagrid() {
       // });
       //
       // if (!response.ok) {
+      //   // Check for MinIO unavailable (503)
+      //   if (response.status === 503) {
+      //     console.log('[Template] ⚠️ MinIO unavailable - showing special modal');
+      //     const itemToHandle = itemToPermanentlyDelete;
+      //     setItemToPermanentlyDelete(null);
+      //     setMinioFailedItems([itemToHandle]);  // Unified state - array with single item
+      //     return;
+      //   }
       //   throw new Error(`Failed to permanently delete item: ${response.statusText}`);
       // }
 
@@ -466,6 +743,120 @@ export function TemplatePageDatagrid() {
       // Show error toast with details
       const errorMessage = err instanceof Error ? err.message : String(err);
       toast.error(t('pages.template.permanentDeleteError', { name: itemToPermanentlyDelete.name, error: errorMessage }));
+    } finally {
+      setIsPermanentDeleting(false);
+    }
+  };
+
+  // ============================================================
+  // UNIFIED MINIO HANDLERS (works for single item or bulk)
+  // ============================================================
+
+  /**
+   * Mark all failed items for deletion (force=true)
+   * Works for single item or bulk - iterates over minioFailedItems array
+   *
+   * 🔧 TODO: Replace mock implementation with actual API calls
+   */
+  const handleMinioMarkForDeletion = async () => {
+    if (minioFailedItems.length === 0) return;
+
+    try {
+      let successCount = 0;
+
+      for (const item of minioFailedItems) {
+        // TODO: Implement force delete API call
+        // const response = await fetch(`${API_BASE_URL}/template/${item.id}/permanent?force=true`, {
+        //   method: 'DELETE',
+        // });
+        //
+        // if (response.ok) {
+        //   successCount++;
+        //   console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
+        // }
+
+        // Mock: Simulate success
+        successCount++;
+        console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
+      }
+
+      // Close modal and clear selection
+      setMinioFailedItems([]);
+      setSelectedRows(new Set());
+
+      // TODO: Refresh list
+      // await fetchItems();
+
+      if (successCount > 0) {
+        // Show appropriate message based on count
+        const messageCode = successCount === 1
+          ? minioFailedItems[0].id
+          : `${successCount} položiek`;
+        toast.success(t('pages.template.minioUnavailable.markedForDeletion', { code: messageCode }));
+      }
+    } catch (error) {
+      console.error('[Template] ❌ Error during mark for deletion:', error);
+    }
+  };
+
+  /**
+   * Retry delete for all failed items (without force)
+   * Stays on modal with loading if some still fail
+   *
+   * 🔧 TODO: Replace mock implementation with actual API calls
+   */
+  const handleMinioRetryDelete = async () => {
+    if (minioFailedItems.length === 0) return;
+
+    setIsRetryingDelete(true);
+
+    try {
+      const stillFailedItems: TemplateItem[] = [];
+      let successCount = 0;
+
+      for (const item of minioFailedItems) {
+        // TODO: Implement retry delete API call
+        // const response = await fetch(`${API_BASE_URL}/template/${item.id}/permanent`, {
+        //   method: 'DELETE',
+        // });
+        //
+        // if (response.status === 503) {
+        //   stillFailedItems.push(item);
+        //   console.log(`[Template] ⚠️ MinIO still unavailable for ${item.id}`);
+        // } else if (response.ok) {
+        //   successCount++;
+        //   console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
+        // }
+
+        // Mock: Simulate success
+        successCount++;
+        console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
+      }
+
+      if (stillFailedItems.length > 0) {
+        // Update the list of still-failed items (stay on modal)
+        setMinioFailedItems(stillFailedItems);
+        toast.warning(t('pages.template.minioUnavailable.title'));
+      } else {
+        // All successful - close modal
+        setMinioFailedItems([]);
+        setSelectedRows(new Set());
+      }
+
+      // TODO: Refresh list
+      // await fetchItems();
+
+      if (successCount > 0) {
+        // Show appropriate message
+        const messageCode = successCount === 1 && minioFailedItems.length === 1
+          ? minioFailedItems[0].name
+          : successCount;
+        toast.success(t('pages.template.permanentDeleteSuccess', { name: messageCode }));
+      }
+    } catch (error) {
+      console.error('[Template] ❌ Error during retry delete:', error);
+    } finally {
+      setIsRetryingDelete(false);
     }
   };
 
@@ -545,8 +936,9 @@ export function TemplatePageDatagrid() {
                   onExport={(format) => {
                     if (format === 'csv') handleExportCSV();
                     else if (format === 'json') handleExportJSON();
+                    else if (format === 'zip') handleExportZIP();
                   }}
-                  formats={['csv', 'json']}
+                  formats={['csv', 'json', 'zip']}
                   disabled={selectedRows.size === 0 || !canExport}
                 />
                 <button
@@ -568,7 +960,7 @@ export function TemplatePageDatagrid() {
           }
         />
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Confirmation Modal (Soft Delete) */}
         {itemToDelete && (
           <ConfirmModal
             isOpen={true}
@@ -578,6 +970,70 @@ export function TemplatePageDatagrid() {
             message={t('pages.template.deleteConfirm', { name: itemToDelete.name })}
             confirmButtonLabel={t('common.delete')}
             cancelButtonLabel={t('common.cancel')}
+          />
+        )}
+
+        {/* Bulk Delete Confirmation Modals */}
+        {bulkDeleteType === 'soft' && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setBulkDeleteType(null)}
+            onConfirm={executeBulkDelete}
+            title={t('pages.template.bulkDelete.title')}
+            message={t('pages.template.bulkDelete.softMessage', { count: bulkDeleteCounts.active })}
+            isDanger={false}
+            isLoading={isBulkDeleting}
+          />
+        )}
+
+        {bulkDeleteType === 'hard' && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setBulkDeleteType(null)}
+            onConfirm={executeBulkDelete}
+            title={t('pages.template.bulkDelete.titlePermanent')}
+            message={t('pages.template.bulkDelete.hardMessage', { count: bulkDeleteCounts.deleted })}
+            confirmKeyword="ano"
+            isDanger={true}
+            isLoading={isBulkDeleting}
+          />
+        )}
+
+        {bulkDeleteType === 'mixed' && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setBulkDeleteType(null)}
+            onConfirm={executeBulkDelete}
+            title={t('pages.template.bulkDelete.titleMixed')}
+            message={t('pages.template.bulkDelete.mixedMessage', {
+              softCount: bulkDeleteCounts.active,
+              hardCount: bulkDeleteCounts.deleted
+            })}
+            confirmKeyword="ano"
+            isDanger={true}
+            isLoading={isBulkDeleting}
+          />
+        )}
+
+        {/* MinIO Unavailable Modal - unified for single item and bulk */}
+        {minioFailedItems.length > 0 && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => {
+              setMinioFailedItems([]);
+              setSelectedRows(new Set());
+            }}
+            onConfirm={handleMinioMarkForDeletion}
+            title={t('pages.template.minioUnavailable.title')}
+            message={minioFailedItems.length === 1
+              ? t('pages.template.minioUnavailable.message', { code: minioFailedItems[0].id })
+              : t('pages.template.bulkDelete.minioMessage', { count: minioFailedItems.length })
+            }
+            confirmButtonLabel={t('pages.template.minioUnavailable.markForDeletion')}
+            cancelButtonLabel={t('common.cancel')}
+            secondaryButtonLabel={t('pages.template.minioUnavailable.retryDelete')}
+            onSecondary={handleMinioRetryDelete}
+            isSecondaryLoading={isRetryingDelete}
           />
         )}
 
@@ -606,7 +1062,90 @@ export function TemplatePageDatagrid() {
             cancelButtonLabel={t('common.cancel')}
             confirmKeyword="ano"
             isDanger={true}
+            isLoading={isPermanentDeleting}
           />
+        )}
+
+        {/* Export Errors Modal - shows missing attachments with download option */}
+        {exportErrors && (
+          <ConfirmModal
+            isOpen={true}
+            onClose={() => setExportErrors(null)}
+            onConfirm={() => {
+              // Download the pending ZIP
+              if (exportErrors.pendingZipBlob && exportErrors.zipFileName) {
+                const url = URL.createObjectURL(exportErrors.pendingZipBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = exportErrors.zipFileName;
+                link.click();
+                URL.revokeObjectURL(url);
+                toast.warning(t('pages.template.exportPartialAttachments', {
+                  success: exportErrors.successCount,
+                  missing: exportErrors.missingAttachments.length
+                }));
+              }
+              setExportErrors(null);
+            }}
+            title={exportErrors.minioErrors.length > 0
+              ? t('pages.template.minioExportError.title')
+              : t('pages.template.exportErrors.missingAttachmentsModalTitle')
+            }
+            message={
+              <>
+                {exportErrors.missingAttachments.length > 0 && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <p style={{ marginBottom: '8px' }}>
+                      {t('pages.template.exportErrors.missingAttachmentsMessage')}
+                    </p>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {exportErrors.missingAttachments.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {exportErrors.minioErrors.length > 0 && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <p style={{ fontWeight: 600, marginBottom: '4px' }}>
+                      ⚠️ {t('pages.template.exportErrors.minioTitle', { count: exportErrors.minioErrors.length })}:
+                    </p>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {exportErrors.minioErrors.map(code => (
+                        <li key={code}>{code}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            }
+            confirmButtonLabel={t('pages.template.exportErrors.downloadWithoutMissing')}
+            cancelButtonLabel={t('common.cancel')}
+          />
+        )}
+
+        {/* Loading Overlay for ZIP Export */}
+        {isExportingZip && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+            }}
+          >
+            <Spinner size="large" />
+            <p style={{ color: 'white', marginTop: '16px', fontSize: '16px' }}>
+              {t('pages.template.exportZipLoading')}
+            </p>
+          </div>
         )}
       </div>
     </BasePage>

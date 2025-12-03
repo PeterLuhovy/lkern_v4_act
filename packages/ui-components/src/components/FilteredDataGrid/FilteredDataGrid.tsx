@@ -34,6 +34,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   isRowSelectable,
   expandedRows,
   onRowToggle,
+  onRowDoubleClick,
   renderExpandedContent,
   actions,
   compact,
@@ -54,6 +55,8 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   betweenContent,
   autoRefreshInterval,
   onRefresh,
+  error,
+  onRetry,
 }: FilteredDataGridProps<T>) {
   // === INTERNAL STATE ===
   const [searchQuery, setSearchQuery] = useState('');
@@ -309,6 +312,7 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         isRowSelectable={isRowSelectable}
         expandedRows={expandedRows}
         onRowToggle={onRowToggle}
+        onRowDoubleClick={onRowDoubleClick}
         renderExpandedContent={renderExpandedContent}
         actions={actions}
         compactMode={compact}
@@ -318,6 +322,8 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         sortField={sortField}
         sortDirection={sortDirection}
         onSort={handleSort}
+        error={error}
+        onRetry={onRetry}
       />
 
       {/* Pagination */}

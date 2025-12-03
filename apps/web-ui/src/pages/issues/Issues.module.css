@@ -85,6 +85,7 @@
 .detailsColumns {
   display: grid;
   grid-template-columns: 350px 200px 200px 300px;
+  padding-top: var(--spacing-md, 16px);
   gap: var(--spacing-md, 16px);
   font-size: var(--font-size-sm, 12px);
   color: var(--theme-text, #212121);

@@ -26,7 +26,7 @@ from typing import List
 from datetime import datetime
 import logging
 
-from app.database import get_db
+from app.database import get_db_safe
 from app.models import Issue, DeletionAudit, DeletionStatus
 from app.schemas import DeletionAuditResponse
 from app.services.minio_client import minio_client, MinIOConnectionError
@@ -43,7 +43,7 @@ router = APIRouter(prefix="/cleanup", tags=["Cleanup"])
 
 @router.get("/pending", response_model=List[DeletionAuditResponse])
 async def list_pending_deletions(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     List all pending deletion audits (items waiting for cleanup).
@@ -65,7 +65,7 @@ async def list_pending_deletions(
 
 @router.post("/retry")
 async def retry_all_pending_deletions(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     Retry all pending deletions.
@@ -122,7 +122,7 @@ async def retry_all_pending_deletions(
 @router.post("/retry/{audit_id}")
 async def retry_single_deletion(
     audit_id: int,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db_safe),
 ):
     """
     Retry a specific pending deletion by audit ID.

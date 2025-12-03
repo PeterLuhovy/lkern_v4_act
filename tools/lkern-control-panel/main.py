@@ -3,9 +3,10 @@
 FILE: main.py
 PATH: /tools/lkern-control-panel/main.py
 DESCRIPTION: L-KERN Control Panel - Tkinter GUI with background threading (uses central services registry)
-VERSION: v1.18.0
-UPDATED: 2025-11-25 11:20:00
+VERSION: v1.19.0
+UPDATED: 2025-11-30 12:00:00
 CHANGELOG:
+  v1.19.0 - Changed "unhealthy" status to "degraded" (orange) - service running without DB
   v1.18.0 - Unified status check logic: Now uses shared docker_utils.py functions
          - check_container_status() now uses check_docker_status() from docker_utils
          - check_native_status() now uses check_native_status() from docker_utils
@@ -30,6 +31,8 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import json
 import os
+import sys
+import subprocess
 import webbrowser
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
@@ -186,15 +189,49 @@ class LKernControlPanel:
         app_version = self.config['app']['version']
         self.root.title(f"{app_name} v{app_version}")
 
-        width = self.config['ui']['window_width']
-        height = self.config['ui']['window_height']
-        self.root.geometry(f"{width}x{height}")
+        # Check for --geometry argument (from restart)
+        geometry = None
+        for i, arg in enumerate(sys.argv):
+            if arg == '--geometry' and i + 1 < len(sys.argv):
+                geometry = sys.argv[i + 1]
+                break
+
+        if geometry:
+            # Use saved geometry from restart
+            self.root.geometry(geometry)
+        else:
+            # Use default from config
+            width = self.config['ui']['window_width']
+            height = self.config['ui']['window_height']
+            self.root.geometry(f"{width}x{height}")
+
         self.root.minsize(800, 600)
         self.root.configure(bg=COLORS['bg'])
 
         # Bring window to front
         self.root.lift()
         self.root.focus_force()
+
+    def restart_application(self):
+        """Restart Control Panel while preserving window position and size.
+
+        Note: Only the GUI is restarted. Background processes are not affected.
+        """
+        # Get current window geometry (format: WIDTHxHEIGHT+X+Y)
+        geometry = self.root.geometry()
+
+        # Build restart command with geometry
+        script_path = os.path.abspath(__file__)
+        python_exe = sys.executable
+
+        # Start new instance with geometry parameter
+        subprocess.Popen(
+            [python_exe, script_path, '--geometry', geometry],
+            cwd=os.path.dirname(script_path)
+        )
+
+        # Close current instance (background processes continue)
+        self.root.destroy()
 
     def setup_styles(self):
         """Configure ttk styles for dark theme"""
@@ -541,6 +578,10 @@ class LKernControlPanel:
         # Clear Terminal button
         clear_button = ttk.Button(toolbar, text="🗑️ Clear", command=self.clear_terminal)
         clear_button.pack(side=tk.RIGHT, padx=5)
+
+        # Restart button (reloads Control Panel, preserves window position)
+        restart_button = ttk.Button(toolbar, text="🔄 Restart", command=self.restart_application)
+        restart_button.pack(side=tk.RIGHT, padx=5)
 
     def create_command_buttons(self, parent):
         """Create preset command buttons - COMPLETE REBUILD"""
@@ -1177,7 +1218,7 @@ class LKernControlPanel:
 
                 if status == 'running':
                     status_label.config(text="running", fg=COLORS['success'])
-                    self.start_status_animation(status_label)
+                    self.start_status_animation(status_label)  # Blink when running
                 else:
                     status_label.config(text="stopped", fg=COLORS['error'])
                     self.stop_status_animation(status_label)
@@ -1232,15 +1273,17 @@ class LKernControlPanel:
                         status_label.config(text="starting", fg=COLORS['warning'])
                         self.start_status_animation(status_label)
                     elif health == 'unhealthy':
-                        status_label.config(text="unhealthy", fg=COLORS['error'])
-                        self.stop_status_animation(status_label)
+                        # Container is running but healthcheck failed (e.g., DB not ready)
+                        # Show "degraded" with orange color - running without full dependencies
+                        status_label.config(text="degraded", fg=COLORS['warning'])
+                        self.start_status_animation(status_label)
                     elif health == 'healthy':
                         status_label.config(text="running", fg=COLORS['success'])
-                        self.stop_status_animation(status_label)  # Stop animation when healthy
+                        self.start_status_animation(status_label)  # Blink when healthy
                     else:
                         # No health check configured, assume running is ready
                         status_label.config(text="running", fg=COLORS['success'])
-                        self.stop_status_animation(status_label)  # Stop animation when ready
+                        self.start_status_animation(status_label)  # Blink when running
                 elif status in ['starting', 'restarting']:
                     status_label.config(text=status, fg=COLORS['warning'])
                     self.start_status_animation(status_label)

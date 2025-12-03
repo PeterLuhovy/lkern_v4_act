@@ -12,14 +12,79 @@ Description:
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 import logging
 import uvicorn
+import time
+from sqlalchemy import text
 
 from app.config import settings
-from app.database import init_db
+from app.database import init_db, SessionLocal
 from app.api.rest import issues
 from app.api.rest import config as config_api
 from app.api.rest import cleanup
+from app.services.minio_client import minio_client
+
+# Global state for graceful degradation
+_db_available = False
+_minio_available = False
+_reconnect_task = None
+
+
+def is_db_available() -> bool:
+    """Check if database is available (for graceful degradation)."""
+    return _db_available
+
+
+def is_minio_available() -> bool:
+    """Check if MinIO is available (for graceful degradation)."""
+    return _minio_available
+
+
+async def _dependency_reconnect_loop():
+    """
+    Background task that periodically tries to reconnect to unavailable dependencies.
+    Runs every 60 seconds for each unavailable dependency.
+    """
+    import asyncio
+    global _db_available, _minio_available
+
+    while True:
+        await asyncio.sleep(60)  # Wait 1 minute between attempts
+
+        # Try to reconnect to database
+        if not _db_available:
+            logger.info("Attempting to reconnect to database...")
+            try:
+                from app.database import Base, engine
+                Base.metadata.create_all(bind=engine)
+                _db_available = True
+                logger.info("✅ Database reconnection successful!")
+            except Exception as e:
+                logger.warning(f"Database reconnection failed: {e}")
+
+        # Try to reconnect to MinIO
+        if not _minio_available:
+            logger.info("Attempting to reconnect to MinIO...")
+            try:
+                if minio_client.check_health():
+                    _minio_available = True
+                    logger.info("✅ MinIO reconnection successful!")
+                else:
+                    logger.warning("MinIO health check failed")
+            except Exception as e:
+                logger.warning(f"MinIO reconnection failed: {e}")
+
+        # Log overall status
+        if _db_available and _minio_available:
+            logger.info("All dependencies available - service fully operational")
+        elif not _db_available or not _minio_available:
+            missing = []
+            if not _db_available:
+                missing.append("Database")
+            if not _minio_available:
+                missing.append("MinIO")
+            logger.info(f"Will retry {', '.join(missing)} in 60 seconds...")
 
 # Configure logging - level from settings (can be changed at runtime)
 def get_log_level(level_str: str) -> int:
@@ -188,6 +253,9 @@ app.include_router(cleanup.router)
 @app.on_event("startup")
 async def startup_event():
     """Initialize application on startup."""
+    import asyncio
+    global _db_available, _minio_available, _reconnect_task
+
     logger.info(f"Starting {settings.SERVICE_NAME} v{settings.SERVICE_VERSION}")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"REST API: http://{settings.REST_HOST}:{settings.REST_PORT}")
@@ -196,16 +264,50 @@ async def startup_event():
     # Apply persisted runtime config (log level, etc.)
     config_api.apply_persisted_config()
 
-    # Initialize database
-    init_db()
+    # Initialize database with retry logic
+    _db_available = init_db(max_retries=5, retry_delay=2.0)
 
-    logger.info("Application startup complete")
+    # Check MinIO availability
+    try:
+        if minio_client.check_health():
+            _minio_available = True
+            logger.info("MinIO connection successful")
+        else:
+            _minio_available = False
+            logger.warning("MinIO health check failed")
+    except Exception as e:
+        _minio_available = False
+        logger.warning(f"MinIO connection failed: {e}")
+
+    # Start background reconnect task if any dependency is unavailable
+    if not _db_available or not _minio_available:
+        missing = []
+        if not _db_available:
+            missing.append("Database")
+        if not _minio_available:
+            missing.append("MinIO")
+        logger.warning(f"Application started in DEGRADED mode ({', '.join(missing)} unavailable)")
+        logger.info("Background reconnection task started - will retry every 60 seconds")
+        _reconnect_task = asyncio.create_task(_dependency_reconnect_loop())
+    else:
+        logger.info("Application startup complete - all dependencies available")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on application shutdown."""
+    global _reconnect_task
+
     logger.info("Shutting down application...")
+
+    # Cancel reconnect task if running
+    if _reconnect_task and not _reconnect_task.done():
+        _reconnect_task.cancel()
+        try:
+            await _reconnect_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("Background reconnect task cancelled")
 
 
 @app.get("/")
@@ -218,19 +320,149 @@ async def root():
     }
 
 
-@app.get("/health")
-async def health():
+@app.get("/ping")
+async def ping():
     """
-    Health check endpoint.
+    Lightweight ping endpoint - responds immediately.
+    Use this to check if the service is alive without waiting for dependency checks.
 
     Returns:
-        200 OK if service is healthy
+        200 OK with service info (no dependency checks)
     """
     return {
-        "status": "healthy",
+        "status": "alive",
         "service": settings.SERVICE_NAME,
         "version": settings.SERVICE_VERSION,
     }
+
+
+@app.get("/health")
+async def health():
+    """
+    Comprehensive health check endpoint.
+
+    Checks all dependencies IN PARALLEL:
+    - SQL Database (PostgreSQL)
+    - MinIO (Object Storage)
+
+    Returns:
+        200 OK with detailed status of all dependencies
+        - status: "healthy" if all critical dependencies OK
+        - status: "degraded" if non-critical dependencies (MinIO) are down
+        - status: "unhealthy" if critical dependencies (SQL) are down
+    """
+    start_time = time.time()
+
+    # ============================================================
+    # RUN DEPENDENCY CHECKS IN PARALLEL
+    # ============================================================
+
+    async def check_sql():
+        """Check SQL database connectivity."""
+        sql_start = time.time()
+        sql_status = "healthy"
+        sql_error = None
+
+        try:
+            # Run DB check in thread pool to not block event loop
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, _sync_sql_check)
+            sql_response_time = int((time.time() - sql_start) * 1000)
+        except Exception as e:
+            sql_status = "unhealthy"
+            sql_error = str(e)
+            sql_response_time = int((time.time() - sql_start) * 1000)
+            logger.error(f"SQL health check failed: {e}")
+
+        return {
+            "status": sql_status,
+            "responseTime": sql_response_time,
+            **({"error": sql_error} if sql_error else {}),
+        }
+
+    async def check_minio():
+        """Check MinIO connectivity with timeout."""
+        minio_start = time.time()
+        minio_status = "healthy"
+        minio_error = None
+
+        try:
+            # Run MinIO check in thread pool with 5 second timeout
+            loop = asyncio.get_event_loop()
+            await asyncio.wait_for(
+                loop.run_in_executor(None, _sync_minio_check),
+                timeout=5.0  # 5 second timeout for MinIO check
+            )
+            minio_response_time = int((time.time() - minio_start) * 1000)
+        except asyncio.TimeoutError:
+            minio_status = "unhealthy"
+            minio_error = "MinIO check timeout (5s)"
+            minio_response_time = 5000
+            logger.warning("MinIO health check timed out after 5s")
+        except Exception as e:
+            minio_status = "unhealthy"
+            minio_error = str(e)
+            minio_response_time = int((time.time() - minio_start) * 1000)
+            logger.warning(f"MinIO health check failed: {e}")
+
+        return {
+            "status": minio_status,
+            "responseTime": minio_response_time,
+            **({"error": minio_error} if minio_error else {}),
+        }
+
+    # Run both checks in parallel
+    sql_result, minio_result = await asyncio.gather(
+        check_sql(),
+        check_minio()
+    )
+
+    dependencies = {
+        "sql": sql_result,
+        "minio": minio_result,
+    }
+
+    # ============================================================
+    # DETERMINE OVERALL STATUS
+    # ============================================================
+    # Logic:
+    # - SQL down = unhealthy (critical - nothing works without DB)
+    # - MinIO down = degraded (can still create issues, just no attachments)
+    # - All OK = healthy
+
+    if sql_result["status"] == "unhealthy":
+        overall_status = "unhealthy"
+    elif minio_result["status"] == "unhealthy":
+        overall_status = "degraded"
+    else:
+        overall_status = "healthy"
+
+    total_time = int((time.time() - start_time) * 1000)
+
+    return {
+        "status": overall_status,
+        "service": settings.SERVICE_NAME,
+        "version": settings.SERVICE_VERSION,
+        "dependencies": dependencies,
+        "totalCheckTime": total_time,
+    }
+
+
+def _sync_sql_check():
+    """Synchronous SQL check (runs in thread pool)."""
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+    finally:
+        db.close()
+
+
+def _sync_minio_check():
+    """Synchronous MinIO check (runs in thread pool)."""
+    if minio_client.client:
+        minio_client.client.list_buckets()
+    else:
+        raise Exception("MinIO client not initialized")
 
 
 if __name__ == "__main__":

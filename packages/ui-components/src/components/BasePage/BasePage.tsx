@@ -3,9 +3,11 @@
  * FILE: BasePage.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.tsx
  * DESCRIPTION: Base page wrapper with keyboard shortcuts, analytics, HTML5 drag tracking
- * VERSION: v4.0.2
- * UPDATED: 2025-11-06
+ * VERSION: v4.2.0
+ * UPDATED: 2025-11-30
  * CHANGES:
+ *   - v4.2.0: Added Ctrl+1-9 keyboard shortcuts for changing permission levels (10-90)
+ *   - v4.1.0: Added StatusBar, ThemeCustomizer, and KeyboardShortcutsButton components
  *   - v4.0.2: Fixed sidebar navigation - added missing test pages (forms, spinner, wizard-demo, glass-modal)
  *   - v4.0.1: Added Icons test page to sidebar navigation
  *   - v4.0.0: Added native HTML5 drag event tracking (dragstart/dragend) for text drag & drop
@@ -18,13 +20,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme, useTranslation, usePageAnalytics, modalStack, useAuthContext } from '@l-kern/config';
+import { useTheme, useTranslation, usePageAnalytics, modalStack, useAuthContext, useAnalyticsContext, PERMISSION_SHORTCUTS } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { Sidebar, SidebarNavItem } from '../Sidebar';
-import { AuthRoleSwitcher } from '../AuthRoleSwitcher';
 import { ReportButton } from '../ReportButton';
 import { IssueTypeSelectModal } from '../IssueTypeSelectModal';
 import { CreateIssueModal } from '../CreateIssueModal';
+import { StatusBar } from '../StatusBar';
+import type { ServiceStatus, BackupInfo, CurrentUser, DataSource } from '../StatusBar';
+import { ThemeCustomizer } from '../ThemeCustomizer';
+import { KeyboardShortcutsButton } from '../KeyboardShortcutsButton';
 import type { IssueType, IssueSeverity, IssueCategory, IssuePriority, UserRole } from '../CreateIssueModal';
 
 /**
@@ -114,6 +119,40 @@ export interface BasePageProps {
    * @default 'top-right'
    */
   reportButtonPosition?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+
+  /**
+   * Show StatusBar at bottom of page
+   * @default true
+   */
+  showStatusBar?: boolean;
+
+  /**
+   * Services data for StatusBar (from orchestrator)
+   */
+  statusBarServices?: Record<string, ServiceStatus>;
+
+  /**
+   * Current user info for StatusBar
+   */
+  statusBarUser?: CurrentUser;
+
+  /**
+   * Data source for StatusBar
+   * @default 'mock'
+   */
+  statusBarDataSource?: DataSource;
+
+  /**
+   * Show ThemeCustomizer floating button
+   * @default true
+   */
+  showThemeCustomizer?: boolean;
+
+  /**
+   * Show KeyboardShortcutsButton floating button
+   * @default true
+   */
+  showKeyboardShortcuts?: boolean;
 }
 
 /**
@@ -158,13 +197,31 @@ export const BasePage: React.FC<BasePageProps> = ({
   showReportButton = true,
   onReportIssue,
   reportButtonPosition = 'top-right',
+  showStatusBar = true,
+  statusBarServices,
+  statusBarUser,
+  statusBarDataSource = 'mock',
+  showThemeCustomizer = true,
+  showKeyboardShortcuts = true,
 }) => {
   const { toggleTheme, theme } = useTheme();
   const { language, setLanguage } = useTranslation();
   const analytics = usePageAnalytics(pageName);
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentRole, permissionLevel, permissions } = useAuthContext();
+  const { currentRole, permissionLevel, permissions, setPermissionLevel } = useAuthContext();
+
+  // Try to get showDebugBarPage from AnalyticsContext (sidebar toggle)
+  let contextShowDebugBarPage = true;
+  try {
+    const analyticsContext = useAnalyticsContext();
+    contextShowDebugBarPage = analyticsContext.settings.showDebugBarPage;
+  } catch {
+    // AnalyticsContext not available, use prop value
+  }
+
+  // Final showDebugBar = prop AND context (both must be true)
+  const effectiveShowDebugBar = showDebugBar && contextShowDebugBarPage;
 
   // Sidebar collapsed state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(sidebarDefaultCollapsed);
@@ -189,6 +246,11 @@ export const BasePage: React.FC<BasePageProps> = ({
       userAgent?: string;
     };
   }>({});
+
+  // StatusBar state - for synchronizing floating buttons position
+  const [statusBarExpanded, setStatusBarExpanded] = useState(false);
+  const [statusBarExpandedHeight, setStatusBarExpandedHeight] = useState(300);
+  const STATUS_BAR_COLLAPSED_HEIGHT = 32;
 
   // Handle ReportButton click - open type selection modal
   const handleReportButtonClick = () => {
@@ -415,6 +477,15 @@ export const BasePage: React.FC<BasePageProps> = ({
         e.preventDefault();
         setLanguage(language === 'sk' ? 'en' : 'sk');
       }
+
+      // Ctrl+1-9 - Change permission level (uses PERMISSION_SHORTCUTS from core.ts)
+      if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        const shortcut = PERMISSION_SHORTCUTS.find(s => s.key === e.key);
+        if (shortcut) {
+          setPermissionLevel(shortcut.level);
+        }
+      }
     };
 
     // Register global keyboard listeners (BOTH keydown and keyup)
@@ -425,7 +496,7 @@ export const BasePage: React.FC<BasePageProps> = ({
       document.removeEventListener('keydown', handleGlobalKeyEvent, true);
       document.removeEventListener('keyup', handleGlobalKeyEvent, true);
     };
-  }, [onKeyDown, toggleTheme, setLanguage, language, analytics]);
+  }, [onKeyDown, toggleTheme, setLanguage, language, analytics, setPermissionLevel]);
 
   // Global drag event handler for text drag & drop tracking
   useEffect(() => {
@@ -504,12 +575,12 @@ export const BasePage: React.FC<BasePageProps> = ({
           onCollapseChange={setSidebarCollapsed}
           showThemeToggle={true}
           showLanguageToggle={true}
-          bottomContent={sidebarBottomContent || <AuthRoleSwitcher />}
+          bottomContent={sidebarBottomContent}
         />
       )}
 
       {/* Debug Bar - Visual indicator only (analytics run independently) */}
-      {showDebugBar && (
+      {effectiveShowDebugBar && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -521,7 +592,7 @@ export const BasePage: React.FC<BasePageProps> = ({
             modalName={pageName}
             isDarkMode={theme === 'dark'}
             analytics={analytics}
-            show={showDebugBar}
+            show={effectiveShowDebugBar}
             contextType="page"
           />
         </div>
@@ -572,10 +643,42 @@ export const BasePage: React.FC<BasePageProps> = ({
         />
       )}
 
-      {/* Page content - add padding-top if debug bar is visible, padding-left for sidebar */}
+      {/* StatusBar (fixed bottom system monitoring) */}
+      {showStatusBar && (
+        <StatusBar
+          services={statusBarServices}
+          currentUser={statusBarUser}
+          dataSource={statusBarDataSource}
+          onExpandedChange={setStatusBarExpanded}
+          onExpandedHeightChange={setStatusBarExpandedHeight}
+        />
+      )}
+
+      {/* ThemeCustomizer (floating button) */}
+      {showThemeCustomizer && (
+        <ThemeCustomizer
+          position="bottom-right"
+          statusBarExpanded={statusBarExpanded}
+          statusBarHeight={STATUS_BAR_COLLAPSED_HEIGHT}
+          statusBarExpandedHeight={statusBarExpandedHeight}
+        />
+      )}
+
+      {/* KeyboardShortcutsButton (floating button above ThemeCustomizer) */}
+      {showKeyboardShortcuts && (
+        <KeyboardShortcutsButton
+          position="bottom-right"
+          statusBarExpanded={statusBarExpanded}
+          statusBarHeight={STATUS_BAR_COLLAPSED_HEIGHT}
+          statusBarExpandedHeight={statusBarExpandedHeight}
+        />
+      )}
+
+      {/* Page content - add padding-top if debug bar is visible, padding-left for sidebar, padding-bottom for StatusBar */}
       <div style={{
-        paddingTop: showDebugBar ? '48px' : '0',
+        paddingTop: effectiveShowDebugBar ? '48px' : '0',
         paddingLeft: contentPaddingLeft,
+        paddingBottom: showStatusBar ? `${STATUS_BAR_COLLAPSED_HEIGHT + 16}px` : '0',
         transition: 'padding-left 220ms cubic-bezier(0.4, 0, 0.2, 1)',
       }}>
         {children}

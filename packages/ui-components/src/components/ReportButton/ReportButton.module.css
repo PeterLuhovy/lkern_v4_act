@@ -12,8 +12,8 @@
 /* === FLOATING BUTTON === */
 .button {
   position: fixed;
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   background: linear-gradient(135deg, #fd7e14, #e8590c);
   border: none;
   border-radius: 50%;
@@ -42,7 +42,7 @@
 /* Positions */
 .button--top-right {
   top: calc(48px + 32px); /* Debug bar height + spacing */
-  right: 32px;
+  right: 1%; /* Moved ~1/4 from right edge */
 }
 
 .button--top-left {

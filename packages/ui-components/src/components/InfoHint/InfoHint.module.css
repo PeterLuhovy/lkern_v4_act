@@ -1,0 +1,212 @@
+/*
+ * ================================================================
+ * FILE: InfoHint.module.css
+ * PATH: /packages/ui-components/src/components/InfoHint/InfoHint.module.css
+ * DESCRIPTION: Styles for InfoHint component
+ * VERSION: v1.0.0
+ * CREATED: 2025-11-29
+ * ================================================================
+ */
+
+/* Container */
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Icon button */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--theme-text-muted, #9e9e9e);
+  transition: color var(--duration-hover, 0.2s) ease,
+              background-color var(--duration-hover, 0.2s) ease;
+}
+
+.icon:hover {
+  color: var(--color-brand-primary, #9c27b0);
+  background: var(--color-neutral-gray100, #f5f5f5);
+}
+
+.icon:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus-default, 0 0 0 3px rgba(156, 39, 176, 0.2));
+}
+
+.icon--active {
+  color: var(--color-brand-primary, #9c27b0);
+  background: var(--color-neutral-gray100, #f5f5f5);
+}
+
+/* Icon sizes */
+.icon--small {
+  width: 16px;
+  height: 16px;
+}
+
+.icon--medium {
+  width: 20px;
+  height: 20px;
+}
+
+.icon--large {
+  width: 24px;
+  height: 24px;
+}
+
+/* SVG icon */
+.svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Popup */
+.popup {
+  position: absolute;
+  z-index: 1000;
+  padding: var(--spacing-sm, 10px) var(--spacing-md, 14px);
+  background: var(--theme-input-background, #ffffff);
+  border: 1px solid var(--theme-border, #e0e0e0);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05));
+  animation: fadeIn var(--duration-enter, 0.15s) ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Popup positions */
+.popup--top {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.popup--bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.popup--left {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.popup--right {
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Popup content */
+.popupContent {
+  font-size: var(--font-size-sm, 13px);
+  line-height: 1.5;
+  color: var(--theme-text, #212121);
+  white-space: pre-wrap; /* Preserve \n newlines and wrap text */
+}
+
+/* Popup arrow */
+.popupArrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--theme-input-background, #ffffff);
+  border: 1px solid var(--theme-border, #e0e0e0);
+  border-right: none;
+  border-bottom: none;
+}
+
+.popup--top .popupArrow {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-135deg);
+}
+
+.popup--bottom .popupArrow {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.popup--left .popupArrow {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(135deg);
+}
+
+.popup--right .popupArrow {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ================================================================
+ * PORTAL-BASED POPUP STYLES (v1.1.0)
+ * Used when popup renders via React Portal to document.body
+ * ================================================================ */
+
+.popupPortal {
+  /* Override absolute positioning - using fixed from inline styles */
+  position: fixed !important;
+}
+
+/* Portal popup positions - transform to center relative to anchor point */
+.popupPortal--top {
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.popupPortal--bottom {
+  transform: translateX(-50%);
+}
+
+.popupPortal--left {
+  transform: translateX(-100%) translateY(-50%);
+}
+
+.popupPortal--right {
+  transform: translateY(-50%);
+}
+
+/* Portal arrow positions */
+.popupPortal--top .popupArrow {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-135deg);
+}
+
+.popupPortal--bottom .popupArrow {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.popupPortal--left .popupArrow {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(135deg);
+}
+
+.popupPortal--right .popupArrow {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+}

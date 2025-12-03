@@ -2,10 +2,14 @@
  * ================================================================
  * FILE: Sidebar.tsx
  * PATH: /packages/ui-components/src/components/Sidebar/Sidebar.tsx
- * DESCRIPTION: Modern dark sidebar with floating submenu tooltips
- * VERSION: v3.0.0
- * UPDATED: 2025-11-02 19:00:00
+ * DESCRIPTION: Modern dark sidebar with 3 tabs (Navigation, User Settings, Analytics)
+ * VERSION: v4.0.0
+ * UPDATED: 2025-11-30
  * CHANGES:
+ *   - v4.0.0: Added 3-tab system (Navigation, User Settings, Analytics)
+ *             - Tab 1: Navigation (existing functionality)
+ *             - Tab 2: User Settings (AuthRoleSwitcher)
+ *             - Tab 3: Analytics Panel (toggle tracking features)
  *   - v3.0.0: Complete redesign - dark theme, floating submenu, pure React+CSS
  *   - v2.0.0: Tree navigation support, vertical toggle button
  *   - v1.0.0: Initial version
@@ -13,9 +17,16 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { useTranslation, useTheme } from '@l-kern/config';
+import { useTranslation, useTheme, useAnalyticsContext, AnalyticsSettings } from '@l-kern/config';
 import styles from './Sidebar.module.css';
 import logoImage from '../../assets/brand/divisions/lind/logo.png';
+import { AuthRoleSwitcher } from '../AuthRoleSwitcher/AuthRoleSwitcher';
+import { InfoHint } from '../InfoHint/InfoHint';
+
+/**
+ * Tab type for sidebar navigation
+ */
+type SidebarTab = 'navigation' | 'settings' | 'analytics';
 
 /**
  * Navigation item interface (supports submenu)
@@ -404,6 +415,139 @@ const NavItem: React.FC<NavItemProps> = ({
  * />
  * ```
  */
+/**
+ * Analytics Panel Component (for Tab 3)
+ */
+const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
+  const { t } = useTranslation();
+
+  // Try to use analytics context, fallback to local state if not available
+  let settings: AnalyticsSettings = {
+    trackMouse: true,
+    trackKeyboard: true,
+    trackDrag: true,
+    logToConsole: true,
+    trackTiming: true,
+    showDebugBarPage: true,
+    showDebugBarModal: true,
+    logPermissions: true,
+    logModalStack: true,
+    logIssueWorkflow: true,
+    logToasts: true,
+    logFetchCalls: true,
+  };
+  let toggleSetting: (key: keyof AnalyticsSettings) => void = () => {};
+  let enableAll: () => void = () => {};
+  let disableAll: () => void = () => {};
+
+  try {
+    const analyticsContext = useAnalyticsContext();
+    settings = analyticsContext.settings;
+    toggleSetting = analyticsContext.toggleSetting;
+    enableAll = analyticsContext.enableAll;
+    disableAll = analyticsContext.disableAll;
+  } catch {
+    // AnalyticsContext not available, use defaults
+  }
+
+  // Section 1: Analytics (tracking features)
+  const analyticsItems: Array<{ key: keyof AnalyticsSettings; icon: string; labelKey: string; hintKey: string }> = [
+    { key: 'trackMouse', icon: '🖱️', labelKey: 'components.sidebar.analytics.trackMouse', hintKey: 'components.sidebar.analytics.trackMouseHint' },
+    { key: 'trackKeyboard', icon: '⌨️', labelKey: 'components.sidebar.analytics.trackKeyboard', hintKey: 'components.sidebar.analytics.trackKeyboardHint' },
+    { key: 'trackDrag', icon: '✋', labelKey: 'components.sidebar.analytics.trackDrag', hintKey: 'components.sidebar.analytics.trackDragHint' },
+    { key: 'trackTiming', icon: '⏱️', labelKey: 'components.sidebar.analytics.trackTiming', hintKey: 'components.sidebar.analytics.trackTimingHint' },
+  ];
+
+  // Section 2: Debug (logging & visual debug)
+  const debugItems: Array<{ key: keyof AnalyticsSettings; icon: string; labelKey: string; hintKey: string }> = [
+    { key: 'logToConsole', icon: '📝', labelKey: 'components.sidebar.analytics.logToConsole', hintKey: 'components.sidebar.analytics.logToConsoleHint' },
+    { key: 'showDebugBarPage', icon: '📊', labelKey: 'components.sidebar.analytics.showDebugBarPage', hintKey: 'components.sidebar.analytics.showDebugBarPageHint' },
+    { key: 'showDebugBarModal', icon: '🗂️', labelKey: 'components.sidebar.analytics.showDebugBarModal', hintKey: 'components.sidebar.analytics.showDebugBarModalHint' },
+    { key: 'logPermissions', icon: '🔐', labelKey: 'components.sidebar.analytics.logPermissions', hintKey: 'components.sidebar.analytics.logPermissionsHint' },
+    { key: 'logModalStack', icon: '📚', labelKey: 'components.sidebar.analytics.logModalStack', hintKey: 'components.sidebar.analytics.logModalStackHint' },
+    { key: 'logIssueWorkflow', icon: '🎫', labelKey: 'components.sidebar.analytics.logIssueWorkflow', hintKey: 'components.sidebar.analytics.logIssueWorkflowHint' },
+    { key: 'logToasts', icon: '🍞', labelKey: 'components.sidebar.analytics.logToasts', hintKey: 'components.sidebar.analytics.logToastsHint' },
+    { key: 'logFetchCalls', icon: '📡', labelKey: 'components.sidebar.analytics.logFetchCalls', hintKey: 'components.sidebar.analytics.logFetchCallsHint' },
+  ];
+
+  if (isCollapsed) return null;
+
+  // Helper function to render toggle items
+  const renderToggleItem = (item: { key: keyof AnalyticsSettings; icon: string; labelKey: string; hintKey: string }) => (
+    <div
+      key={item.key}
+      className={styles.sidebar__analyticsToggle}
+    >
+      <div
+        className={styles.sidebar__analyticsToggleClickable}
+        onClick={() => toggleSetting(item.key)}
+        role="checkbox"
+        aria-checked={settings[item.key]}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleSetting(item.key);
+          }
+        }}
+      >
+        <div className={`${styles.sidebar__analyticsCheckbox} ${settings[item.key] ? styles['sidebar__analyticsCheckbox--checked'] : ''}`}>
+          {settings[item.key] && <span className={styles.sidebar__analyticsCheckmark}>✓</span>}
+        </div>
+        <span className={styles.sidebar__analyticsLabel}>
+          {item.icon} {t(item.labelKey)}
+        </span>
+      </div>
+      <InfoHint
+        content={t(item.hintKey)}
+        position="right"
+        size="small"
+        maxWidth={200}
+      />
+    </div>
+  );
+
+  return (
+    <div className={styles.sidebar__analyticsPanel}>
+      {/* Section 1: Analytics */}
+      <div className={styles.sidebar__analyticsSection}>
+        <div className={styles.sidebar__analyticsSectionTitle}>
+          📈 {t('components.sidebar.analytics.sectionAnalytics')}
+        </div>
+        {analyticsItems.map(renderToggleItem)}
+      </div>
+
+      {/* Separator */}
+      <div className={styles.sidebar__analyticsDivider} />
+
+      {/* Section 2: Debug */}
+      <div className={styles.sidebar__analyticsSection}>
+        <div className={styles.sidebar__analyticsSectionTitle}>
+          🐛 {t('components.sidebar.analytics.sectionDebug')}
+        </div>
+        {debugItems.map(renderToggleItem)}
+      </div>
+
+      <div className={styles.sidebar__analyticsActions}>
+        <button
+          type="button"
+          className={`${styles.sidebar__analyticsActionBtn} ${styles['sidebar__analyticsActionBtn--enable']}`}
+          onClick={enableAll}
+        >
+          ✓ {t('components.sidebar.analytics.enableAll')}
+        </button>
+        <button
+          type="button"
+          className={`${styles.sidebar__analyticsActionBtn} ${styles['sidebar__analyticsActionBtn--disable']}`}
+          onClick={disableAll}
+        >
+          ✗ {t('components.sidebar.analytics.disableAll')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({
   items,
   activePath,
@@ -426,6 +570,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { t, language, setLanguage } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+
+  // Active tab state (load from localStorage)
+  const [activeTab, setActiveTab] = useState<SidebarTab>(() => {
+    try {
+      const saved = localStorage.getItem('sidebar-active-tab');
+      if (saved && ['navigation', 'settings', 'analytics'].includes(saved)) {
+        return saved as SidebarTab;
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+    return 'navigation';
+  });
+
+  // Save active tab to localStorage
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('sidebar-active-tab', activeTab);
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [activeTab]);
 
   // Internal collapsed state (if not controlled) - load from localStorage
   const [internalCollapsed, setInternalCollapsed] = useState(() => {
@@ -604,44 +770,89 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </span>
       </button>
 
-      {/* Navigation */}
-      <nav className={styles.sidebar__nav} aria-label={t('components.sidebar.navigation')}>
-        {/* Expand/Collapse All buttons (visible only when expanded) */}
-        {!isCollapsed && (
-          <div className={styles.sidebar__expandCollapseButtons}>
-            <button
-              className={styles.sidebar__expandAllButton}
-              onClick={handleExpandAll}
-              type="button"
-              title={t('components.sidebar.expandAll')}
-            >
-              <span className={styles.sidebar__icon}>▼</span>
-              <span>{t('components.sidebar.expandAll')}</span>
-            </button>
-            <button
-              className={styles.sidebar__collapseAllButton}
-              onClick={handleCollapseAll}
-              type="button"
-              title={t('components.sidebar.collapseAll')}
-            >
-              <span className={styles.sidebar__icon}>▲</span>
-              <span>{t('components.sidebar.collapseAll')}</span>
-            </button>
-          </div>
-        )}
+      {/* Tab Navigation (hidden when collapsed) */}
+      <div className={styles.sidebar__tabs}>
+        <button
+          type="button"
+          className={`${styles.sidebar__tabButton} ${activeTab === 'navigation' ? styles['sidebar__tabButton--active'] : ''}`}
+          onClick={() => setActiveTab('navigation')}
+          title={t('components.sidebar.tabs.navigation')}
+        >
+          <span className={styles.sidebar__tabIcon}>📁</span>
+          {!isCollapsed && t('components.sidebar.tabs.nav')}
+        </button>
+        <button
+          type="button"
+          className={`${styles.sidebar__tabButton} ${activeTab === 'settings' ? styles['sidebar__tabButton--active'] : ''}`}
+          onClick={() => setActiveTab('settings')}
+          title={t('components.sidebar.tabs.settings')}
+        >
+          <span className={styles.sidebar__tabIcon}>👤</span>
+          {!isCollapsed && t('components.sidebar.tabs.user')}
+        </button>
+        <button
+          type="button"
+          className={`${styles.sidebar__tabButton} ${activeTab === 'analytics' ? styles['sidebar__tabButton--active'] : ''}`}
+          onClick={() => setActiveTab('analytics')}
+          title={t('components.sidebar.tabs.debug')}
+        >
+          <span className={styles.sidebar__tabIcon}>🐛</span>
+          {!isCollapsed && t('components.sidebar.tabs.dbg')}
+        </button>
+      </div>
 
-        <ul className={styles.sidebar__navList}>
-          {items.map((item) => (
-            <NavItem
-              key={item.path}
-              item={item}
-              activePath={activePath}
-              isCollapsed={isCollapsed}
-              onItemClick={handleItemClick}
-            />
-          ))}
-        </ul>
-      </nav>
+      {/* Tab 1: Navigation */}
+      <div className={`${styles.sidebar__tabContent} ${activeTab === 'navigation' ? styles['sidebar__tabContent--active'] : ''}`}>
+        <nav className={styles.sidebar__nav} aria-label={t('components.sidebar.navigation')}>
+          {/* Expand/Collapse All buttons (visible only when expanded) */}
+          {!isCollapsed && (
+            <div className={styles.sidebar__expandCollapseButtons}>
+              <button
+                className={styles.sidebar__expandAllButton}
+                onClick={handleExpandAll}
+                type="button"
+                title={t('components.sidebar.expandAll')}
+              >
+                <span className={styles.sidebar__icon}>▼</span>
+                <span>{t('components.sidebar.expandAll')}</span>
+              </button>
+              <button
+                className={styles.sidebar__collapseAllButton}
+                onClick={handleCollapseAll}
+                type="button"
+                title={t('components.sidebar.collapseAll')}
+              >
+                <span className={styles.sidebar__icon}>▲</span>
+                <span>{t('components.sidebar.collapseAll')}</span>
+              </button>
+            </div>
+          )}
+
+          <ul className={styles.sidebar__navList}>
+            {items.map((item) => (
+              <NavItem
+                key={item.path}
+                item={item}
+                activePath={activePath}
+                isCollapsed={isCollapsed}
+                onItemClick={handleItemClick}
+              />
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      {/* Tab 2: User Settings (AuthRoleSwitcher) */}
+      <div className={`${styles.sidebar__tabContent} ${activeTab === 'settings' ? styles['sidebar__tabContent--active'] : ''}`}>
+        <div className={styles.sidebar__analyticsPanel}>
+          <AuthRoleSwitcher isCollapsed={isCollapsed} />
+        </div>
+      </div>
+
+      {/* Tab 3: Analytics Panel */}
+      <div className={`${styles.sidebar__tabContent} ${activeTab === 'analytics' ? styles['sidebar__tabContent--active'] : ''}`}>
+        <AnalyticsPanel isCollapsed={isCollapsed} />
+      </div>
 
       {/* Bottom section */}
       <div className={styles.sidebar__bottom}>

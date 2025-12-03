@@ -55,6 +55,8 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   getRowId?: DataGridProps<T>['getRowId'];
   /** Row click handler */
   onRowClick?: DataGridProps<T>['onRowClick'];
+  /** Row double-click handler (e.g., open edit modal) */
+  onRowDoubleClick?: DataGridProps<T>['onRowDoubleClick'];
   /** Row status getter (for row coloring) */
   getRowStatus?: DataGridProps<T>['getRowStatus'];
   /** Status color mapping (e.g., {active: '#4CAF50', pending: '#FF9800'}) */
@@ -131,4 +133,10 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   autoRefreshInterval?: number;
   /** Callback fired when auto-refresh triggers. Use this to refetch data from API. */
   onRefresh?: () => void;
+
+  // === ERROR STATE ===
+  /** Error message to show in DataGrid (e.g., "Service unavailable") */
+  error?: string | null;
+  /** Retry callback for error state */
+  onRetry?: () => void;
 }

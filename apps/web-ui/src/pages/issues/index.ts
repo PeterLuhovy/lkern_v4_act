@@ -9,4 +9,3 @@
  */
 
 export { Issues } from './Issues';
-export { IssueDetail } from './IssueDetail';

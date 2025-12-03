@@ -1,1 +1,201 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * ================================================================
+ * FILE: styles.css
+ * PATH: apps/web-ui/src/styles.css
+ * DESCRIPTION: Global styles for web-ui app including ThemeCustomizer settings
+ * VERSION: v1.2.0
+ * UPDATED: 2025-11-30
+ * CHANGES:
+ *   - v1.2.0: Refactored font-size to override --font-size-* CSS variables (no !important)
+ *   - v1.1.0: Fixed font-size bug - medium now has element-level !important like small/large
+ *   - v1.0.0: Initial version with font-size, high-contrast, compact, reduced-motion
+ * ================================================================
+ */
+
+/* ================================================================
+ * ROOT DEFAULT VARIABLES
+ * These provide fallback values that ThemeCustomizer can override
+ * ================================================================ */
+:root {
+  /* Spacing - default values (overridden by compact mode) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Animation timing */
+  --animation-duration: 0.3s;
+  --transition-duration: 0.2s;
+
+  /* Font sizes */
+  --font-size-base: 16px;
+  --font-size-sm: calc(var(--font-size-base) * 0.875);
+  --font-size-lg: calc(var(--font-size-base) * 1.125);
+  --font-size-xl: calc(var(--font-size-base) * 1.25);
+
+  /* Accent color (overridden by ThemeCustomizer) */
+  --color-accent: var(--color-brand-primary, #9c27b0);
+  --theme-accent: var(--color-brand-primary, #9c27b0);
+}
+
+/* ================================================================
+ * FONT SIZE SCALING
+ * Applied via data-font-size attribute
+ * Overrides --font-size-* CSS variables from design-tokens
+ * ================================================================ */
+
+/* Small font size (all sizes reduced by ~2px) */
+html[data-font-size="small"] {
+  --font-size-xs: 8px;
+  --font-size-sm: 10px;
+  --font-size-md: 12px;
+  --font-size-lg: 14px;
+  --font-size-xl: 16px;
+  --font-size-xxl: 21px;
+  --font-size-xxxl: 28px;
+  --font-size-huge: 35px;
+  --font-size-hero: 42px;
+}
+
+/* Medium font size (default - no overrides needed) */
+/* Uses values from design-tokens.ts via theme-setup.ts */
+
+/* Large font size (all sizes increased by ~2px) */
+html[data-font-size="large"] {
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 27px;
+  --font-size-xxxl: 36px;
+  --font-size-huge: 45px;
+  --font-size-hero: 54px;
+}
+
+/* ================================================================
+ * HIGH CONTRAST MODE
+ * Applied via data-high-contrast attribute
+ * ================================================================ */
+html[data-high-contrast="true"] {
+  /* Increase text contrast */
+  --theme-text: #000000;
+  --theme-text-muted: #333333;
+
+  /* Stronger borders */
+  --theme-border: #000000;
+  --theme-input-border: #000000;
+}
+
+html[data-high-contrast="true"][data-theme="dark"] {
+  /* High contrast in dark mode */
+  --theme-text: #ffffff;
+  --theme-text-muted: #cccccc;
+  --theme-border: #ffffff;
+  --theme-input-border: #ffffff;
+}
+
+/* Increase border widths in high contrast mode */
+html[data-high-contrast="true"] input,
+html[data-high-contrast="true"] select,
+html[data-high-contrast="true"] textarea,
+html[data-high-contrast="true"] button {
+  border-width: 2px !important;
+}
+
+/* Bold text for better readability */
+html[data-high-contrast="true"] p,
+html[data-high-contrast="true"] span,
+html[data-high-contrast="true"] label {
+  font-weight: 500;
+}
+
+/* ================================================================
+ * REDUCED MOTION MODE
+ * Applied via data-reduce-motion attribute
+ * Respects user preference for reduced animations
+ * ================================================================ */
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Also respect system preference */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-reduce-motion="false"]) *,
+  html:not([data-reduce-motion="false"]) *::before,
+  html:not([data-reduce-motion="false"]) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ================================================================
+ * COMPACT MODE
+ * Applied via data-compact attribute
+ * Reduces spacing and padding throughout the app
+ * ================================================================ */
+html[data-compact="true"] {
+  /* Tighter line height */
+  line-height: 1.4;
+}
+
+/* Reduce padding in common elements */
+html[data-compact="true"] button {
+  padding: 4px 8px;
+}
+
+html[data-compact="true"] input,
+html[data-compact="true"] select,
+html[data-compact="true"] textarea {
+  padding: 4px 8px;
+}
+
+/* Tighter table rows */
+html[data-compact="true"] td,
+html[data-compact="true"] th {
+  padding: 4px 8px;
+}
+
+/* Smaller cards and containers */
+html[data-compact="true"] .card,
+html[data-compact="true"] [class*="card"] {
+  padding: 8px;
+}
+
+/* Smaller headings margin */
+html[data-compact="true"] h1,
+html[data-compact="true"] h2,
+html[data-compact="true"] h3,
+html[data-compact="true"] h4,
+html[data-compact="true"] h5,
+html[data-compact="true"] h6 {
+  margin-bottom: 8px;
+}
+
+/* ================================================================
+ * ACCENT COLOR USAGE
+ * Components should use these variables for theming
+ * ================================================================ */
+/* Links get accent color */
+a:not([class]) {
+  color: var(--color-accent, var(--color-brand-primary, #9c27b0));
+}
+
+/* Focus rings use accent color */
+:focus-visible {
+  outline-color: var(--color-accent, var(--color-brand-primary, #9c27b0));
+}
+
+/* Selection highlight */
+::selection {
+  background-color: var(--color-accent, var(--color-brand-primary, #9c27b0));
+  color: white;
+}

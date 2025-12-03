@@ -29,6 +29,11 @@ export interface IssuesPageTranslations {
   bulkExport: string;
   bulkDeleteConfirm: string;
   bulkDeleteSuccess: string;
+  exportSuccess: string;
+  exportZipStarted: string;
+  exportZipLoading: string;
+  exportZipError: string;
+  fetchError: string;
   columns: {
     issue_code: string;
     title: string;
@@ -46,6 +51,38 @@ export interface IssuesPageTranslations {
     status: string;
     priority: string;
     created_at: string;
+    itemDetails: string;
+    id: string;
+    description: string;
+    reporterId: string;
+    assigneeId: string;
+    resolution: string;
+    timeline: string;
+    updated: string;
+    resolved: string;
+    closed: string;
+    deleted: string;
+    classification: string;
+    category: string;
+    developerInfo: string;
+    browser: string;
+    os: string;
+    url: string;
+    errorType: string;
+    errorMessage: string;
+    notAvailable: string;
+    attachments: string;
+    noAttachments: string;
+    clickToDownload: string;
+    deletedItem: string;
+    // Attachment availability status
+    attachmentChecking: string;
+    attachmentAvailable: string;
+    attachmentUnavailable: string;
+    attachmentError: string;
+    attachmentMissing: string;
+    attachmentServiceDown: string;
+    attachmentCannotDownload: string;
   };
   filters: {
     typeTitle: string;
@@ -106,5 +143,103 @@ export interface IssuesPageTranslations {
       failed: string;
       partial: string;
     };
+  };
+  bulkDelete: {
+    title: string;
+    titlePermanent: string;
+    titleMixed: string;
+    softMessage: string;
+    hardMessage: string;
+    mixedMessage: string;
+    minioMessage: string;
+  };
+  minioUnavailable: {
+    title: string;
+    message: string;
+    okButton: string;
+    markForDeletion: string;
+    markedForDeletion: string;
+    retryDelete: string;
+  };
+  minioCreateError: {
+    title: string;
+    message: string;
+    createWithoutFiles: string;
+    cancel: string;
+    retryWithFiles: string;
+  };
+  minioExportError: {
+    title: string;
+    message: string;
+    exportWithoutAttachments: string;
+    retryWithAttachments: string;
+  };
+  createSuccessWithoutFiles: string;
+  createSuccessNoFiles: string;
+  createError: {
+    title: string;
+    serviceUnavailable: string;
+    generic: string;
+    retry: string;
+    checkingDependencies: string;
+    serviceDown: string;
+    takingLonger: string;
+    retrying: string;
+  };
+  updateError: {
+    title: string;
+    serviceUnavailable: string;
+    serviceDown: string;
+    takingLonger: string;
+    retrying: string;
+    generic: string;
+    retry: string;
+  };
+  createSuccess: string;
+  updateSuccess: string;
+  permanentDeleteError: string;
+  view: {
+    overview: string;
+    description: string;
+    technicalDetails: string;
+    developerInfo: string;
+    resolution: string;
+    attachments: string;
+    noAttachments: string;
+    people: string;
+    timeline: string;
+    activity: string;
+    unassigned: string;
+    noReporter: string;
+    noActivity: string;
+  };
+  exportErrors: {
+    title: string;
+    successCount: string;
+    deletedTitle: string;
+    missingAttachmentsTitle: string;
+    missingAttachmentsModalTitle: string;
+    missingAttachmentsMessage: string;
+    downloadWithoutMissing: string;
+    minioTitle: string;
+  };
+  exportPartialSuccess: string;
+  exportPartialAttachments: string;
+  exportZipNoContent: string;
+  exportSuccessNoAttachments: string;
+  attachmentEdit: {
+    title: string;
+    existingTitle: string;
+    addNewTitle: string;
+    markDelete: string;
+    undoDelete: string;
+    deletionWarning: string;
+    totalCount: string;
+    saveSuccess: string;
+    saveError: string;
+    confirmDeleteTitle: string;
+    confirmDeleteMessage: string;
+    confirmDeleteWarning: string;
+    confirmDeleteButton: string;
   };
 }

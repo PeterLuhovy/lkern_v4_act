@@ -3,9 +3,12 @@
  * FILE: usePageAnalytics.ts
  * PATH: /packages/config/src/hooks/usePageAnalytics.ts
  * DESCRIPTION: Universal analytics - clicks, keyboard, drag tracking, timing (pages + modals)
- * VERSION: v2.1.0
- * UPDATED: 2025-10-21 18:00:00
+ * VERSION: v3.0.0
+ * UPDATED: 2025-11-30
  * CHANGES:
+ *   - v3.0.0: MAJOR - Added AnalyticsContext integration for toggle features
+ *             Each tracking feature can be enabled/disabled via context
+ *             (trackMouse, trackKeyboard, trackDrag, logToConsole, trackTiming)
  *   - v2.1.0: FIXED - Text selection now shows selected text (check getSelection() after mouseup)
  *   - v2.0.0: MAJOR - Added native HTML5 drag events (dragstart/dragend) for text drag tracking
  *   - v1.3.0: Changed debouncing threshold 1000ms → 500ms (faster distinction)
@@ -15,7 +18,39 @@
  * ================================================================
  */
 
-import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo, useContext } from 'react';
+import { AnalyticsContext } from '../../contexts/AnalyticsContext/AnalyticsContext';
+
+// ================================================================
+// ANALYTICS SETTINGS TYPE (inline to avoid circular dependency)
+// ================================================================
+
+/**
+ * Analytics tracking settings (passed from AnalyticsContext or props)
+ */
+export interface AnalyticsTrackingSettings {
+  /** Track mouse clicks and drag operations */
+  trackMouse: boolean;
+  /** Track keyboard events (keydown/keyup) */
+  trackKeyboard: boolean;
+  /** Track text drag & drop operations */
+  trackDrag: boolean;
+  /** Log events to console (debug mode) */
+  logToConsole: boolean;
+  /** Track timing metrics (session duration, time between events) */
+  trackTiming: boolean;
+}
+
+/**
+ * Default analytics settings (all tracking enabled)
+ */
+const DEFAULT_ANALYTICS_SETTINGS: AnalyticsTrackingSettings = {
+  trackMouse: true,
+  trackKeyboard: true,
+  trackDrag: true,
+  logToConsole: true,
+  trackTiming: true,
+};
 
 // ================================================================
 // TYPES
@@ -95,11 +130,28 @@ export interface UsePageAnalyticsReturn {
 
 export const usePageAnalytics = (
   pageName: string,
-  contextType: 'page' | 'modal' = 'page'
+  contextType: 'page' | 'modal' = 'page',
+  settings: Partial<AnalyticsTrackingSettings> = {}
 ): UsePageAnalyticsReturn => {
+  // Try to get settings from AnalyticsContext (if available)
+  const analyticsContext = useContext(AnalyticsContext);
+
+  // Priority: Context settings > Props settings > Defaults
+  // Context provides reactive updates when user toggles settings in sidebar
+  const analyticsSettings: AnalyticsTrackingSettings = analyticsContext
+    ? { ...analyticsContext.settings, ...settings }  // Context + props override
+    : { ...DEFAULT_ANALYTICS_SETTINGS, ...settings }; // Fallback to defaults + props
+
   // Log prefix: [Analytics][Page|Modal][pageName]
   const contextLabel = contextType.charAt(0).toUpperCase() + contextType.slice(1); // "Page" or "Modal"
   const logPrefix = `[Analytics][${contextLabel}][${pageName}]`;
+
+  // Helper function for conditional logging
+  const log = useCallback((message: string, data?: object) => {
+    if (analyticsSettings.logToConsole) {
+      console.log(`${logPrefix} ${message}`, data || '');
+    }
+  }, [logPrefix, analyticsSettings.logToConsole]);
 
   // Session state
   const [session, setSession] = useState<PageAnalyticsSession | null>(null);
@@ -135,7 +187,7 @@ export const usePageAnalytics = (
   const startSession = useCallback(() => {
     // Prevent starting session twice
     if (sessionRef.current && !sessionRef.current.endTime) {
-      console.log(`${logPrefix} Session already active, ignoring start request`);
+      log('Session already active, ignoring start request');
       return;
     }
 
@@ -158,8 +210,8 @@ export const usePageAnalytics = (
     lastClickTimeRef.current = 0;
     lastKeyTimeRef.current = 0;
 
-    console.log(`${logPrefix} Session started:`, newSession.sessionId);
-  }, [pageName, logPrefix]);
+    log('Session started:', { sessionId: newSession.sessionId });
+  }, [pageName, log]);
 
   const endSession = useCallback((outcome: 'confirmed' | 'cancelled' | 'dismissed' | 'navigated') => {
     if (!sessionRef.current) return;
@@ -183,7 +235,7 @@ export const usePageAnalytics = (
     sessionRef.current = finalSession;
     setSession(finalSession);
 
-    console.log(`${logPrefix} Session ended:`, {
+    log('Session ended:', {
       sessionId: finalSession.sessionId,
       outcome,
       duration: `${(duration / 1000).toFixed(1)}s`,
@@ -197,7 +249,7 @@ export const usePageAnalytics = (
       setSession(null);
       endSessionTimeoutRef.current = null;
     }, 100);
-  }, [logPrefix]);
+  }, [log]);
 
   const resetSession = useCallback(() => {
     // Clear any pending timeout
@@ -226,6 +278,8 @@ export const usePageAnalytics = (
     elementType: string,
     event?: React.MouseEvent
   ) => {
+    // Skip if mouse tracking is disabled
+    if (!analyticsSettings.trackMouse) return;
     if (!sessionRef.current) return;
 
     const now = Date.now();
@@ -273,7 +327,7 @@ export const usePageAnalytics = (
         const deltaY = Math.abs(event.clientY - downEvent.coordinates.y);
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
 
-        console.log(`${logPrefix} Text selection:`, {
+        log('Text selection', {
           element: downEvent.element,
           elementType: downEvent.elementType,
           selectedText: selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText,
@@ -294,7 +348,7 @@ export const usePageAnalytics = (
         const deltaY = Math.abs(event.clientY - downEvent.coordinates.y);
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Pythagorean distance
 
-        console.log(`${logPrefix} Drag operation:`, {
+        log('Drag operation', {
           element: downEvent.element,
           elementType: downEvent.elementType,
           duration: `${duration}ms`,
@@ -325,7 +379,7 @@ export const usePageAnalytics = (
         lastActivityTimeRef.current = now;
         setClickCount(prev => prev + 1);
 
-        console.log(`${logPrefix} Click:`, {
+        log('Click', {
           element: downEvent.element,
           elementType: downEvent.elementType,
           duration: `${duration}ms`,
@@ -357,14 +411,14 @@ export const usePageAnalytics = (
         lastActivityTimeRef.current = now;
         setClickCount(prev => prev + 2);
 
-        console.log(`${logPrefix} Mouse down:`, {
+        log('Mouse down', {
           element: downEvent.element,
           elementType: downEvent.elementType,
           coordinates: downEvent.coordinates,
           timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
         });
 
-        console.log(`${logPrefix} Mouse up:`, {
+        log('Mouse up', {
           element,
           elementType,
           coordinates: event ? { x: event.clientX, y: event.clientY } : undefined,
@@ -395,16 +449,18 @@ export const usePageAnalytics = (
     lastActivityTimeRef.current = now;
     setClickCount(prev => prev + 1);
 
-    console.log(`${logPrefix} Click:`, {
+    log('Click', {
       element,
       elementType,
       timeSinceLastClick: timeSinceLastClick ? `${(timeSinceLastClick / 1000).toFixed(1)}s` : 'first click'
     });
-  }, [logPrefix]);
+  }, [analyticsSettings.trackMouse, log]);
 
   const trackKeyboard = useCallback((
     event: React.KeyboardEvent | globalThis.KeyboardEvent
   ) => {
+    // Skip if keyboard tracking is disabled
+    if (!analyticsSettings.trackKeyboard) return;
     if (!sessionRef.current) return;
 
     // CRITICAL: Ignore OS key repeat events (holding key down)
@@ -476,7 +532,7 @@ export const usePageAnalytics = (
         if (downEvent.modifiers.meta) modifierStrs.push('Meta');
         const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
 
-        console.log(`${logPrefix} Key down:`, {
+        log('Key down', {
           key: `${modifierStr}${downEvent.key}`,
           targetElement: downEvent.targetElement,
           timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
@@ -516,7 +572,7 @@ export const usePageAnalytics = (
         lastActivityTimeRef.current = now;
         setKeyboardCount(prev => prev + 1);
 
-        console.log(`${logPrefix} Keypress:`, {
+        log('Keypress', {
           key: `${modifierStr}${event.key}`,
           duration: `${duration}ms`,
           targetElement,
@@ -549,13 +605,13 @@ export const usePageAnalytics = (
         lastActivityTimeRef.current = now;
         setKeyboardCount(prev => prev + 2);
 
-        console.log(`${logPrefix} Key down:`, {
+        log('Key down', {
           key: `${modifierStr}${event.key}`,
           targetElement,
           timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
         });
 
-        console.log(`${logPrefix} Key up:`, {
+        log('Key up', {
           key: `${modifierStr}${event.key}`,
           duration: `${duration}ms`,
           targetElement
@@ -593,12 +649,12 @@ export const usePageAnalytics = (
     if (modifiers.meta) modifierStrs.push('Meta');
     const modifierStr = modifierStrs.length > 0 ? `${modifierStrs.join('+')}+` : '';
 
-    console.log(`${logPrefix} ${keyEventType}:`, {
+    log(`${keyEventType}`, {
       key: `${modifierStr}${event.key}`,
       targetElement,
       timeSinceLastKey: timeSinceLastKey ? `${(timeSinceLastKey / 1000).toFixed(1)}s` : 'first key'
     });
-  }, [logPrefix]);
+  }, [analyticsSettings.trackKeyboard, log]);
 
   // ================================================================
   // DRAG TRACKING (for native HTML5 text drag & drop)
@@ -608,6 +664,8 @@ export const usePageAnalytics = (
     selectedText: string,
     coordinates: { x: number; y: number }
   ) => {
+    // Skip if drag tracking is disabled
+    if (!analyticsSettings.trackDrag) return;
     if (!sessionRef.current) return;
 
     const now = Date.now();
@@ -618,16 +676,18 @@ export const usePageAnalytics = (
       coordinates
     };
 
-    console.log(`${logPrefix} Drag started:`, {
+    log('Drag started', {
       selectedText: selectedText.length > 50 ? selectedText.substring(0, 50) + '...' : selectedText,
       selectedLength: `${selectedText.length} chars`,
       startCoords: coordinates
     });
-  }, [logPrefix]);
+  }, [analyticsSettings.trackDrag, log]);
 
   const trackDragEnd = useCallback((
     endCoordinates: { x: number; y: number }
   ) => {
+    // Skip if drag tracking is disabled
+    if (!analyticsSettings.trackDrag) return;
     if (!sessionRef.current || !pendingDragRef.current) return;
 
     const dragStart = pendingDragRef.current;
@@ -638,7 +698,7 @@ export const usePageAnalytics = (
     const deltaY = Math.abs(endCoordinates.y - dragStart.coordinates.y);
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    console.log(`${logPrefix} Text drag (drop):`, {
+    log('Text drag (drop)', {
       selectedText: dragStart.selectedText.length > 50 ? dragStart.selectedText.substring(0, 50) + '...' : dragStart.selectedText,
       selectedLength: `${dragStart.selectedText.length} chars`,
       duration: `${duration}ms`,
@@ -654,7 +714,7 @@ export const usePageAnalytics = (
 
     // Clear pending drag
     pendingDragRef.current = null;
-  }, [logPrefix]);
+  }, [analyticsSettings.trackDrag, log]);
 
   // ================================================================
   // REAL-TIME METRICS UPDATE (100ms interval)

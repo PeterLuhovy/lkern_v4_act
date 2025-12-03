@@ -62,12 +62,14 @@ export interface TranslationKeys {
     refresh: string;
     loading: string;
     error: string;
+    info: string;
     success: string;
     confirm: string;
     confirmDelete: string;
     confirmDeleteMessage: string;
     yes: string;
     no: string;
+    ok: string;
     submit: string;
     back: string;
     next: string;
@@ -77,6 +79,7 @@ export interface TranslationKeys {
     status: string;
     orders: string;
     view: string;
+    viewEdit: string;
     actions: string;
     product: string;
     quantity: string;
@@ -86,6 +89,12 @@ export interface TranslationKeys {
     dataGrid: string;
     selectAll: string;
     selectRow: string;
+    saved: string;
+    saveFailed: string;
+    saving: string;
+    notImplemented: string;
+    typeToConfirm: string;
+    retry: string;
   };
   dashboard: {
     title: string;
@@ -99,7 +108,6 @@ export interface TranslationKeys {
     testingDescription: string;
     ordersDescription: string;
     issuesDescription: string;
-    keyboardShortcuts: string;
     testing: string;
   };
   contacts: {
@@ -126,7 +134,9 @@ export interface TranslationKeys {
       category: string;
       priority: string;
       errorMessage: string;
+      errorMessagePlaceholder: string;
       errorType: string;
+      errorTypePlaceholder: string;
       browser: string;
       os: string;
       url: string;
@@ -138,6 +148,14 @@ export interface TranslationKeys {
       removeFile: string;
       systemInfo: string;
       systemInfoHint: string;
+      systemInfoLabels: {
+        browser: string;
+        os: string;
+        url: string;
+        viewport: string;
+        screen: string;
+        timestamp: string;
+      };
     };
     validation: {
       titleMinLength: string;
@@ -182,6 +200,36 @@ export interface TranslationKeys {
       docs: string;
       performance: string;
       security: string;
+    };
+    status: {
+      open: string;
+      assigned: string;
+      inProgress: string;
+      resolved: string;
+      closed: string;
+      rejected: string;
+    };
+    deletionAudit: {
+      title: string;
+      status: string;
+      summary: string;
+      itemCode: string;
+      filesFound: string;
+      filesDeleted: string;
+      startedAt: string;
+      completedAt: string;
+      errorMessage: string;
+      failedFiles: string;
+      viewAuditLog: string;
+      deletionFailed: string;
+      deletionPending: string;
+      softDeleted: string;
+      statusValues: {
+        pending: string;
+        completed: string;
+        failed: string;
+        partial: string;
+      };
     };
   };
   components: {
@@ -270,6 +318,8 @@ export interface TranslationKeys {
       filteredGridDescription: string;
       templatePageDatagridTitle: string;
       templatePageDatagridDescription: string;
+      templatePageBaseTitle: string;
+      templatePageBaseDescription: string;
       variants: string;
       sizes: string;
       states: string;
@@ -801,6 +851,44 @@ export interface TranslationKeys {
       changeLanguage: string;
       resizeWidth: string;
       newAction: string;
+      tabs: {
+        navigation: string;
+        nav: string;
+        settings: string;
+        user: string;
+        debug: string;
+        dbg: string;
+      };
+      analytics: {
+        sectionAnalytics: string;
+        sectionDebug: string;
+        trackMouse: string;
+        trackMouseHint: string;
+        trackKeyboard: string;
+        trackKeyboardHint: string;
+        trackDrag: string;
+        trackDragHint: string;
+        trackTiming: string;
+        trackTimingHint: string;
+        logToConsole: string;
+        logToConsoleHint: string;
+        showDebugBarPage: string;
+        showDebugBarPageHint: string;
+        showDebugBarModal: string;
+        showDebugBarModalHint: string;
+        logPermissions: string;
+        logPermissionsHint: string;
+        logModalStack: string;
+        logModalStackHint: string;
+        logIssueWorkflow: string;
+        logIssueWorkflowHint: string;
+        logToasts: string;
+        logToastsHint: string;
+        logFetchCalls: string;
+        logFetchCallsHint: string;
+        enableAll: string;
+        disableAll: string;
+      };
     };
     reportButton: {
       title: string;
@@ -842,6 +930,7 @@ export interface TranslationKeys {
     password: string;
     country: string;
     bio: string;
+    enterValue: string;
     placeholders: {
       username: string;
       email: string;
@@ -881,10 +970,162 @@ export interface TranslationKeys {
       horizontal: string;
     };
   };
+  // Simple storage keys for inline usage (toast messages, etc.)
+  storage: {
+    slowOperation: string;
+    unavailable: string;
+    minioDownWithFiles: string;
+    minioDownNoFiles: string;
+    types: {
+      sql: string;
+      minio: string;
+      elasticsearch: string;
+    };
+  };
+  storageOperations: {
+    healthCheck: {
+      checking: string;
+      healthy: string;
+      unhealthy: string;
+      slow: string;
+      retrying: string;
+    };
+    phases: {
+      idle: string;
+      healthCheck: string;
+      executing: string;
+      verifying: string;
+      success: string;
+      failed: string;
+      unavailable: string;
+      notFound: string;
+      verificationFailed: string;
+    };
+    operations: {
+      create: string;
+      read: string;
+      update: string;
+      delete: string;
+    };
+    messages: {
+      checkingServices: string;
+      takingLonger: string;
+      servicesAvailable: string;
+      servicesUnavailable: string;
+      unavailableStorages: string;
+      creating: string;
+      reading: string;
+      updating: string;
+      deleting: string;
+      operationSuccess: string;
+      operationFailed: string;
+      recordNotFound: string;
+      verificationFailed: string;
+      processingBatch: string;
+      batchSuccess: string;
+      batchPartial: string;
+    };
+    storageTypes: {
+      sql: string;
+      minio: string;
+      elasticsearch: string;
+    };
+    modal: {
+      unavailableTitle: string;
+      unavailableMessage: string;
+      retry: string;
+      markForDeletion: string;
+      cancel: string;
+    };
+  };
   pages: {
     orders: OrdersPageTranslations;
     issues: IssuesPageTranslations;
     //--GENERATE-PAGE-PLACEHOLDER-TYPES--
+    template: {
+      title: string;
+      subtitle: string;
+      breadcrumb: string;
+      searchPlaceholder: string;
+      newItemButton: string;
+      showInactiveLabel: string;
+      selectedCount: string;
+      clearSelection: string;
+      newItemClicked: string;
+      bulkExport: string;
+      bulkDeleteConfirm: string;
+      bulkDeleteSuccess: string;
+      deleteConfirm: string;
+      deleteSuccess: string;
+      restoreConfirm: string;
+      restoreSuccess: string;
+      permanentDeleteConfirm: string;
+      permanentDeleteSuccess: string;
+      permanentDeleteError: string;
+      detailsTitle: string;
+      bulkDelete: {
+        title: string;
+        titlePermanent: string;
+        titleMixed: string;
+        softMessage: string;
+        hardMessage: string;
+        mixedMessage: string;
+        minioMessage: string;
+      };
+      minioUnavailable: {
+        title: string;
+        message: string;
+        markForDeletion: string;
+        markedForDeletion: string;
+        retryDelete: string;
+      };
+      filters: {
+        statusTitle: string;
+        statusActive: string;
+        statusPending: string;
+        statusInactive: string;
+        priorityTitle: string;
+        priorityLow: string;
+        priorityMedium: string;
+        priorityHigh: string;
+      };
+      quickFilters: {
+        highValue: string;
+        overdue: string;
+      };
+      columns: {
+        id: string;
+        name: string;
+        email: string;
+        status: string;
+        priority: string;
+        value: string;
+        date: string;
+      };
+      details: {
+        name: string;
+        email: string;
+        status: string;
+        priority: string;
+        value: string;
+        date: string;
+        active: string;
+        isDeleted: string;
+      };
+      exportSuccess: string;
+      exportZipError: string;
+      exportZipLoading: string;
+      exportPartialAttachments: string;
+      minioExportError: {
+        title: string;
+      };
+      exportErrors: {
+        missingAttachmentsModalTitle: string;
+        missingAttachmentsMessage: string;
+        minioTitle: string;
+        downloadWithoutMissing: string;
+      };
+    };
     utilityTest: {
       title: string;
       subtitle: string;
@@ -1184,11 +1425,31 @@ export interface TranslationKeys {
     switchRole: string;
     selectRole: string;
     roles: {
-      admin: string;
-      manager: string;
-      user: string;
-      guest: string;
+      basic: string;
+      standard: string;
+      advanced: string;
     };
+  };
+
+  permissions: {
+    noViewAccess: string;
+    noEditAccess: string;
+    readonlyField: string;
+    fieldReadOnly: string;
+    immutableField: string;
+    fieldNotConfigured: string;
+    insufficientLevel: string;
+    requiresOwnership: string;
+    requiresStatus: string;
+    wrongStatus: string;
+    entityDeleted: string;
+  };
+
+  services: {
+    unavailable: string;
+    entityDeleted: string;
+    fetchError: string;
+    checking: string;
   };
 
   helperTexts: {
@@ -1205,6 +1466,7 @@ export interface TranslationKeys {
       emptyState: string;
       noFilterResults: string;
       noFilterResultsHint: string;
+      serviceUnavailable: string;
     };
     filter: {
       searchPlaceholder: string;
@@ -1223,5 +1485,74 @@ export interface TranslationKeys {
       expand: string;
       collapse: string;
     };
+  };
+
+  // === THEME CUSTOMIZER ===
+  themeCustomizer: {
+    buttonTitle: string;
+    title: string;
+    compactMode: string;
+    highContrast: string;
+    showAnimations: string;
+    fontSize: string;
+    fontSizeSmall: string;
+    fontSizeMedium: string;
+    fontSizeLarge: string;
+    accentColor: string;
+    resetTitle: string;
+    resetToDefaults: string;
+  };
+
+  // === KEYBOARD SHORTCUTS ===
+  keyboardShortcuts: {
+    buttonHint: string;
+    title: string;
+    toggleTheme: string;
+    changeLanguage: string;
+    modalHint: string;
+    permissionLevel10: string;
+    permissionLevel20: string;
+    permissionLevel29: string;
+    permissionLevel35: string;
+    permissionLevel45: string;
+    permissionLevel59: string;
+    permissionLevel65: string;
+    permissionLevel85: string;
+    permissionLevel100: string;
+  };
+
+  // === STATUS BAR ===
+  statusBar: {
+    allServicesRunning: string;
+    systemOperational: string;
+    criticalServicesUnhealthy: string;
+    servicesCount: string;
+    lastUpdated: string;
+    manualRefresh: string;
+    dragToResize: string;
+    servicesWorking: string;
+    responseTimes: string;
+    sections: {
+      critical: string;
+      other: string;
+      databases: string;
+    };
+    backup: {
+      button: string;
+      buttonRunning: string;
+      starting: string;
+      processing: string;
+      completed: string;
+      error: string;
+      lastBackup: string;
+      progress: string;
+      oneClick: string;
+    };
+  };
+
+  // === THEME ===
+  theme: {
+    switchToLight: string;
+    switchToDark: string;
   };
 }

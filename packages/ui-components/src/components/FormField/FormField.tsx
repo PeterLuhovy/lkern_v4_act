@@ -3,8 +3,21 @@
  * FILE: FormField.tsx
  * PATH: /packages/ui-components/src/components/FormField/FormField.tsx
  * DESCRIPTION: Form field with built-in real-time validation
- * VERSION: v3.1.0
- * UPDATED: 2025-10-30 12:15:00
+ * VERSION: v3.4.0
+ * UPDATED: 2025-11-29
+ *
+ * CHANGES (v3.4.0):
+ *   - ENHANCED: onChange now supports both Input and Textarea components
+ *   - UPDATED: handleChange accepts HTMLInputElement | HTMLTextAreaElement events
+ *
+ * CHANGES (v3.3.0):
+ *   - ADDED: labelHint prop - Shows InfoHint icon after label
+ *   - ADDED: labelHintMaxWidth prop - Configures popup width
+ *   - FIXED: Validation messages now re-translate on language change
+ *
+ * CHANGES (v3.2.0):
+ *   - ADDED: maxLength prop - Shows character counter (e.g., "45/200")
+ *   - ENHANCED: Char count displayed inline with error/helper text (left-right layout)
  *
  * CHANGES (v3.1.0):
  *   - ADDED: Controlled mode support (value + onChange props)
@@ -21,7 +34,9 @@
  */
 
 import React, { useState, useEffect, cloneElement, isValidElement } from 'react';
+import { useTranslation } from '@l-kern/config';
 import { classNames } from '../../utils/classNames';
+import { InfoHint } from '../InfoHint';
 import styles from './FormField.module.css';
 
 /**
@@ -107,9 +122,10 @@ export interface FormFieldProps {
 
   /**
    * Controlled onChange handler from parent (controlled mode)
-   * Called when input value changes
+   * Called when input/textarea value changes
+   * Supports both Input and Textarea components
    */
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 
   /**
    * Tooltip text for input (HTML title attribute)
@@ -122,6 +138,25 @@ export interface FormFieldProps {
    * Only shown when validate function is provided and field is valid
    */
   successMessage?: string;
+
+  /**
+   * Maximum character length for the input
+   * When provided, displays character counter (e.g., "45/200")
+   * Displayed inline with error/helper text (error left, counter right)
+   */
+  maxLength?: number;
+
+  /**
+   * Hint text to display as InfoHint icon after label
+   * When provided, shows small info icon that reveals popup on click
+   */
+  labelHint?: string;
+
+  /**
+   * Max width for labelHint popup
+   * @default 450
+   */
+  labelHintMaxWidth?: number;
 
   /**
    * Input element (Input, Select, Textarea, etc.)
@@ -218,8 +253,14 @@ export const FormField: React.FC<FormFieldProps> = ({
   onChange: controlledOnChange,
   inputTitle,
   successMessage,
+  maxLength,
+  labelHint,
+  labelHintMaxWidth = 450,
   children,
 }) => {
+  // Get current language for re-validation on language change
+  const { language } = useTranslation();
+
   // Determine if component is controlled or uncontrolled
   const isControlled = controlledValue !== undefined;
 
@@ -235,7 +276,8 @@ export const FormField: React.FC<FormFieldProps> = ({
   // If field is required, show error even if not touched (show validation from start)
   const displayError = externalError || (required || touched ? internalError : undefined);
 
-  // Validation effect - run validation when value changes
+  // Validation effect - run validation when value or language changes
+  // Language dependency ensures error messages re-translate on language switch
   useEffect(() => {
     if (validate) {
       const error = validate(value);
@@ -248,10 +290,10 @@ export const FormField: React.FC<FormFieldProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, validate]);
+  }, [value, validate, language]);
 
-  // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle input/textarea change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value;
 
     if (isControlled) {
@@ -303,14 +345,27 @@ export const FormField: React.FC<FormFieldProps> = ({
   const messageRole = displayError ? 'alert' : undefined;
   const messageClass = displayError ? styles.errorText : (successMsg ? styles.successText : styles.helperText);
 
+  // Show message area when there's a message OR maxLength counter
+  const showMessageArea = hasMessage || maxLength;
+
   return (
     <div className={wrapperClassName}>
-      {/* Label - optional */}
+      {/* Label - optional, with optional InfoHint */}
       {label && (
-        <label className={styles.label} htmlFor={htmlFor}>
-          {label}
-          {required && <span className={styles.required}>*</span>}
-        </label>
+        <div className={styles.labelRow}>
+          <label className={styles.label} htmlFor={htmlFor}>
+            {label}
+            {required && <span className={styles.required}>*</span>}
+          </label>
+          {labelHint && (
+            <InfoHint
+              content={labelHint}
+              position="right"
+              size="small"
+              maxWidth={labelHintMaxWidth}
+            />
+          )}
+        </div>
       )}
 
       {/* Input wrapper */}
@@ -318,14 +373,27 @@ export const FormField: React.FC<FormFieldProps> = ({
         {enhancedChild}
       </div>
 
-      {/* Message area - always rendered when reserveMessageSpace=true */}
+      {/* Message area - error/helper text left, char count right */}
       <div className={messageAreaClassName}>
-        {hasMessage && (
-          <span className={messageClass} role={messageRole} id={displayError && errorId ? errorId : undefined}>
-            {displayError && <span className={styles.errorIcon} aria-hidden="true">⚠</span>}
-            {successMsg && <span className={styles.successIcon} aria-hidden="true">✓</span>}
-            {messageContent}
-          </span>
+        {showMessageArea && (
+          <div className={styles.messageRow}>
+            {/* Left side: error/success/helper text */}
+            <div className={styles.messageLeft}>
+              {hasMessage && (
+                <span className={messageClass} role={messageRole} id={displayError && errorId ? errorId : undefined}>
+                  {displayError && <span className={styles.errorIcon} aria-hidden="true">⚠</span>}
+                  {successMsg && <span className={styles.successIcon} aria-hidden="true">✓</span>}
+                  {messageContent}
+                </span>
+              )}
+            </div>
+            {/* Right side: character counter */}
+            {maxLength && (
+              <span className={styles.charCount}>
+                {value.length}/{maxLength}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -2,15 +2,27 @@
  * ================================================================
  * FILE: AuthRoleSwitcher.tsx
  * PATH: /packages/ui-components/src/components/AuthRoleSwitcher/AuthRoleSwitcher.tsx
- * DESCRIPTION: Authorization permission level switcher with slider (0-100)
- * VERSION: v3.3.0
+ * DESCRIPTION: Authorization permission level switcher with 9 levels + Ctrl+1-9 shortcuts
+ * VERSION: v4.0.0
  * CREATED: 2025-11-22
- * UPDATED: 2025-11-24
+ * UPDATED: 2025-11-30
+ *
+ * CHANGES v4.0.0:
+ *   - Replaced 3 buttons with 9-level grid (3x3)
+ *   - Added keyboard shortcuts Ctrl+1 to Ctrl+9
+ *   - Removed slider, added compact button grid
+ *   - Basic (1-3), Standard (4-6), Admin (7-9)
  * ================================================================
  */
 
-import React from 'react';
-import { useTranslation, useAuthContext, QUICK_PERMISSION_LEVELS, getPermissionColorRange } from '@l-kern/config';
+import React, { useEffect, useCallback } from 'react';
+import {
+  useTranslation,
+  useAuthContext,
+  QUICK_PERMISSION_LEVELS,
+  PERMISSION_SHORTCUTS,
+  getPermissionColorRange,
+} from '@l-kern/config';
 import styles from './AuthRoleSwitcher.module.css';
 
 export interface AuthRoleSwitcherProps {
@@ -25,22 +37,12 @@ export interface AuthRoleSwitcherProps {
  *
  * 🚨 DEVELOPMENT TOOL - FOR TESTING ONLY
  *
- * Shows numeric permission level switcher (0-100):
- * - Horizontal slider with color-coded track
- * - Small numeric indicator to the right of slider
- * - Quick access buttons: 30 (basic), 60 (standard), 100 (advanced)
- * - Active button highlights based on permission range
+ * Shows 9-level permission switcher in 3x3 grid:
+ * - Basic lvl1-3 (green zone, Ctrl+1/2/3)
+ * - Standard lvl1-3 (yellow zone, Ctrl+4/5/6)
+ * - Admin lvl1-3 (red zone, Ctrl+7/8/9)
  *
- * Permission ranges:
- * - 0-29: Basic (safe, minimal permissions)
- * - 30-59: Standard (caution, basic permissions)
- * - 60-100: Advanced (elevated permissions)
- *
- * Color coding (inverted scale):
- * - 🟢 0-29: Green (safe, minimal permissions)
- * - 🟡 30-59: Yellow (caution, basic permissions)
- * - 🟠 60-99: Orange (elevated, standard permissions)
- * - 🔴 100: Red (danger, full access)
+ * Keyboard shortcuts: Ctrl+1 through Ctrl+9
  *
  * TODO: Remove when lkms-auth microservice is ready
  */
@@ -53,110 +55,132 @@ export const AuthRoleSwitcher: React.FC<AuthRoleSwitcherProps> = ({
   // Get color range for current permission level
   const colorRange = getPermissionColorRange(permissionLevel);
 
-  // Color mapping for CSS classes
-  const colorClass = {
-    green: styles['authRoleSwitcher__slider--green'],
-    yellow: styles['authRoleSwitcher__slider--yellow'],
-    orange: styles['authRoleSwitcher__slider--orange'],
-    red: styles['authRoleSwitcher__slider--red'],
-  }[colorRange.color] || styles['authRoleSwitcher__slider--green'];
+  // Handle keyboard shortcuts (Ctrl+1 to Ctrl+9)
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Check for Ctrl key (or Cmd on Mac)
+    if (!event.ctrlKey && !event.metaKey) return;
 
-  // Handle slider change
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPermissionLevel(parseInt(e.target.value, 10));
-  };
+    // Find matching shortcut
+    const shortcut = PERMISSION_SHORTCUTS.find(s => s.key === event.key);
+    if (shortcut) {
+      event.preventDefault();
+      setPermissionLevel(shortcut.level);
+    }
+  }, [setPermissionLevel]);
+
+  // Register keyboard shortcuts
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   // Handle quick permission level buttons
   const handleQuickPermission = (level: number) => {
     setPermissionLevel(level);
   };
 
-  // Check if button should be "pressed" (active) based on permission range
-  const isPermissionActive = (level: number) => {
-    if (level === QUICK_PERMISSION_LEVELS.BASIC) {
-      // Basic: 0-29
-      return permissionLevel >= 0 && permissionLevel < 30;
-    } else if (level === QUICK_PERMISSION_LEVELS.STANDARD) {
-      // Standard: 30-59
-      return permissionLevel >= 30 && permissionLevel < 60;
-    } else if (level === QUICK_PERMISSION_LEVELS.ADVANCED) {
-      // Advanced: 60-100
-      return permissionLevel >= 60 && permissionLevel <= 100;
-    }
-    return false;
-  };
+  // Check if level is active (exact match)
+  const isLevelActive = (level: number) => permissionLevel === level;
 
-  const levels: Array<{ value: number; icon: string; labelKey: string }> = [
-    { value: QUICK_PERMISSION_LEVELS.BASIC, icon: '👁️', labelKey: 'auth.roles.basic' },
-    { value: QUICK_PERMISSION_LEVELS.STANDARD, icon: '👤', labelKey: 'auth.roles.standard' },
-    { value: QUICK_PERMISSION_LEVELS.ADVANCED, icon: '👑', labelKey: 'auth.roles.advanced' },
+  // 9-level structure: 3 categories × 3 levels each
+  const categories = [
+    {
+      name: 'basic',
+      icon: '👁️',
+      labelKey: 'auth.roles.basic',
+      color: 'green',
+      levels: [
+        { value: QUICK_PERMISSION_LEVELS.BASIC_1, shortcut: '1', sublevel: 'lvl1' },
+        { value: QUICK_PERMISSION_LEVELS.BASIC_2, shortcut: '2', sublevel: 'lvl2' },
+        { value: QUICK_PERMISSION_LEVELS.BASIC_3, shortcut: '3', sublevel: 'lvl3' },
+      ],
+    },
+    {
+      name: 'standard',
+      icon: '👤',
+      labelKey: 'auth.roles.standard',
+      color: 'yellow',
+      levels: [
+        { value: QUICK_PERMISSION_LEVELS.STANDARD_1, shortcut: '4', sublevel: 'lvl1' },
+        { value: QUICK_PERMISSION_LEVELS.STANDARD_2, shortcut: '5', sublevel: 'lvl2' },
+        { value: QUICK_PERMISSION_LEVELS.STANDARD_3, shortcut: '6', sublevel: 'lvl3' },
+      ],
+    },
+    {
+      name: 'admin',
+      icon: '👑',
+      labelKey: 'auth.roles.advanced',
+      color: 'red',
+      levels: [
+        { value: QUICK_PERMISSION_LEVELS.ADMIN_1, shortcut: '7', sublevel: 'lvl1' },
+        { value: QUICK_PERMISSION_LEVELS.ADMIN_2, shortcut: '8', sublevel: 'lvl2' },
+        { value: QUICK_PERMISSION_LEVELS.ADMIN_3, shortcut: '9', sublevel: 'lvl3' },
+      ],
+    },
   ];
+
+  // Color class for indicator
+  const colorClass = {
+    green: styles['authRoleSwitcher__indicator--green'],
+    yellow: styles['authRoleSwitcher__indicator--yellow'],
+    orange: styles['authRoleSwitcher__indicator--orange'],
+    red: styles['authRoleSwitcher__indicator--red'],
+  }[colorRange.color] || styles['authRoleSwitcher__indicator--green'];
 
   return (
     <div className={styles.authRoleSwitcher}>
+      {/* Permission Level Indicator */}
       {!isCollapsed && (
-        <>
-          {/* Horizontal Slider with Indicator */}
-          <div className={styles.authRoleSwitcher__sliderRow}>
-            <div className={styles.authRoleSwitcher__sliderContainer}>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={permissionLevel}
-                onChange={handleSliderChange}
-                className={`${styles.authRoleSwitcher__slider} ${colorClass}`}
-                title={`Oprávnenie: ${permissionLevel}`}
-              />
-              {/* Markers for quick levels */}
-              <div className={styles.authRoleSwitcher__markers}>
-                <div
-                  className={styles.authRoleSwitcher__marker}
-                  style={{ left: '30%' }}
-                  title="Basic (30)"
-                />
-                <div
-                  className={styles.authRoleSwitcher__marker}
-                  style={{ left: '60%' }}
-                  title="Standard (60)"
-                />
-                <div
-                  className={styles.authRoleSwitcher__marker}
-                  style={{ left: '100%' }}
-                  title="Advanced (100)"
-                />
-              </div>
-            </div>
-
-            {/* Permission Level Indicator - Small, Right of Slider */}
-            <div className={styles.authRoleSwitcher__indicator}>
-              <span className={styles.authRoleSwitcher__indicatorValue}>
-                {permissionLevel}
-              </span>
-            </div>
-          </div>
-        </>
+        <div className={`${styles.authRoleSwitcher__indicator} ${colorClass}`}>
+          <span className={styles.authRoleSwitcher__indicatorValue}>
+            {permissionLevel}
+          </span>
+          <span className={styles.authRoleSwitcher__indicatorLabel}>
+            {colorRange.label}
+          </span>
+        </div>
       )}
 
-      {/* Quick Access Buttons - Show role names */}
-      <div className={styles.authRoleSwitcher__buttonsContainer}>
-        {levels.map((level) => (
-          <button
-            key={level.value}
-            className={`${styles.authRoleSwitcher__button} ${
-              isPermissionActive(level.value) ? styles['authRoleSwitcher__button--active'] : ''
-            }`}
-            onClick={() => handleQuickPermission(level.value)}
-            type="button"
-            title={`${t(level.labelKey)} (${level.value})`}
-          >
-            <span className={styles.authRoleSwitcher__icon}>{level.icon}</span>
+      {/* 9-Level Grid: 3 categories */}
+      <div className={styles.authRoleSwitcher__grid}>
+        {categories.map((category) => (
+          <div key={category.name} className={styles.authRoleSwitcher__category}>
+            {/* Category Header (icon + name) */}
             {!isCollapsed && (
-              <span className={styles.authRoleSwitcher__label}>
-                {t(level.labelKey)}
-              </span>
+              <div className={styles.authRoleSwitcher__categoryHeader}>
+                <span className={styles.authRoleSwitcher__categoryIcon}>{category.icon}</span>
+                <span className={styles.authRoleSwitcher__categoryName}>
+                  {t(category.labelKey)}
+                </span>
+              </div>
             )}
-          </button>
+
+            {/* 3 Level Buttons per category */}
+            <div className={styles.authRoleSwitcher__levels}>
+              {category.levels.map((level) => (
+                <button
+                  key={level.value}
+                  className={`${styles.authRoleSwitcher__button} ${
+                    styles[`authRoleSwitcher__button--${category.color}`]
+                  } ${
+                    isLevelActive(level.value) ? styles['authRoleSwitcher__button--active'] : ''
+                  }`}
+                  onClick={() => handleQuickPermission(level.value)}
+                  type="button"
+                  title={`${t(category.labelKey)} ${level.sublevel} (${level.value}) - Ctrl+${level.shortcut}`}
+                >
+                  {isCollapsed ? (
+                    <span className={styles.authRoleSwitcher__shortcut}>{level.shortcut}</span>
+                  ) : (
+                    <>
+                      <span className={styles.authRoleSwitcher__sublevel}>{level.sublevel}</span>
+                      <span className={styles.authRoleSwitcher__shortcutHint}>Ctrl+{level.shortcut}</span>
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>

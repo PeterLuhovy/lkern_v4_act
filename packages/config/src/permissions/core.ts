@@ -1,10 +1,13 @@
 /*
  * ================================================================
- * FILE: permissions.ts
- * PATH: /packages/config/src/permissions.ts
- * DESCRIPTION: Centralized permission configuration with numeric levels (0-100)
- * VERSION: v1.0.0
- * UPDATED: 2025-11-24 00:00:00
+ * FILE: core.ts
+ * PATH: /packages/config/src/permissions/core.ts
+ * DESCRIPTION: Core permission configuration with numeric levels (0-100)
+ * VERSION: v1.1.0
+ * UPDATED: 2025-11-29
+ *
+ * CHANGES:
+ *   - v1.1.0: Moved from permissions.ts to permissions/core.ts
  * ================================================================
  */
 
@@ -36,17 +39,62 @@ export const PERMISSION_COLOR_RANGES = {
 } as const;
 
 /**
- * Quick-access permission levels
- * These map to the toggle buttons in the UI
- * - Basic: 15 (within 0-29 range)
- * - Standard: 45 (within 30-59 range)
- * - Advanced: 75 (within 60-100 range)
+ * Super Admin level - bypasses ALL field restrictions including id/issue_code
+ * Only Ctrl+9 (level 100) has this capability
+ */
+export const SUPER_ADMIN_LEVEL = 100;
+
+/**
+ * Quick-access permission levels - 9 levels for keyboard shortcuts (Ctrl+1 to Ctrl+9)
+ *
+ * Basic (0-29 range):
+ *   - BASIC_1 (Ctrl+1): 10 - View only, minimal access
+ *   - BASIC_2 (Ctrl+2): 20 - Basic viewer
+ *   - BASIC_3 (Ctrl+3): 29 - Basic user (top of range)
+ *
+ * Standard (30-59 range):
+ *   - STANDARD_1 (Ctrl+4): 35 - Standard entry
+ *   - STANDARD_2 (Ctrl+5): 45 - Standard user (middle)
+ *   - STANDARD_3 (Ctrl+6): 59 - Standard power user
+ *
+ * Admin (60-100 range):
+ *   - ADMIN_1 (Ctrl+7): 65 - Admin entry
+ *   - ADMIN_2 (Ctrl+8): 85 - Admin elevated
+ *   - ADMIN_3 (Ctrl+9): 100 - Full admin (max)
  */
 export const QUICK_PERMISSION_LEVELS = {
-  BASIC: 15,
+  // Basic levels (0-29)
+  BASIC_1: 10,
+  BASIC_2: 20,
+  BASIC_3: 29,
+  // Standard levels (30-59)
+  STANDARD_1: 35,
+  STANDARD_2: 45,
+  STANDARD_3: 59,
+  // Admin levels (60-100)
+  ADMIN_1: 65,
+  ADMIN_2: 85,
+  ADMIN_3: 100,
+  // Legacy aliases for backwards compatibility
+  BASIC: 10,
   STANDARD: 45,
-  ADVANCED: 75,
+  ADVANCED: 100,
 } as const;
+
+/**
+ * Keyboard shortcut mapping (Ctrl+1 to Ctrl+9)
+ */
+export const PERMISSION_SHORTCUTS: Array<{ key: string; level: number; label: string }> = [
+  { key: '1', level: QUICK_PERMISSION_LEVELS.BASIC_1, label: 'Basic lvl1' },
+  { key: '2', level: QUICK_PERMISSION_LEVELS.BASIC_2, label: 'Basic lvl2' },
+  { key: '3', level: QUICK_PERMISSION_LEVELS.BASIC_3, label: 'Basic lvl3' },
+  { key: '4', level: QUICK_PERMISSION_LEVELS.STANDARD_1, label: 'Standard lvl1' },
+  { key: '5', level: QUICK_PERMISSION_LEVELS.STANDARD_2, label: 'Standard lvl2' },
+  { key: '6', level: QUICK_PERMISSION_LEVELS.STANDARD_3, label: 'Standard lvl3' },
+  { key: '7', level: QUICK_PERMISSION_LEVELS.ADMIN_1, label: 'Admin lvl1' },
+  { key: '8', level: QUICK_PERMISSION_LEVELS.ADMIN_2, label: 'Admin lvl2' },
+  { key: '9', level: QUICK_PERMISSION_LEVELS.ADMIN_3, label: 'Admin lvl3' },
+];
 
 /**
  * Maps numeric permission level to backend role string
