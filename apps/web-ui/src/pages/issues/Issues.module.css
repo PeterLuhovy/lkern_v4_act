@@ -233,7 +233,8 @@
 }
 
 .actionButton:hover {
-  background: var(--color-brand-primary-hover, #7b1fa2);
+  background: var(--color-brand-primary, #9c27b0);
+  filter: brightness(0.85);
   box-shadow: var(--shadow-button-hover);
 }
 
@@ -243,7 +244,8 @@
 }
 
 .actionButtonDanger:hover {
-  background: var(--color-status-error-hover, #d32f2f);
+  background: var(--color-status-error, #f44336);
+  filter: brightness(0.85);
   box-shadow: var(--shadow-button-hover);
 }
 
@@ -339,11 +341,11 @@
 /* Soft delete warning */
 .deletedWarning {
   padding: var(--spacing-sm);
-  background: #fff3cd;
-  border: 2px solid #ffc107;
+  background: color-mix(in srgb, var(--color-status-warning, #FF9800) 15%, var(--theme-card-background, #ffffff));
+  border: 2px solid var(--color-status-warning, #FF9800);
   border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-md);
-  color: #856404;
+  color: var(--theme-text, #212121);
   font-weight: bold;
   display: flex;
   align-items: center;

@@ -57,6 +57,7 @@ class IssueCategory(str, Enum):
         DOCS: Documentation issues
         PERFORMANCE: Performance optimization
         SECURITY: Security vulnerabilities
+        DATA_INTEGRITY: Auto-generated data integrity issues (orphaned files, mismatches)
     """
     UI = "ui"
     BACKEND = "backend"
@@ -65,6 +66,7 @@ class IssueCategory(str, Enum):
     DOCS = "docs"
     PERFORMANCE = "performance"
     SECURITY = "security"
+    DATA_INTEGRITY = "data_integrity"
 
 
 class IssueStatus(str, Enum):

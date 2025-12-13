@@ -5,19 +5,20 @@
  * DESCRIPTION: React component that handles all issue creation UI logic.
  *              Manages modals, calls workflow, handles errors.
  *              Issues.tsx just renders this component and gets callbacks.
- * VERSION: v1.0.1
+ * VERSION: v2.0.0
  * CREATED: 2025-11-30
- * UPDATED: 2025-11-30
+ * UPDATED: 2025-12-04
  * CHANGELOG:
+ *   v2.0.0 - Migrated from local createIssueWorkflow to universal serviceWorkflow from @l-kern/config
  *   v1.0.1 - Fixed: MinIO retry modal now stays open on failure
  *            (previously modal disappeared even when retry failed)
  * ================================================================
  */
 
-import { useState, useCallback, ReactNode } from 'react';
+import { useState, useCallback } from 'react';
 import { CreateIssueModal, IssueTypeSelectModal, ConfirmModal } from '@l-kern/ui-components';
-import { useTranslation, useToast, useAuthContext, getBackendRole, useAnalyticsSettings } from '@l-kern/config';
-import { createIssueWorkflow, type CreateIssueResult, type CreatedIssue } from '../../services';
+import { useTranslation, useToast, useAuthContext, getBackendRole, useAnalyticsSettings, serviceWorkflow, SERVICE_ENDPOINTS, type ServiceWorkflowResult } from '@l-kern/config';
+import { type CreatedIssue } from '../../services';
 
 // ============================================================
 // TYPES
@@ -32,6 +33,19 @@ interface InitialIssueData {
   url?: string;
   description?: string;
   system_info?: Record<string, unknown>;
+}
+
+interface IssueFormData {
+  title: string;
+  description: string;
+  type: IssueType;
+  severity?: string | null;
+  category?: string | null;
+  priority?: string | null;
+  error_message?: string | null;
+  error_type?: string | null;
+  system_info?: Record<string, unknown> | null;
+  attachments?: File[];
 }
 
 interface IssueCreateHandlerProps {
@@ -88,14 +102,14 @@ export function IssueCreateHandler({
 
   // MinIO unavailable dialog
   const [minioError, setMinioError] = useState<{
-    formData: any;
+    formData: IssueFormData;
     filesCount: number;
   } | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
 
   // Service unavailable dialog (Issues Service or SQL down)
   const [serviceError, setServiceError] = useState<{
-    formData: any;
+    formData: IssueFormData;
     errorType: 'SERVICE_DOWN' | 'SQL_DOWN';
   } | null>(null);
   const [isRetryingService, setIsRetryingService] = useState(false);
@@ -132,87 +146,77 @@ export function IssueCreateHandler({
     onModalOpen?.();
   }, [externalOnClose, onModalOpen]);
 
-  const handleOpenTypeSelect = useCallback(() => {
-    if (showTypeSelect) {
-      setIsTypeSelectOpen(true);
-    } else {
-      // Skip type select, open create modal directly
-      if (!externalOnClose) {
-        setInternalIsOpen(true);
-      }
-      onModalOpen?.();
-    }
-  }, [showTypeSelect, externalOnClose, onModalOpen]);
-
   // ─────────────────────────────────────────────────────────────────
   // CREATE ISSUE HANDLER
   // ─────────────────────────────────────────────────────────────────
 
-  // Core workflow call - used by both create and retry
-  const callWorkflow = useCallback(async (formData: any, skipFiles = false, isRetry = false) => {
-    return await createIssueWorkflow(
-      {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        severity: formData.severity || null,
-        category: formData.category || null,
-        priority: formData.priority || null,
-        error_message: formData.error_message || null,
-        error_type: formData.error_type || null,
-        system_info: formData.system_info || null,
-        attachments: skipFiles ? undefined : formData.attachments,
+  // Core workflow call - uses universal serviceWorkflow from @l-kern/config
+  const callWorkflow = useCallback(async (formData: IssueFormData, skipFiles = false, isRetry = false): Promise<ServiceWorkflowResult<CreatedIssue>> => {
+    // Build issue data
+    const issueData = {
+      title: formData.title,
+      description: formData.description,
+      type: formData.type,
+      severity: formData.severity || null,
+      category: formData.category || null,
+      priority: formData.priority || null,
+      error_message: formData.error_message || null,
+      error_type: formData.error_type || null,
+      system_info: formData.system_info || null,
+    };
+
+    // Get files (unless skipFiles)
+    const files: File[] = skipFiles ? [] : (formData.attachments || []);
+    const hasFiles = files.length > 0;
+
+    return await serviceWorkflow<typeof issueData, CreatedIssue>({
+      baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+      endpoint: '/issues/',
+      method: 'POST',
+      data: issueData,
+      files: hasFiles ? files : undefined,
+      formDataFields: { role: getBackendRole(permissionLevel) },
+      healthChecks: {
+        ping: true,
+        sql: true,
+        minio: hasFiles, // Only check MinIO if we have files
+        cache: true,
       },
-      {
-        permissionLevel,
-        backendRole: getBackendRole(permissionLevel),
+      // Verification config - verify SQL record and attachments after creation
+      verification: {
+        enabled: true,
+        getEndpoint: (result) => `/issues/${result.id}`,
+        compareFields: ['title', 'description', 'type', 'severity', 'category', 'priority', 'error_message', 'error_type'],
+        timeout: 5000,
       },
-      {
-        skipFiles,
-        skipVerification: false,
-        debug: analyticsSettings.logIssueWorkflow,
-        caller: isRetry ? 'IssueCreateHandler (RETRY)' : 'IssueCreateHandler',
-        // Service is alive - just log, no toast (user doesn't need to know if everything works)
+      permissionLevel: permissionLevel,
+      debug: analyticsSettings.logIssueWorkflow,
+      caller: isRetry ? 'IssueCreateHandler (RETRY)' : 'IssueCreateHandler',
+      callbacks: {
         onServiceAlive: () => {
           console.log('[IssueCreateHandler] ✅ Service is alive, checking dependencies...');
         },
-        // Called when all retries fail (service completely down after 3 attempts)
         onServiceDown: () => {
           toast.error(t('pages.issues.createError.serviceDown'), { duration: 20000 });
         },
-        // Show "taking longer" toast - if first attempt takes >2s
         onTakingLonger: () => {
           toast.info(t('pages.issues.createError.takingLonger'), { duration: 20000 });
         },
-        // Show toast on each retry attempt (1/3, 2/3, 3/3)
-        onHealthRetry: (attempt, max) => {
-          toast.info(t('pages.issues.createError.retrying', { attempt, max }), { duration: 20000 });
+        onQuickFailure: () => {
+          toast.warning(t('storageOperations.messages.connectionFailed'), { duration: 20000 });
         },
-      }
-    );
+        onHealthRetry: (attempt, max) => {
+          toast.info(t('storageOperations.messages.retrying', { attempt, max }), { duration: 20000 });
+        },
+      },
+    });
   }, [permissionLevel, analyticsSettings.logIssueWorkflow, toast, t]);
 
-  const handleCreateIssue = useCallback(async (formData: any, skipFiles = false) => {
-    setError(null);
-    setIsCreating(true);
-
-    try {
-      const result = await callWorkflow(formData, skipFiles);
-      handleWorkflowResult(result, formData);
-    } catch (err) {
-      console.error('[IssueCreateHandler] Unexpected error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMsg);
-      toast.error(t('pages.issues.createError.generic'));
-    } finally {
-      setIsCreating(false);
-    }
-  }, [callWorkflow, t, toast]);
-
-  const handleWorkflowResult = useCallback((result: CreateIssueResult, formData: any) => {
-    if (result.success && result.issue) {
+  // Handle workflow result - defined BEFORE handleCreateIssue to avoid no-use-before-define warning
+  const handleWorkflowResult = useCallback((result: ServiceWorkflowResult<CreatedIssue>, formData: IssueFormData) => {
+    if (result.success && result.data) {
       // Success!
-      toast.success(t('pages.issues.createSuccess', { code: result.issue.issue_code }));
+      toast.success(t('pages.issues.createSuccess', { code: result.data.issue_code }));
 
       // Warn if files were skipped due to MinIO
       if (!result.filesUploaded && formData.attachments?.length > 0) {
@@ -220,7 +224,7 @@ export function IssueCreateHandler({
       }
 
       handleClose();
-      onSuccess(result.issue);
+      onSuccess(result.data);
       return;
     }
 
@@ -264,6 +268,23 @@ export function IssueCreateHandler({
     }
   }, [t, toast, handleClose, onSuccess]);
 
+  const handleCreateIssue = useCallback(async (formData: IssueFormData, skipFiles = false) => {
+    setError(null);
+    setIsCreating(true);
+
+    try {
+      const result = await callWorkflow(formData, skipFiles);
+      handleWorkflowResult(result, formData);
+    } catch (err) {
+      console.error('[IssueCreateHandler] Unexpected error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMsg);
+      toast.error(t('pages.issues.createError.generic'));
+    } finally {
+      setIsCreating(false);
+    }
+  }, [callWorkflow, handleWorkflowResult, t, toast]);
+
   // ─────────────────────────────────────────────────────────────────
   // MINIO ERROR HANDLERS
   // ─────────────────────────────────────────────────────────────────
@@ -284,17 +305,17 @@ export function IssueCreateHandler({
     try {
       const result = await callWorkflow(minioError.formData, false, true);
 
-      if (result.success && result.issue) {
+      if (result.success && result.data) {
         // Success! Close MinIO modal and show success
         setMinioError(null);
-        toast.success(t('pages.issues.createSuccess', { code: result.issue.issue_code }));
+        toast.success(t('pages.issues.createSuccess', { code: result.data.issue_code }));
 
         if (!result.filesUploaded && minioError.formData.attachments?.length > 0) {
           toast.warning(t('pages.issues.createSuccessNoFiles'));
         }
 
         handleClose();
-        onSuccess(result.issue);
+        onSuccess(result.data);
       } else if (result.errorCode === 'MINIO_UNAVAILABLE_WITH_FILES') {
         // MinIO still down - keep modal open, just stop spinner
         // minioError stays the same, modal stays visible
@@ -327,17 +348,17 @@ export function IssueCreateHandler({
     try {
       const result = await callWorkflow(serviceError.formData, false, true);
 
-      if (result.success && result.issue) {
+      if (result.success && result.data) {
         // Success! Close retry modal and show success
         setServiceError(null);
-        toast.success(t('pages.issues.createSuccess', { code: result.issue.issue_code }));
+        toast.success(t('pages.issues.createSuccess', { code: result.data.issue_code }));
 
         if (!result.filesUploaded && serviceError.formData.attachments?.length > 0) {
           toast.warning(t('pages.issues.createSuccessNoFiles'));
         }
 
         handleClose();
-        onSuccess(result.issue);
+        onSuccess(result.data);
       } else if (result.errorCode === 'SERVICE_DOWN' || result.errorCode === 'SQL_DOWN') {
         // Still down - keep modal open, just stop spinner
         // serviceError stays the same, modal stays visible

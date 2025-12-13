@@ -27,13 +27,15 @@
  *   status          | 1          | 100        | Everyone sees, Super Admin edits
  *   category        | 1          | 70         | Everyone sees, Admin lvl 2+ (70+) edits
  *   assignee_id     | 30         | 70         | Standard+ sees, Admin lvl 2+ (70+) assigns
- *   reporter_id     | 60         | null       | Admin sees, auto-set
+ *   reporter_id     | 60         | 100        | Admin sees, Super Admin edits
  *   error_type      | 60         | 70         | Technical - Admin lvl 2+ (70+) edits
  *   error_message   | 60         | 70         | Technical - Admin lvl 2+ (70+) edits
  *   system_info     | 60         | 80         | Technical - Admin sees, Admin lvl 3 (80+) edits
  *   resolution      | 1          | 70         | Everyone sees, Admin lvl 2+ (70+) edits
- *   created_at      | 1          | null       | Everyone sees, never editable
- *   updated_at      | 1          | null       | Everyone sees, never editable
+ *   created_at      | 1          | 100        | Everyone sees, Super Admin edits
+ *   updated_at      | 1          | 100        | Everyone sees, Super Admin edits
+ *   resolved_at     | 1          | 100        | Everyone sees, Super Admin edits
+ *   closed_at       | 1          | 100        | Everyone sees, Super Admin edits
  *   attachments     | 30         | 70         | Standard+ sees, Admin lvl 2+ (70+) manages
  * ================================================================
  */
@@ -115,7 +117,7 @@ export const ISSUE_FIELD_PERMISSIONS: FieldPermission[] = [
   {
     field: 'reporter_id',
     viewLevel: 60,     // Admin+ can see reporter (privacy)
-    editLevel: null,   // Never editable - set automatically
+    editLevel: 100,    // Super Admin only can change reporter
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -150,32 +152,32 @@ export const ISSUE_FIELD_PERMISSIONS: FieldPermission[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
-  // TIMESTAMPS - Read-only for all
+  // TIMESTAMPS - Super Admin can edit (level 100)
   // ═══════════════════════════════════════════════════════════════
   {
     field: 'created_at',
     viewLevel: 1,
-    editLevel: null,
+    editLevel: 100,    // Super Admin only
   },
   {
     field: 'updated_at',
     viewLevel: 1,
-    editLevel: null,
+    editLevel: 100,    // Super Admin only
   },
   {
     field: 'resolved_at',
     viewLevel: 1,
-    editLevel: null,
+    editLevel: 100,    // Super Admin only
   },
   {
     field: 'closed_at',
     viewLevel: 1,
-    editLevel: null,
+    editLevel: 100,    // Super Admin only
   },
   {
     field: 'deleted_at',
     viewLevel: 60,     // Only expert+ sees deletion timestamp
-    editLevel: null,
+    editLevel: null,   // Never editable (soft delete via API only)
   },
 
   // ═══════════════════════════════════════════════════════════════

@@ -14,7 +14,6 @@ import type {
   StorageConfig,
   StorageType,
   RetryConfig,
-  HealthStatus,
   HealthCheckResult,
   CombinedHealthResult,
 } from './types';
@@ -29,8 +28,8 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
   maxDelay: 4000,           // Max 4 seconds between retries
   backoffMultiplier: 2,     // Double delay each time
   slowThreshold: 5000,      // Show "slow" toast after 5 seconds
-  onSlowOperation: () => {},
-  onRetry: () => {},
+  onSlowOperation: () => undefined,
+  onRetry: () => undefined,
 };
 
 const DEFAULT_HEALTH_TIMEOUT = 3000; // 3 seconds per attempt

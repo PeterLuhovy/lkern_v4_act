@@ -55,7 +55,7 @@ export const CardTestPage: React.FC = () => {
           </Card>
 
           <Card variant="accent">
-            <h3 className={styles.cardTitle}><span role="img" aria-label="purple circle">🟣</span> Accent Variant (NEW!)</h3>
+            <h3 className={styles.cardTitle}><span aria-hidden="true">🟣</span> Accent Variant (NEW!)</h3>
             <p className={styles.cardText}>
               Purple border with glow effect - pre dôležitý obsah.
             </p>
@@ -82,7 +82,7 @@ export const CardTestPage: React.FC = () => {
           </Card>
 
           <Card variant="accent" onClick={() => alert('Accent card clicked!')}>
-            <h3 className={styles.cardTitle}><span role="img" aria-label="sparkles">✨</span> Accent Clickable (NEW!)</h3>
+            <h3 className={styles.cardTitle}><span aria-hidden="true">✨</span> Accent Clickable (NEW!)</h3>
             <p className={styles.cardText}>
               Hover pre silnejší lift efekt (-4px) a väčší glow.
             </p>

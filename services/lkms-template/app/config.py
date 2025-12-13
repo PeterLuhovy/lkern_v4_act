@@ -3,10 +3,12 @@
 {{SERVICE_NAME}} - Configuration
 ================================================================
 File: services/lkms{{SERVICE_CODE}}-{{SERVICE_SLUG}}/app/config.py
-Version: v1.0.0
+Version: v1.1.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   Environment configuration for {{SERVICE_NAME}} microservice.
+  Includes Pessimistic Locking settings.
 ================================================================
 """
 
@@ -55,6 +57,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["http://localhost:4201", "http://127.0.0.1:4201"]
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_MAX_AGE: int = 3600
+
+    # Pessimistic Locking Configuration
+    LOCK_TIMEOUT_MINUTES: int = 30  # Auto-unlock after 30 minutes of inactivity
 
     class Config:
         env_file = ".env"

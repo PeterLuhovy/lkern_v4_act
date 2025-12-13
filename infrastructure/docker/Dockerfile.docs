@@ -1,0 +1,50 @@
+# ================================================================
+# L-KERN v4 - Documentation Dockerfile
+# ================================================================
+# Service: lkms902-docs (Docusaurus + Storybook)
+# Port: 4902
+# Mode: Development (hot-reload) / Production (static nginx)
+# ================================================================
+
+FROM node:20-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Corepack for Yarn 4
+RUN corepack enable && \
+    corepack prepare yarn@4.5.3 --activate
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files (root + docs workspace)
+COPY package.json yarn.lock ./
+COPY apps/docs/package.json ./apps/docs/
+COPY packages/config/package.json ./packages/config/
+COPY packages/ui-components/package.json ./packages/ui-components/
+
+# Create .yarnrc.yml for Docker (node-modules mode, no yarnPath)
+RUN echo "nodeLinker: node-modules" > .yarnrc.yml
+
+# Install dependencies (creates node_modules)
+RUN yarn install
+
+# Copy project configuration
+COPY nx.json tsconfig.base.json eslint.config.mjs ./
+
+# Port configuration
+ARG DOCS_PORT=4902
+ENV DOCS_PORT=${DOCS_PORT}
+
+EXPOSE ${DOCS_PORT}
+
+# Development mode: Docusaurus dev server
+# Source code mounted via docker-compose volumes for hot-reload
+CMD yarn nx serve docs --port ${DOCS_PORT} --host 0.0.0.0

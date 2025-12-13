@@ -2,13 +2,17 @@
  * ================================================================
  * FILE: services.ts
  * PATH: packages/config/src/constants/services.ts
- * DESCRIPTION: Service metadata and configuration for L-KERN v4
- * VERSION: v1.0.1
- * UPDATED: 2025-10-19
+ * DESCRIPTION: Service metadata and API endpoint configuration for L-KERN v4
+ * VERSION: v2.0.0
+ * UPDATED: 2025-12-03
  * ================================================================
  */
 
 import { PORTS } from './ports';
+
+// ============================================================
+// SERVICE METADATA (for documentation and categorization)
+// ============================================================
 
 /**
  * Service metadata structure
@@ -20,13 +24,11 @@ export interface ServiceMetadata {
   category: 'frontend' | 'business' | 'data' | 'dev-tool';
   status: 'active' | 'planned' | 'deprecated';
   description: string;
-  database?: string;  // Database name if service has dedicated DB
+  database?: string;
 }
 
 /**
- * SERVICE REGISTRY
- * Complete registry of all L-KERN v4 services with metadata
- * Each business microservice has its own dedicated database
+ * SERVICE REGISTRY - Metadata for all L-KERN v4 services
  */
 export const SERVICES: Record<string, ServiceMetadata> = {
   // Frontend Applications (LKMS 200-299)
@@ -46,17 +48,8 @@ export const SERVICES: Record<string, ServiceMetadata> = {
     status: 'planned',
     description: 'Admin dashboard',
   },
-  'lkms203-playground': {
-    id: 'lkms203',
-    name: 'playground',
-    port: PORTS.DEV_PLAYGROUND,
-    category: 'frontend',
-    status: 'planned',
-    description: 'Development playground',
-  },
 
   // Business Microservices (LKMS 100-199)
-  // Each service has its own dedicated PostgreSQL database
   'lkms101-contacts': {
     id: 'lkms101',
     name: 'contacts',
@@ -64,156 +57,146 @@ export const SERVICES: Record<string, ServiceMetadata> = {
     category: 'business',
     status: 'planned',
     description: 'Contacts management API',
-    database: 'lkms101_contacts',  // Dedicated contacts database
+    database: 'lkms101_contacts',
   },
-  'lkms102-orders': {
-    id: 'lkms102',
-    name: 'orders',
-    port: PORTS.ORDERS,
-    category: 'business',
-    status: 'planned',
-    description: 'Orders management API',
-    database: 'lkms102_orders',  // Dedicated orders database
-  },
-  'lkms103-parts': {
-    id: 'lkms103',
-    name: 'parts',
-    port: PORTS.PARTS,
-    category: 'business',
-    status: 'planned',
-    description: 'Parts catalog API',
-    database: 'lkms103_parts',  // Dedicated parts database
-  },
-  'lkms104-packing': {
-    id: 'lkms104',
-    name: 'packing',
-    port: PORTS.PACKING,
-    category: 'business',
-    status: 'planned',
-    description: 'Packing service API',
-    database: 'lkms104_packing',  // Dedicated packing database
-  },
-  'lkms105-delivery': {
+  'lkms105-issues': {
     id: 'lkms105',
-    name: 'delivery',
-    port: PORTS.DELIVERY,
+    name: 'issues',
+    port: PORTS.ISSUES,
     category: 'business',
-    status: 'planned',
-    description: 'Delivery service API',
-    database: 'lkms105_delivery',  // Dedicated delivery database
-  },
-  'lkms106-invoices': {
-    id: 'lkms106',
-    name: 'invoices',
-    port: PORTS.INVOICES,
-    category: 'business',
-    status: 'planned',
-    description: 'Invoices service API',
-    database: 'lkms106_invoices',  // Dedicated invoices database
+    status: 'active',
+    description: 'Issues management API',
+    database: 'lkms105_issues',
   },
 
   // Data Services (LKMS 500-599)
-  // Shared infrastructure services
   'lkms501-postgres': {
     id: 'lkms501',
     name: 'postgres',
     port: PORTS.POSTGRES,
     category: 'data',
-    status: 'planned',
-    description: 'PostgreSQL database server (hosts multiple databases)',
+    status: 'active',
+    description: 'PostgreSQL database server',
   },
-  'lkms502-redis': {
+  'lkms502-minio': {
     id: 'lkms502',
-    name: 'redis',
-    port: PORTS.REDIS,
+    name: 'minio',
+    port: PORTS.MINIO,
     category: 'data',
-    status: 'planned',
-    description: 'Redis cache (shared across services)',
-  },
-  'lkms503-elasticsearch': {
-    id: 'lkms503',
-    name: 'elasticsearch',
-    port: PORTS.ELASTICSEARCH,
-    category: 'data',
-    status: 'planned',
-    description: 'Elasticsearch search engine (shared index)',
-  },
-
-  // Development Tools (LKMS 900-999)
-  'lkms901-adminer': {
-    id: 'lkms901',
-    name: 'adminer',
-    port: PORTS.ADMINER,
-    category: 'dev-tool',
-    status: 'planned',
-    description: 'Database admin UI',
-  },
-  'lkms902-pgadmin': {
-    id: 'lkms902',
-    name: 'pgadmin',
-    port: PORTS.PGADMIN,
-    category: 'dev-tool',
-    status: 'planned',
-    description: 'PostgreSQL admin',
-  },
-  'lkms903-mailhog': {
-    id: 'lkms903',
-    name: 'mailhog',
-    port: PORTS.MAILHOG,
-    category: 'dev-tool',
-    status: 'planned',
-    description: 'Email testing tool',
+    status: 'active',
+    description: 'MinIO object storage',
   },
 } as const;
 
-/**
- * DATABASE VOLUMES
- * Volume names for database persistent storage
- * Pattern: lkms{XXX}_{service}_db_data
- */
-export const DATABASE_VOLUMES = {
-  CONTACTS: 'lkms101_contacts_db_data',
-  ORDERS: 'lkms102_orders_db_data',
-  PARTS: 'lkms103_parts_db_data',
-  PACKING: 'lkms104_packing_db_data',
-  DELIVERY: 'lkms105_delivery_db_data',
-  INVOICES: 'lkms106_invoices_db_data',
-} as const;
+// ============================================================
+// SERVICE ENDPOINT CONFIG (for API calls and health checks)
+// ============================================================
 
 /**
- * Get service metadata by LKMS ID
+ * Service endpoint configuration for serviceWorkflow
  */
+export interface ServiceEndpointConfig {
+  baseUrl: string;
+  name: string;
+  healthEndpoints: {
+    ping: string;
+    health: string;
+  };
+  port: number;
+  code: string;
+}
+
+/**
+ * Get the base host for services (Docker vs localhost)
+ */
+function getServiceHost(containerName: string, port: number): string {
+  const isDocker = typeof window !== 'undefined'
+    ? window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    : false;
+
+  if (isDocker) {
+    return `http://${containerName}:${port}`;
+  }
+  return `http://localhost:${port}`;
+}
+
+/**
+ * SERVICE_ENDPOINTS - API endpoint configuration for serviceWorkflow
+ *
+ * @example
+ * ```ts
+ * import { SERVICE_ENDPOINTS } from '@l-kern/config';
+ *
+ * const result = await serviceWorkflow({
+ *   baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+ *   endpoint: '/issues/',
+ *   method: 'POST',
+ *   data: issueData,
+ * });
+ * ```
+ */
+export const SERVICE_ENDPOINTS = {
+  issues: {
+    baseUrl: getServiceHost('lkms105-issues', 4105),
+    name: 'Issues Service',
+    healthEndpoints: { ping: '/ping', health: '/health' },
+    port: 4105,
+    code: 'lkms105',
+  } as ServiceEndpointConfig,
+
+  contacts: {
+    baseUrl: getServiceHost('lkms101-contacts', 4101),
+    name: 'Contacts Service',
+    healthEndpoints: { ping: '/ping', health: '/health' },
+    port: 4101,
+    code: 'lkms101',
+  } as ServiceEndpointConfig,
+
+  minio: {
+    baseUrl: getServiceHost('lksp100-minio', 9000),
+    name: 'MinIO Storage',
+    healthEndpoints: { ping: '/minio/health/live', health: '/minio/health/live' },
+    port: 9000,
+    code: 'lksp100',
+  } as ServiceEndpointConfig,
+} as const;
+
+// ============================================================
+// TYPE EXPORTS
+// ============================================================
+
+export type ServiceEndpointKey = keyof typeof SERVICE_ENDPOINTS;
+
+// ============================================================
+// HELPER FUNCTIONS - Metadata
+// ============================================================
+
 export function getServiceById(lkmsId: string): ServiceMetadata | undefined {
   return SERVICES[lkmsId];
 }
 
-/**
- * Get all services by category
- */
-export function getServicesByCategory(
-  category: ServiceMetadata['category']
-): ServiceMetadata[] {
+export function getServicesByCategory(category: ServiceMetadata['category']): ServiceMetadata[] {
   return Object.values(SERVICES).filter((service) => service.category === category);
 }
 
-/**
- * Get all active services
- */
 export function getActiveServices(): ServiceMetadata[] {
   return Object.values(SERVICES).filter((service) => service.status === 'active');
 }
 
-/**
- * Get service URL for given environment
- */
-export function getServiceUrl(
-  lkmsId: string,
-  environment: 'development' | 'production' = 'development'
-): string | undefined {
-  const service = SERVICES[lkmsId];
-  if (!service) return undefined;
+// ============================================================
+// HELPER FUNCTIONS - Endpoints
+// ============================================================
 
-  const host = environment === 'development' ? 'localhost' : window.location.hostname;
-  return `http://${host}:${service.port}`;
+export function getServiceEndpoint(key: ServiceEndpointKey): ServiceEndpointConfig {
+  return SERVICE_ENDPOINTS[key];
 }
 
+export function buildServiceUrl(service: ServiceEndpointKey, endpoint: string): string {
+  const config = SERVICE_ENDPOINTS[service];
+  return `${config.baseUrl}${endpoint}`;
+}
+
+export function getHealthUrl(service: ServiceEndpointKey, type: 'ping' | 'health' = 'ping'): string {
+  const config = SERVICE_ENDPOINTS[service];
+  return `${config.baseUrl}${config.healthEndpoints[type]}`;
+}

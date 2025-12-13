@@ -3,21 +3,33 @@
 {{SERVICE_NAME}} - Example REST API
 ================================================================
 File: services/lkms{{SERVICE_CODE}}-{{SERVICE_SLUG}}/app/api/rest/example.py
-Version: v1.0.0
+Version: v1.1.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   FastAPI router for {{MODEL_NAME}} CRUD operations.
+  Includes Pessimistic Locking endpoints.
 ================================================================
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from datetime import datetime, timezone
+from uuid import UUID, uuid4
 
 from app.database import get_db
 from app.models import {{MODEL_NAME}}
-from app.schemas import {{MODEL_NAME}}Create, {{MODEL_NAME}}Update, {{MODEL_NAME}}Response
+from app.schemas import (
+    {{MODEL_NAME}}Create,
+    {{MODEL_NAME}}Update,
+    {{MODEL_NAME}}Response,
+    LockRequest,
+    LockResponse,
+    UnlockResponse,
+)
 from app.events.producer import publish_event
+from app.config import settings
 
 import logging
 
@@ -120,3 +132,146 @@ async def delete_{{ROUTE_SINGULAR}}(
 
     logger.info(f"Deleted {{MODEL_NAME}} id={item_id}")
     return None
+
+
+# ================================================================
+# PESSIMISTIC LOCKING ENDPOINTS
+# ================================================================
+
+@router.post("/{item_id}/lock", response_model=LockResponse)
+async def acquire_lock(
+    item_id: int,
+    lock_request: Optional[LockRequest] = None,
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    x_user_name: Optional[str] = Header(None, alias="X-User-Name"),
+    db: Session = Depends(get_db),
+):
+    """
+    Acquire edit lock on a record.
+
+    When a user opens a record for editing, this endpoint is called to lock it.
+    Other users will see the record as read-only until the lock is released.
+
+    Returns:
+        - 200 OK: Lock acquired successfully
+        - 404 Not Found: Record doesn't exist
+        - 409 Conflict: Record is already locked by another user
+
+    Headers:
+        - X-User-ID: UUID of the current user (from auth middleware)
+        - X-User-Name: Display name of the current user
+
+    Note: In development mode without auth, a random UUID is generated.
+    """
+    item = db.query({{MODEL_NAME}}).filter({{MODEL_NAME}}.id == item_id).first()
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{{MODEL_NAME}} with id {item_id} not found",
+        )
+
+    # Get user info from headers or request body (fallback for dev mode)
+    user_id_str = x_user_id or str(uuid4())  # Generate random UUID in dev mode
+    user_name = x_user_name or (lock_request.user_name if lock_request else None) or "Unknown User"
+
+    try:
+        user_id = UUID(user_id_str)
+    except ValueError:
+        user_id = uuid4()
+
+    # Check existing lock
+    if item.locked_at:
+        lock_age = datetime.now(timezone.utc) - item.locked_at.replace(tzinfo=timezone.utc)
+        lock_expired = lock_age.total_seconds() > (settings.LOCK_TIMEOUT_MINUTES * 60)
+
+        # Lock exists, not expired, and not by current user
+        if not lock_expired and item.locked_by_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "message": "Record is locked by another user",
+                    "locked_by_id": str(item.locked_by_id),
+                    "locked_by_name": item.locked_by_name,
+                    "locked_at": item.locked_at.isoformat(),
+                },
+            )
+
+    # Acquire lock
+    item.locked_by_id = user_id
+    item.locked_by_name = user_name
+    item.locked_at = datetime.now(timezone.utc)
+
+    db.commit()
+    db.refresh(item)
+
+    logger.info(f"Lock acquired on {{MODEL_NAME}} id={item_id} by user={user_id} ({user_name})")
+
+    return LockResponse(
+        locked_by_id=item.locked_by_id,
+        locked_by_name=item.locked_by_name,
+        locked_at=item.locked_at,
+        message="Lock acquired successfully",
+    )
+
+
+@router.delete("/{item_id}/lock", response_model=UnlockResponse)
+async def release_lock(
+    item_id: int,
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    x_is_admin: Optional[str] = Header(None, alias="X-Is-Admin"),
+    db: Session = Depends(get_db),
+):
+    """
+    Release edit lock on a record.
+
+    Called when user saves, cancels, or closes the edit modal.
+    Only the user who acquired the lock (or an admin) can release it.
+
+    Returns:
+        - 200 OK: Lock released successfully
+        - 404 Not Found: Record doesn't exist
+        - 403 Forbidden: Cannot release lock owned by another user
+
+    Headers:
+        - X-User-ID: UUID of the current user
+        - X-Is-Admin: "true" if user has admin privileges (can force unlock)
+    """
+    item = db.query({{MODEL_NAME}}).filter({{MODEL_NAME}}.id == item_id).first()
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{{MODEL_NAME}} with id {item_id} not found",
+        )
+
+    # Parse user info
+    user_id = None
+    if x_user_id:
+        try:
+            user_id = UUID(x_user_id)
+        except ValueError:
+            pass
+
+    is_admin = x_is_admin and x_is_admin.lower() == "true"
+
+    # Check if locked by current user (or admin override)
+    if item.locked_by_id:
+        if item.locked_by_id != user_id and not is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot release lock owned by another user",
+            )
+
+    # Release lock
+    previous_holder = item.locked_by_name
+    item.locked_by_id = None
+    item.locked_by_name = None
+    item.locked_at = None
+
+    db.commit()
+
+    logger.info(f"Lock released on {{MODEL_NAME}} id={item_id} (was held by: {previous_holder})")
+
+    return UnlockResponse(
+        status="unlocked",
+        message="Lock released successfully",
+    )

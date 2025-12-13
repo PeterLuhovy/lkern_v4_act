@@ -30,7 +30,9 @@ export const issuesPageSk = {
   bulkExport: 'Exportovať {count} položiek',
   bulkDeleteConfirm: 'Naozaj chcete vymazať {count} položiek?',
   bulkDeleteSuccess: '{count} položiek bolo úspešne vymazaných',
+  exportLoading: 'Sťahujem {format}...',
   exportSuccess: 'Úspešne exportovaných {count} položiek do {format}',
+  exportFailed: 'Export zlyhal',
   exportZipStarted: 'Pripravujem ZIP export pre {count} položiek...',
   exportZipLoading: 'Kontrolujem dostupnosť úložiska...',
   exportZipError: 'Chyba pri vytváraní ZIP exportu',
@@ -42,8 +44,11 @@ export const issuesPageSk = {
     severity: 'Závažnosť',
     status: 'Stav',
     priority: 'Priorita',
+    created_by: 'Vytvoril',
     created_at: 'Vytvorené',
   },
+  system: 'Systém',
+  user: 'Používateľ',
   details: {
     issue_code: 'Kód',
     title: 'Názov',
@@ -115,6 +120,7 @@ export const issuesPageSk = {
   quickFilters: {
     blockers: '🚨 Blokujúce',
     myIssues: '👤 Moje položky',
+    systemIssues: '🤖 Systémové',
     unassigned: '📋 Nepriradené',
   },
   types: {

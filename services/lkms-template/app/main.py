@@ -3,13 +3,16 @@
 {{SERVICE_NAME}} - Main Application
 ================================================================
 File: services/lkms{{SERVICE_CODE}}-{{SERVICE_SLUG}}/app/main.py
-Version: v1.0.0
+Version: v1.1.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   FastAPI application entry point with REST + gRPC servers.
+  Includes background lock cleanup task.
 ================================================================
 """
 
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -18,6 +21,7 @@ import uvicorn
 from app.config import settings
 from app.database import init_db
 from app.api.rest import example
+from app.jobs.lock_cleanup import start_lock_cleanup_task, stop_lock_cleanup_task
 
 # Configure logging
 logging.basicConfig(
@@ -61,6 +65,10 @@ async def startup_event():
     # Initialize database
     init_db()
 
+    # Start background lock cleanup task (every 5 minutes)
+    # This removes expired locks (older than LOCK_TIMEOUT_MINUTES)
+    asyncio.create_task(start_lock_cleanup_task(interval_seconds=300))
+
     logger.info("Application startup complete")
 
 
@@ -68,6 +76,9 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on application shutdown."""
     logger.info("Shutting down application...")
+
+    # Stop the lock cleanup task
+    stop_lock_cleanup_task()
 
 
 @app.get("/")

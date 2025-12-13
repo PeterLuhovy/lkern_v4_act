@@ -237,7 +237,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
           transition: 'bottom 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease'
         }}
       >
-        <span className={styles.buttonIcon}>🎨</span>
+        <span className={styles.buttonIcon} role="img" aria-label="palette">🎨</span>
       </button>
 
       {/* MODAL */}
@@ -259,7 +259,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
               className={styles.title}
               style={{ color: themeColors.text }}
             >
-              🎨 {t('themeCustomizer.title')}
+              <span role="img" aria-label="palette">🎨</span> {t('themeCustomizer.title')}
             </h3>
 
             <div className={styles.content}>
@@ -274,7 +274,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                   onChange={(e) => handleSettingChange('compactMode', e.target.checked)}
                   style={{ accentColor: customSettings.accentColor }}
                 />
-                <span>📦 {t('themeCustomizer.compactMode')}</span>
+                <span><span role="img" aria-label="package">📦</span> {t('themeCustomizer.compactMode')}</span>
               </label>
 
               {/* HIGH CONTRAST */}
@@ -288,7 +288,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                   onChange={(e) => handleSettingChange('highContrast', e.target.checked)}
                   style={{ accentColor: customSettings.accentColor }}
                 />
-                <span>🔆 {t('themeCustomizer.highContrast')}</span>
+                <span><span role="img" aria-label="brightness">🔆</span> {t('themeCustomizer.highContrast')}</span>
               </label>
 
               {/* SHOW ANIMATIONS */}
@@ -302,7 +302,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                   onChange={(e) => handleSettingChange('showAnimations', e.target.checked)}
                   style={{ accentColor: customSettings.accentColor }}
                 />
-                <span>✨ {t('themeCustomizer.showAnimations')}</span>
+                <span><span role="img" aria-label="sparkles">✨</span> {t('themeCustomizer.showAnimations')}</span>
               </label>
 
               {/* FONT SIZE */}
@@ -311,7 +311,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                   className={styles.selectLabel}
                   style={{ color: themeColors.text }}
                 >
-                  📏 {t('themeCustomizer.fontSize')}
+                  <span role="img" aria-label="ruler">📏</span> {t('themeCustomizer.fontSize')}
                 </label>
                 <select
                   value={customSettings.fontSize}
@@ -335,7 +335,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                   className={styles.colorLabel}
                   style={{ color: themeColors.text }}
                 >
-                  🎨 {t('themeCustomizer.accentColor')}
+                  <span role="img" aria-label="palette">🎨</span> {t('themeCustomizer.accentColor')}
                 </label>
                 <div className={styles.colorGrid}>
                   {ACCENT_COLORS.map(({ color, name }) => (
@@ -372,7 +372,7 @@ export const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({
                 }}
                 title={t('themeCustomizer.resetTitle')}
               >
-                🔄 {t('themeCustomizer.resetToDefaults')}
+                <span role="img" aria-label="refresh">🔄</span> {t('themeCustomizer.resetToDefaults')}
               </button>
               <button
                 className={styles.buttonClose}

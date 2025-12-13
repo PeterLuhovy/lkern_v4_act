@@ -62,7 +62,7 @@ export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps, EmptyStateSize } from './components/EmptyState';
 
 export { Modal } from './components/Modal';
-export type { ModalProps, ModalFooterConfig } from './components/Modal';
+export type { ModalProps, ModalFooterConfig, LockInfo, ModalLockingConfig } from './components/Modal';
 
 export { WizardProgress } from './components/WizardProgress';
 export type { WizardProgressProps } from './components/WizardProgress';
@@ -90,6 +90,19 @@ export type { ManagementModalProps } from './components/ManagementModal';
 
 export { SectionEditModal } from './components/SectionEditModal';
 export type { SectionEditModalProps, FieldDefinition, ValidationResult } from './components/SectionEditModal';
+
+export { EntityEditModal } from './components/EntityEditModal';
+export type {
+  EntityEditModalProps,
+  EntityEditConfig,
+  EntitySection,
+  EntityField,
+  EntityFieldType,
+  EntityPermissionConfig,
+  FieldValidator,
+  FieldPermissionCheck,
+  FieldVisibilityCheck,
+} from './components/EntityEditModal';
 
 export { DataGrid } from './components/DataGrid';
 export type { DataGridProps, Column, DataGridAction } from './components/DataGrid';
@@ -121,7 +134,7 @@ export { ResolveIssueModal } from './components/ResolveIssueModal';
 
 export { CloseIssueModal } from './components/CloseIssueModal';
 
-export { EditIssueModal } from './components/EditIssueModal';
+// NOTE: EditIssueModal removed in v1.0.0 - use EntityEditModal with config instead
 
 export { ExportButton } from './components/ExportButton';
 export type { ExportButtonProps, ExportFormat } from './components/ExportButton';
@@ -137,3 +150,6 @@ export type { KeyboardShortcutsButtonProps, KeyboardShortcut } from './component
 
 export { StatusBar } from './components/StatusBar';
 export type { StatusBarProps, ServiceStatus, BackupInfo, CurrentUser, DataSource } from './components/StatusBar';
+
+export { ExportProgressModal } from './components/ExportProgressModal';
+export type { ExportProgressModalProps, ExportFile, ExportProgress } from './components/ExportProgressModal';

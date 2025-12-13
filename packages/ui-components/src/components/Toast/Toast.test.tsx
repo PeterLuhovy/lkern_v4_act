@@ -70,14 +70,14 @@ describe('Toast', () => {
     it('should render close button when onClose provided', () => {
       renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
-      const closeButton = screen.getByLabelText('Close notification');
+      const closeButton = screen.getByLabelText('Zavrieť notifikáciu');
       expect(closeButton).toBeInTheDocument();
     });
 
     it('should not render close button when onClose not provided', () => {
       renderWithTranslation(<Toast toast={mockToast} />);
 
-      const closeButton = screen.queryByLabelText('Close notification');
+      const closeButton = screen.queryByLabelText('Zavrieť notifikáciu');
       expect(closeButton).not.toBeInTheDocument();
     });
 
@@ -104,7 +104,7 @@ describe('Toast', () => {
 
       renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
-      const closeButton = screen.getByLabelText('Close notification');
+      const closeButton = screen.getByLabelText('Zavrieť notifikáciu');
       await user.click(closeButton);
 
       // Wait for fade-out animation (300ms)
@@ -121,7 +121,7 @@ describe('Toast', () => {
 
       renderWithTranslation(<Toast toast={mockToast} onClose={onClose} />);
 
-      const closeButton = screen.getByLabelText('Close notification');
+      const closeButton = screen.getByLabelText('Zavrieť notifikáciu');
       await user.click(closeButton);
 
       // onClose should not be called immediately

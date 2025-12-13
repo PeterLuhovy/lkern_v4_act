@@ -15,6 +15,12 @@ import type { OrdersPageTranslations } from './types/orders.types';
 import type { IssuesPageTranslations } from './types/issues.types';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
+// ============================================================
+// COMPONENT TRANSLATION TYPES (Modularized)
+// ============================================================
+// Note: ComponentsTranslations type is defined in ./types/components
+// but not used directly in this file (used in implementation files)
+
 /**
  * Supported languages in L-KERN v4
  */
@@ -48,6 +54,7 @@ export interface TranslationKeys {
     home: string;
     save: string;
     cancel: string;
+    cancelled: string;
     delete: string;
     restore: string;
     permanentDelete: string;
@@ -95,6 +102,36 @@ export interface TranslationKeys {
     notImplemented: string;
     typeToConfirm: string;
     retry: string;
+    unknown: string;
+    deletedItem: string;
+    // Pessimistic Locking
+    locking: {
+      editedBy: string;
+      lockedTitle: string;
+      lockedMessage: string;
+      readOnlyMode: string;
+      forceUnlock: string;
+      forceUnlockConfirm: string;
+      lockAcquired: string;
+      lockReleased: string;
+      lockFailed: string;
+      unlockFailed: string;
+      // Lock monitoring
+      lockLost: string;
+      lockLostHint: string;
+      // Lock acquisition flow
+      acquiring: string;
+      serviceUnavailable: string;
+      serviceUnavailableTitle: string;
+      serviceUnavailableMessage: string;
+      retryLock: string;
+      closeModal: string;
+    };
+    // Aria Labels for Accessibility
+    ariaLabels: {
+      close: string;
+      closeNotification: string;
+    };
   };
   dashboard: {
     title: string;
@@ -161,6 +198,11 @@ export interface TranslationKeys {
       titleMinLength: string;
       titleMaxLength: string;
       descriptionMinLength: string;
+      // Timeline validation
+      createdAfterUpdated: string;
+      createdAfterResolved: string;
+      createdAfterClosed: string;
+      resolvedAfterClosed: string;
     };
     modal: {
       title: string;
@@ -200,6 +242,7 @@ export interface TranslationKeys {
       docs: string;
       performance: string;
       security: string;
+      dataIntegrity: string;
     };
     status: {
       open: string;
@@ -230,6 +273,27 @@ export interface TranslationKeys {
         failed: string;
         partial: string;
       };
+    };
+    // Resolve Issue Modal
+    resolveModal: {
+      title: string;
+      resolutionLabel: string;
+      resolutionPlaceholder: string;
+      resolutionHint: string;
+      submitButton: string;
+      errors: {
+        minLength: string;
+      };
+    };
+    // Close Issue Modal
+    closeModal: {
+      title: string;
+      warningTitle: string;
+      warningMessage: string;
+      commentLabel: string;
+      commentPlaceholder: string;
+      commentHint: string;
+      submitButton: string;
     };
   };
   components: {
@@ -300,6 +364,8 @@ export interface TranslationKeys {
       cardDescription: string;
       dataGridTitle: string;
       dataGridDescription: string;
+      entityEditModalTitle: string;
+      entityEditModalDescription: string;
       emptyStateTitle: string;
       emptyStateDescription: string;
       spinnerTitle: string;
@@ -841,6 +907,7 @@ export interface TranslationKeys {
       contacts: string;
       orders: string;
       issues: string;
+      documentation: string;
       settings: string;
       uploadNewImage: string;
       dragAndDrop: string;
@@ -886,6 +953,8 @@ export interface TranslationKeys {
         logToastsHint: string;
         logFetchCalls: string;
         logFetchCallsHint: string;
+        logSSEInvalidation: string;
+        logSSEInvalidationHint: string;
         enableAll: string;
         disableAll: string;
       };
@@ -1024,6 +1093,10 @@ export interface TranslationKeys {
       processingBatch: string;
       batchSuccess: string;
       batchPartial: string;
+      connectionFailed: string;
+      retrying: string;
+      serviceDown: string;
+      sqlDown: string;
     };
     storageTypes: {
       sql: string;
@@ -1112,7 +1185,9 @@ export interface TranslationKeys {
         active: string;
         isDeleted: string;
       };
+      exportLoading: string;
       exportSuccess: string;
+      exportFailed: string;
       exportZipError: string;
       exportZipLoading: string;
       exportPartialAttachments: string;
@@ -1373,6 +1448,50 @@ export interface TranslationKeys {
         active: string;
       };
     };
+    entityEdit: {
+      contact: {
+        sections: {
+          basic: string;
+          company: string;
+          notes: string;
+          timestamps: string;
+        };
+        fields: {
+          firstName: string;
+          lastName: string;
+          email: string;
+          phone: string;
+          company: string;
+          position: string;
+          type: string;
+          status: string;
+          notes: string;
+          id: string;
+          createdAt: string;
+          updatedAt: string;
+        };
+        placeholders: {
+          firstName: string;
+          lastName: string;
+          email: string;
+          phone: string;
+          company: string;
+          position: string;
+          notes: string;
+        };
+        hints: {
+          statusHint: string;
+        };
+      };
+      validation: {
+        minLength2: string;
+      };
+      permission: {
+        immutableField: string;
+        noAccess: string;
+        adminOnly: string;
+      };
+    };
   };
 
   // Typy kontaktov (Firma / Fyzická osoba)
@@ -1429,6 +1548,11 @@ export interface TranslationKeys {
       standard: string;
       advanced: string;
     };
+    userSwitcher: {
+      title: string;
+      currentUser: string;
+      selectUser: string;
+    };
   };
 
   permissions: {
@@ -1467,6 +1591,8 @@ export interface TranslationKeys {
       noFilterResults: string;
       noFilterResultsHint: string;
       serviceUnavailable: string;
+      loading: string;
+      loadingSlow: string;
     };
     filter: {
       searchPlaceholder: string;
@@ -1554,5 +1680,18 @@ export interface TranslationKeys {
   theme: {
     switchToLight: string;
     switchToDark: string;
+  };
+
+  // === SETTINGS ===
+  settings: {
+    title: string;
+    exportBehavior: {
+      label: string;
+      hint: string;
+      automatic: string;
+      automaticDescription: string;
+      saveAsDialog: string;
+      saveAsDialogDescription: string;
+    };
   };
 }

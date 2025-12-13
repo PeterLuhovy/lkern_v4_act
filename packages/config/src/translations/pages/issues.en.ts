@@ -30,7 +30,9 @@ export const issuesPageEn = {
   bulkExport: 'Export {count} issues',
   bulkDeleteConfirm: 'Are you sure you want to delete {count} issues?',
   bulkDeleteSuccess: '{count} issues have been successfully deleted',
+  exportLoading: 'Downloading {format}...',
   exportSuccess: 'Successfully exported {count} issues to {format}',
+  exportFailed: 'Export failed',
   exportZipStarted: 'Preparing ZIP export for {count} issues...',
   exportZipLoading: 'Checking storage availability...',
   exportZipError: 'Error creating ZIP export',
@@ -42,8 +44,11 @@ export const issuesPageEn = {
     severity: 'Severity',
     status: 'Status',
     priority: 'Priority',
+    created_by: 'Created By',
     created_at: 'Created',
   },
+  system: 'System',
+  user: 'User',
   details: {
     issue_code: 'Code',
     title: 'Title',
@@ -115,6 +120,7 @@ export const issuesPageEn = {
   quickFilters: {
     blockers: '🚨 Blockers',
     myIssues: '👤 My Issues',
+    systemIssues: '🤖 System',
     unassigned: '📋 Unassigned',
   },
   types: {

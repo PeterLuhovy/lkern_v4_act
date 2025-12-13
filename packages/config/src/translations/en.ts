@@ -23,6 +23,7 @@ export const en: TranslationKeys = {
     home: 'Home',
     save: 'Save',
     cancel: 'Cancel',
+    cancelled: 'Cancelled',
     delete: 'Delete',
     restore: 'Restore',
     permanentDelete: 'Permanently Delete',
@@ -70,6 +71,36 @@ export const en: TranslationKeys = {
     notImplemented: 'Feature not implemented',
     typeToConfirm: 'Type "{text}" to confirm',
     retry: 'Retry',
+    unknown: 'Unknown',
+    deletedItem: 'Deleted item',
+    // Pessimistic Locking
+    locking: {
+      editedBy: 'Edited by: {{name}} (since {{time}})',
+      lockedTitle: 'Record is locked',
+      lockedMessage: 'This record is currently being edited by {{name}}. You can only view it.',
+      readOnlyMode: 'Read-only mode',
+      forceUnlock: 'Force unlock',
+      forceUnlockConfirm: 'Are you sure you want to force unlock? Changes by {{name}} may be lost.',
+      lockAcquired: 'Record locked for editing',
+      lockReleased: 'Lock released',
+      lockFailed: 'Failed to lock record',
+      unlockFailed: 'Failed to unlock record',
+      // Lock monitoring
+      lockLost: 'You have lost the lock on this record!',
+      lockLostHint: 'Your changes are preserved. Waiting for record to become available...',
+      // Lock acquisition flow
+      acquiring: 'Acquiring lock...',
+      serviceUnavailable: 'Service unavailable',
+      serviceUnavailableTitle: 'Service Unavailable',
+      serviceUnavailableMessage: 'Failed to acquire lock for editing. The service is currently not responding.',
+      retryLock: 'Retry',
+      closeModal: 'Close',
+    },
+    // Aria Labels for Accessibility
+    ariaLabels: {
+      close: 'Close',
+      closeNotification: 'Close notification',
+    },
   },
   dashboard: {
     title: 'Dashboard',
@@ -136,6 +167,11 @@ export const en: TranslationKeys = {
       titleMinLength: 'Title must be at least 5 characters',
       titleMaxLength: 'Title must be less than 200 characters',
       descriptionMinLength: 'Description must be at least 10 characters',
+      // Timeline validation
+      createdAfterUpdated: 'Created date cannot be after updated date',
+      createdAfterResolved: 'Created date cannot be after resolved date',
+      createdAfterClosed: 'Created date cannot be after closed date',
+      resolvedAfterClosed: 'Resolved date cannot be after closed date',
     },
     modal: {
       title: 'Report Issue',
@@ -175,6 +211,7 @@ export const en: TranslationKeys = {
       docs: 'Documentation',
       performance: 'Performance',
       security: 'Security',
+      dataIntegrity: 'Data Integrity',
     },
     status: {
       open: 'Open',
@@ -205,6 +242,27 @@ export const en: TranslationKeys = {
         failed: 'Failed',
         partial: 'Partial',
       },
+    },
+    // Resolve Issue Modal
+    resolveModal: {
+      title: 'Resolve Issue: {code}',
+      resolutionLabel: 'Resolution',
+      resolutionPlaceholder: 'Describe how this issue was resolved...',
+      resolutionHint: 'Explain what was done to fix the issue and any relevant details.',
+      submitButton: '✅ Mark as Resolved',
+      errors: {
+        minLength: 'Resolution must be at least 10 characters',
+      },
+    },
+    // Close Issue Modal
+    closeModal: {
+      title: 'Close Issue: {code}',
+      warningTitle: 'Closing this issue will mark it as completed.',
+      warningMessage: 'This action cannot be undone. The issue will be archived and no further changes can be made.',
+      commentLabel: 'Closure Comment (Optional)',
+      commentPlaceholder: 'Add any final notes about this issue (optional)...',
+      commentHint: 'You can add additional notes about why this issue is being closed.',
+      submitButton: '🔒 Close Issue',
     },
   },
   components: {
@@ -306,6 +364,8 @@ export const en: TranslationKeys = {
       cardDescription: 'Test card component (variants, headers, content)',
       dataGridTitle: 'DataGrid Component',
       dataGridDescription: 'Test DataGrid component (sorting, selection, expansion, actions)',
+      entityEditModalTitle: 'EntityEditModal',
+      entityEditModalDescription: 'Universal edit modal with configuration (sections, fields, permissions)',
       emptyStateTitle: 'EmptyState Component',
       emptyStateDescription: 'Test empty states (variants, icons, actions)',
       spinnerTitle: 'Spinner Component',
@@ -816,6 +876,7 @@ export const en: TranslationKeys = {
       contacts: 'Contacts',
       orders: 'Orders',
       issues: 'Issues',
+      documentation: 'Documentation',
       settings: 'Settings',
       uploadNewImage: 'Upload new image',
       dragAndDrop: 'Drag and drop',
@@ -861,6 +922,8 @@ export const en: TranslationKeys = {
         logToastsHint: 'Outputs toast notifications (Show/Hide/Clear) to console',
         logFetchCalls: 'Fetch calls',
         logFetchCallsHint: 'Outputs API fetch calls with permission level to console',
+        logSSEInvalidation: 'SSE Invalidation',
+        logSSEInvalidationHint: 'Outputs SSE cache invalidation events (real-time updates) to console',
         enableAll: 'Enable all',
         disableAll: 'Disable all',
       },
@@ -999,6 +1062,11 @@ export const en: TranslationKeys = {
       processingBatch: 'Processing {current}/{total}...',
       batchSuccess: 'Successfully processed {count} records',
       batchPartial: 'Successful: {success}, Failed: {failed}',
+      connectionFailed: '⚠️ Connection failed, retrying...',
+      retrying: '🔄 Trying to connect... (attempt {attempt}/{max})',
+      serviceDown: '❌ Service not responding, try again later',
+      sqlDown: '❌ Database is unavailable',
+      saveVerificationFailed: '❌ Data was not saved correctly, please try again',
     },
     storageTypes: {
       sql: 'Database',
@@ -1087,11 +1155,6 @@ export const en: TranslationKeys = {
         active: 'Active',
         isDeleted: 'Deleted',
       },
-      // Export translations
-      exportSuccess: '{count} items exported as {format}',
-      exportZipError: 'Error creating ZIP archive',
-      exportZipLoading: 'Creating ZIP archive...',
-      exportPartialAttachments: '{success} items exported, {missing} attachments missing',
       minioExportError: {
         title: '⚠️ Storage Unavailable',
       },
@@ -1348,6 +1411,50 @@ export const en: TranslationKeys = {
         active: 'Active',
       },
     },
+    entityEdit: {
+      contact: {
+        sections: {
+          basic: 'Basic Information',
+          company: 'Company Details',
+          notes: 'Notes',
+          timestamps: 'Timestamps',
+        },
+        fields: {
+          firstName: 'First Name',
+          lastName: 'Last Name',
+          email: 'Email',
+          phone: 'Phone',
+          company: 'Company',
+          position: 'Position',
+          type: 'Contact Type',
+          status: 'Status',
+          notes: 'Notes',
+          id: 'ID',
+          createdAt: 'Created At',
+          updatedAt: 'Updated At',
+        },
+        placeholders: {
+          firstName: 'Enter first name...',
+          lastName: 'Enter last name...',
+          email: 'email@example.com',
+          phone: '+421 900 123 456',
+          company: 'Company name',
+          position: 'Job position',
+          notes: 'Write notes about the contact here...',
+        },
+        hints: {
+          statusHint: 'Contact status determines if it appears in lists and can be used in documents.',
+        },
+      },
+      validation: {
+        minLength2: 'Minimum 2 characters',
+      },
+      permission: {
+        immutableField: 'This field cannot be edited',
+        noAccess: 'You do not have permission to edit this field',
+        adminOnly: 'Admin only',
+      },
+    },
   },
 
   contactType: {
@@ -1402,6 +1509,11 @@ export const en: TranslationKeys = {
       standard: 'Standard',
       advanced: 'Advanced',
     },
+    userSwitcher: {
+      title: 'Switch User',
+      currentUser: 'Current User',
+      selectUser: 'Select User',
+    },
   },
 
   permissions: {
@@ -1440,6 +1552,8 @@ export const en: TranslationKeys = {
       noFilterResults: 'No results found',
       noFilterResultsHint: 'Try changing or clearing filters',
       serviceUnavailable: 'Service unavailable',
+      loading: 'Loading data...',
+      loadingSlow: 'Taking longer than usual...',
     },
     filter: {
       searchPlaceholder: 'Search...',
@@ -1527,5 +1641,18 @@ export const en: TranslationKeys = {
   theme: {
     switchToLight: 'Switch to light theme',
     switchToDark: 'Switch to dark theme',
+  },
+
+  // === SETTINGS ===
+  settings: {
+    title: 'Settings',
+    exportBehavior: {
+      label: 'Export Behavior',
+      hint: 'Choose how you want to export files',
+      automatic: 'Automatic Download',
+      automaticDescription: 'Files download directly to your Downloads folder',
+      saveAsDialog: 'Save As Dialog',
+      saveAsDialogDescription: 'Choose file location and name',
+    },
   },
 };

@@ -104,7 +104,7 @@ Development-only services (not in production).
 | LKMS | Service | Port | Description |
 |------|---------|------|-------------|
 | lkms901 | adminer | 4901 | Database management UI |
-| lkms902 | pgadmin | 4902 | PostgreSQL admin (alternative) |
+| lkms902 | docs | 4902 | Docusaurus + Storybook documentation |
 | lkms903 | mailhog | 4903 | Email testing (future) |
 | lkms904 | swagger-ui | 4904 | API documentation viewer (future) |
 

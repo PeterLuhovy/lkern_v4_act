@@ -3,9 +3,10 @@
 FILE: main.py
 PATH: /tools/lkern-control-panel/main.py
 DESCRIPTION: L-KERN Control Panel - Tkinter GUI with background threading (uses central services registry)
-VERSION: v1.19.0
-UPDATED: 2025-11-30 12:00:00
+VERSION: v1.20.0
+UPDATED: 2025-12-07 12:00:00
 CHANGELOG:
+  v1.20.0 - Added dedicated Kafka tab with live message follow (like log follow) + 4 inspection commands
   v1.19.0 - Changed "unhealthy" status to "degraded" (orange) - service running without DB
   v1.18.0 - Unified status check logic: Now uses shared docker_utils.py functions
          - check_container_status() now uses check_docker_status() from docker_utils
@@ -372,6 +373,11 @@ class LKernControlPanel:
         left_notebook.add(commands_tab, text="🔧 Build & Test")
         self.create_command_buttons(commands_tab)
 
+        # Kafka tab (third tab)
+        kafka_tab = ttk.Frame(left_notebook)
+        left_notebook.add(kafka_tab, text="📨 Kafka")
+        self.create_kafka_buttons(kafka_tab)
+
         # Right panel - Terminal + History
         right_panel = ttk.Frame(self.paned_window)
         self.create_terminal_panel(right_panel)
@@ -625,7 +631,7 @@ class LKernControlPanel:
                 categories[category] = []
             categories[category].append((cmd_id, cmd_data))
 
-        # Define category display order
+        # Define category display order (Kafka has its own tab)
         category_order = ['Lint', 'Build', 'Test', 'Other']
 
         # Create each category section
@@ -664,6 +670,242 @@ class LKernControlPanel:
 
                 # Separator after category
                 ttk.Separator(container, orient='horizontal').pack(fill=tk.X, pady=10)
+
+    def create_kafka_buttons(self, parent):
+        """Create Kafka management buttons"""
+        from tkinter import simpledialog
+
+        container = ttk.Frame(parent)
+        container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+        # Header
+        header_label = ttk.Label(
+            container,
+            text="📨 Kafka Management",
+            font=('Segoe UI', 12, 'bold'),
+            foreground=COLORS['info']
+        )
+        header_label.pack(pady=(0, 10))
+
+        # Info text
+        info_text = tk.Text(
+            container,
+            height=3,
+            width=50,
+            wrap=tk.WORD,
+            bg=COLORS['bg'],
+            fg=COLORS['text_muted'],
+            font=FONTS['ui'],
+            relief=tk.SOLID,
+            bd=1,
+            state='disabled'
+        )
+        info_text.pack(pady=(0, 15))
+        info_text.config(state='normal')
+        info_text.insert('1.0', "Kafka message broker running on lkms504-kafka.\nUse these commands to inspect topics and consumer groups.")
+        info_text.config(state='disabled')
+
+        # === LIVE MESSAGE FOLLOW SECTION ===
+        ttk.Separator(container, orient='horizontal').pack(fill=tk.X, pady=10)
+
+        follow_label = ttk.Label(
+            container,
+            text="📡 Live Message Follow",
+            font=('Segoe UI', 11, 'bold'),
+            foreground=COLORS['success']
+        )
+        follow_label.pack(pady=(5, 10))
+
+        # Topic selection frame
+        topic_frame = ttk.Frame(container)
+        topic_frame.pack(pady=(0, 10))
+
+        ttk.Label(topic_frame, text="Topic:", font=FONTS['ui']).pack(side=tk.LEFT, padx=(0, 5))
+
+        # Combobox for topic selection
+        self.kafka_topic_var = tk.StringVar(value="-- Select Topic --")
+        self.kafka_topic_combo = ttk.Combobox(
+            topic_frame,
+            textvariable=self.kafka_topic_var,
+            width=35,
+            state='readonly'
+        )
+        self.kafka_topic_combo['values'] = ["-- Select Topic --", "🌐 ALL TOPICS (wildcard)"]
+        self.kafka_topic_combo.pack(side=tk.LEFT, padx=(0, 5))
+
+        # Refresh button to load topics
+        refresh_btn = tk.Button(
+            topic_frame,
+            text="🔄",
+            command=self.refresh_kafka_topics,
+            bg=COLORS['button_bg'],
+            fg=COLORS['fg'],
+            font=('Arial', 10),
+            relief=tk.RAISED,
+            bd=1,
+            width=3,
+            cursor='hand2',
+            activebackground=COLORS['button_hover']
+        )
+        refresh_btn.pack(side=tk.LEFT)
+        self.create_tooltip(refresh_btn, "Refresh topic list from Kafka")
+
+        # Follow button (green, like log follow)
+        self.kafka_follow_btn = tk.Button(
+            container,
+            text="▶ Follow Messages",
+            command=self.toggle_kafka_follow,
+            bg=COLORS['button_bg'],
+            fg=COLORS['fg'],
+            font=('Arial', 10, 'bold'),
+            relief=tk.RAISED,
+            bd=2,
+            width=20,
+            height=1,
+            cursor='hand2',
+            activebackground=COLORS['button_hover']
+        )
+        self.kafka_follow_btn.pack(pady=5)
+        self.create_tooltip(self.kafka_follow_btn, "Start/stop live message streaming from topic")
+
+        # Track if kafka follow is active
+        self.kafka_follow_active = False
+
+        # Auto-load topics on startup (in background)
+        self.root.after(1000, self.refresh_kafka_topics)
+
+        ttk.Separator(container, orient='horizontal').pack(fill=tk.X, pady=15)
+
+        # === STATIC COMMANDS SECTION ===
+        commands_label = ttk.Label(
+            container,
+            text="🔧 Kafka Commands",
+            font=('Segoe UI', 11, 'bold'),
+            foreground=COLORS['fg']
+        )
+        commands_label.pack(pady=(5, 10))
+
+        # Get Kafka commands from config
+        kafka_commands = []
+        for cmd_id, cmd_data in self.config['commands'].items():
+            if cmd_data.get('category') == 'Kafka':
+                kafka_commands.append((cmd_id, cmd_data))
+
+        # Create buttons
+        for cmd_id, cmd_data in kafka_commands:
+            btn = tk.Button(
+                container,
+                text=cmd_data['label'],
+                command=lambda c=cmd_data['command'], l=cmd_data['label']: self.execute_command(c, l),
+                bg=COLORS['button_bg'],
+                fg=COLORS['fg'],
+                font=FONTS['button'],
+                relief=tk.RAISED,
+                bd=2,
+                width=25,
+                height=1,
+                cursor='hand2',
+                activebackground=COLORS['button_hover'],
+                activeforeground=COLORS['fg']
+            )
+            btn.pack(pady=5)
+
+            # Add tooltip with description
+            self.create_tooltip(btn, cmd_data.get('description', ''))
+
+    def refresh_kafka_topics(self):
+        """Load available Kafka topics into combobox."""
+        def fetch_topics():
+            try:
+                # CREATE_NO_WINDOW prevents console window from appearing
+                result = subprocess.run(
+                    ['docker', 'exec', 'lkms504-kafka', 'kafka-topics', '--bootstrap-server', 'localhost:9092', '--list'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+                if result.returncode == 0:
+                    topics = [t.strip() for t in result.stdout.strip().split('\n') if t.strip()]
+                    return topics
+                return []
+            except Exception:
+                return []
+
+        def update_combo(topics):
+            current = self.kafka_topic_var.get()
+            values = ["-- Select Topic --", "🌐 ALL TOPICS (wildcard)"]
+            if topics:
+                values.extend(topics)
+                self.append_terminal(f"✅ Loaded {len(topics)} Kafka topics", "success")
+            else:
+                self.append_terminal("⚠️ No topics found or Kafka not running", "error")
+            self.kafka_topic_combo['values'] = values
+            # Keep current selection if still valid
+            if current not in values:
+                self.kafka_topic_var.set("-- Select Topic --")
+
+        # Run in background thread
+        def background_fetch():
+            topics = fetch_topics()
+            self.root.after(0, lambda: update_combo(topics))
+
+        self.status_thread_pool.submit(background_fetch)
+
+    def toggle_kafka_follow(self):
+        """Toggle Kafka message follow on/off using tabbed terminal (like log follow)."""
+        topic = self.kafka_topic_var.get().strip()
+
+        if not topic or topic == "-- Select Topic --":
+            self.append_terminal("⚠️ Select a topic first!", "error")
+            return
+
+        # Handle "ALL TOPICS" option
+        is_all_topics = "ALL TOPICS" in topic
+        if is_all_topics:
+            container_name = "kafka-all-topics"
+            tab_name = "Kafka: ALL"
+            # Use whitelist regex to match all topics
+            command = 'docker exec lkms504-kafka kafka-console-consumer --bootstrap-server localhost:9092 --whitelist ".*"'
+        else:
+            container_name = f"kafka-{topic}"
+            tab_name = f"Kafka: {topic}"
+            command = f"docker exec lkms504-kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic {topic}"
+
+        # Check if tab already exists - stop it
+        if container_name in self.terminal_tabs:
+            self.close_log_tab(container_name)
+            self.kafka_follow_btn.config(text="▶ Follow Messages", bg=COLORS['button_bg'])
+            self.kafka_follow_active = False
+            return
+
+        # Create new tab for Kafka messages
+        terminal, executor = self.create_log_tab(container_name, tab_name, self.kafka_follow_btn)
+
+        # Set button to green
+        self.kafka_follow_btn.config(text="⏹ Stop Follow", bg='#4CAF50')
+        self.kafka_follow_active = True
+
+        executor.execute(
+            command,
+            output_callback=lambda line, line_type='stdout': self.append_to_tab_terminal(container_name, line, line_type),
+            completion_callback=lambda exit_code, duration: self.on_kafka_follow_complete(container_name, exit_code)
+        )
+
+        if is_all_topics:
+            self.append_to_tab_terminal(container_name, "🔄 Connecting to ALL topics (wildcard)...", "info")
+        else:
+            self.append_to_tab_terminal(container_name, f"🔄 Connecting to topic '{topic}'...", "info")
+        self.append_to_tab_terminal(container_name, "Waiting for messages (close tab or Stop button to exit)...", "info")
+
+    def on_kafka_follow_complete(self, container_name: str, exit_code: int):
+        """Called when Kafka follow stops."""
+        if container_name in self.terminal_tabs:
+            self.append_to_tab_terminal(container_name, f"⏹ Kafka consumer stopped (exit code: {exit_code})", "info")
+
+        # Reset button
+        self.kafka_follow_btn.config(text="▶ Follow Messages", bg=COLORS['button_bg'])
+        self.kafka_follow_active = False
 
     def create_microservices_buttons(self, parent):
         """Create microservices list with Docker containers and Native services"""
@@ -1884,10 +2126,26 @@ class LKernControlPanel:
             self.terminal.see(tk.END)
 
     def clear_terminal(self):
-        """Clear terminal output"""
+        """Clear terminal output (main terminal + active log tab if any)"""
+        # Clear main terminal
         self.terminal.config(state='normal')
         self.terminal.delete('1.0', tk.END)
         self.terminal.config(state='disabled')
+
+        # Also clear active log tab if selected
+        try:
+            current_tab = self.terminal_notebook.select()
+            if current_tab:
+                # Find which tab is selected
+                for container_name, tab_data in self.terminal_tabs.items():
+                    if str(tab_data['frame']) == current_tab:
+                        # Clear this tab's terminal
+                        tab_data['terminal'].config(state='normal')
+                        tab_data['terminal'].delete('1.0', tk.END)
+                        tab_data['terminal'].config(state='disabled')
+                        break
+        except Exception:
+            pass  # No tabs or notebook not ready
 
     def clear_history(self):
         """Clear command history"""

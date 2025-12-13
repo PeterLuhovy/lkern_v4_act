@@ -365,13 +365,13 @@ export function FileUpload({
         {/* Clickable label when not at limit, non-clickable span when at limit */}
         {isAtLimit ? (
           <div className={styles.dropzoneContent}>
-            <span className={styles.dropzoneIconDisabled}>🚫</span>
+            <span className={styles.dropzoneIconDisabled} role="img" aria-hidden="true">🚫</span>
             <span className={styles.dropzoneText}>{t('components.fileUpload.limitReached')}</span>
             <span className={styles.dropzoneHint}>{t('components.fileUpload.removeToAdd')}</span>
           </div>
         ) : (
           <label htmlFor="file-upload-input" className={styles.dropzoneContent}>
-            <span className={styles.dropzoneIcon}>📎</span>
+            <span className={styles.dropzoneIcon} role="img" aria-hidden="true">📎</span>
             <span className={styles.dropzoneText}>{displayDropzoneText}</span>
             <span className={styles.dropzoneHint}>{displayDropzoneHint}</span>
           </label>
@@ -394,13 +394,13 @@ export function FileUpload({
         className={`${styles.warning} ${!isOverLimit ? styles.warningHidden : ''}`}
         data-testid="file-upload-warning"
       >
-        ⚠️ {t('components.fileUpload.errors.maxFiles', { max: maxFiles })} - {t('components.fileUpload.removeToSubmit')}
+        <span role="img" aria-hidden="true">⚠️</span> {t('components.fileUpload.errors.maxFiles', { max: maxFiles })} - {t('components.fileUpload.removeToSubmit')}
       </span>
 
       {/* Info message for paste limit (doesn't block form submission) */}
       {pasteInfoMessage && !isOverLimit && (
         <span className={styles.info} data-testid="file-upload-info">
-          ℹ️ {pasteInfoMessage}
+          <span role="img" aria-hidden="true">ℹ️</span> {pasteInfoMessage}
         </span>
       )}
 
@@ -410,7 +410,7 @@ export function FileUpload({
           {value.map((file, index) => (
             <div key={index} className={styles.fileItem} data-testid={`file-item-${index}`}>
               <span className={styles.fileName}>
-                📎 {file.name} <span className={styles.fileSize}>({(file.size / 1024).toFixed(1)} KB)</span>
+                <span role="img" aria-hidden="true">📎</span> {file.name} <span className={styles.fileSize}>({(file.size / 1024).toFixed(1)} KB)</span>
               </span>
               <button
                 type="button"

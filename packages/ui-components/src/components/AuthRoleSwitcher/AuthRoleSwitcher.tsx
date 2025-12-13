@@ -3,9 +3,15 @@
  * FILE: AuthRoleSwitcher.tsx
  * PATH: /packages/ui-components/src/components/AuthRoleSwitcher/AuthRoleSwitcher.tsx
  * DESCRIPTION: Authorization permission level switcher with 9 levels + Ctrl+1-9 shortcuts
- * VERSION: v4.0.0
+ *              and test user switcher for development
+ * VERSION: v5.0.0
  * CREATED: 2025-11-22
- * UPDATED: 2025-11-30
+ * UPDATED: 2025-12-09
+ *
+ * CHANGES v5.0.0:
+ *   - Added Test User Switcher section (Peter, Test User 1-3)
+ *   - Users have predefined IDs and permission levels
+ *   - Selected user persists in localStorage
  *
  * CHANGES v4.0.0:
  *   - Replaced 3 buttons with 9-level grid (3x3)
@@ -50,7 +56,7 @@ export const AuthRoleSwitcher: React.FC<AuthRoleSwitcherProps> = ({
   isCollapsed = false,
 }) => {
   const { t } = useTranslation();
-  const { permissionLevel, setPermissionLevel } = useAuthContext();
+  const { permissionLevel, setPermissionLevel, testUsers, selectedTestUserId, setTestUser, user } = useAuthContext();
 
   // Get color range for current permission level
   const colorRange = getPermissionColorRange(permissionLevel);
@@ -129,6 +135,43 @@ export const AuthRoleSwitcher: React.FC<AuthRoleSwitcherProps> = ({
 
   return (
     <div className={styles.authRoleSwitcher}>
+      {/* Test User Switcher Section */}
+      {!isCollapsed && (
+        <div className={styles.authRoleSwitcher__userSection}>
+          <div className={styles.authRoleSwitcher__sectionTitle}>
+            <span role="img" aria-hidden="true">👤</span> {t('auth.userSwitcher.title')}
+          </div>
+          <div className={styles.authRoleSwitcher__currentUser}>
+            <span className={styles.authRoleSwitcher__userName}>{user.name}</span>
+            <span className={styles.authRoleSwitcher__userId}>ID: {user.id.substring(0, 8)}...</span>
+          </div>
+          <div className={styles.authRoleSwitcher__userButtons}>
+            {testUsers.map((testUser) => (
+              <button
+                key={testUser.id}
+                className={`${styles.authRoleSwitcher__userButton} ${
+                  selectedTestUserId === testUser.id ? styles['authRoleSwitcher__userButton--active'] : ''
+                } ${styles[`authRoleSwitcher__userButton--${testUser.role}`]}`}
+                onClick={() => setTestUser(testUser.id)}
+                type="button"
+                title={`${testUser.name} - ${testUser.description}\nID: ${testUser.id}`}
+              >
+                <span className={styles.authRoleSwitcher__userIcon}>
+                  {testUser.role === 'advanced' ? '👑' : testUser.role === 'standard' ? '👤' : '👁️'}
+                </span>
+                <span className={styles.authRoleSwitcher__userInfo}>
+                  <span className={styles.authRoleSwitcher__userNameSmall}>{testUser.name}</span>
+                  <span className={styles.authRoleSwitcher__userLevel}>{testUser.description}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Divider */}
+      {!isCollapsed && <div className={styles.authRoleSwitcher__divider} />}
+
       {/* Permission Level Indicator */}
       {!isCollapsed && (
         <div className={`${styles.authRoleSwitcher__indicator} ${colorClass}`}>

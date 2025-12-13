@@ -14,7 +14,7 @@
  * @param headers - Column headers (e.g., ['Name', 'Email', 'Date'])
  * @param filename - Output filename without extension
  */
-export function exportToCSV<T extends Record<string, any>>(
+export function exportToCSV<T extends Record<string, unknown>>(
   data: T[],
   headers: string[],
   filename: string

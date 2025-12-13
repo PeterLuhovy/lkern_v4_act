@@ -9,6 +9,9 @@ const __dirname = dirname(__filename);
 
 export default defineConfig(() => ({
   plugins: [react()],
+  resolve: {
+    preserveSymlinks: true,
+  },
   test: {
     globals: true,
     environment: 'jsdom',

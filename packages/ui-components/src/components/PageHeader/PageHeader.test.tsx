@@ -35,19 +35,26 @@ describe('PageHeader', () => {
   });
 
   describe('Logo', () => {
-    it('does not show logo by default', () => {
+    it('shows L-KERN logo in right section by default', () => {
+      // showRightLogo defaults to true, so L-KERN logo always appears
       renderWithTranslation(<PageHeader title="Test" />);
+      expect(screen.getByAltText('L-KERN Logo')).toBeInTheDocument();
+    });
+
+    it('does not show left logo by default', () => {
+      // showLogo defaults to false, so no left logo
+      renderWithTranslation(<PageHeader title="Test" showRightLogo={false} />);
       expect(screen.queryByAltText(/logo/i)).not.toBeInTheDocument();
     });
 
     it('shows logo placeholder when showLogo=true and no logoIcon provided', () => {
-      renderWithTranslation(<PageHeader title="Test" showLogo />);
+      renderWithTranslation(<PageHeader title="Test" showLogo showRightLogo={false} />);
       expect(screen.getByText('LOGO')).toBeInTheDocument();
     });
 
     it('renders custom logo image when logoIcon is string', () => {
       renderWithTranslation(
-        <PageHeader title="Test" showLogo logoIcon="/test-logo.png" />
+        <PageHeader title="Test" showLogo logoIcon="/test-logo.png" showRightLogo={false} />
       );
       const img = screen.getByRole('img');
       expect(img).toHaveAttribute('src', '/test-logo.png');
@@ -57,9 +64,19 @@ describe('PageHeader', () => {
     it('renders custom logo component when logoIcon is ReactNode', () => {
       const CustomLogo = () => <div data-testid="custom-logo">Custom</div>;
       renderWithTranslation(
-        <PageHeader title="Test" showLogo logoIcon={<CustomLogo />} />
+        <PageHeader title="Test" showLogo logoIcon={<CustomLogo />} showRightLogo={false} />
       );
       expect(screen.getByTestId('custom-logo')).toBeInTheDocument();
+    });
+
+    it('shows both left and right logos when both enabled', () => {
+      renderWithTranslation(
+        <PageHeader title="Test" showLogo logoIcon="/left-logo.png" showRightLogo />
+      );
+      const images = screen.getAllByRole('img');
+      expect(images).toHaveLength(2);
+      expect(screen.getByAltText('Logo aplikácie')).toBeInTheDocument();
+      expect(screen.getByAltText('L-KERN Logo')).toBeInTheDocument();
     });
   });
 
@@ -164,7 +181,7 @@ describe('PageHeader', () => {
   describe('Children', () => {
     it('renders children in right section', () => {
       renderWithTranslation(
-        <PageHeader title="Test">
+        <PageHeader title="Test" showRightLogo={false}>
           <button>Action Button</button>
         </PageHeader>
       );
@@ -172,10 +189,17 @@ describe('PageHeader', () => {
       expect(screen.getByRole('button', { name: 'Action Button' })).toBeInTheDocument();
     });
 
-    it('does not render right section when no children', () => {
-      const { container } = renderWithTranslation(<PageHeader title="Test" />);
+    it('does not render right section when no children and showRightLogo=false', () => {
+      const { container } = renderWithTranslation(<PageHeader title="Test" showRightLogo={false} />);
       const rightSection = container.querySelector('[class*="pageHeader__right"]');
       expect(rightSection).not.toBeInTheDocument();
+    });
+
+    it('renders right section when no children but showRightLogo=true (default)', () => {
+      const { container } = renderWithTranslation(<PageHeader title="Test" />);
+      const rightSection = container.querySelector('[class*="pageHeader__right"]');
+      expect(rightSection).toBeInTheDocument();
+      expect(screen.getByAltText('L-KERN Logo')).toBeInTheDocument();
     });
   });
 
@@ -191,26 +215,35 @@ describe('PageHeader', () => {
 
   describe('Accessibility', () => {
     it('uses semantic heading for title', () => {
-      renderWithTranslation(<PageHeader title="Accessible Page" />);
+      renderWithTranslation(<PageHeader title="Accessible Page" showRightLogo={false} />);
       const heading = screen.getByRole('heading', { level: 1 });
       expect(heading).toHaveTextContent('Accessible Page');
     });
 
     it('breadcrumb navigation has proper aria-label', () => {
       const breadcrumbs = [{ name: 'Home', href: '/' }];
-      renderWithTranslation(<PageHeader title="Test" breadcrumbs={breadcrumbs} />);
+      renderWithTranslation(<PageHeader title="Test" breadcrumbs={breadcrumbs} showRightLogo={false} />);
 
       const nav = screen.getByRole('navigation');
       expect(nav).toHaveAttribute('aria-label', 'Navigačná cesta'); // Slovak default
     });
 
-    it('logo has proper alt text', () => {
+    it('left logo has proper alt text', () => {
       renderWithTranslation(
-        <PageHeader title="Test" showLogo logoIcon="/logo.png" />
+        <PageHeader title="Test" showLogo logoIcon="/logo.png" showRightLogo={false} />
       );
 
       const img = screen.getByRole('img');
       expect(img).toHaveAttribute('alt', 'Logo aplikácie'); // Slovak default
+    });
+
+    it('right L-KERN logo has proper alt text', () => {
+      renderWithTranslation(
+        <PageHeader title="Test" showRightLogo />
+      );
+
+      const img = screen.getByAltText('L-KERN Logo');
+      expect(img).toBeInTheDocument();
     });
   });
 
@@ -222,6 +255,7 @@ describe('PageHeader', () => {
           showLogo
           logoIcon="/logo.png"
           breadcrumbs={[{ name: 'Home', href: '/' }]}
+          showRightLogo={false}
         />
       );
 
@@ -241,6 +275,7 @@ describe('PageHeader', () => {
           showLogo
           logoIcon="/logo.png"
           breadcrumbs={[{ name: 'Home', href: '/' }]}
+          showRightLogo={false}
         />,
         { initialLanguage: 'en' }
       );
@@ -255,8 +290,8 @@ describe('PageHeader', () => {
     });
 
     it('uses logo placeholder text from translations', () => {
-      // Slovak
-      renderWithTranslation(<PageHeader title="Test" showLogo />);
+      // Slovak - disable right logo to isolate the test
+      renderWithTranslation(<PageHeader title="Test" showLogo showRightLogo={false} />);
       expect(screen.getByText('LOGO')).toBeInTheDocument();
     });
   });
@@ -264,7 +299,7 @@ describe('PageHeader', () => {
   describe('Translation Keys Validation', () => {
     it('uses translation for logo alt text', () => {
       renderWithTranslation(
-        <PageHeader title="Test" showLogo logoIcon="/logo.png" />
+        <PageHeader title="Test" showLogo logoIcon="/logo.png" showRightLogo={false} />
       );
 
       const img = screen.getByRole('img');
@@ -273,7 +308,7 @@ describe('PageHeader', () => {
     });
 
     it('uses translation for logo placeholder', () => {
-      renderWithTranslation(<PageHeader title="Test" showLogo />);
+      renderWithTranslation(<PageHeader title="Test" showLogo showRightLogo={false} />);
 
       // Translation key: 'components.pageHeader.logoPlaceholder' -> 'LOGO'
       expect(screen.getByText('LOGO')).toBeInTheDocument();
@@ -281,7 +316,7 @@ describe('PageHeader', () => {
 
     it('uses translation for breadcrumbs aria-label', () => {
       const breadcrumbs = [{ name: 'Home' }];
-      renderWithTranslation(<PageHeader title="Test" breadcrumbs={breadcrumbs} />);
+      renderWithTranslation(<PageHeader title="Test" breadcrumbs={breadcrumbs} showRightLogo={false} />);
 
       const nav = screen.getByRole('navigation');
       // Translation key: 'components.pageHeader.breadcrumbsLabel' -> 'Navigačná cesta' (SK)

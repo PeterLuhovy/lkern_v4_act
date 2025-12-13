@@ -78,3 +78,14 @@ export type {
   UseStorageOperationOptions,
   UseStorageOperationReturn,
 } from './useStorageOperation';
+
+// useServiceWorkflow hook - serviceWorkflow wrapper with automatic toast notifications
+export { useServiceWorkflow } from './useServiceWorkflow';
+export type {
+  ServiceWorkflowMessages,
+  ExecuteConfig,
+  UseServiceWorkflowReturn,
+} from './useServiceWorkflow';
+
+// useSSEInvalidation hook - SSE cache invalidation for real-time updates
+export { useSSEInvalidation } from './useSSEInvalidation';

@@ -3,16 +3,19 @@
 {{SERVICE_NAME}} - Example Schemas
 ================================================================
 File: services/lkms{{SERVICE_CODE}}-{{SERVICE_SLUG}}/app/schemas/example.py
-Version: v1.0.0
+Version: v1.1.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   Pydantic schemas for {{MODEL_NAME}} validation and serialization.
+  Includes Pessimistic Locking schemas.
 ================================================================
 """
 
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, Field, computed_field
+from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
 
 class {{MODEL_NAME}}Base(BaseModel):
@@ -44,5 +47,55 @@ class {{MODEL_NAME}}Response({{MODEL_NAME}}Base):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+    # Pessimistic Locking info
+    locked_by_id: Optional[UUID] = None
+    locked_by_name: Optional[str] = None
+    locked_at: Optional[datetime] = None
+
+    @computed_field
+    @property
+    def is_locked(self) -> bool:
+        """Check if record is currently locked (not expired)."""
+        if not self.locked_at:
+            return False
+        # Lock expires after 30 minutes
+        lock_age = datetime.now(timezone.utc) - self.locked_at.replace(tzinfo=timezone.utc)
+        return lock_age.total_seconds() < (30 * 60)
+
     class Config:
         from_attributes = True  # Pydantic v2 (was orm_mode in v1)
+
+
+# ================================================================
+# LOCKING SCHEMAS
+# ================================================================
+
+class LockRequest(BaseModel):
+    """Request body for lock acquisition (optional - can include user info)."""
+
+    user_name: Optional[str] = Field(None, description="User display name (fallback)")
+
+
+class LockResponse(BaseModel):
+    """Response for successful lock acquisition."""
+
+    locked_by_id: UUID
+    locked_by_name: str
+    locked_at: datetime
+    message: str = "Lock acquired successfully"
+
+
+class LockConflictDetail(BaseModel):
+    """Detail object for lock conflict response."""
+
+    message: str = "Record is locked by another user"
+    locked_by_id: UUID
+    locked_by_name: str
+    locked_at: datetime
+
+
+class UnlockResponse(BaseModel):
+    """Response for successful lock release."""
+
+    status: str = "unlocked"
+    message: str = "Lock released successfully"

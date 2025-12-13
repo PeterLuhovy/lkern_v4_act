@@ -40,6 +40,9 @@ export * from './hooks/useAuth/useAuth';
 export * from './hooks/useServiceFetch';
 export * from './hooks/useFieldPermission';
 export * from './hooks/useEntityLookup';
+export * from './hooks/useServiceWorkflow';
+export * from './hooks/useLocking';
+export * from './hooks/useSSEInvalidation';
 
 // === CONTEXTS EXPORTS ===
 // Export context providers

@@ -39,30 +39,30 @@ export function CloseIssueModal({ isOpen, onClose, onSubmit, issueCode, issueTit
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Close Issue: ${issueCode}`} size="md" modalId="close-issue-modal">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('issues.closeModal.title', { code: issueCode })} size="md" modalId="close-issue-modal">
       <div className={styles.container}>
         <div className={styles.issueInfo}>
           <p className={styles.issueTitle}>{issueTitle}</p>
         </div>
 
         <div className={styles.warning}>
-          <span className={styles.warningIcon}>⚠️</span>
+          <span className={styles.warningIcon} role="img" aria-hidden="true">⚠️</span>
           <div className={styles.warningContent}>
-            <strong>Closing this issue will mark it as completed.</strong>
-            <p>This action cannot be undone. The issue will be archived and no further changes can be made.</p>
+            <strong>{t('issues.closeModal.warningTitle')}</strong>
+            <p>{t('issues.closeModal.warningMessage')}</p>
           </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Closure Comment (Optional)</label>
+          <label className={styles.label}>{t('issues.closeModal.commentLabel')}</label>
           <textarea
             className={styles.textarea}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Add any final notes about this issue (optional)..."
+            placeholder={t('issues.closeModal.commentPlaceholder')}
             rows={4}
           />
-          <span className={styles.hint}>You can add additional notes about why this issue is being closed.</span>
+          <span className={styles.hint}>{t('issues.closeModal.commentHint')}</span>
         </div>
 
         <div className={styles.actions}>
@@ -70,7 +70,7 @@ export function CloseIssueModal({ isOpen, onClose, onSubmit, issueCode, issueTit
             {t('common.cancel')}
           </Button>
           <Button variant="danger" onClick={handleSubmit}>
-            🔒 Close Issue
+            {t('issues.closeModal.submitButton')}
           </Button>
         </div>
       </div>

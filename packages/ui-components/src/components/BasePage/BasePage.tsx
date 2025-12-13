@@ -27,10 +27,10 @@ import { ReportButton } from '../ReportButton';
 import { IssueTypeSelectModal } from '../IssueTypeSelectModal';
 import { CreateIssueModal } from '../CreateIssueModal';
 import { StatusBar } from '../StatusBar';
-import type { ServiceStatus, BackupInfo, CurrentUser, DataSource } from '../StatusBar';
+import type { ServiceStatus, CurrentUser, DataSource } from '../StatusBar';
 import { ThemeCustomizer } from '../ThemeCustomizer';
 import { KeyboardShortcutsButton } from '../KeyboardShortcutsButton';
-import type { IssueType, IssueSeverity, IssueCategory, IssuePriority, UserRole } from '../CreateIssueModal';
+import type { IssueType, IssueSeverity, IssueCategory, IssuePriority } from '../CreateIssueModal';
 
 /**
  * Props for BasePage component
@@ -209,7 +209,7 @@ export const BasePage: React.FC<BasePageProps> = ({
   const analytics = usePageAnalytics(pageName);
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentRole, permissionLevel, permissions, setPermissionLevel } = useAuthContext();
+  const { permissionLevel, setPermissionLevel } = useAuthContext();
 
   // Try to get showDebugBarPage from AnalyticsContext (sidebar toggle)
   let contextShowDebugBarPage = true;
@@ -399,6 +399,7 @@ export const BasePage: React.FC<BasePageProps> = ({
         { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)
         { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦', onClick: () => navigate('/orders') },
         { path: '/issues', labelKey: 'components.sidebar.issues', icon: '🐛', onClick: () => navigate('/issues') },
+        { path: '/docs', labelKey: 'components.sidebar.documentation', icon: '📚', onClick: () => window.open('http://localhost:4902', '_blank') },
         { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' }, // Not yet implemented (no onClick = disabled)
       ],
     },

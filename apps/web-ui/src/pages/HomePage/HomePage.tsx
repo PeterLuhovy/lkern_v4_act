@@ -26,7 +26,7 @@ export const HomePage: React.FC = () => {
         {/* Header */}
         <div className={styles.header}>
           <h1 className={styles.title}>
-            <span role="img" aria-label="rocket">🚀</span> L-KERN v4
+            <span aria-hidden="true">🚀</span> L-KERN v4
           </h1>
           <p className={styles.subtitle}>
             {t('dashboard.welcome')}
@@ -36,7 +36,7 @@ export const HomePage: React.FC = () => {
         {/* Quick Controls */}
         <div className={styles.quickControls}>
           <Card variant="outlined">
-            <h3 className={styles.cardTitle}><span role="img" aria-label="artist palette">🎨</span> {t('dashboard.theme')}</h3>
+            <h3 className={styles.cardTitle}><span aria-hidden="true">🎨</span> {t('dashboard.theme')}</h3>
             <p className={styles.cardText}>
               {t('dashboard.current')}: <strong>{theme}</strong>
             </p>
@@ -49,7 +49,7 @@ export const HomePage: React.FC = () => {
           </Card>
 
           <Card variant="outlined">
-            <h3 className={styles.cardTitle}><span role="img" aria-label="globe">🌍</span> {t('dashboard.language')}</h3>
+            <h3 className={styles.cardTitle}><span aria-hidden="true">🌍</span> {t('dashboard.language')}</h3>
             <p className={styles.cardText}>
               {t('dashboard.current')}: <strong>{language.toUpperCase()}</strong>
             </p>
@@ -79,7 +79,7 @@ export const HomePage: React.FC = () => {
             <Link to="/orders" className={styles.navigationLink}>
               <Card variant="elevated">
                 <div className={styles.navigationCard}>
-                  <span role="img" aria-label="package">📦</span> {t('components.sidebar.orders')}
+                  <span aria-hidden="true">📦</span> {t('components.sidebar.orders')}
                 </div>
                 <p className={styles.navigationCardText}>
                   {t('dashboard.ordersDescription')}
@@ -90,7 +90,7 @@ export const HomePage: React.FC = () => {
             <Link to="/issues" className={styles.navigationLink}>
               <Card variant="elevated">
                 <div className={styles.navigationCard}>
-                  <span role="img" aria-label="bug">🐛</span> {t('components.sidebar.issues')}
+                  <span aria-hidden="true">🐛</span> {t('components.sidebar.issues')}
                 </div>
                 <p className={styles.navigationCardText}>
                   {t('dashboard.issuesDescription')}
@@ -101,7 +101,7 @@ export const HomePage: React.FC = () => {
             <Link to="/testing" className={styles.navigationLink}>
               <Card variant="elevated">
                 <div className={styles.navigationCard}>
-                  <span role="img" aria-label="test tube">🧪</span> {t('components.testing.dashboard')}
+                  <span aria-hidden="true">🧪</span> {t('components.testing.dashboard')}
                 </div>
                 <p className={styles.navigationCardText}>
                   {t('dashboard.testingDescription')}
@@ -113,7 +113,7 @@ export const HomePage: React.FC = () => {
 
         {/* Keyboard Shortcuts Hint */}
         <Card variant="default" className={styles.shortcutsCard}>
-          <h3 className={styles.shortcutsTitle}><span role="img" aria-label="keyboard">⌨️</span> {t('dashboard.keyboardShortcuts')}</h3>
+          <h3 className={styles.shortcutsTitle}><span aria-hidden="true">⌨️</span> {t('dashboard.keyboardShortcuts')}</h3>
           <div className={styles.shortcutsList}>
             <div className={styles.shortcutItem}>
               <kbd className={styles.kbd}>Ctrl+D</kbd>

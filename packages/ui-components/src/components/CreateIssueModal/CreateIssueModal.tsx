@@ -35,7 +35,7 @@ export type UserRole = 'user_basic' | 'user_standard' | 'user_advance';
 
 export type IssueType = 'bug' | 'feature' | 'improvement' | 'question';
 export type IssueSeverity = 'minor' | 'moderate' | 'major' | 'blocker';
-export type IssueCategory = 'ui' | 'backend' | 'database' | 'integration' | 'docs' | 'performance' | 'security';
+export type IssueCategory = 'ui' | 'backend' | 'database' | 'integration' | 'docs' | 'performance' | 'security' | 'data_integrity';
 export type IssuePriority = 'low' | 'medium' | 'high' | 'critical';
 
 interface CreateIssueModalProps {
@@ -152,7 +152,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
 
   // Handle input changes
   // NOTE: Title/description validation is handled by FormField's validate prop + onValidChange
-  const handleChange = (field: keyof IssueFormData, value: any) => {
+  const handleChange = (field: keyof IssueFormData, value: unknown) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error for other fields if it exists
@@ -358,7 +358,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               onClick={() => setSelectedRole('user_basic')}
               data-testid="role-tab-basic"
             >
-              👤 {t('issues.roles.basic')}
+              <span role="img" aria-hidden="true">👤</span> {t('issues.roles.basic')}
             </button>
             <button
               type="button"
@@ -366,7 +366,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               onClick={() => setSelectedRole('user_standard')}
               data-testid="role-tab-standard"
             >
-              👥 {t('issues.roles.standard')}
+              <span role="img" aria-hidden="true">👥</span> {t('issues.roles.standard')}
             </button>
             <button
               type="button"
@@ -374,7 +374,7 @@ export function CreateIssueModal({ isOpen, onClose, onSubmit, modalId = 'create-
               onClick={() => setSelectedRole('user_advance')}
               data-testid="role-tab-advance"
             >
-              🔧 {t('issues.roles.advanced')}
+              <span role="img" aria-hidden="true">🔧</span> {t('issues.roles.advanced')}
             </button>
           </div>
         )}

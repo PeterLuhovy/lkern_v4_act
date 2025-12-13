@@ -31,7 +31,7 @@ export function ResolveIssueModal({ isOpen, onClose, onSubmit, issueCode, issueT
 
   const handleSubmit = () => {
     if (!resolution || resolution.length < 10) {
-      setError('Resolution must be at least 10 characters');
+      setError(t('issues.resolveModal.errors.minLength'));
       return;
     }
 
@@ -46,7 +46,7 @@ export function ResolveIssueModal({ isOpen, onClose, onSubmit, issueCode, issueT
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Resolve Issue: ${issueCode}`} size="lg" modalId="resolve-issue-modal">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('issues.resolveModal.title', { code: issueCode })} size="lg" modalId="resolve-issue-modal">
       <div className={styles.container}>
         <div className={styles.issueInfo}>
           <p className={styles.issueTitle}>{issueTitle}</p>
@@ -54,7 +54,7 @@ export function ResolveIssueModal({ isOpen, onClose, onSubmit, issueCode, issueT
 
         <div className={styles.formGroup}>
           <label className={styles.label}>
-            Resolution <span className={styles.required}>*</span>
+            {t('issues.resolveModal.resolutionLabel')} <span className={styles.required}>*</span>
           </label>
           <textarea
             className={styles.textarea}
@@ -63,11 +63,11 @@ export function ResolveIssueModal({ isOpen, onClose, onSubmit, issueCode, issueT
               setResolution(e.target.value);
               setError('');
             }}
-            placeholder="Describe how this issue was resolved..."
+            placeholder={t('issues.resolveModal.resolutionPlaceholder')}
             rows={3}
           />
           {error && <span className={styles.error}>{error}</span>}
-          <span className={styles.hint}>Explain what was done to fix the issue and any relevant details.</span>
+          <span className={styles.hint}>{t('issues.resolveModal.resolutionHint')}</span>
         </div>
 
         <div className={styles.actions}>
@@ -75,7 +75,7 @@ export function ResolveIssueModal({ isOpen, onClose, onSubmit, issueCode, issueT
             {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
-            ✅ Mark as Resolved
+            {t('issues.resolveModal.submitButton')}
           </Button>
         </div>
       </div>

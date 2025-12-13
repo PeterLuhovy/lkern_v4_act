@@ -1,0 +1,37 @@
+{
+  "name": "docs",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/docs",
+  "projectType": "application",
+  "tags": ["type:docs", "scope:shared"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn docusaurus start --port {args.port} --host {args.host}",
+        "cwd": "apps/docs"
+      },
+      "configurations": {
+        "development": {
+          "args": "--port 4902 --host 0.0.0.0"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/build"],
+      "options": {
+        "command": "yarn docusaurus build",
+        "cwd": "apps/docs"
+      }
+    },
+    "clear": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn docusaurus clear",
+        "cwd": "apps/docs"
+      }
+    }
+  }
+}

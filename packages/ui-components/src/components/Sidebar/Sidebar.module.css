@@ -3,9 +3,10 @@
  * FILE: Sidebar.module.css
  * PATH: /packages/ui-components/src/components/Sidebar/Sidebar.module.css
  * DESCRIPTION: Modern dark sidebar with floating submenu tooltips
- * VERSION: v3.6.0
- * UPDATED: 2025-11-23 00:00:00
+ * VERSION: v3.7.0
+ * UPDATED: 2025-12-09 00:00:00
  * CHANGES:
+ *   - v3.7.0: Scrollbar uses --color-brand-primary (responds to palette configurator)
  *   - v3.6.0: Ultra fast 100ms animation + will-change GPU hint
  *   - v3.5.0: Synchronized all animations (width + opacity = 150ms, ease-out)
  *   - v3.4.0: Added visible scrollbar with purple brand color
@@ -261,29 +262,9 @@
   margin-right: 24px; /* Space for toggle button */
   transition: opacity 100ms var(--ease-out);
 
-  /* Always show scrollbar (Firefox) */
+  /* Always show scrollbar (Firefox) - uses brand color variable for theme responsiveness */
   scrollbar-width: thin;
-  scrollbar-color: rgba(156, 39, 176, 0.5) rgba(255, 255, 255, 0.05);
-}
-
-/* Custom scrollbar styling (Webkit browsers - Chrome, Safari, Edge) */
-.sidebar__nav::-webkit-scrollbar {
-  width: 8px;
-}
-
-.sidebar__nav::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.sidebar__nav::-webkit-scrollbar-thumb {
-  background: rgba(156, 39, 176, 0.5);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar__nav::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 39, 176, 0.7);
+  scrollbar-color: color-mix(in srgb, var(--color-brand-primary) 50%, transparent) rgba(255, 255, 255, 0.05);
 }
 
 .sidebar__navList {
@@ -799,12 +780,12 @@
 }
 
 .sidebar__nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--color-brand-primary) 50%, transparent);
   border-radius: 3px;
 }
 
 .sidebar__nav::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-brand-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 70%, transparent);
 }
 
 /* ================================================================
@@ -1217,4 +1198,69 @@
 [data-theme='light'] .sidebar__analyticsActionBtn:hover {
   background: rgba(0, 0, 0, 0.1);
   color: rgba(0, 0, 0, 0.9);
+}
+
+/* ============================================================
+   USER SETTINGS - Export Behavior Select
+   ============================================================ */
+
+.sidebar__select {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--duration-hover) var(--ease-smooth);
+}
+
+.sidebar__select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar__select:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar__select option {
+  background: var(--color-neutral-gray800);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar__hint {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: var(--spacing-xs);
+  line-height: 1.4;
+}
+
+/* Light theme overrides */
+[data-theme='light'] .sidebar__select {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+[data-theme='light'] .sidebar__select:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='light'] .sidebar__select:focus {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='light'] .sidebar__select option {
+  background: white;
+  color: rgba(0, 0, 0, 0.9);
+}
+
+[data-theme='light'] .sidebar__hint {
+  color: rgba(0, 0, 0, 0.5);
 }

@@ -1,0 +1,127 @@
+/*
+ * ================================================================
+ * FILE: ExportProgressModal.module.css
+ * PATH: /packages/ui-components/src/components/ExportProgressModal/ExportProgressModal.module.css
+ * DESCRIPTION: Styles for ExportProgressModal component
+ * VERSION: v1.0.0
+ * CREATED: 2025-12-11
+ * UPDATED: 2025-12-11
+ * ================================================================
+ */
+
+/* Progress Section */
+.progressSection {
+  margin-bottom: 16px;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.progressSize {
+  color: var(--theme-text-muted, #9e9e9e);
+}
+
+.progressPercent {
+  color: var(--theme-text, #212121);
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--theme-input-background, #f5f5f5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-brand-primary, #9c27b0);
+  border-radius: 4px;
+}
+
+/* File Section */
+.fileSection {
+  margin-top: 16px;
+}
+
+.fileCount {
+  font-size: 14px;
+  color: var(--theme-text, #212121);
+  margin-bottom: 8px;
+}
+
+.fileList {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #e0e0e0);
+  border-radius: 4px;
+  background: var(--theme-input-background, #ffffff);
+}
+
+.fileItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 13px;
+  color: var(--theme-text, #212121);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileEntity {
+  font-size: 11px;
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-top: 2px;
+}
+
+.fileSize {
+  font-size: 12px;
+  color: var(--theme-text-muted, #9e9e9e);
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+/* No Attachments */
+.noAttachments {
+  font-size: 14px;
+  color: var(--theme-text-muted, #9e9e9e);
+  text-align: center;
+  padding: 12px;
+}
+
+/* Cancel Section */
+.cancelSection {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.cancelButton {
+  padding: 8px 24px;
+  font-size: 14px;
+  color: var(--color-status-error, #f44336);
+  background: transparent;
+  border: 1px solid var(--color-status-error, #f44336);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--color-status-error, #f44336);
+  color: var(--theme-button-text-on-color, #ffffff);
+}

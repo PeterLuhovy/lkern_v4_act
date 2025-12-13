@@ -59,7 +59,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Header - Always visible with title and toggle arrow */}
       <div className={styles.panelHeader} onClick={handleToggleCollapse}>
         <span className={styles.panelTitle}>{title}</span>
-        <span className={styles.toggleArrow}>{isCollapsed ? '▼' : '▲'}</span>
+        <span className={styles.toggleArrow} role="img" aria-hidden="true">{isCollapsed ? '▼' : '▲'}</span>
       </div>
 
       {/* Expanded Content - All filters visible */}
@@ -68,7 +68,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       {/* Search Bar - V2 Style with Icon Inside */}
       <div className={styles.searchContainer}>
         <div className={styles.searchWrapper}>
-          <span className={styles.searchIcon} role="img" aria-label="search">🔍</span>
+          <span className={styles.searchIcon} aria-hidden="true">🔍</span>
           <input
             type="text"
             className={styles.searchInput}
@@ -189,7 +189,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         <div className={styles.bottomLeft}>
           <span className={styles.filterLabel}>{t('pageTemplate.filter.filterLabel')}:</span>
           <span className={styles.filterCount}>
-            <span role="img" aria-label="chart">📊</span> {resultCount}/{totalCount || resultCount} {t('pageTemplate.filter.itemsCount')}
+            <span aria-hidden="true">📊</span> {resultCount}/{totalCount || resultCount} {t('pageTemplate.filter.itemsCount')}
           </span>
         </div>
 

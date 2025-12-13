@@ -7,6 +7,9 @@ import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/web-ui',
+  resolve: {
+    preserveSymlinks: true,
+  },
   server: {
     port: 4201,
     host: '0.0.0.0',

@@ -2,14 +2,36 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 8.9.0
+# Version: 9.2.0
 # Created: 2025-10-13
-# Updated: 2025-11-29
+# Updated: 2025-12-10
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 8.8.0
+# Previous Version: 9.1.0
+#
+# Key Changes from v9.1.0:
+# - 🌍 Task 1.200.2: Added <Trans> Component for React component interpolation in translations
+# - 🔗 Enable legal texts with embedded links (GDPR consent, Terms of Service, Privacy Policy)
+# - 📝 Authentication pages will use <Trans> for forgot password links, registration consent, email formatting
+# - ⏱️ Task 1.200 estimate updated: 25-30h → 28-33h (+3h for translation infrastructure)
+# - 🎯 Lightweight implementation (~50 lines) without external dependencies
+#
+# Key Changes from v9.0.0:
+# - 📝 TODO Audit: Added all codebase TODO comments to roadmap sections
+# - 📝 Task 1.60: Added 7 TODO items from Issues.tsx, IssueEditModal.tsx, IssueViewModal.tsx, AssignIssueModal.tsx
+# - 📝 Task 1.200: Added 5 TODO items for mock auth replacement (useAuth, AuthContext, AuthRoleSwitcher)
+# - 📝 Task 3.40: Added ESLint config fix + DataGrid keyboard navigation TODO
+# - 📝 Task 1.30.9: Added Page Generator enhancement TODO (CSV/PDF export, auto translation keys)
+#
+# Key Changes from v8.9.0:
+# - ✨ Task 1.204 Realtime Gateway Service ADDED (Phase 1, OPTIONAL - NOT REQUIRED FOR MVP)
+# - 🔌 Centralized WebSocket Gateway with Redis Pub/Sub (15-20h estimate)
+# - 📡 Single endpoint for all real-time notifications (locks, chat, updates)
+# - 📝 TODO: Return to Issues Service for unlock notifications after gateway
+# - 🎯 Priority: Orders & Price Quotes (1.140 Sales Service) - MVP focus
+# - ⚠️ Pessimistic Locking UI implemented (Modal v4.0.0), backend template ready
 #
 # Key Changes from v8.8.0:
 # - ✨ useEntityLookup hook IMPLEMENTED - universal entity fetch with health check workflow
@@ -172,7 +194,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 6/26 complete (~23%)
+**Progress:** 6/27 complete (~22%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -469,6 +491,11 @@
 3. Add sidebar item (manual)
 4. Customize generated code (manual)
 5. Connect to API (manual)
+
+**⚠️ Generator Enhancement TODO (Future versions):**
+- **TODO:** Export CSV/PDF feature (page-generator/README.md:227)
+- **TODO:** Automatic translation keys generation (page-generator/README.md:301)
+- **TODO:** Replace mock API implementations in TemplatePageDatagrid with actual API calls (TemplatePageDatagrid.tsx:613-846)
 
 ---
 
@@ -925,6 +952,13 @@ start-service.bat
 - No role-based permissions (using temporary tabs)
 - Missing comprehensive test coverage
 - **TODO:** Add `?role=user_basic` query parameter to GET `/issues/` endpoint for role-based data filtering (currently only POST has role parameter)
+- **TODO:** Implement file download from MinIO attachments (Issues.tsx:876)
+- **TODO:** Add toast notifications for CRUD operations (Issues.tsx:1542, 1545, 1569, 1572)
+- **TODO:** Get assignee ID from auth context instead of hardcoded UUID (Issues.tsx:466)
+- **TODO:** Lookup user name by ID when Contacts Service available (Issues.tsx:535)
+- **TODO:** Replace mock contacts data with Contact Service API (IssueEditModal.tsx:192, 849)
+- **TODO:** Re-enable per-field permissions when needed (IssueViewModal.tsx:249)
+- **TODO:** Replace mock user data in AssignIssueModal with Contact/Employee service (AssignIssueModal.tsx:25)
 
 #### **1.60.3 Testing**
 - ⏸️ **Backend Tests (pytest):**
@@ -1637,7 +1671,7 @@ POST /cleanup/retry/{id}     - Retry specific deletion
 
 ### **1.200 Authentication Service** ⏸️ PLANNED
 **Dependencies:** 1.180 complete
-**Estimated:** 25-30h (6-7 days)
+**Estimated:** 28-33h (7-8 days) ↑ Updated from 25-30h (+3h for Trans component)
 **Target:** 2026-02-27 - 2026-03-05
 **Ports:** 4107 (REST), 5107 (gRPC)
 **Database:** lkms107_auth
@@ -1655,23 +1689,200 @@ POST /cleanup/retry/{id}     - Retry specific deletion
   - Add JWT validation middleware to all microservices
   - Update all API calls to include `Authorization: Bearer <token>` header
 
-#### **1.200.1 Backend**
+#### **1.200.1 Backend (12-15h)**
 - ⏸️ Copy from template
 - ⏸️ User model, JWT, bcrypt, RBAC
 - ⏸️ REST + gRPC APIs
 - ⏸️ JWT token generation and validation
 - ⏸️ Shared auth middleware for other microservices
 
-#### **1.200.2 Frontend**
-- ⏸️ Login page
-- ⏸️ Auth context + protected routes
-- ⏸️ Replace mock `useAuth()` with real implementation
-- ⏸️ Token storage (localStorage) and refresh logic
+#### **1.200.2 Translation Infrastructure - `<Trans>` Component (3-4h)** ⭐ NEW
+**Why now:** Authentication pages require legal texts with embedded links (GDPR consent, Terms of Service, Privacy Policy). The `<Trans>` component enables React components inside translated strings without XSS risks.
+
+**Implementation:**
+- ⏸️ **Create `<Trans>` component** (~50 lines)
+  - File: `packages/config/src/translations/Trans.tsx`
+  - Support tags: `<link>`, `<strong>`, `<email>`, `<button>`
+  - Parse translation text and replace tags with React components
+  - Preserve type safety (TypeScript integration)
+- ⏸️ **Add unit tests**
+  - File: `packages/config/src/translations/Trans.test.tsx`
+  - Test cases: link interpolation, multiple components, nested tags, parameter replacement
+  - Coverage: 100% (basic parsing, edge cases)
+- ⏸️ **Add translation keys for authentication**
+  - `auth.login.*` - Login page (15 keys)
+    - Example: `forgotPassword: "Forgot password? <link>Reset it here</link>"`
+  - `auth.register.*` - Registration page (20 keys)
+    - Example: `termsAccept: "I agree to <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>"`
+  - `auth.passwordReset.*` - Password reset (10 keys)
+    - Example: `emailSent: "Reset link sent to <email>{{userEmail}}</email>"`
+  - `auth.legal.*` - Legal texts (GDPR, terms, privacy)
+- ⏸️ **Update documentation**
+  - File: `docs/programming/coding-standards.md`
+  - Add section: "Translation System - React Component Interpolation"
+  - Examples: When to use `<Trans>` vs `t()`, type safety, security notes
+  - Export from `packages/config/src/index.ts`
+
+**Use cases:**
+```tsx
+// Login page - Forgot password link
+<Trans
+  i18nKey="auth.login.forgotPassword"
+  components={{ link: <Link to="/auth/reset" /> }}
+/>
+// Output: "Forgot password? <Link>Reset it here</Link>"
+
+// Registration - Legal consent
+<Trans
+  i18nKey="auth.register.legalConsent"
+  components={{
+    terms: <Link to="/legal/terms" />,
+    privacy: <Link to="/legal/privacy" />,
+    gdpr: <Link to="/legal/gdpr" />
+  }}
+/>
+// Output: "I agree to <Link>Terms</Link>, <Link>Privacy Policy</Link>, and <Link>GDPR</Link>"
+
+// Password reset - Email confirmation
+<Trans
+  i18nKey="auth.passwordReset.emailSent"
+  values={{ userEmail: email }}
+  components={{ email: <strong className={styles.highlight} /> }}
+/>
+// Output: "Reset link sent to <strong>user@example.com</strong>"
+```
+
+#### **1.200.3 Frontend (13-14h)** ↑ Updated from 1.200.2
+- ⏸️ **Login page** with `<Trans>` for links
+  - Forgot password link using `<Trans>`
+  - Registration link using `<Trans>`
+  - Error messages with support links
+- ⏸️ **Registration form** with GDPR consent
+  - Checkbox with legal links: Terms, Privacy, GDPR
+  - All legal texts use `<Trans>` component
+  - Email verification message with formatted email
+- ⏸️ **Password reset flow** with email formatting
+  - Reset request page with `<Trans>` for instructions
+  - Email sent confirmation with highlighted email address
+  - Success message with login link
+- ⏸️ **Auth context + protected routes**
+- ⏸️ **Replace mock `useAuth()`** with real implementation
+- ⏸️ **Token storage** (localStorage) and refresh logic
+
+**Success Criteria:**
+- ✅ `<Trans>` component functional and tested (100% coverage)
+- ✅ Login page: "Forgot password? <link>Click here</link>" renders correctly
+- ✅ Registration page: GDPR consent with 3 clickable links (Terms, Privacy, GDPR)
+- ✅ Password reset: Email address highlighted with `<email>` tag
+- ✅ Zero `dangerouslySetInnerHTML` usage in authentication pages
+- ✅ All legal texts use `<Trans>` (no hardcoded HTML)
+- ✅ 45+ translation keys (SK/EN) for complete auth flow
+- ✅ Type safety: `i18nKey` prop has IntelliSense autocomplete
+- ✅ Documentation updated with `<Trans>` usage examples
+- ✅ JWT authentication working (login, logout, token refresh)
+- ✅ Protected routes redirect to login when unauthenticated
+
+**⚠️ Mock Auth TODO (to be replaced when 1.200 complete):**
+- **TODO:** Replace mock `useAuth()` hook (useAuth.ts:44) with real JWT authentication
+- **TODO:** Replace mock `AuthContext` (AuthContext.tsx:168, 275) with real auth provider
+- **TODO:** Remove `AuthRoleSwitcher` component (AuthRoleSwitcher.tsx:53) - dev-only component
+- **TODO:** Update `isAuthenticated: true` hardcoded value (AuthContext.tsx:275) with real check
+- **TODO:** Replace mock contacts service (contactsService.ts:21-23, 54, 110) with real API calls
+
+---
+
+### **1.204 Realtime Gateway Service (LKMS808)** ⏸️ PLANNED (OPTIONAL - NOT REQUIRED FOR MVP)
+**Dependencies:** 1.200 complete (Authentication required for WebSocket auth)
+**Estimated:** 15-20h (4-5 days)
+**Target:** TBD (after MVP stabilization)
+**Ports:** 4808 (REST + WebSocket), 5808 (gRPC), 6379 (Redis shared with 1.205)
+**Database:** None (stateless gateway)
+
+📄 **Implementation Plan:** To be created in `docs/temp/part-08-realtime-gateway.md`
+
+**⚠️ OPTIONAL SERVICE - NOT BLOCKING MVP:**
+This service enables real-time notifications across the system but is NOT required for initial production deployment. Priority is Orders and Price Quotes (Task 1.140 Sales Service).
+
+**Centralized WebSocket Gateway with Redis Pub/Sub**
+
+#### Key Features:
+- 🔌 **Single WebSocket Endpoint** - All clients connect to one gateway
+- 📡 **Redis Pub/Sub** - Microservices publish events, gateway broadcasts to clients
+- 🔐 **JWT Authentication** - WebSocket connections authenticated via token
+- 🏷️ **Topic Subscriptions** - Clients subscribe to specific topics (e.g., `issues.{id}`)
+- 📊 **Connection Management** - Track connected users, heartbeat, reconnection
+- 🔄 **Horizontal Scaling** - Multiple gateway instances via Redis coordination
+
+#### Architecture:
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Issues Service │     │  Sales Service  │     │ Other Services  │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │ Redis Pub/Sub         │                       │
+         ▼                       ▼                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Redis (Pub/Sub Channel)                      │
+└─────────────────────────────────────┬───────────────────────────┘
+                                      │
+                          ┌───────────▼───────────┐
+                          │  Realtime Gateway     │
+                          │  (WebSocket Server)   │
+                          └───────────┬───────────┘
+                                      │ WebSocket
+              ┌───────────────────────┼───────────────────────┐
+              ▼                       ▼                       ▼
+         ┌─────────┐             ┌─────────┐             ┌─────────┐
+         │ Browser │             │ Browser │             │ Browser │
+         │ Client  │             │ Client  │             │ Client  │
+         └─────────┘             └─────────┘             └─────────┘
+```
+
+#### Use Cases:
+- 🔓 **Pessimistic Lock Notifications** - User gets notified when force-unlocked
+- 💬 **Chat Messages** - Real-time message delivery (used by 1.205 Messaging)
+- 📋 **Issue Updates** - Status changes, new comments in real-time
+- 📦 **Order Status** - Customer sees order progress live
+- 🔔 **System Notifications** - Broadcast alerts, maintenance windows
+
+#### **1.204.1 Backend (10-14h)**
+- ⏸️ FastAPI WebSocket server with JWT auth
+- ⏸️ Redis Pub/Sub subscriber (listen to all `lkern.*` events)
+- ⏸️ Topic routing (parse event type → broadcast to subscribed clients)
+- ⏸️ Connection registry (userId → WebSocket connections)
+- ⏸️ Health check endpoint
+- ⏸️ 25+ backend tests
+
+#### **1.204.2 Frontend (5-6h)**
+- ⏸️ `useRealtimeConnection` hook (connect, reconnect, heartbeat)
+- ⏸️ `useRealtimeSubscription` hook (subscribe to topics)
+- ⏸️ Integration with existing Toast system for notifications
+- ⏸️ 15+ translation keys (SK/EN)
+
+**Success Criteria:**
+- ✅ WebSocket connections authenticated via JWT
+- ✅ Redis Pub/Sub receiving events from microservices
+- ✅ Clients receive events for subscribed topics
+- ✅ Automatic reconnection on connection loss
+- ✅ 40+ tests passing (25+ backend + 15+ frontend)
+
+**📝 TODO - Return to Issues Service (Task 1.60):**
+After implementing this gateway, return to Issues Service to add:
+- Force unlock notifications (when superadmin unlocks a record)
+- User modal automatically disabled + toast notification
+- Update `SectionEditModal` to subscribe to `issues.{id}.unlocked` topic
+
+**📝 TODO - Locking UX Phase 2 (after WebSocket):**
+When WebSocket Gateway is ready, enhance locking UX:
+- Real-time notification via WebSocket when force-unlocked
+- Side-by-side comparison modal (user's draft vs server state)
+- "Copy my changes" button to preserve user's work
+- Option to re-acquire lock after viewing server changes
+- Current Phase 1: 409 conflict on Save → read-only mode + toast
 
 ---
 
 ### **1.205 Messaging Service** ⏸️ PLANNED (NEW)
-**Dependencies:** 1.200 complete (Authentication required for WebSocket auth)
+**Dependencies:** 1.200 complete, 1.204 optional (can share Redis)
 **Estimated:** 30-40h (7-10 days)
 **Target:** 2026-03-06 - 2026-03-15
 **Ports:** 4807 (REST + WebSocket), 5807 (gRPC), 6379 (Redis)
@@ -2528,6 +2739,15 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
   - Keep disabled for local development (`NX_DAEMON=false` in docker-compose.yml)
   - Configure daemon settings for production builds
   - Document daemon usage in deployment guide
+- ⏸️ **ESLint Configuration Fix**
+  - Set `@nx/enforce-module-boundaries` back to `'error'` (currently `'warn'`)
+  - Location: `eslint.config.mjs` (line 17)
+  - Location: `packages/ui-components/eslint.config.mjs` (line 11)
+  - Requires: Making `@l-kern/config` buildable first
+- ⏸️ **DataGrid Keyboard Navigation**
+  - Implement Arrow Right/Left navigation between header cells
+  - Location: `packages/ui-components/src/components/DataGrid/`
+  - Documented in DataGrid.md (line 951)
 
 ---
 

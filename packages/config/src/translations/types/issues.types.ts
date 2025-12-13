@@ -41,8 +41,11 @@ export interface IssuesPageTranslations {
     severity: string;
     status: string;
     priority: string;
+    created_by: string;
     created_at: string;
   };
+  system: string;
+  user: string;
   details: {
     issue_code: string;
     title: string;
@@ -111,6 +114,7 @@ export interface IssuesPageTranslations {
   quickFilters: {
     blockers: string;
     myIssues: string;
+    systemIssues: string;
     unassigned: string;
   };
   types: {

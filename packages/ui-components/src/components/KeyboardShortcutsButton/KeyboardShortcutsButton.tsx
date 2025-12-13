@@ -203,7 +203,7 @@ export const KeyboardShortcutsButton: React.FC<KeyboardShortcutsButtonProps> = (
 
             <div className={styles.footer}>
               <p className={styles.hint}>
-                💡 {t('keyboardShortcuts.modalHint')}
+                <span role="img" aria-hidden="true">💡</span> {t('keyboardShortcuts.modalHint')}
               </p>
             </div>
           </div>

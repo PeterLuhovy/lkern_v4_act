@@ -165,6 +165,41 @@ services:
   # DEVELOPMENT TOOLS (LKMS 900-999)
   # ============================================================
 
+  # === DOCUMENTATION (Docusaurus + Storybook) ===
+  lkms902-docs:
+    build:
+      context: .
+      dockerfile: ${LKMS902_DOCKERFILE}
+    container_name: ${LKMS902_CONTAINER_NAME}
+    restart: ${LKMS902_RESTART_POLICY}
+    environment:
+      - SERVICE_NAME=${LKMS902_SERVICE_NAME}
+      - SERVICE_VERSION=${LKMS902_VERSION}
+      - NODE_ENV=${NODE_ENV}
+      - DOCS_PORT=${LKMS902_PORT_INTERNAL}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+      - NX_DAEMON=false
+      - NX_SKIP_NX_CACHE=true
+    ports:
+      - "${LKMS902_PORT_EXTERNAL}:${LKMS902_PORT_INTERNAL}"
+    volumes:
+      # Source code (hot-reload)
+      - ./apps:/app/apps
+      - ./packages:/app/packages
+      - ./nx.json:/app/nx.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      # Preserve node_modules (from Docker image)
+      - node_modules:/app/node_modules
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${LKMS902_PORT_INTERNAL}"]
+      interval: ${LKMS902_HEALTHCHECK_INTERVAL}
+      timeout: ${LKMS902_HEALTHCHECK_TIMEOUT}
+      retries: ${LKMS902_HEALTHCHECK_RETRIES}
+      start_period: ${LKMS902_HEALTHCHECK_START_PERIOD}
+
   lkms901-adminer:
     image: ${LKMS901_IMAGE}
     container_name: ${LKMS901_CONTAINER_NAME}

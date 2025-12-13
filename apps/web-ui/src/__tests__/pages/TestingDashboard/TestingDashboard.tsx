@@ -93,6 +93,12 @@ export const TestingDashboard: React.FC = () => {
       title: t('components.testing.dataGridTitle'),
       description: t('components.testing.dataGridDescription'),
     },
+    {
+      path: '/testing/entity-edit-modal',
+      icon: '✏️',
+      title: t('components.testing.entityEditModalTitle'),
+      description: t('components.testing.entityEditModalDescription'),
+    },
   ];
 
   const demoPages = [
@@ -121,7 +127,7 @@ export const TestingDashboard: React.FC = () => {
             {t('components.testing.backToHome')}
           </Link>
           <h1 className={styles.title}>
-            <span role="img" aria-label="test tube">🧪</span> {t('components.testing.dashboard')}
+            <span aria-hidden="true">🧪</span> {t('components.testing.dashboard')}
           </h1>
           <p className={styles.subtitle}>
             {t('components.testing.dashboardSubtitle')}
@@ -134,13 +140,13 @@ export const TestingDashboard: React.FC = () => {
             className={`${styles.tab} ${activeTab === 'components' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('components')}
           >
-            <span role="img" aria-label="components">🧩</span> {t('components.testing.tabComponents')}
+            <span aria-hidden="true">🧩</span> {t('components.testing.tabComponents')}
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'pages' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('pages')}
           >
-            <span role="img" aria-label="pages">📄</span> {t('components.testing.tabPages')}
+            <span aria-hidden="true">📄</span> {t('components.testing.tabPages')}
           </button>
         </div>
 
@@ -160,7 +166,7 @@ export const TestingDashboard: React.FC = () => {
         {/* Info Footer */}
         <Card variant="default" className={styles.infoFooter}>
           <p className={styles.infoText}>
-            <span role="img" aria-label="light bulb">💡</span> {t('components.testing.dashboardHint')}
+            <span aria-hidden="true">💡</span> {t('components.testing.dashboardHint')}
           </p>
         </Card>
       </div>

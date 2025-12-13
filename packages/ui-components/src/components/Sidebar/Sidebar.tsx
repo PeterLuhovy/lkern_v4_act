@@ -17,7 +17,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { useTranslation, useTheme, useAnalyticsContext, AnalyticsSettings } from '@l-kern/config';
+import { useTranslation, useTheme, useAnalyticsContext, AnalyticsSettings, useAuthContext } from '@l-kern/config';
 import styles from './Sidebar.module.css';
 import logoImage from '../../assets/brand/divisions/lind/logo.png';
 import { AuthRoleSwitcher } from '../AuthRoleSwitcher/AuthRoleSwitcher';
@@ -416,6 +416,62 @@ const NavItem: React.FC<NavItemProps> = ({
  * ```
  */
 /**
+ * User Export Settings Component (for Tab 2)
+ */
+const UserExportSettings: React.FC = () => {
+  const { t } = useTranslation();
+  const { user, setPermissionLevel } = useAuthContext();
+
+  const handleExportBehaviorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newBehavior = event.target.value as 'automatic' | 'save-as-dialog';
+
+    // TODO: When backend auth is ready, this should call API to update user preferences
+    // For now, we update localStorage and trigger a re-render by setting permission level
+    try {
+      localStorage.setItem('user-export-behavior', newBehavior);
+      // Trigger re-render by setting the same permission level (hacky but works for mock)
+      setPermissionLevel(user.permissionLevel);
+    } catch (error) {
+      console.error('Failed to save export behavior:', error);
+    }
+  };
+
+  // Read from localStorage (for mock implementation)
+  const currentBehavior = user.exportBehavior || 'automatic';
+
+  return (
+    <div className={styles.sidebar__analyticsSection}>
+      <div className={styles.sidebar__analyticsSectionTitle}>
+        <span role="img" aria-label="export">📤</span> {t('settings.title')}
+      </div>
+      <div className={styles.sidebar__analyticsToggle}>
+        <label htmlFor="export-behavior-select" className={styles.sidebar__analyticsLabel}>
+          {t('settings.exportBehavior.label')}
+        </label>
+        <select
+          id="export-behavior-select"
+          value={currentBehavior}
+          onChange={handleExportBehaviorChange}
+          className={styles.sidebar__select}
+        >
+          <option value="automatic">
+            {t('settings.exportBehavior.automatic')}
+          </option>
+          <option value="save-as-dialog">
+            {t('settings.exportBehavior.saveAsDialog')}
+          </option>
+        </select>
+        <div className={styles.sidebar__hint}>
+          {currentBehavior === 'automatic'
+            ? t('settings.exportBehavior.automaticDescription')
+            : t('settings.exportBehavior.saveAsDialogDescription')}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Analytics Panel Component (for Tab 3)
  */
 const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
@@ -435,6 +491,7 @@ const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => 
     logIssueWorkflow: true,
     logToasts: true,
     logFetchCalls: true,
+    logSSEInvalidation: true,
   };
   let toggleSetting: (key: keyof AnalyticsSettings) => void = () => {};
   let enableAll: () => void = () => {};
@@ -452,22 +509,23 @@ const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => 
 
   // Section 1: Analytics (tracking features)
   const analyticsItems: Array<{ key: keyof AnalyticsSettings; icon: string; labelKey: string; hintKey: string }> = [
-    { key: 'trackMouse', icon: '🖱️', labelKey: 'components.sidebar.analytics.trackMouse', hintKey: 'components.sidebar.analytics.trackMouseHint' },
-    { key: 'trackKeyboard', icon: '⌨️', labelKey: 'components.sidebar.analytics.trackKeyboard', hintKey: 'components.sidebar.analytics.trackKeyboardHint' },
-    { key: 'trackDrag', icon: '✋', labelKey: 'components.sidebar.analytics.trackDrag', hintKey: 'components.sidebar.analytics.trackDragHint' },
-    { key: 'trackTiming', icon: '⏱️', labelKey: 'components.sidebar.analytics.trackTiming', hintKey: 'components.sidebar.analytics.trackTimingHint' },
+    { key: 'trackMouse', icon: '<span role="img" aria-label="mouse">🖱️</span>', labelKey: 'components.sidebar.analytics.trackMouse', hintKey: 'components.sidebar.analytics.trackMouseHint' },
+    { key: 'trackKeyboard', icon: '<span role="img" aria-label="keyboard">⌨️</span>', labelKey: 'components.sidebar.analytics.trackKeyboard', hintKey: 'components.sidebar.analytics.trackKeyboardHint' },
+    { key: 'trackDrag', icon: '<span role="img" aria-label="drag">✋</span>', labelKey: 'components.sidebar.analytics.trackDrag', hintKey: 'components.sidebar.analytics.trackDragHint' },
+    { key: 'trackTiming', icon: '<span role="img" aria-label="timing">⏱️</span>', labelKey: 'components.sidebar.analytics.trackTiming', hintKey: 'components.sidebar.analytics.trackTimingHint' },
   ];
 
   // Section 2: Debug (logging & visual debug)
   const debugItems: Array<{ key: keyof AnalyticsSettings; icon: string; labelKey: string; hintKey: string }> = [
-    { key: 'logToConsole', icon: '📝', labelKey: 'components.sidebar.analytics.logToConsole', hintKey: 'components.sidebar.analytics.logToConsoleHint' },
-    { key: 'showDebugBarPage', icon: '📊', labelKey: 'components.sidebar.analytics.showDebugBarPage', hintKey: 'components.sidebar.analytics.showDebugBarPageHint' },
-    { key: 'showDebugBarModal', icon: '🗂️', labelKey: 'components.sidebar.analytics.showDebugBarModal', hintKey: 'components.sidebar.analytics.showDebugBarModalHint' },
-    { key: 'logPermissions', icon: '🔐', labelKey: 'components.sidebar.analytics.logPermissions', hintKey: 'components.sidebar.analytics.logPermissionsHint' },
-    { key: 'logModalStack', icon: '📚', labelKey: 'components.sidebar.analytics.logModalStack', hintKey: 'components.sidebar.analytics.logModalStackHint' },
-    { key: 'logIssueWorkflow', icon: '🎫', labelKey: 'components.sidebar.analytics.logIssueWorkflow', hintKey: 'components.sidebar.analytics.logIssueWorkflowHint' },
-    { key: 'logToasts', icon: '🍞', labelKey: 'components.sidebar.analytics.logToasts', hintKey: 'components.sidebar.analytics.logToastsHint' },
-    { key: 'logFetchCalls', icon: '📡', labelKey: 'components.sidebar.analytics.logFetchCalls', hintKey: 'components.sidebar.analytics.logFetchCallsHint' },
+    { key: 'logToConsole', icon: '<span role="img" aria-label="console">📝</span>', labelKey: 'components.sidebar.analytics.logToConsole', hintKey: 'components.sidebar.analytics.logToConsoleHint' },
+    { key: 'showDebugBarPage', icon: '<span role="img" aria-label="debug-bar">📊</span>', labelKey: 'components.sidebar.analytics.showDebugBarPage', hintKey: 'components.sidebar.analytics.showDebugBarPageHint' },
+    { key: 'showDebugBarModal', icon: '<span role="img" aria-label="modal-debug">🗂️</span>', labelKey: 'components.sidebar.analytics.showDebugBarModal', hintKey: 'components.sidebar.analytics.showDebugBarModalHint' },
+    { key: 'logPermissions', icon: '<span role="img" aria-label="permissions">🔐</span>', labelKey: 'components.sidebar.analytics.logPermissions', hintKey: 'components.sidebar.analytics.logPermissionsHint' },
+    { key: 'logModalStack', icon: '<span role="img" aria-label="modal-stack">📚</span>', labelKey: 'components.sidebar.analytics.logModalStack', hintKey: 'components.sidebar.analytics.logModalStackHint' },
+    { key: 'logIssueWorkflow', icon: '<span role="img" aria-label="workflow">🎫</span>', labelKey: 'components.sidebar.analytics.logIssueWorkflow', hintKey: 'components.sidebar.analytics.logIssueWorkflowHint' },
+    { key: 'logToasts', icon: '<span role="img" aria-label="toasts">🍞</span>', labelKey: 'components.sidebar.analytics.logToasts', hintKey: 'components.sidebar.analytics.logToastsHint' },
+    { key: 'logFetchCalls', icon: '<span role="img" aria-label="fetch">📡</span>', labelKey: 'components.sidebar.analytics.logFetchCalls', hintKey: 'components.sidebar.analytics.logFetchCallsHint' },
+    { key: 'logSSEInvalidation', icon: '<span role="img" aria-label="sse">🔄</span>', labelKey: 'components.sidebar.analytics.logSSEInvalidation', hintKey: 'components.sidebar.analytics.logSSEInvalidationHint' },
   ];
 
   if (isCollapsed) return null;
@@ -495,7 +553,7 @@ const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => 
           {settings[item.key] && <span className={styles.sidebar__analyticsCheckmark}>✓</span>}
         </div>
         <span className={styles.sidebar__analyticsLabel}>
-          {item.icon} {t(item.labelKey)}
+          <span dangerouslySetInnerHTML={{ __html: item.icon }} /> {t(item.labelKey)}
         </span>
       </div>
       <InfoHint
@@ -512,7 +570,7 @@ const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => 
       {/* Section 1: Analytics */}
       <div className={styles.sidebar__analyticsSection}>
         <div className={styles.sidebar__analyticsSectionTitle}>
-          📈 {t('components.sidebar.analytics.sectionAnalytics')}
+          <span role="img" aria-label="analytics">📈</span> {t('components.sidebar.analytics.sectionAnalytics')}
         </div>
         {analyticsItems.map(renderToggleItem)}
       </div>
@@ -523,7 +581,7 @@ const AnalyticsPanel: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => 
       {/* Section 2: Debug */}
       <div className={styles.sidebar__analyticsSection}>
         <div className={styles.sidebar__analyticsSectionTitle}>
-          🐛 {t('components.sidebar.analytics.sectionDebug')}
+          <span role="img" aria-label="debug">🐛</span> {t('components.sidebar.analytics.sectionDebug')}
         </div>
         {debugItems.map(renderToggleItem)}
       </div>
@@ -778,7 +836,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => setActiveTab('navigation')}
           title={t('components.sidebar.tabs.navigation')}
         >
-          <span className={styles.sidebar__tabIcon}>📁</span>
+          <span className={styles.sidebar__tabIcon} role="img" aria-label="navigation">📁</span>
           {!isCollapsed && t('components.sidebar.tabs.nav')}
         </button>
         <button
@@ -787,7 +845,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => setActiveTab('settings')}
           title={t('components.sidebar.tabs.settings')}
         >
-          <span className={styles.sidebar__tabIcon}>👤</span>
+          <span className={styles.sidebar__tabIcon} role="img" aria-label="user settings">👤</span>
           {!isCollapsed && t('components.sidebar.tabs.user')}
         </button>
         <button
@@ -796,7 +854,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => setActiveTab('analytics')}
           title={t('components.sidebar.tabs.debug')}
         >
-          <span className={styles.sidebar__tabIcon}>🐛</span>
+          <span className={styles.sidebar__tabIcon} role="img" aria-label="debug">🐛</span>
           {!isCollapsed && t('components.sidebar.tabs.dbg')}
         </button>
       </div>
@@ -842,10 +900,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Tab 2: User Settings (AuthRoleSwitcher) */}
+      {/* Tab 2: User Settings (AuthRoleSwitcher + Export Settings) */}
       <div className={`${styles.sidebar__tabContent} ${activeTab === 'settings' ? styles['sidebar__tabContent--active'] : ''}`}>
         <div className={styles.sidebar__analyticsPanel}>
           <AuthRoleSwitcher isCollapsed={isCollapsed} />
+
+          {/* Export Settings Section */}
+          {!isCollapsed && (
+            <>
+              <div className={styles.sidebar__analyticsDivider} />
+              <UserExportSettings />
+            </>
+          )}
         </div>
       </div>
 
@@ -887,7 +953,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 type="button"
                 title={t(theme === 'dark' ? 'components.sidebar.switchToLight' : 'components.sidebar.switchToDark')}
               >
-                <span className={styles.sidebar__icon}>
+                <span className={styles.sidebar__icon} role="img" aria-label={theme === 'dark' ? 'sun' : 'moon'}>
                   {theme === 'dark' ? '☀️' : '🌙'}
                 </span>
                 {!isCollapsed && (
@@ -904,7 +970,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 type="button"
                 title={t('components.sidebar.changeLanguage')}
               >
-                <span className={styles.sidebar__icon}>
+                <span className={styles.sidebar__icon} role="img" aria-label={language === 'sk' ? 'Slovakia' : 'United Kingdom'}>
                   {language === 'sk' ? '🇸🇰' : '🇬🇧'}
                 </span>
                 {!isCollapsed && (

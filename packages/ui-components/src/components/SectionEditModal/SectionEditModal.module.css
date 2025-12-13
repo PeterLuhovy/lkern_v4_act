@@ -3,8 +3,11 @@
  * FILE: SectionEditModal.module.css
  * PATH: /packages/ui-components/src/components/SectionEditModal/SectionEditModal.module.css
  * DESCRIPTION: Styles for SectionEditModal component
- * VERSION: v1.0.1
- * UPDATED: 2025-11-07 00:00:00
+ * VERSION: v1.1.0
+ * UPDATED: 2025-12-09 10:00:00
+ *
+ * CHANGES:
+ *   - v1.1.0: Removed locking styles (moved to Modal.module.css v1.3.0)
  * ================================================================
  */
 
@@ -65,3 +68,7 @@
   color: var(--color-status-error, #f44336);
   margin-top: var(--spacing-xs, 4px);
 }
+
+/* NOTE: Locking styles (lockBanner, lockIcon, lockLoading, readOnly)
+ * have been moved to Modal.module.css v1.3.0 as part of base Modal
+ * locking support. See Modal.tsx v4.0.0 for locking configuration. */

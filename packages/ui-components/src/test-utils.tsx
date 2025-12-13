@@ -10,7 +10,7 @@
 
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
-import { TranslationProvider, ThemeProvider } from '@l-kern/config';
+import { TranslationProvider, ThemeProvider, AuthProvider } from '@l-kern/config';
 
 // ================================================================
 // TYPES
@@ -66,7 +66,10 @@ export function renderWithTranslation(
   const Wrapper = ({ children }: { children: ReactNode }) => (
     // @ts-expect-error - React 19 FC type compatibility issue with Testing Library
     <TranslationProvider defaultLanguage={initialLanguage}>
-      {children}
+      {/* @ts-expect-error - React 19 FC type compatibility issue with Testing Library */}
+      <AuthProvider>
+        {children}
+      </AuthProvider>
     </TranslationProvider>
   );
 
@@ -103,7 +106,12 @@ export function renderWithTheme(
 ): RenderResult {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     // @ts-expect-error - React 19 FC type compatibility issue with Testing Library
-    <ThemeProvider defaultTheme={initialTheme}>{children}</ThemeProvider>
+    <ThemeProvider defaultTheme={initialTheme}>
+      {/* @ts-expect-error - React 19 FC type compatibility issue with Testing Library */}
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ThemeProvider>
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- React 19 FC type compatibility with Testing Library
@@ -153,7 +161,10 @@ export function renderWithAll(
     <ThemeProvider defaultTheme={initialTheme}>
       {/* @ts-expect-error - React 19 FC type compatibility issue with Testing Library */}
       <TranslationProvider defaultLanguage={initialLanguage}>
-        {children}
+        {/* @ts-expect-error - React 19 FC type compatibility issue with Testing Library */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </TranslationProvider>
     </ThemeProvider>
   );

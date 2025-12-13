@@ -1,0 +1,31 @@
+{
+  "defaultLocale": "sk",
+  "locales": [
+    "sk",
+    "en"
+  ],
+  "path": "i18n",
+  "currentLocale": "en",
+  "localeConfigs": {
+    "sk": {
+      "label": "Slovenčina",
+      "direction": "ltr",
+      "htmlLang": "sk",
+      "calendar": "gregory",
+      "path": "sk",
+      "translate": false,
+      "url": "http://localhost",
+      "baseUrl": "/"
+    },
+    "en": {
+      "label": "English",
+      "direction": "ltr",
+      "htmlLang": "en",
+      "calendar": "gregory",
+      "path": "en",
+      "translate": false,
+      "url": "http://localhost",
+      "baseUrl": "/en/"
+    }
+  }
+}

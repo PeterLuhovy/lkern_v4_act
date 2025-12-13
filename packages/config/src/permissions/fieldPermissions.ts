@@ -10,7 +10,6 @@
  */
 
 import type {
-  FieldAccess,
   FieldAccessResult,
   FieldPermission,
   FieldPermissionsMap,

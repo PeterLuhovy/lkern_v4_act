@@ -126,7 +126,7 @@ export const DebugBar = React.forwardRef<HTMLDivElement, DebugBarProps>(
       {/* Left side - Modal name + Copy button */}
       <div className={styles.debugBar__left}>
         <span className={styles.debugBar__modalName}>
-          <span role="img" aria-label="bug">🐛</span> {modalName}
+          <span aria-hidden="true">🐛</span> {modalName}
         </span>
         <Button
           variant="secondary"
@@ -139,7 +139,7 @@ export const DebugBar = React.forwardRef<HTMLDivElement, DebugBarProps>(
           }}
           title={t('debugBar.copyModalName')}
         >
-          <span role="img" aria-label="clipboard">📋</span> copy
+          <span aria-hidden="true">📋</span> copy
         </Button>
       </div>
 
@@ -148,27 +148,27 @@ export const DebugBar = React.forwardRef<HTMLDivElement, DebugBarProps>(
         {/* Theme indicator */}
         <span className={styles.debugBar__indicator}>
           {isDarkMode ? (
-            <><span role="img" aria-label="moon">🌙</span> Dark</>
+            <><span aria-hidden="true">🌙</span> Dark</>
           ) : (
-            <><span role="img" aria-label="sun">☀️</span> Light</>
+            <><span aria-hidden="true">☀️</span> Light</>
           )}
         </span>
 
         {/* Language indicator */}
         <span className={styles.debugBar__indicator}>
-          <span role="img" aria-label="globe">🌐</span> {currentLanguage.toUpperCase()}
+          <span aria-hidden="true">🌐</span> {currentLanguage.toUpperCase()}
         </span>
 
         {/* Dual timer box */}
         <div className={styles.debugBar__timerBox}>
           {/* Total time */}
           <span className={styles.debugBar__timerMain}>
-            <span role="img" aria-label="stopwatch">⏱️</span> {analytics.metrics.totalTime}
+            <span aria-hidden="true">⏱️</span> {analytics.metrics.totalTime}
           </span>
 
           {/* Time since last activity */}
           <span className={styles.debugBar__timerSub}>
-            <span role="img" aria-label="clock">🕐</span> {analytics.metrics.timeSinceLastActivity}
+            <span aria-hidden="true">🕐</span> {analytics.metrics.timeSinceLastActivity}
           </span>
         </div>
       </div>
@@ -176,10 +176,10 @@ export const DebugBar = React.forwardRef<HTMLDivElement, DebugBarProps>(
       {/* Right side - Event counts (clicks + keyboard) */}
       <div className={styles.debugBar__right}>
         <span className={styles.debugBar__counter}>
-          <span role="img" aria-label="mouse">🖱️</span> <strong>{analytics.metrics.clickCount}</strong>
+          <span aria-hidden="true">🖱️</span> <strong>{analytics.metrics.clickCount}</strong>
         </span>
         <span className={styles.debugBar__counter}>
-          <span role="img" aria-label="keyboard">⌨️</span> <strong>{analytics.metrics.keyboardCount}</strong>
+          <span aria-hidden="true">⌨️</span> <strong>{analytics.metrics.keyboardCount}</strong>
         </span>
       </div>
     </div>

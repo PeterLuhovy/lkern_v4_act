@@ -67,17 +67,17 @@ describe('dateUtils', () => {
   describe('formatDateTime', () => {
     it('should format Date to SK datetime', () => {
       const date = new Date(2025, 9, 18, 14, 30); // October 18, 2025, 14:30
-      expect(formatDateTime(date, 'sk')).toBe('18.10.2025 14:30');
+      expect(formatDateTime(date, 'sk')).toBe('18.10.2025     14:30');
     });
 
     it('should format Date to EN datetime', () => {
       const date = new Date(2025, 9, 18, 14, 30); // October 18, 2025, 14:30
-      expect(formatDateTime(date, 'en')).toBe('2025-10-18 14:30');
+      expect(formatDateTime(date, 'en')).toBe('2025-10-18     14:30');
     });
 
     it('should handle single-digit hours and minutes', () => {
       const date = new Date(2025, 9, 18, 9, 5); // October 18, 2025, 09:05
-      expect(formatDateTime(date, 'sk')).toBe('18.10.2025 09:05');
+      expect(formatDateTime(date, 'sk')).toBe('18.10.2025     09:05');
     });
 
     it('should handle invalid date', () => {
@@ -266,22 +266,22 @@ describe('dateUtils', () => {
   describe('formatDateTimeFull', () => {
     it('should format Date to SK datetime with milliseconds', () => {
       const date = new Date(2025, 9, 18, 14, 30, 45, 123);
-      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.123');
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025     14:30:45.123');
     });
 
     it('should format Date to EN datetime with milliseconds', () => {
       const date = new Date(2025, 9, 18, 14, 30, 45, 123);
-      expect(formatDateTimeFull(date, 'en')).toBe('2025-10-18 14:30:45.123');
+      expect(formatDateTimeFull(date, 'en')).toBe('2025-10-18     14:30:45.123');
     });
 
     it('should handle zero milliseconds', () => {
       const date = new Date(2025, 9, 18, 14, 30, 45, 0);
-      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.000');
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025     14:30:45.000');
     });
 
     it('should pad single-digit milliseconds', () => {
       const date = new Date(2025, 9, 18, 14, 30, 45, 5);
-      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025 14:30:45.005');
+      expect(formatDateTimeFull(date, 'sk')).toBe('18.10.2025     14:30:45.005');
     });
 
     it('should handle invalid date', () => {
@@ -289,7 +289,7 @@ describe('dateUtils', () => {
     });
 
     it('should parse and format datetime string', () => {
-      expect(formatDateTimeFull('18.10.2025 14:30:45.123', 'sk')).toBe('18.10.2025 14:30:45.123');
+      expect(formatDateTimeFull('18.10.2025 14:30:45.123', 'sk')).toBe('18.10.2025     14:30:45.123');
     });
   });
 
@@ -416,12 +416,13 @@ describe('dateUtils', () => {
     describe('formatUserDateTime', () => {
       it('should format UTC to user timezone (SK)', () => {
         const result = formatUserDateTime('2025-10-18T14:30:00Z', 'Europe/Bratislava', 'sk');
-        expect(result).toMatch(/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/);
+        // Format uses 5 spaces between date and time
+        expect(result).toMatch(/^\d{2}\.\d{2}\.\d{4} {5}\d{2}:\d{2}$/);
       });
 
       it('should format UTC to user timezone (EN)', () => {
         const result = formatUserDateTime('2025-10-18T14:30:00Z', 'UTC', 'en');
-        expect(result).toBe('2025-10-18 14:30');
+        expect(result).toBe('2025-10-18     14:30');
       });
 
       it('should handle invalid UTC string', () => {
@@ -432,15 +433,15 @@ describe('dateUtils', () => {
 
   describe('convertDateLocale with datetime', () => {
     it('should convert SK datetime to EN datetime', () => {
-      expect(convertDateLocale('18.10.2025 14:30:45.123', 'sk', 'en')).toBe('2025-10-18 14:30:45.123');
+      expect(convertDateLocale('18.10.2025 14:30:45.123', 'sk', 'en')).toBe('2025-10-18     14:30:45.123');
     });
 
     it('should convert EN datetime to SK datetime', () => {
-      expect(convertDateLocale('2025-10-18 14:30:45.123', 'en', 'sk')).toBe('18.10.2025 14:30:45.123');
+      expect(convertDateLocale('2025-10-18 14:30:45.123', 'en', 'sk')).toBe('18.10.2025     14:30:45.123');
     });
 
     it('should handle datetime without milliseconds', () => {
-      expect(convertDateLocale('18.10.2025 14:30', 'sk', 'en')).toBe('2025-10-18 14:30:00.000');
+      expect(convertDateLocale('18.10.2025 14:30', 'sk', 'en')).toBe('2025-10-18     14:30:00.000');
     });
 
     it('should handle invalid datetime', () => {

@@ -44,6 +44,8 @@ export interface AnalyticsSettings {
   logToasts: boolean;
   /** Log API fetch calls with permission level to console */
   logFetchCalls: boolean;
+  /** Log SSE cache invalidation operations to console */
+  logSSEInvalidation: boolean;
 }
 
 /**
@@ -62,6 +64,7 @@ const DEFAULT_SETTINGS: AnalyticsSettings = {
   logIssueWorkflow: true,
   logToasts: true,
   logFetchCalls: true,
+  logSSEInvalidation: true,
 };
 
 /**

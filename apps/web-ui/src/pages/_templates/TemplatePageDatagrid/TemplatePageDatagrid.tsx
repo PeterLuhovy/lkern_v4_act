@@ -1,12 +1,11 @@
-/* eslint-disable no-restricted-globals */
 /* eslint-disable jsx-a11y/accessible-emoji */
 /*
  * ================================================================
  * FILE: TemplatePageDatagrid.tsx
  * PATH: /apps/web-ui/src/pages/TemplatePageDatagrid/TemplatePageDatagrid.tsx
  * DESCRIPTION: Universal template for DataGrid pages with FilteredDataGrid
- * VERSION: v1.1.0
- * UPDATED: 2025-11-27
+ * VERSION: v1.2.0
+ * UPDATED: 2025-12-09
  *
  * 📖 USAGE:
  * This is a REFERENCE TEMPLATE for creating new DataGrid pages.
@@ -34,6 +33,23 @@ import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
 import { useTranslation, useAuthContext, useTheme, useToast, COLORS, formatDate, exportToCSV, exportToJSON } from '@l-kern/config';
 import styles from './TemplatePageDatagrid.module.css';
+
+// ============================================================
+// API CONFIGURATION
+// ============================================================
+
+/**
+ * Service endpoint configuration
+ *
+ * 🔧 CUSTOMIZATION:
+ * Update baseUrl to match your microservice (e.g., lkms105-issues, lkms102-contacts)
+ *
+ * NOTE: This is commented out as it's not used in the template directly.
+ * Uncomment and use when implementing actual API calls.
+ */
+// const SERVICE_ENDPOINTS = {
+//   baseUrl: 'http://localhost:4105/api',  // 🔧 UPDATE: Change port for your service
+// };
 
 // ============================================================
 // DATA TYPES
@@ -220,7 +236,7 @@ export function TemplatePageDatagrid() {
       width: 120,
       render: (value: string, row: TemplateItem) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {row.is_deleted && <span style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title="Deleted item">⚠️</span>}
+          {row.is_deleted && <span style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title={t('common.deletedItem')}>⚠️</span>}
           {value}
         </span>
       ),
@@ -521,19 +537,47 @@ export function TemplatePageDatagrid() {
           const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
           folder.file('item.csv', csvContent);
 
-          // 🔧 TODO: Download and add attachments when entity has attachments
-          // Example from Issues:
+          // Download and add attachments using serviceWorkflow
+          // 🔧 CUSTOMIZATION: Uncomment when entity has attachments field
           // if (!skipAttachments && item.attachments && item.attachments.length > 0) {
           //   const attachmentsFolder = folder.folder('attachments');
           //   for (const attachment of item.attachments) {
-          //     const response = await fetch(`${API_BASE_URL}/items/${item.id}/attachments/${attachment.file_name}`);
-          //     if (response.ok) {
-          //       const blob = await response.blob();
-          //       attachmentsFolder.file(attachment.file_name, blob);
-          //     } else if (response.status === 404) {
-          //       missingAttachments.push(`${item.id}: ${attachment.file_name}`);
-          //     } else if (response.status === 503) {
-          //       if (!minioErrors.includes(item.id)) minioErrors.push(item.id);
+          //     try {
+          //       // Use serviceWorkflow for attachment download with retry & MinIO health check
+          //       const result = await serviceWorkflow({
+          //         baseUrl: SERVICE_ENDPOINTS.baseUrl,
+          //         endpoint: `/items/${item.id}/attachments/${attachment.file_name}`,
+          //         method: 'GET',
+          //         healthChecks: {
+          //           ping: false,  // Skip ping (already checked once per export)
+          //           sql: false,   // Skip SQL (not needed for file download)
+          //           minio: true,  // Check MinIO (required for attachments)
+          //         },
+          //         debug: settings.logToConsole,      // Use global debug mode from sidebar
+          //         showToasts: true,                  // Show toast notifications (retry, errors)
+          //         language: language,                // Use current language for toasts
+          //         caller: 'TemplateExportZIP',
+          //       });
+          //
+          //       if (result.success) {
+          //         // Download successful - fetch blob and add to ZIP
+          //         const response = await fetch(`${SERVICE_ENDPOINTS.baseUrl}/items/${item.id}/attachments/${attachment.file_name}`);
+          //         if (response.ok) {
+          //           const blob = await response.blob();
+          //           attachmentsFolder?.file(attachment.file_name, blob);
+          //         }
+          //       } else {
+          //         // Handle errors from serviceWorkflow
+          //         if (result.errorCode === 'MINIO_UNAVAILABLE' || result.errorCode === 'MINIO_UNAVAILABLE_WITH_FILES') {
+          //           // MinIO down - track for error modal
+          //           if (!minioErrors.includes(item.id)) minioErrors.push(item.id);
+          //         } else if (result.statusCode === 404) {
+          //           // Attachment not found - track for error modal
+          //           missingAttachments.push(`${item.id}: ${attachment.file_name}`);
+          //         }
+          //       }
+          //     } catch (err) {
+          //       console.error(`[Template] Error downloading attachment ${attachment.file_name}:`, err);
           //     }
           //   }
           // }

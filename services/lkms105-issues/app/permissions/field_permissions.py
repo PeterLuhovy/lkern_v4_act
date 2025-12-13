@@ -57,7 +57,7 @@ ISSUE_FIELD_PERMISSIONS: List[FieldPermission] = [
     FieldPermission(field="status", view_level=1, edit_level=100),  # Super Admin only
 
     # === PEOPLE FIELDS ===
-    FieldPermission(field="reporter_id", view_level=60, edit_level=None),  # System field
+    FieldPermission(field="reporter_id", view_level=60, edit_level=100),  # Super Admin only can change
     FieldPermission(field="assignee_id", view_level=30, edit_level=70),  # Admin lvl 2+ (70+) can assign
 
     # === RESOLUTION ===
@@ -71,12 +71,12 @@ ISSUE_FIELD_PERMISSIONS: List[FieldPermission] = [
     # === ATTACHMENTS ===
     FieldPermission(field="attachments", view_level=30, edit_level=70),  # Admin lvl 2+ (70+) can manage
 
-    # === TIMESTAMPS (readonly for all) ===
-    FieldPermission(field="created_at", view_level=1, edit_level=None),
-    FieldPermission(field="updated_at", view_level=1, edit_level=None),
-    FieldPermission(field="resolved_at", view_level=1, edit_level=None),  # Everyone sees
-    FieldPermission(field="closed_at", view_level=1, edit_level=None),    # Everyone sees
-    FieldPermission(field="deleted_at", view_level=60, edit_level=None),  # Admin+ only
+    # === TIMESTAMPS (Super Admin can edit - level 100) ===
+    FieldPermission(field="created_at", view_level=1, edit_level=100),   # Super Admin only
+    FieldPermission(field="updated_at", view_level=1, edit_level=100),   # Super Admin only
+    FieldPermission(field="resolved_at", view_level=1, edit_level=100),  # Super Admin only
+    FieldPermission(field="closed_at", view_level=1, edit_level=100),    # Super Admin only
+    FieldPermission(field="deleted_at", view_level=60, edit_level=None), # Never editable (soft delete via API)
 ]
 
 

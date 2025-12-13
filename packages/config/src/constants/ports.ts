@@ -31,13 +31,14 @@ export const BUSINESS_SERVICE_PORTS = {
   ORDERS: 4102,              // lkms102-orders - Orders management API
   PARTS: 4103,               // lkms103-parts - Parts catalog API (planned)
   PACKING: 4104,             // lkms104-packing - Packing service API (planned)
-  DELIVERY: 4105,            // lkms105-delivery - Delivery service API (planned)
+  ISSUES: 4105,              // lkms105-issues - Issues management API (active)
   INVOICES: 4106,            // lkms106-invoices - Invoices service API (planned)
 } as const;
 
 // === DATA SERVICES (LKMS 500-599) ===
 export const DATA_SERVICE_PORTS = {
   POSTGRES: 4501,            // lkms501-postgres - PostgreSQL database
+  MINIO: 9000,               // lksp100-minio - MinIO object storage (active)
   REDIS: 4502,               // lkms502-redis - Redis cache (planned)
   ELASTICSEARCH: 4503,       // lkms503-elasticsearch - Search engine (planned)
 } as const;

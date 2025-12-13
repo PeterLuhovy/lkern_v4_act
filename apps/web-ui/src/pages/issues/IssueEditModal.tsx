@@ -3,9 +3,22 @@
  * FILE: IssueEditModal.tsx
  * PATH: /apps/web-ui/src/pages/Issues/IssueEditModal.tsx
  * DESCRIPTION: Modal for editing issue sections (description, resolution, overview, developerInfo, people)
- * VERSION: v1.8.0
+ * VERSION: v2.0.0
  * CREATED: 2025-11-29
- * UPDATED: 2025-11-29
+ * UPDATED: 2025-12-09
+ *
+ * CHANGES (v2.0.0):
+ *   - ADDED: Pessimistic locking - acquires lock on open, releases on close
+ *   - Uses useLocking hook with serviceWorkflow for automatic retry and health checks
+ *
+ * CHANGES (v1.9.1):
+ *   - FIXED: issue_code field was incorrectly excluded from PUT updates
+ *   - issue_code can now be edited by users with sufficient permissions
+ *
+ * CHANGES (v1.9.0):
+ *   - FIXED: Now sends only CHANGED fields in PUT request (not all editable fields)
+ *   - ADDED: Skip save call if no changes detected (just close modal)
+ *   - IMPROVED: Compare current values with original issue values before including in updates
  *
  * CHANGES (v1.8.0):
  *   - ADDED: People section for editing assignee_id
@@ -49,14 +62,11 @@ import { Modal, Button, FormField, Input, Textarea, Select, SelectOption, Confir
 import {
   useTranslation,
   useFormDirty,
-  useAuth,
-  useIssueFieldPermissions,
   useAuthContext,
   canEditField as canEditFieldFromConfig,
   getFieldAccess,
-  SUPER_ADMIN_LEVEL,
+  SERVICE_ENDPOINTS,
 } from '@l-kern/config';
-import type { PermissionContext } from '@l-kern/config';
 import styles from './IssueEditModal.module.css';
 
 /**
@@ -182,13 +192,25 @@ interface MockContact {
   position: string;
 }
 
+// NOTE: UUIDs must be valid UUID v4 format (13th char = '4', 17th char = '8/9/a/b')
 const MOCK_CONTACTS: MockContact[] = [
   { id: '', name: '— Nepriradené —', position: '' },
-  { id: '11111111-1111-1111-1111-111111111111', name: 'Ján Novák', position: 'Senior Developer' },
-  { id: '22222222-2222-2222-2222-222222222222', name: 'Mária Kováčová', position: 'Team Lead' },
-  { id: '33333333-3333-3333-3333-333333333333', name: 'Peter Horváth', position: 'QA Engineer' },
-  { id: '44444444-4444-4444-4444-444444444444', name: 'Anna Szabóová', position: 'Product Manager' },
+  { id: '11111111-1111-4111-8111-111111111111', name: 'Ján Novák', position: 'Senior Developer' },
+  { id: '22222222-2222-4222-8222-222222222222', name: 'Mária Kováčová', position: 'Team Lead' },
+  { id: '33333333-3333-4333-8333-333333333333', name: 'Peter Horváth', position: 'QA Engineer' },
+  { id: '44444444-4444-4444-8444-444444444444', name: 'Anna Szabóová', position: 'Product Manager' },
 ];
+
+/**
+ * Format datetime string for HTML datetime-local input.
+ * Database returns microseconds (6 decimals): 2025-12-04T10:51:28.540982
+ * HTML input accepts max milliseconds (3 decimals): 2025-12-04T10:51:28.540
+ */
+function formatDateTimeForInput(datetime: string | null | undefined): string {
+  if (!datetime) return '';
+  // Truncate to max 23 chars: yyyy-MM-ddThh:mm:ss.SSS
+  return datetime.slice(0, 23);
+}
 
 // ============================================================
 // COMPONENT
@@ -203,7 +225,6 @@ export function IssueEditModal({
   parentModalId,
 }: IssueEditModalProps) {
   const { t } = useTranslation();
-  const { user } = useAuth();
 
   // ============================================================
   // PERMISSION LEVEL FROM GLOBAL CONTEXT
@@ -315,6 +336,7 @@ export function IssueEditModal({
   const [updatedAt, setUpdatedAt] = useState('');
   const [resolvedAt, setResolvedAt] = useState('');
   const [closedAt, setClosedAt] = useState('');
+  const [timelineError, setTimelineError] = useState<string | null>(null);
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
@@ -494,10 +516,11 @@ export function IssueEditModal({
           assigneeId: assId,
         });
       } else if (section === 'timeline') {
-        const created = issue.created_at || '';
-        const updated = issue.updated_at || '';
-        const resolved = issue.resolved_at || '';
-        const closed = issue.closed_at || '';
+        // Format datetime for HTML input (truncate microseconds to milliseconds)
+        const created = formatDateTimeForInput(issue.created_at);
+        const updated = formatDateTimeForInput(issue.updated_at);
+        const resolved = formatDateTimeForInput(issue.resolved_at);
+        const closed = formatDateTimeForInput(issue.closed_at);
         setCreatedAt(created);
         setUpdatedAt(updated);
         setResolvedAt(resolved);
@@ -510,7 +533,8 @@ export function IssueEditModal({
         });
       }
     }
-  }, [isOpen, issue, section]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, issue?.id, section]);
 
   // ============================================================
   // CLOSE HANDLER (with dirty check)
@@ -579,6 +603,49 @@ export function IssueEditModal({
 
   const translatedTitleError = titleError ? t(titleError) : undefined;
 
+  // Timeline validation (logical date order)
+  const validateTimeline = (): string | null => {
+    // Parse dates (empty string = null)
+    const created = createdAt ? new Date(createdAt) : null;
+    const updated = updatedAt ? new Date(updatedAt) : null;
+    const resolved = resolvedAt ? new Date(resolvedAt) : null;
+    const closed = closedAt ? new Date(closedAt) : null;
+
+    // Check: created_at must be before or equal to updated_at
+    if (created && updated && created > updated) {
+      const error = t('pages.issues.validation.createdAfterUpdated');
+      setTimelineError(error);
+      return error;
+    }
+
+    // Check: created_at must be before or equal to resolved_at
+    if (created && resolved && created > resolved) {
+      const error = t('pages.issues.validation.createdAfterResolved');
+      setTimelineError(error);
+      return error;
+    }
+
+    // Check: created_at must be before or equal to closed_at
+    if (created && closed && created > closed) {
+      const error = t('pages.issues.validation.createdAfterClosed');
+      setTimelineError(error);
+      return error;
+    }
+
+    // Check: resolved_at must be before or equal to closed_at (if both set)
+    if (resolved && closed && resolved > closed) {
+      const error = t('pages.issues.validation.resolvedAfterClosed');
+      setTimelineError(error);
+      return error;
+    }
+
+    // Check: updated_at should be >= created_at (already covered above)
+    // Check: updated_at should be >= resolved_at and >= closed_at (these are auto-set, less strict)
+
+    setTimelineError(null);
+    return null;
+  };
+
   // ============================================================
   // SAVE HANDLER
   // ============================================================
@@ -587,6 +654,10 @@ export function IssueEditModal({
     // Validate if needed
     if (section === 'description') {
       const error = validateDescription(description);
+      if (error) return;
+    }
+    if (section === 'timeline') {
+      const error = validateTimeline();
       if (error) return;
     }
     if (section === 'overview') {
@@ -600,52 +671,90 @@ export function IssueEditModal({
       const updates: Partial<Issue> = {};
 
       if (section === 'description') {
-        updates.description = description;
+        // Only include if changed
+        if (description !== issue.description) {
+          updates.description = description;
+        }
       } else if (section === 'resolution') {
-        updates.resolution = resolution;
+        // Only include if changed
+        if (resolution !== (issue.resolution || '')) {
+          updates.resolution = resolution;
+        }
       } else if (section === 'overview') {
-        // Only include fields that the permission level allows to edit
-        if (canEditField('id')) {
-          updates.id = issueId;
-        }
-        if (canEditField('issue_code')) {
-          updates.issue_code = issueCode;
-        }
-        if (canEditField('title')) {
+        // Only include fields that CHANGED and permission level allows to edit
+        // Compare with original values to send only dirty fields
+        if (canEditField('title') && title !== issue.title) {
           updates.title = title;
         }
-        if (canEditField('type')) {
+        if (canEditField('type') && type.toLowerCase() !== issue.type.toLowerCase()) {
           updates.type = type.toLowerCase() as IssueType;
         }
-        if (canEditField('severity')) {
+        if (canEditField('severity') && severity.toLowerCase() !== issue.severity.toLowerCase()) {
           updates.severity = severity.toLowerCase() as IssueSeverity;
         }
-        if (canEditField('status')) {
+        if (canEditField('status') && status.toLowerCase() !== issue.status.toLowerCase()) {
           updates.status = status.toLowerCase() as IssueStatus;
         }
-        if (canEditField('priority')) {
+        if (canEditField('priority') && priority.toLowerCase() !== issue.priority.toLowerCase()) {
           updates.priority = priority.toLowerCase() as IssuePriority;
         }
-        if (canEditField('category')) {
+        if (canEditField('category') && (category || '').toLowerCase() !== (issue.category || '').toLowerCase()) {
           updates.category = category ? category.toLowerCase() : undefined;
         }
+        // issue_code can be edited by users with sufficient permissions
+        if (canEditField('issue_code') && issueCode !== issue.issue_code) {
+          updates.issue_code = issueCode;
+        }
+        // Note: id is never changed in PUT (it's the database identifier)
       } else if (section === 'developerInfo') {
-        updates.error_type = errorType || undefined;
-        updates.error_message = errorMessage || undefined;
-        updates.system_info = {
-          ...issue.system_info,
-          browser: browser || undefined,
-          os: os || undefined,
-          url: url || undefined,
-        };
+        // Only include changed fields
+        if ((errorType || '') !== (issue.error_type || '')) {
+          updates.error_type = errorType || undefined;
+        }
+        if ((errorMessage || '') !== (issue.error_message || '')) {
+          updates.error_message = errorMessage || undefined;
+        }
+        // Check if system_info fields changed
+        const origSysInfo = issue.system_info || {};
+        if ((browser || '') !== (origSysInfo.browser || '') ||
+            (os || '') !== (origSysInfo.os || '') ||
+            (url || '') !== (origSysInfo.url || '')) {
+          updates.system_info = {
+            ...issue.system_info,
+            browser: browser || undefined,
+            os: os || undefined,
+            url: url || undefined,
+          };
+        }
       } else if (section === 'people') {
-        updates.reporter_id = reporterId || undefined;
-        updates.assignee_id = assigneeId || undefined;
+        // Only include changed fields
+        if ((reporterId || '') !== (issue.reporter_id || '')) {
+          updates.reporter_id = reporterId || undefined;
+        }
+        if ((assigneeId || '') !== (issue.assignee_id || '')) {
+          updates.assignee_id = assigneeId || undefined;
+        }
       } else if (section === 'timeline') {
-        updates.created_at = createdAt || undefined;
-        updates.updated_at = updatedAt || undefined;
-        updates.resolved_at = resolvedAt || undefined;
-        updates.closed_at = closedAt || undefined;
+        // Only include changed fields (compare formatted values)
+        if ((createdAt || '') !== formatDateTimeForInput(issue.created_at)) {
+          updates.created_at = createdAt || undefined;
+        }
+        if ((updatedAt || '') !== formatDateTimeForInput(issue.updated_at)) {
+          updates.updated_at = updatedAt || undefined;
+        }
+        if ((resolvedAt || '') !== formatDateTimeForInput(issue.resolved_at)) {
+          updates.resolved_at = resolvedAt || undefined;
+        }
+        if ((closedAt || '') !== formatDateTimeForInput(issue.closed_at)) {
+          updates.closed_at = closedAt || undefined;
+        }
+      }
+
+      // Only call save if there are actual changes
+      if (Object.keys(updates).length === 0) {
+        // No changes - just close
+        onClose();
+        return;
       }
 
       // Send raw permission level (0-100) to backend for proper super admin detection
@@ -1079,19 +1188,42 @@ export function IssueEditModal({
           </div>
         );
 
-      case 'timeline':
+      case 'timeline': {
+        // Calculate min/max for datetime inputs (prevent illogical date selection)
+        // created_at: max = earliest of (updated, resolved, closed)
+        const createdMax = [updatedAt, resolvedAt, closedAt]
+          .filter(Boolean)
+          .sort()[0] || undefined;
+
+        // updated_at: min = created_at
+        const updatedMin = createdAt || undefined;
+
+        // resolved_at: min = created_at, max = closed_at
+        const resolvedMin = createdAt || undefined;
+        const resolvedMax = closedAt || undefined;
+
+        // closed_at: min = latest of (created, resolved)
+        const closedMin = [createdAt, resolvedAt]
+          .filter(Boolean)
+          .sort()
+          .reverse()[0] || undefined;
+
         return (
           <div className={styles.stack}>
             <div className={styles.grid}>
               <FormField
                 label={t('pages.issues.details.created_at')}
                 value={createdAt}
-                onChange={(e) => setCreatedAt(e.target.value)}
+                onChange={(e) => {
+                  setCreatedAt(e.target.value);
+                  setTimelineError(null);
+                }}
                 htmlFor="edit-created-at"
               >
                 <Input
                   id="edit-created-at"
                   type="datetime-local"
+                  max={createdMax}
                   fullWidth
                 />
               </FormField>
@@ -1099,12 +1231,16 @@ export function IssueEditModal({
               <FormField
                 label={t('pages.issues.details.updated')}
                 value={updatedAt}
-                onChange={(e) => setUpdatedAt(e.target.value)}
+                onChange={(e) => {
+                  setUpdatedAt(e.target.value);
+                  setTimelineError(null);
+                }}
                 htmlFor="edit-updated-at"
               >
                 <Input
                   id="edit-updated-at"
                   type="datetime-local"
+                  min={updatedMin}
                   fullWidth
                 />
               </FormField>
@@ -1114,12 +1250,17 @@ export function IssueEditModal({
               <FormField
                 label={t('pages.issues.details.resolved')}
                 value={resolvedAt}
-                onChange={(e) => setResolvedAt(e.target.value)}
+                onChange={(e) => {
+                  setResolvedAt(e.target.value);
+                  setTimelineError(null);
+                }}
                 htmlFor="edit-resolved-at"
               >
                 <Input
                   id="edit-resolved-at"
                   type="datetime-local"
+                  min={resolvedMin}
+                  max={resolvedMax}
                   fullWidth
                 />
               </FormField>
@@ -1127,18 +1268,30 @@ export function IssueEditModal({
               <FormField
                 label={t('pages.issues.details.closed')}
                 value={closedAt}
-                onChange={(e) => setClosedAt(e.target.value)}
+                onChange={(e) => {
+                  setClosedAt(e.target.value);
+                  setTimelineError(null);
+                }}
                 htmlFor="edit-closed-at"
               >
                 <Input
                   id="edit-closed-at"
                   type="datetime-local"
+                  min={closedMin}
                   fullWidth
                 />
               </FormField>
             </div>
+
+            {/* Timeline validation error */}
+            {timelineError && (
+              <div className={styles.errorMessage}>
+                <span role="img" aria-hidden="true">⚠️</span> {timelineError}
+              </div>
+            )}
           </div>
         );
+      }
 
       case 'activity':
         return (
@@ -1178,15 +1331,21 @@ export function IssueEditModal({
         title={getTitle()}
         size="md"
         maxWidth="600px"
+        locking={{
+          enabled: true,
+          recordId: issue.id,
+          lockApiUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+          lockApiPrefix: '/issues',
+        }}
       >
         <div className={styles.content}>
           {renderContent()}
         </div>
         <div className={styles.footer}>
-          <Button variant="secondary" onClick={handleCloseAttempt} disabled={isSaving}>
+          <Button type="button" variant="secondary" onClick={handleCloseAttempt} disabled={isSaving}>
             {t('common.cancel')}
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isSaveDisabled} loading={isSaving}>
+          <Button type="submit" variant="primary" onClick={handleSave} disabled={isSaveDisabled} loading={isSaving}>
             {t('common.save')}
           </Button>
         </div>

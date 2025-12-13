@@ -74,6 +74,19 @@ export {
 // Export utilities
 export { exportToCSV, exportToJSON } from './exportUtils';
 
+// Export file utility - configurable file export with automatic/Save As dialog
+export {
+  exportFile,
+  prepareExportDestination,
+  writeToFileHandle,
+  triggerAutomaticDownload,
+  type ExportBehavior,
+  type ExportFileOptions,
+  type ExportFileResult,
+  type PrepareExportOptions,
+  type PrepareExportResult,
+} from './exportFile';
+
 // Storage operations - universal validated CRUD with health checks
 export {
   // Types
@@ -124,3 +137,24 @@ export {
   type RetryConfig as ServiceRetryConfig,
   type RetryResult,
 } from './serviceRetry';
+
+// Service workflow - universal workflow for all microservices
+export {
+  serviceWorkflow,
+  clearHealthCheckCache,
+  getErrorMessage,
+  // Data integrity utilities
+  createDataIntegrityEvent,
+  reportDataIntegrityIssue,
+  defaultDataIntegrityHandler,
+  type ServiceWorkflowConfig,
+  type ServiceWorkflowResult,
+  type ServiceWorkflowErrorCode,
+  type ServiceWorkflowMessages,
+  type ServiceWorkflowCallbacks,
+  type HealthCheckConfig,
+  type VerificationConfig,
+  type DeleteVerificationConfig,
+  type DataIntegrityEvent,
+  type DataIntegrityIssueType,
+} from './serviceWorkflow';

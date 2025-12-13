@@ -5,10 +5,12 @@
  * DESCRIPTION: Standalone workflow for creating issues with health checks,
  *              validation, verification and comprehensive debug logging.
  *              This module is UI-agnostic - returns results for UI to handle.
- * VERSION: v1.7.0
+ * VERSION: v1.9.0
  * CREATED: 2025-11-30
- * UPDATED: 2025-11-30
+ * UPDATED: 2025-12-04
  * CHANGELOG:
+ *   v1.9.0 - Fixed: Skip MinIO check when SQL is down (no misleading "All retries failed" for MinIO)
+ *   v1.8.0 - Use SERVICE_ENDPOINTS from @l-kern/config (supports Docker/localhost)
  *   v1.7.0 - Added 3x retry logic for MinIO when user has files (before showing modal)
  *   v1.6.0 - Return MINIO_UNAVAILABLE_WITH_FILES when MinIO down + user has files (show modal)
  *   v1.5.0 - Fixed: call /health ONCE instead of twice (SQL+MinIO in single response)
@@ -18,7 +20,7 @@
  * ================================================================
  */
 
-import { executeWithRetry, type ServiceCallResult, type RetryCallbacks } from '@l-kern/config';
+import { executeWithRetry, type ServiceCallResult, type RetryCallbacks, SERVICE_ENDPOINTS } from '@l-kern/config';
 
 // ============================================================
 // TYPES
@@ -138,7 +140,8 @@ export interface WorkflowOptions {
 // CONFIGURATION
 // ============================================================
 
-const API_BASE_URL = 'http://localhost:4105';
+// Use SERVICE_ENDPOINTS from @l-kern/config (supports Docker/localhost)
+const API_BASE_URL = SERVICE_ENDPOINTS.issues.baseUrl;
 const PING_TIMEOUT = 5000;    // 5s - timeout for each ping attempt
 const HEALTH_TIMEOUT = 10000; // 10s - full health check (backend has 5s MinIO timeout)
 const VERIFY_TIMEOUT = 5000;
@@ -219,7 +222,7 @@ export async function performHealthCheck(): Promise<HealthCheckResult> {
 
     // Parse response body even for non-200 status codes
     // The service IS running if we got a response (even 503)
-    let data: any = {};
+    let data: Record<string, unknown> = {};
     try {
       data = await response.json();
     } catch {
@@ -343,17 +346,12 @@ async function performHealthCheckWithRetry(
   log('✅ Issues Service is alive');
 
   // ─────────────────────────────────────────────────────────────────
-  // STEP 2: Check Dependencies (SQL + MinIO in ONE call)
+  // STEP 2: Check SQL Database (with retry)
   // ─────────────────────────────────────────────────────────────────
-  // Backend /health returns both SQL and MinIO status in single response
-  // No need to call twice - just parse both from same response
+  // Check SQL first. If SQL fails, skip MinIO check (no point saving
+  // attachments without database record).
 
-  interface HealthResponse {
-    sql: ServiceHealth;
-    minio: ServiceHealth;
-  }
-
-  const healthServiceCall = async (): Promise<ServiceCallResult<HealthResponse>> => {
+  const sqlServiceCall = async (): Promise<ServiceCallResult<ServiceHealth>> => {
     const startTime = performance.now();
     try {
       const response = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
@@ -361,22 +359,13 @@ async function performHealthCheckWithRetry(
       const data = await response.json();
 
       const sqlStatus = data.dependencies?.sql?.status === 'healthy' ? 'healthy' : 'unhealthy';
-      const minioStatus = data.dependencies?.minio?.status === 'healthy' ? 'healthy' : 'unhealthy';
 
-      // Success = SQL is healthy (MinIO is optional)
       return {
         success: sqlStatus === 'healthy',
         data: {
-          sql: {
-            status: sqlStatus,
-            responseTime: data.dependencies?.sql?.responseTime || responseTime,
-            error: data.dependencies?.sql?.error,
-          },
-          minio: {
-            status: minioStatus,
-            responseTime: data.dependencies?.minio?.responseTime || responseTime,
-            error: data.dependencies?.minio?.error,
-          },
+          status: sqlStatus,
+          responseTime: data.dependencies?.sql?.responseTime || responseTime,
+          error: data.dependencies?.sql?.error,
         },
         responseTime,
       };
@@ -389,38 +378,85 @@ async function performHealthCheckWithRetry(
     }
   };
 
-  const healthCallbacks: RetryCallbacks = {
+  const sqlCallbacks: RetryCallbacks = {
     onTakingLonger,
     onRetry,
     onAllRetriesFailed: onServiceDown,
   };
 
-  log('🔍 Checking dependencies (SQL + MinIO)...');
-  const healthResult = await executeWithRetry(
-    healthServiceCall,
+  log('🔍 Checking SQL Database...');
+  const sqlResult = await executeWithRetry(
+    sqlServiceCall,
     {
-      serviceName: 'Dependencies',
+      serviceName: 'SQL Database',
       maxRetries: HEALTH_RETRY_COUNT,
       takingLongerDelay: TAKING_LONGER_DELAY,
-      attemptTimeout: HEALTH_TIMEOUT,  // 10s - backend has 5s MinIO timeout
+      attemptTimeout: HEALTH_TIMEOUT,
       retryDelay: HEALTH_RETRY_DELAY,
       debug: debugEnabled,
     },
-    healthCallbacks
+    sqlCallbacks
   );
 
-  // Parse results
-  const sqlHealth: ServiceHealth = healthResult.data?.sql
-    ?? { status: 'unhealthy', responseTime: healthResult.totalTime, error: healthResult.error };
+  // Parse SQL result
+  const sqlHealth: ServiceHealth = sqlResult.data
+    ?? { status: 'unhealthy', responseTime: sqlResult.totalTime, error: sqlResult.error };
 
-  const minioHealth: ServiceHealth = healthResult.data?.minio
-    ?? { status: 'unhealthy', responseTime: healthResult.totalTime, error: healthResult.error };
-
-  if (sqlHealth.status === 'healthy') {
-    log('✅ SQL Database is healthy');
-  } else {
+  // If SQL is down, skip MinIO check entirely
+  if (sqlHealth.status !== 'healthy') {
     log(`❌ SQL Database is unhealthy: ${sqlHealth.error}`);
+    log('⏭️ MinIO check skipped (SQL unavailable - no point checking storage without database)');
+
+    const totalTime = Math.round(performance.now() - overallStartTime);
+    return {
+      issuesService: { status: 'healthy', responseTime: pingResult.totalTime },
+      sql: sqlHealth,
+      minio: { status: 'unknown', error: 'Check skipped - SQL unavailable' },
+      overall: 'unhealthy',
+      totalTime,
+    };
   }
+
+  log('✅ SQL Database is healthy');
+
+  // ─────────────────────────────────────────────────────────────────
+  // STEP 3: Check MinIO Storage (only if SQL is healthy)
+  // ─────────────────────────────────────────────────────────────────
+  // MinIO is optional - workflow can continue without it (no file uploads)
+
+  const minioServiceCall = async (): Promise<ServiceCallResult<ServiceHealth>> => {
+    const startTime = performance.now();
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+      const responseTime = Math.round(performance.now() - startTime);
+      const data = await response.json();
+
+      const minioStatus = data.dependencies?.minio?.status === 'healthy' ? 'healthy' : 'unhealthy';
+
+      return {
+        success: minioStatus === 'healthy',
+        data: {
+          status: minioStatus,
+          responseTime: data.dependencies?.minio?.responseTime || responseTime,
+          error: data.dependencies?.minio?.error,
+        },
+        responseTime,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        responseTime: Math.round(performance.now() - startTime),
+      };
+    }
+  };
+
+  // MinIO check: single attempt only (no retry - it's optional)
+  log('🔍 Checking MinIO Storage...');
+  const minioStartTime = performance.now();
+  const minioCallResult = await minioServiceCall();
+  const minioHealth: ServiceHealth = minioCallResult.data
+    ?? { status: 'unhealthy', responseTime: Math.round(performance.now() - minioStartTime), error: minioCallResult.error };
 
   if (minioHealth.status === 'healthy') {
     log('✅ MinIO Storage is healthy');
@@ -956,7 +992,12 @@ export async function createIssueWorkflow(
     };
   }
 
-  const issue = apiResult.data!;
+  // TypeScript guard: apiResult.data should exist at this point (checked above)
+  if (!apiResult.data) {
+    throw new Error('API returned success but no data');
+  }
+
+  const issue = apiResult.data;
   const filesUploaded = !!(hasFiles && minioAvailable && !skipFiles);
 
   log(`✅ Created: ${issue.issue_code}`);

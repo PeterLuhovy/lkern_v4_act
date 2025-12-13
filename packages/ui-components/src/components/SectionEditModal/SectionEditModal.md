@@ -2,9 +2,9 @@
 # SectionEditModal
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\SectionEditModal\SectionEditModal.md
-# Version: 1.0.0
+# Version: 1.1.0
 # Created: 2025-11-01
-# Updated: 2025-11-01
+# Updated: 2025-12-07
 # Source: packages/ui-components/src/components/SectionEditModal/SectionEditModal.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -41,6 +41,11 @@ SectionEditModal is a powerful form builder component that dynamically generates
 - ✅ **Translation Support** - Full SK/EN support via useTranslation
 - ✅ **Nested Modals** - Works with parentModalId for modal stacking
 - ✅ **Responsive** - 3 sizes (sm, md, lg)
+- ✅ **Pessimistic Locking** (v1.1.0) - Prevents concurrent editing conflicts
+  - Auto-acquires lock when modal opens
+  - Read-only mode when locked by another user
+  - Lock banner showing who is editing
+  - Auto-releases lock on close/save
 
 ---
 
@@ -200,6 +205,18 @@ const fields: FieldDefinition[] = [
 | `showClearButton` | `boolean` | `true` | No | Show "Clear Form" button in footer left slot |
 | `saveText` | `string` | `t('common.save')` | No | Custom save button text |
 | `cancelText` | `string` | `t('common.cancel')` | No | Custom cancel button text |
+
+**Pessimistic Locking Props** (v1.1.0):
+
+| Prop | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| `recordId` | `string \| number` | - | No* | Record ID for locking (* required for locking) |
+| `lockApiUrl` | `string` | - | No* | API base URL for lock endpoints (e.g., '/api/issues') |
+| `lockInfo` | `LockInfo` | - | No | Pre-populated lock info from GET response |
+| `onLockAcquired` | `() => void` | - | No | Callback when lock is acquired |
+| `onLockConflict` | `(lockInfo: LockInfo) => void` | - | No | Callback when lock conflict occurs |
+| `onLockReleased` | `() => void` | - | No | Callback when lock is released |
+| `readOnly` | `boolean` | `false` | No | Force read-only mode |
 
 ### Type Definitions
 
@@ -934,6 +951,16 @@ const fields: FieldDefinition[] = [
 ---
 
 ## Changelog
+
+### v1.1.0 (2025-12-07)
+- 🔐 **Pessimistic Locking** - Prevents concurrent editing conflicts
+  - Auto-acquires lock via `POST /{id}/lock` when modal opens
+  - Auto-releases lock via `DELETE /{id}/lock` on close/save
+  - Read-only mode when another user has the lock
+  - Lock banner shows who is editing and since when
+  - New props: `recordId`, `lockApiUrl`, `lockInfo`, `onLockAcquired`, `onLockConflict`, `onLockReleased`, `readOnly`
+  - New CSS: `.lockBanner`, `.lockIcon`, `.lockLoading`, `.readOnly`
+- ✅ Full translation support for locking messages (SK/EN)
 
 ### v1.0.0 (2025-11-01)
 - 🎉 Initial release

@@ -3,8 +3,8 @@
  * FILE: index.ts
  * PATH: packages/config/src/constants/index.ts
  * DESCRIPTION: Main constants export file
- * VERSION: v1.1.1
- * UPDATED: 2025-10-19
+ * VERSION: v1.3.0
+ * UPDATED: 2025-12-04
  * ================================================================
  */
 
@@ -14,7 +14,7 @@ export * from './ports';
 // API configuration
 export * from './api-config';
 
-// Service metadata
+// Service registry (URLs, health endpoints)
 export * from './services';
 
 // Design tokens
@@ -28,3 +28,6 @@ export * from './phone-configs';
 
 // Professional icon set (Unicode symbols)
 export * from './icons';
+
+// System constants (SYSTEM_USER_ID for auto-generated entities)
+export * from './system-constants';

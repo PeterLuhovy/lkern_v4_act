@@ -13,7 +13,6 @@
 import { useState, useCallback, useRef } from 'react';
 import type {
   StorageConfig,
-  StorageType,
   OperationType,
   OperationPhase,
   OperationRequest,

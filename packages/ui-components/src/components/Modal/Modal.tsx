@@ -3,8 +3,8 @@
  * FILE: Modal.tsx
  * PATH: /packages/ui-components/src/components/Modal/Modal.tsx
  * DESCRIPTION: Production modal component with v3 enhanced features
- * VERSION: v3.8.0
- * UPDATED: 2025-10-19 17:00:00
+ * VERSION: v4.1.0
+ * UPDATED: 2025-12-09 12:00:00
  *
  * FEATURES (v3 enhancements):
  *   - Drag & Drop: Modal can be dragged by header
@@ -12,6 +12,14 @@
  *   - Enhanced Footer: Left slot (delete) + Right slot (cancel/confirm) + error message
  *   - Alignment: top/center/bottom positioning
  *   - Padding Override: Custom overlay padding for nested modals
+ *
+ * FEATURES (v4.0.0+ - Pessimistic Locking):
+ *   - Optional locking support (disabled by default)
+ *   - Automatic lock acquisition on modal open
+ *   - Read-only mode when locked by another user
+ *   - Lock banner showing who is editing
+ *   - Automatic lock release on modal close
+ *   - v4.1.0: Uses serviceWorkflow with automatic retry (3x), health checks, logging
  *
  * KEYBOARD SHORTCUTS (HYBRID APPROACH - v3.2.0+):
  *   - Modal handles ESC and Enter locally (separation of concerns)
@@ -21,6 +29,10 @@
  *   - BasePage only handles global shortcuts (Ctrl+D, Ctrl+L)
  *
  * CHANGES:
+ *   - v4.1.0: Lock/unlock now uses useLocking hook with serviceWorkflow
+ *             (automatic retry 3x, health checks, comprehensive logging)
+ *   - v4.0.0: Added pessimistic locking support (disabled by default)
+ *   - v3.8.1: Fixed unsaved changes confirm modal using proper translations
  *   - v3.7.0: CRITICAL - Fixed 2 memory leaks (drag listeners + keyboard listener churn)
  *   - v3.6.0: Enter closes modal when no onConfirm (same as ESC)
  *   - v3.5.0: Enhanced input field handling - ESC/Enter blur input instead of modal action
@@ -35,7 +47,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation, useTheme, modalStack, usePageAnalytics, useConfirm, useAnalyticsContext } from '@l-kern/config';
+import { useTranslation, useTheme, modalStack, usePageAnalytics, useConfirm, useAnalyticsContext, useLocking, useAuthContext, SUPER_ADMIN_LEVEL, serviceWorkflow } from '@l-kern/config';
 import { DebugBar } from '../DebugBar';
 import { ConfirmModal } from '../ConfirmModal';
 import styles from './Modal.module.css';
@@ -56,6 +68,82 @@ export interface ModalFooterConfig {
    * Right side content (typically cancel + confirm buttons)
    */
   right?: React.ReactNode;
+}
+
+/**
+ * Lock information for pessimistic locking
+ */
+export interface LockInfo {
+  /**
+   * Whether the record is locked by another user
+   */
+  isLocked: boolean;
+
+  /**
+   * User ID of the lock holder
+   */
+  lockedById?: string;
+
+  /**
+   * Display name of the lock holder
+   */
+  lockedByName?: string;
+
+  /**
+   * ISO timestamp when lock was acquired
+   */
+  lockedAt?: string;
+}
+
+/**
+ * Locking configuration for Modal
+ * All locking is DISABLED by default - must explicitly enable
+ */
+export interface ModalLockingConfig {
+  /**
+   * Enable pessimistic locking for this modal
+   * @default false
+   */
+  enabled: boolean;
+
+  /**
+   * Record ID to lock (required when enabled)
+   */
+  recordId?: string | number;
+
+  /**
+   * API base URL for health checks (e.g., 'http://localhost:4105')
+   */
+  lockApiUrl?: string;
+
+  /**
+   * API prefix for lock endpoints (e.g., '/issues')
+   * Endpoints used:
+   * - POST {lockApiUrl}{lockApiPrefix}/{recordId}/lock - acquire lock
+   * - DELETE {lockApiUrl}{lockApiPrefix}/{recordId}/lock - release lock
+   */
+  lockApiPrefix?: string;
+
+  /**
+   * Pre-populated lock info (from parent component GET response)
+   * If provided with isLocked=true, modal skips lock acquisition
+   */
+  lockInfo?: LockInfo;
+
+  /**
+   * Callback when lock is successfully acquired
+   */
+  onLockAcquired?: () => void;
+
+  /**
+   * Callback when lock acquisition fails (conflict - someone else is editing)
+   */
+  onLockConflict?: (lockInfo: LockInfo) => void;
+
+  /**
+   * Callback when lock is released
+   */
+  onLockReleased?: () => void;
 }
 
 export interface ModalProps {
@@ -196,6 +284,42 @@ export interface ModalProps {
    * @example 'headerBug', 'headerFeature'
    */
   headerClassName?: string;
+
+  /**
+   * Pessimistic locking configuration
+   * DISABLED by default - must set locking.enabled = true to use
+   *
+   * @example Basic locking
+   * ```tsx
+   * <Modal
+   *   locking={{
+   *     enabled: true,
+   *     recordId: contact.id,
+   *     lockApiUrl: '/api/contacts',
+   *   }}
+   * />
+   * ```
+   *
+   * @example With callbacks
+   * ```tsx
+   * <Modal
+   *   locking={{
+   *     enabled: true,
+   *     recordId: contact.id,
+   *     lockApiUrl: '/api/contacts',
+   *     onLockAcquired: () => console.log('Lock acquired'),
+   *     onLockConflict: (info) => toast.error(`Locked by ${info.lockedByName}`),
+   *   }}
+   * />
+   * ```
+   */
+  locking?: ModalLockingConfig;
+
+  /**
+   * Callback when lock status changes (locked by other user)
+   * Modal children can use this to disable editing
+   */
+  onLockStatusChange?: (isLockedByOther: boolean) => void;
 }
 
 // === HELPER FUNCTIONS ===
@@ -312,6 +436,9 @@ export const Modal: React.FC<ModalProps> = ({
   showDebugBar = true,
   pageName,
   headerClassName,
+  // Locking (disabled by default)
+  locking,
+  onLockStatusChange,
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -335,13 +462,15 @@ export const Modal: React.FC<ModalProps> = ({
   // Analytics for DebugBar (modal context)
   const analytics = usePageAnalytics(pageName || modalId, 'modal');
 
-  // Try to get showDebugBarModal from AnalyticsContext (sidebar toggle)
+  // Try to get settings from AnalyticsContext (sidebar toggles)
   let contextShowDebugBarModal = true;
+  let contextLogIssueWorkflow = false;
   try {
     const analyticsContext = useAnalyticsContext();
     contextShowDebugBarModal = analyticsContext.settings.showDebugBarModal;
+    contextLogIssueWorkflow = analyticsContext.settings.logIssueWorkflow;
   } catch {
-    // AnalyticsContext not available, use prop value
+    // AnalyticsContext not available, use default values
   }
 
   // Final effectiveShowDebugBar = prop AND context (both must be true)
@@ -354,6 +483,235 @@ export const Modal: React.FC<ModalProps> = ({
   // console.log('[Modal] Component render, modalId:', modalId, 'hasUnsavedChanges:', hasUnsavedChanges);
 
   // ================================================================
+  // LOCKING STATE (using useLocking hook with serviceWorkflow)
+  // ================================================================
+
+  // Get user info from AuthContext for lock operations
+  const { user, permissionLevel } = useAuthContext();
+
+  // Check if locking is enabled
+  const lockingEnabled = locking?.enabled === true;
+
+  // Use useLocking hook for lock operations with serviceWorkflow
+  // (automatic retry, health checks, comprehensive logging)
+  const {
+    acquireLock,
+    releaseLock,
+    lockState,
+    resetState: resetLockState,
+  } = useLocking({
+    baseUrl: locking?.lockApiUrl || '',
+    apiPrefix: locking?.lockApiPrefix || '',
+    // User info for backend permission checks
+    userInfo: {
+      userId: user.id,
+      userName: user.name,
+      permissionLevel,
+    },
+    debug: contextLogIssueWorkflow, // Controlled by sidebar "Log Issue Workflow" checkbox
+    showToasts: true, // Show toast notifications for lock operations
+    callbacks: {
+      onLockAcquired: () => {
+        locking?.onLockAcquired?.();
+        onLockStatusChange?.(false);
+      },
+      onLockConflict: (lockInfo) => {
+        locking?.onLockConflict?.({
+          isLocked: true,
+          lockedById: lockInfo.lockedById,
+          lockedAt: lockInfo.lockedAt,
+        });
+        onLockStatusChange?.(true);
+      },
+      onLockReleased: () => {
+        locking?.onLockReleased?.();
+      },
+    },
+  });
+
+  // Derive lock state for backwards compatibility
+  const isLockedByOther = lockState.isLockedByOther;
+  const lockConflictInfo = lockState.conflictInfo || null;
+  const hasLock = lockState.hasLock;
+  const isAcquiringLock = lockState.isAcquiring;
+
+  // Track lock acquisition failure (SERVICE_DOWN, NETWORK_ERROR, etc.)
+  const [lockAcquisitionFailed, setLockAcquisitionFailed] = useState(false);
+
+  // Track if lock acquisition is in progress to prevent duplicate calls
+  const isAcquiringLockRef = useRef(false);
+
+  // Track if we've attempted lock acquisition for this modal open (reset on close)
+  const lockAcquisitionAttemptedRef = useRef(false);
+
+  // Track current lock state with refs for cleanup without triggering re-renders
+  const hasLockRef = useRef(false);
+  const currentRecordIdRef = useRef<string | number | null>(null);
+
+  // Track locking functions with refs to avoid dependencies in cleanup effect
+  const resetLockStateRef = useRef(resetLockState);
+  const releaseLockRef = useRef(releaseLock);
+
+  // Format lock time for display
+  const formatLockTime = useCallback((isoString?: string): string => {
+    if (!isoString) return '';
+    try {
+      return new Date(isoString).toLocaleTimeString();
+    } catch {
+      return '';
+    }
+  }, []);
+
+  // Check if current user is super admin (can force unlock)
+  const isSuperAdmin = permissionLevel >= SUPER_ADMIN_LEVEL;
+
+  // State for force unlock confirmation
+  const [showForceUnlockConfirm, setShowForceUnlockConfirm] = useState(false);
+  const [isForceUnlocking, setIsForceUnlocking] = useState(false);
+
+  // Handle force unlock (super admin only)
+  // Uses serviceWorkflow directly to bypass useLocking check (which only releases own locks)
+  const handleForceUnlock = useCallback(async () => {
+    if (!lockingEnabled || !locking?.recordId || !locking?.lockApiUrl || !locking?.lockApiPrefix || !isSuperAdmin) return;
+
+    setIsForceUnlocking(true);
+    try {
+      // Force release lock using serviceWorkflow directly (with superadmin credentials)
+      const unlockResult = await serviceWorkflow<undefined, void>({
+        baseUrl: locking.lockApiUrl,
+        endpoint: `${locking.lockApiPrefix}/${locking.recordId}/lock`,
+        method: 'DELETE',
+        headers: {
+          'X-User-ID': user.id,
+          'X-Permission-Level': String(permissionLevel),
+        },
+        debug: true,
+        caller: 'Modal.forceUnlock',
+        healthChecks: { ping: false, sql: true, minio: false },
+        verification: { enabled: false, getEndpoint: () => '' },
+      });
+
+      if (unlockResult.success) {
+        // Now acquire lock for current user
+        await acquireLock(locking.recordId);
+      }
+    } finally {
+      setIsForceUnlocking(false);
+      setShowForceUnlockConfirm(false);
+    }
+  }, [lockingEnabled, locking?.recordId, locking?.lockApiUrl, locking?.lockApiPrefix, isSuperAdmin, user.id, permissionLevel, acquireLock]);
+
+  // ================================================================
+  // LOCK MONITORING (5s quick check, 60s full workflow)
+  // ================================================================
+
+  // Track if lock was lost mid-edit (show warning but preserve data)
+  const [lockLostWarning, setLockLostWarning] = useState(false);
+
+  // Refs for intervals and callbacks to avoid stale closures
+  const lockCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const fullWorkflowIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Refs for current values (to avoid stale closures in intervals)
+  const lockingRef = useRef(locking);
+  const hasLockRef2 = useRef(hasLock);
+  const lockLostWarningRef = useRef(lockLostWarning);
+  const acquireLockRef = useRef(acquireLock);
+  // Note: resetLockStateRef is already defined above (line ~552)
+
+  // Keep refs in sync
+  useEffect(() => {
+    lockingRef.current = locking;
+    hasLockRef2.current = hasLock;
+    lockLostWarningRef.current = lockLostWarning;
+    acquireLockRef.current = acquireLock;
+    resetLockStateRef.current = resetLockState;
+  }, [locking, hasLock, lockLostWarning, acquireLock, resetLockState]);
+
+  // Setup lock monitoring when modal is open
+  // Note: Using refs for all callbacks to avoid constant re-renders
+  useEffect(() => {
+    // Only run for modals with locking enabled
+    if (!isOpen || !lockingEnabled || !locking?.recordId || !locking?.lockApiUrl || !locking?.lockApiPrefix) {
+      return;
+    }
+
+    console.log('[Modal] Setting up lock monitoring for record:', locking.recordId);
+
+    // Quick check every 5 seconds
+    lockCheckIntervalRef.current = setInterval(async () => {
+      const currentLocking = lockingRef.current;
+      const currentHasLock = hasLockRef2.current;
+      const currentLockLostWarning = lockLostWarningRef.current;
+
+      if (!currentLocking?.recordId || !currentLocking?.lockApiUrl || !currentLocking?.lockApiPrefix) {
+        return;
+      }
+
+      try {
+        const url = `${currentLocking.lockApiUrl}${currentLocking.lockApiPrefix}/${currentLocking.recordId}/lock`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 'X-User-ID': user.id },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('[Modal] Lock status:', data, 'hasLock:', currentHasLock);
+
+          if (data.is_locked && data.is_mine) {
+            // Still have lock - all good
+            if (currentLockLostWarning) setLockLostWarning(false);
+          } else if (data.is_locked && !data.is_mine) {
+            // Someone else took the lock!
+            if (currentHasLock) {
+              console.log('[Modal] Lock lost! Someone else has it now.');
+              setLockLostWarning(true);
+              resetLockStateRef.current();
+            }
+          } else if (!data.is_locked && !currentHasLock) {
+            // Lock is free - try to acquire it
+            console.log('[Modal] Lock is free, attempting to acquire...');
+            await acquireLockRef.current(currentLocking.recordId);
+          }
+        }
+      } catch {
+        // Network error - skip this check silently
+      }
+    }, 5000);
+
+    // Full workflow every 60 seconds (only when waiting for lock)
+    fullWorkflowIntervalRef.current = setInterval(async () => {
+      const currentLocking = lockingRef.current;
+      const currentHasLock = hasLockRef2.current;
+
+      if (!currentLocking?.recordId || currentHasLock) return;
+
+      console.log('[Modal] 60s full workflow attempt...');
+      await acquireLockRef.current(currentLocking.recordId);
+    }, 60000);
+
+    return () => {
+      console.log('[Modal] Cleaning up lock monitoring intervals');
+      if (lockCheckIntervalRef.current) {
+        clearInterval(lockCheckIntervalRef.current);
+        lockCheckIntervalRef.current = null;
+      }
+      if (fullWorkflowIntervalRef.current) {
+        clearInterval(fullWorkflowIntervalRef.current);
+        fullWorkflowIntervalRef.current = null;
+      }
+    };
+  }, [isOpen, lockingEnabled, locking?.recordId, locking?.lockApiUrl, locking?.lockApiPrefix, user.id]);
+
+  // Clear lock lost warning when lock is regained
+  useEffect(() => {
+    if (hasLock && lockLostWarning) {
+      setLockLostWarning(false);
+    }
+  }, [hasLock, lockLostWarning]);
+
+  // ================================================================
   // CLOSE WITH UNSAVED CHANGES CONFIRMATION
   // ================================================================
 
@@ -364,9 +722,12 @@ export const Modal: React.FC<ModalProps> = ({
    */
   const handleCloseWithConfirm = useCallback(() => {
     if (hasUnsavedChanges) {
-      // Use empty object so ConfirmModal loads default unsavedChanges translations
-      // This returns a Promise, but we don't await it - instead we handle result in .then()
-      unsavedConfirm.confirm({}).then((confirmed) => {
+      // Pass unsavedChanges translations explicitly (useConfirm doesn't provide defaults)
+      unsavedConfirm.confirm({
+        title: t('components.modalV3.confirmModal.unsavedChanges.title'),
+        message: t('components.modalV3.confirmModal.unsavedChanges.message'),
+        confirmButtonLabel: t('components.modalV3.confirmModal.unsavedChanges.confirmButton'),
+      }).then((confirmed) => {
         if (confirmed) {
           onClose();
         }
@@ -375,7 +736,7 @@ export const Modal: React.FC<ModalProps> = ({
     } else {
       onClose();
     }
-  }, [hasUnsavedChanges, unsavedConfirm, onClose]);
+  }, [hasUnsavedChanges, unsavedConfirm, onClose, t]);
 
 
   // ================================================================
@@ -430,6 +791,96 @@ export const Modal: React.FC<ModalProps> = ({
       setDebugBarHeight(0);
     }
   }, [isOpen, effectiveShowDebugBar]);
+
+  // ================================================================
+  // LOCKING EFFECTS (using useLocking hook with serviceWorkflow)
+  // Features: automatic retry (3x), health checks, comprehensive logging
+  // ================================================================
+
+  /**
+   * Handle lock acquisition when modal opens using useLocking hook
+   * The hook uses serviceWorkflow internally for:
+   * - Health checks before lock operations
+   * - Automatic retry (3x with 5s delay)
+   * - Comprehensive logging
+   */
+  const handleAcquireLock = useCallback(async () => {
+    if (!locking?.recordId || isAcquiringLockRef.current) return;
+
+    isAcquiringLockRef.current = true;
+    setLockAcquisitionFailed(false);
+
+    const result = await acquireLock(locking.recordId);
+    isAcquiringLockRef.current = false;
+
+    // Check if acquisition failed (not conflict - that's handled separately)
+    if (!result.success && result.errorCode !== 'CONFLICT') {
+      setLockAcquisitionFailed(true);
+    }
+  }, [acquireLock, locking?.recordId]);
+
+  useEffect(() => {
+    // Reset state when modal closes
+    if (!isOpen) {
+      lockAcquisitionAttemptedRef.current = false;
+      setLockLostWarning(false);
+      return;
+    }
+
+    // Skip if locking not enabled or missing required config
+    if (!lockingEnabled || !locking?.recordId || !locking?.lockApiUrl || !locking?.lockApiPrefix) {
+      return;
+    }
+
+    // Check external lock info first (from parent GET response)
+    // This allows parent to pre-check lock status without making another request
+    if (locking.lockInfo?.isLocked) {
+      // External lock info provided - skip acquisition
+      // The useLocking hook callbacks will handle the state updates
+      locking.onLockConflict?.(locking.lockInfo);
+      onLockStatusChange?.(true);
+      return;
+    }
+
+    // Acquire lock when modal opens (only once per open)
+    // Using ref prevents re-running when lock state changes during acquisition
+    if (!lockAcquisitionAttemptedRef.current) {
+      lockAcquisitionAttemptedRef.current = true;
+      handleAcquireLock();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, lockingEnabled, locking?.recordId, locking?.lockApiUrl, locking?.lockApiPrefix, locking?.lockInfo, handleAcquireLock]);
+
+  /**
+   * Update refs when lock state or functions change (doesn't trigger re-renders)
+   */
+  useEffect(() => {
+    hasLockRef.current = hasLock;
+    currentRecordIdRef.current = locking?.recordId || null;
+    resetLockStateRef.current = resetLockState;
+    releaseLockRef.current = releaseLock;
+  }, [hasLock, locking?.recordId, resetLockState, releaseLock]);
+
+  /**
+   * Reset locking state and release lock when modal closes
+   * Uses refs for functions to avoid infinite loop from changing dependencies
+   */
+  useEffect(() => {
+    if (!isOpen) {
+      // Release lock using ref values (avoids infinite loop)
+      if (hasLockRef.current && currentRecordIdRef.current) {
+        releaseLockRef.current(currentRecordIdRef.current);
+      }
+
+      // Reset all locking state using ref (avoids infinite loop)
+      resetLockStateRef.current();
+      setLockAcquisitionFailed(false);
+      isAcquiringLockRef.current = false;
+      lockAcquisitionAttemptedRef.current = false;
+      hasLockRef.current = false;
+      currentRecordIdRef.current = null;
+    }
+  }, [isOpen]);
 
   // ================================================================
   // MODAL STACK REGISTRATION
@@ -881,7 +1332,82 @@ export const Modal: React.FC<ModalProps> = ({
               <p>{t('common.loading') || 'Loading...'}</p>
             </div>
           ) : (
-            children
+            <>
+              {/* Lock Lost Warning - shown when lock was lost mid-edit */}
+              {lockingEnabled && lockLostWarning && (
+                <div className={styles.lockLostBanner} data-testid="modal-lock-lost-banner">
+                  <span className={styles.lockIcon} role="img" aria-hidden="true">⚠️</span>
+                  <span>{t('common.locking.lockLost')}</span>
+                  <span className={styles.lockLostHint}>{t('common.locking.lockLostHint')}</span>
+                </div>
+              )}
+
+              {/* Lock Banner - shown when record is locked by another user */}
+              {lockingEnabled && isLockedByOther && lockConflictInfo && !lockLostWarning && (
+                <div className={styles.lockBanner} data-testid="modal-lock-banner">
+                  <span className={styles.lockIcon} role="img" aria-hidden="true">🔒</span>
+                  <span>
+                    {t('common.locking.editedBy', {
+                      name: lockConflictInfo.lockedById || t('common.unknown'),
+                      time: formatLockTime(lockConflictInfo.lockedAt) || t('common.unknown'),
+                    })}
+                  </span>
+                  {/* Force Unlock button - only for super admins */}
+                  {isSuperAdmin && (
+                    <button
+                      type="button"
+                      className={styles.forceUnlockButton}
+                      onClick={() => setShowForceUnlockConfirm(true)}
+                      disabled={isForceUnlocking}
+                      title={t('common.locking.forceUnlock')}
+                    >
+                      <span role="img" aria-hidden="true">🔓</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Lock acquisition states - acquiring, failed, or success */}
+              {lockingEnabled && isAcquiringLock && !hasLock ? (
+                // State 1: Acquiring lock - show spinner
+                <div className={styles.lockLoading} data-testid="modal-lock-loading">
+                  <div className={styles.spinner} />
+                  <p>{t('common.locking.acquiring')}</p>
+                </div>
+              ) : lockingEnabled && lockAcquisitionFailed ? (
+                // State 2: Lock acquisition failed - show error with retry/close buttons
+                <div className={styles.lockError} data-testid="modal-lock-error">
+                  <div className={styles.lockErrorIcon} role="img" aria-hidden="true">⚠️</div>
+                  <h3 className={styles.lockErrorTitle}>
+                    {t('common.locking.serviceUnavailableTitle')}
+                  </h3>
+                  <p className={styles.lockErrorMessage}>
+                    {t('common.locking.serviceUnavailableMessage')}
+                  </p>
+                  <div className={styles.lockErrorButtons}>
+                    <button
+                      type="button"
+                      className={styles.lockErrorButtonSecondary}
+                      onClick={onClose}
+                    >
+                      {t('common.locking.closeModal')}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.lockErrorButtonPrimary}
+                      onClick={handleAcquireLock}
+                    >
+                      {t('common.locking.retryLock')}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // State 3: Lock acquired or not locking - show children
+                <div className={lockingEnabled && (isLockedByOther || lockLostWarning) ? styles.readOnly : undefined}>
+                  {children}
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -921,6 +1447,19 @@ export const Modal: React.FC<ModalProps> = ({
         onConfirm={unsavedConfirm.handleConfirm}
         title={unsavedConfirm.state.title}
         message={unsavedConfirm.state.message}
+        parentModalId={modalId}
+      />
+
+      {/* Force Unlock Confirmation Modal (Super Admin only) */}
+      <ConfirmModal
+        isOpen={showForceUnlockConfirm}
+        onClose={() => setShowForceUnlockConfirm(false)}
+        onConfirm={handleForceUnlock}
+        title={t('common.locking.forceUnlock')}
+        message={t('common.locking.forceUnlockConfirm', {
+          name: lockConflictInfo?.lockedById || t('common.unknown'),
+        })}
+        confirmButtonLabel={t('common.locking.forceUnlock')}
         parentModalId={modalId}
       />
     </>

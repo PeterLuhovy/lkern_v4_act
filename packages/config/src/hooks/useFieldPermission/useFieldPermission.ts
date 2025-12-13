@@ -28,7 +28,6 @@ import {
   type PermissionEntity,
   type PermissionContext,
   type FieldAccessResult,
-  type FieldPermissionsMap,
 } from '../../permissions/index';
 
 /**

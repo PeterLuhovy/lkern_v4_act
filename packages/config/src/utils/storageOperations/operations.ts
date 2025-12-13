@@ -13,18 +13,15 @@
 import type {
   StorageConfig,
   StorageType,
-  OperationType,
   OperationPhase,
   OperationRequest,
   OperationResult,
   StorageOperationResult,
   RetryConfig,
-  CombinedHealthResult,
   OperationCallbacks,
 } from './types';
 import {
   checkMultipleStoragesHealth,
-  checkStorageHealth,
 } from './healthCheck';
 
 // ============================================================
@@ -724,7 +721,7 @@ export async function executeOperation<T = unknown>(
   if (success) {
     callbacks?.onSuccess?.(operationResult);
   } else {
-    callbacks?.onError?.(operationResult.error!, operationResult);
+    callbacks?.onError?.(operationResult.error ?? 'Unknown operation error', operationResult);
   }
 
   return operationResult;

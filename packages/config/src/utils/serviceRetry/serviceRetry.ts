@@ -32,6 +32,8 @@ export interface RetryCallbacks {
   onAttemptStart?: () => void;
   /** Called when connection is taking longer than expected (after takingLongerDelay) */
   onTakingLonger?: () => void;
+  /** Called when first attempt fails quickly (before takingLongerDelay) - "Connection failed" */
+  onQuickFailure?: () => void;
   /** Called when a retry attempt starts (attempt: 1-based, maxAttempts: total) */
   onRetry?: (attempt: number, maxAttempts: number) => void;
   /** Called when attempt succeeds */
@@ -125,10 +127,10 @@ async function withTimeout<T>(
 
   try {
     const result = await Promise.race([promise, timeoutPromise]);
-    clearTimeout(timeoutId!);
+    if (timeoutId) clearTimeout(timeoutId);
     return result;
   } catch (error) {
-    clearTimeout(timeoutId!);
+    if (timeoutId) clearTimeout(timeoutId);
     throw error;
   }
 }
@@ -209,11 +211,15 @@ export async function executeWithRetry<T = unknown>(
   // Create the service call promise with timeout
   const callPromise = withTimeout(serviceCall(), attemptTimeout, `${serviceName} timeout`);
 
-  // Create a timer that fires after takingLongerDelay (1s)
-  let takingLongerFired = false;
+  // Create a timer that fires after takingLongerDelay (1.5s)
+  // We need TWO flags:
+  // - takingLongerCallbackCalled: true if onTakingLonger was actually called (timer fired)
+  // - timerCancelled: true if call finished before timer (to prevent timer callback)
+  let takingLongerCallbackCalled = false;
+  let timerCancelled = false;
   const takingLongerTimer = delay(takingLongerDelay).then(() => {
-    if (!takingLongerFired) {
-      takingLongerFired = true;
+    if (!timerCancelled) {
+      takingLongerCallbackCalled = true;
       tookLonger = true;
       log(serviceName, `📢 SHOWING "taking longer" toast at ${Math.round(performance.now() - attemptStartTime)}ms`);
       callbacks.onTakingLonger?.();
@@ -233,12 +239,12 @@ export async function executeWithRetry<T = unknown>(
     ]);
 
     if (raceResult.type === 'call') {
-      // Call finished before timer - cancel the timer by marking it as fired
-      takingLongerFired = true;  // Prevent timer from firing callback
+      // Call finished before timer - cancel the timer by marking it as cancelled
+      timerCancelled = true;  // Prevent timer from firing callback
       result = raceResult.result;
       log(serviceName, `First attempt completed in ${Math.round(performance.now() - attemptStartTime)}ms (before "taking longer" timer)`);
     } else {
-      // Timer fired first (1s passed) - "taking longer" toast already shown
+      // Timer fired first (1.5s passed) - "taking longer" toast already shown
       // Now wait for the actual call result
       log(serviceName, `Timer fired, waiting for call to complete...`);
       try {
@@ -275,17 +281,17 @@ export async function executeWithRetry<T = unknown>(
   lastError = result.error;
   log(serviceName, `❌ First attempt failed: ${lastError}`);
 
-  // Quick failure (before timer) - show "connection failed" then "retrying"
-  if (!takingLongerFired) {
-    log(serviceName, `📢 Quick failure - showing "connection failed" toast`);
-    callbacks.onTakingLonger?.();  // Used as "connection failed" for quick failures
-    log(serviceName, `📢 Quick failure - showing "retrying 1/${maxRetries}" toast`);
-    callbacks.onRetry?.(1, maxRetries);
+  // Quick failure (before timer) - show "connection failed" toast
+  // This is different from "taking longer" which is for slow responses
+  // Only show if onTakingLonger was NOT already called (timer didn't fire)
+  if (!takingLongerCallbackCalled) {
+    log(serviceName, `📢 Quick failure detected - showing "connection failed" toast`);
+    callbacks.onQuickFailure?.();
   }
 
-  // Wait before first retry (total 5s from start, so user sees the situation)
+  // Wait before first retry
   const elapsedSoFar = performance.now() - attemptStartTime;
-  const waitBeforeRetry = Math.max(0, attemptTimeout - elapsedSoFar);
+  const waitBeforeRetry = Math.max(0, retryDelay - elapsedSoFar);
   if (waitBeforeRetry > 0) {
     log(serviceName, `⏳ Waiting ${Math.round(waitBeforeRetry)}ms before first retry...`);
     await delay(waitBeforeRetry);
@@ -298,10 +304,10 @@ export async function executeWithRetry<T = unknown>(
   // ─────────────────────────────────────────────────────────────────
   for (let retry = 1; retry <= maxRetries; retry++) {
     attempts++;
-    log(serviceName, `🔄 Retry ${retry}/${maxRetries}...`);
 
-    // Notify UI about retry
+    // Notify UI about retry FIRST (so user sees "Retry 1/3" before attempt)
     callbacks.onRetry?.(retry, maxRetries);
+    log(serviceName, `🔄 Retry ${retry}/${maxRetries}...`);
 
     try {
       const result = await withTimeout(serviceCall(), attemptTimeout, `${serviceName} timeout`);

@@ -88,7 +88,7 @@ export function ExportButton({
       value=""
     >
       <option value="" disabled hidden>
-        📥 {label || t('common.export')}
+        {label || t('common.export')}
       </option>
       {formats.map((format) => (
         <option key={format} value={format}>

@@ -1,26 +1,45 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable jsx-a11y/accessible-emoji */
+
 /*
  * ================================================================
  * FILE: Issues.tsx
  * PATH: /apps/web-ui/src/pages/Issues/Issues.tsx
  * DESCRIPTION: Issues page with FilteredDataGrid (soft/hard delete workflow)
- * VERSION: v1.2.0
- * UPDATED: 2025-11-24
+ * VERSION: v1.6.5
+ * UPDATED: 2025-12-09
+ * CHANGELOG:
+ *   v1.6.5 - Fixed error state not clearing + added fetch timeout:
+ *            1. Error now always clears on successful fetch (fixed stale closure)
+ *            2. Fetch timeout 10s (was browser default 30-60s)
+ *   v1.6.4 - Added proper loading states to DataGrid:
+ *            1. Shows "Načítavam dáta..." spinner during initial load
+ *            2. Shows "Trvá to dlhšie ako obvykle..." after 5 seconds
+ *            3. Filter panel + DataGrid always visible (no blank screen)
+ *   v1.6.3 - Fixed 3 issues:
+ *            1. Error warning now clears automatically when service becomes available
+ *            2. Filter panel + DataGrid now visible even when service down/loading
+ *            3. Error shown in DataGrid instead of replacing entire page
+ *   v1.6.2 - Fixed logFetchCalls checkbox stale closure bug: setInterval was capturing
+ *            old function reference. Now using useRef to always read current value.
+ *            Checkbox toggle works immediately without page refresh.
+ *   v1.6.1 - Fixed logFetchCalls: changed from let variable to useAnalyticsSettings() hook.
+ *   v1.6.0 - Added auto-refresh every 1 second for DataGrid, ViewModal, and EditModals
+ *   v1.5.0 - Migrated permanent delete to serviceWorkflow with:
+ *            - Pre-delete verification (detects orphaned attachments)
+ *            - Auto-issue creation for data integrity problems via defaultDataIntegrityHandler
+ *   v1.4.0 - Refactored to useServiceWorkflow hook (eliminates callback duplication)
+ *   v1.3.0 - Migrated from local issueWorkflow to universal serviceWorkflow from @l-kern/config
  * ================================================================
  */
 
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BasePage, PageHeader, FilteredDataGrid, CreateIssueModal, IssueTypeSelectModal, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { BasePage, PageHeader, FilteredDataGrid, IssueTypeSelectModal, ConfirmModal, ExportButton, ExportProgressModal } from '@l-kern/ui-components';
+import type { ExportFile, ExportProgress } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
-import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsContext, useAnalyticsSettings, COLORS, getBackendRole, formatDateTime, formatDate, checkMultipleStoragesHealth } from '@l-kern/config';
+import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsSettings, COLORS, formatDateTime, formatDate, checkMultipleStoragesHealth, useServiceWorkflow, serviceWorkflow, SERVICE_ENDPOINTS, SYSTEM_USER_ID, defaultDataIntegrityHandler, prepareExportDestination, writeToFileHandle, triggerAutomaticDownload } from '@l-kern/config';
 import { DeletionAuditModal } from './DeletionAuditModal';
 import { IssueViewModal } from './IssueViewModal';
 import { IssueCreateHandler } from './IssueCreateHandler';
-import { issueWorkflow, type CreatedIssue } from '../../services';
-import { exportToCSV, exportToJSON } from '@l-kern/config';
-import JSZip from 'jszip';
+import { type CreatedIssue } from '../../services';
 import styles from './Issues.module.css';
 
 // ============================================================
@@ -89,22 +108,25 @@ const API_BASE_URL = 'http://localhost:4105'; // Issues Service REST API port (1
 
 export function Issues() {
   const { t, language } = useTranslation();
-  const navigate = useNavigate();
-  const { permissionLevel, permissions } = useAuthContext();
+  const { user, permissionLevel, permissions } = useAuthContext();
   const { theme } = useTheme();
   const toast = useToast();
+  const { execute: executeWorkflow } = useServiceWorkflow();
   const analyticsSettings = useAnalyticsSettings();
 
-  // Try to get debug settings from AnalyticsContext
-  let logPermissions = true;
-  let logFetchCalls = true;
-  try {
-    const analyticsContext = useAnalyticsContext();
-    logPermissions = analyticsContext.settings.logPermissions;
-    logFetchCalls = analyticsContext.settings.logFetchCalls;
-  } catch {
-    // AnalyticsContext not available, default to true
-  }
+  // Get debug settings from AnalyticsContext (reactive - updates when checkbox changes)
+  const logPermissions = analyticsSettings.logPermissions;
+  const logFetchCalls = analyticsSettings.logFetchCalls;
+
+  // Use refs for values that need to be read in setInterval callbacks (stale closure prevention)
+  const logFetchCallsRef = useRef(logFetchCalls);
+  const logPermissionsRef = useRef(logPermissions);
+
+  // Keep refs in sync with current values
+  useEffect(() => {
+    logFetchCallsRef.current = logFetchCalls;
+    logPermissionsRef.current = logPermissions;
+  }, [logFetchCalls, logPermissions]);
 
   // Authorization checks - Use centralized permissions from context (DRY)
   const { canEdit, canDelete, canExport, canViewDeleted } = permissions;
@@ -121,7 +143,9 @@ export function Issues() {
   // State management
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSlow, setLoadingSlow] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
@@ -177,6 +201,11 @@ export function Issues() {
   // ZIP export states
   const [isExportingZip, setIsExportingZip] = useState(false);
   const [isRetryingExport, setIsRetryingExport] = useState(false);
+  // Export progress tracking (uses ExportProgress and ExportFile from ui-components)
+  const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
+  const [exportFiles, setExportFiles] = useState<ExportFile[]>([]);
+  // Ref to track if export was cancelled (prevents success toast after cancel)
+  const exportCancelledRef = useRef(false);
   const [minioExportUnavailable, setMinioExportUnavailable] = useState<{
     selectedIssues: Issue[];
     attachmentsCount: number;
@@ -196,37 +225,58 @@ export function Issues() {
   // FETCH ISSUES FROM API
   // ============================================================
 
-  const fetchIssues = async (isInitial = false) => {
+  const fetchIssues = useCallback(async (isInitial = false) => {
     try {
       if (isInitial) {
         setLoading(true);
+        setLoadingSlow(false);
         setError(null);
+
+        // Clear any existing timeout
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+        }
+
+        // Set timeout to show "taking longer than usual" after 5 seconds
+        loadingTimeoutRef.current = setTimeout(() => {
+          setLoadingSlow(true);
+        }, 5000);
       }
 
       // If user can view deleted, fetch ALL issues (including deleted) from backend
       // FilteredDataGrid will handle showing/hiding based on toggle
-      const url = canViewDeleted
-        ? `${API_BASE_URL}/issues/?include_deleted=true`
-        : `${API_BASE_URL}/issues/`;
-      // Log fetch call if debug setting enabled
-      if (logFetchCalls) {
-        console.log(`[Issues] 📡 FETCH ${url} | Permission Level: ${permissionLevel}`);
+      const endpoint = canViewDeleted
+        ? '/issues/?include_deleted=true'
+        : '/issues/';
+
+      // Log fetch call if debug setting enabled (use ref for setInterval compatibility)
+      if (logFetchCallsRef.current) {
+        console.log(`[Issues] 📡 FETCH ${SERVICE_ENDPOINTS.issues.baseUrl}${endpoint} | Permission Level: ${permissionLevel}`);
       }
 
-      const response = await fetch(url, {
+      // Use serviceWorkflow with cache enabled (30s TTL = matches auto-refresh interval)
+      const result = await serviceWorkflow<unknown, Issue[]>({
+        baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+        endpoint,
+        method: 'GET',
         headers: {
           'X-Permission-Level': String(permissionLevel),
         },
+        cache: {
+          enabled: true,
+          ttl: 30000, // 30 seconds (same as auto-refresh interval)
+        },
+        debug: logFetchCallsRef.current,
       });
 
-      if (!response.ok) {
-        throw new Error(`${t('pages.issues.fetchError')}: ${response.statusText}`);
+      if (!result.success || !result.data) {
+        throw new Error(result.error || t('pages.issues.fetchError'));
       }
 
-      const data = await response.json();
+      const data = result.data;
 
-      // Log response if debug setting enabled
-      if (logFetchCalls) {
+      // Log response if debug setting enabled (use ref for setInterval compatibility)
+      if (logFetchCallsRef.current) {
         console.log(`[Issues] 📡 RESPONSE: ${data.length} issues loaded`);
       }
 
@@ -239,34 +289,69 @@ export function Issues() {
 
       setIssues(issuesWithActive);
 
+      // Clear loading states on success
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      setLoading(false);
+      setLoadingSlow(false);
+
+      // ALWAYS clear error on successful fetch (even during background refresh)
+      // This ensures warning disappears when service becomes available
+      // Note: Always call setError(null), not conditionally - avoids stale closure issues
+      setError(null);
+
+      // Auto-update issueToView if modal is open (for auto-refresh)
+      setIssueToView((currentIssue) => {
+        if (!currentIssue) return null;
+        const updated = issuesWithActive.find((i: Issue) => i.id === currentIssue.id);
+        return updated || currentIssue;
+      });
+
       // NOTE: Don't clear attachment status cache on every refresh
       // Cache is only cleared for specific issue when its attachments change
       // This prevents excessive HEAD requests every 5s
     } catch (err) {
       console.error('[Issues] Error fetching issues:', err);
-      if (isInitial) {
-        setError(err instanceof Error ? err.message : t('pages.issues.fetchError'));
+
+      // Clear loading timeout on error
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
       }
-    } finally {
-      if (isInitial) {
-        setLoading(false);
-      }
+
+      // Stop loading, show error
+      setLoading(false);
+      setLoadingSlow(false);
+      setError(err instanceof Error ? err.message : t('pages.issues.fetchError'));
     }
-  };
+  }, [canViewDeleted, permissionLevel, t]);
 
   useEffect(() => {
     fetchIssues(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-refresh every 1 second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchIssues(false);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [fetchIssues]);
 
   // Re-fetch when permission level changes (Ctrl+1-9 shortcuts)
   // This ensures field visibility updates immediately
   useEffect(() => {
     // Skip initial render (handled by effect above)
     fetchIssues(false);
-    if (logFetchCalls) {
+    if (logFetchCallsRef.current) {
       console.log(`[Issues] 🔄 Permission level changed to ${permissionLevel}, refreshing data...`);
     }
-  }, [permissionLevel, logFetchCalls]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionLevel]); // Only re-fetch on permission level change, not on logFetchCalls change
 
   // ============================================================
   // ATTACHMENT AVAILABILITY CHECK
@@ -443,6 +528,11 @@ export function Issues() {
       filterFn: (item: Issue) => item.assignee_id === '550e8400-e29b-41d4-a716-446655440020', // TODO: Get from auth
     },
     {
+      id: 'system-issues',
+      label: t('pages.issues.quickFilters.systemIssues'),
+      filterFn: (item: Issue) => item.reporter_id === SYSTEM_USER_ID,
+    },
+    {
       id: 'unassigned',
       label: t('pages.issues.quickFilters.unassigned'),
       filterFn: (item: Issue) => !item.assignee_id,
@@ -463,11 +553,11 @@ export function Issues() {
         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {/* Delete pending (waiting for cleanup) = ⚠️⚠️ (two warnings) */}
           {row.deletion_audit_id && (
-            <span style={{ color: 'var(--color-status-error, #f44336)', fontSize: '1.1em' }} title={t('issues.deletionAudit.deletionPending')}>⚠️⚠️</span>
+            <span role="img" aria-label={t('issues.deletionAudit.deletionPending')} style={{ color: 'var(--color-status-error, #f44336)', fontSize: '1.1em' }} title={t('issues.deletionAudit.deletionPending')}>⚠️⚠️</span>
           )}
           {/* Soft deleted (but not pending) = ⚠️ (one warning) */}
           {row.deleted_at !== null && !row.deletion_audit_id && (
-            <span style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title={t('issues.deletionAudit.softDeleted')}>⚠️</span>
+            <span role="img" aria-label={t('issues.deletionAudit.softDeleted')} style={{ color: 'var(--color-status-warning, #FF9800)', fontSize: '1.1em' }} title={t('issues.deletionAudit.softDeleted')}>⚠️</span>
           )}
           <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{value}</span>
         </span>
@@ -496,6 +586,37 @@ export function Issues() {
       field: 'priority',
       sortable: true,
       width: 100,
+    },
+    {
+      title: t('pages.issues.columns.created_by'),
+      field: 'reporter_id',
+      sortable: true,
+      width: 180,
+      render: (value: string) => {
+        const isSystem = value === SYSTEM_USER_ID;
+        // TODO: When Contacts service is available, lookup user name by ID
+        // Fallback: show truncated UUID if service unavailable
+        const displayValue = isSystem
+          ? t('pages.issues.system')
+          : value
+            ? `${value.substring(0, 8)}...`  // Show first 8 chars of UUID
+            : '—';
+        return (
+          <span
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: isSystem ? 'var(--color-status-info, #2196F3)' : 'inherit',
+              fontWeight: isSystem ? 500 : 'normal',
+            }}
+            title={value || undefined}  // Full ID on hover
+          >
+            {isSystem ? '🤖' : '👤'}
+            <span>{displayValue}</span>
+          </span>
+        );
+      },
     },
     {
       title: t('pages.issues.columns.created_at'),
@@ -582,15 +703,15 @@ export function Issues() {
       const status = issueStatus.get(fileName);
       switch (status) {
         case 'checking':
-          return <span title={t('pages.issues.details.attachmentChecking')} style={{ marginLeft: '8px' }}>⏳</span>;
+          return <span role="img" aria-label={t('pages.issues.details.attachmentChecking')} title={t('pages.issues.details.attachmentChecking')} style={{ marginLeft: '8px' }}>⏳</span>;
         case 'available':
-          return <span title={t('pages.issues.details.attachmentAvailable')} style={{ marginLeft: '8px', color: 'var(--color-status-success)' }}>✓</span>;
+          return <span role="img" aria-label={t('pages.issues.details.attachmentAvailable')} title={t('pages.issues.details.attachmentAvailable')} style={{ marginLeft: '8px', color: 'var(--color-status-success)' }}>✓</span>;
         case 'unavailable':
           // File is missing in MinIO (404) - red indicator
-          return <span title={t('pages.issues.details.attachmentUnavailable')} style={{ marginLeft: '8px', color: 'var(--color-status-error)' }}>❌ {t('pages.issues.details.attachmentMissing')}</span>;
+          return <span title={t('pages.issues.details.attachmentUnavailable')} style={{ marginLeft: '8px', color: 'var(--color-status-error)' }}><span role="img" aria-label="Error">❌</span> {t('pages.issues.details.attachmentMissing')}</span>;
         case 'error':
           // Service unavailable (503/network) - orange indicator
-          return <span title={t('pages.issues.details.attachmentError')} style={{ marginLeft: '8px', color: 'var(--color-status-warning)' }}>⚠️ {t('pages.issues.details.attachmentServiceDown')}</span>;
+          return <span title={t('pages.issues.details.attachmentError')} style={{ marginLeft: '8px', color: 'var(--color-status-warning)' }}><span role="img" aria-label="Warning">⚠️</span> {t('pages.issues.details.attachmentServiceDown')}</span>;
         default:
           return null;
       }
@@ -611,7 +732,7 @@ export function Issues() {
       {/* Soft Delete Warning */}
       {item.deleted_at !== null && (
         <div className={styles.deletedWarning}>
-          <span className={styles.deletedIcon}>🗑️</span>
+          <span role="img" aria-label="Deleted" className={styles.deletedIcon}>🗑️</span>
           <span>{t('pages.issues.details.deletedItem')}</span>
         </div>
       )}
@@ -628,7 +749,7 @@ export function Issues() {
           alignItems: 'center',
           gap: '8px',
         }}>
-          🔴
+          <span role="img" aria-hidden="true">🔴</span>
           <span style={{ fontWeight: 600 }}>{t('issues.deletionAudit.deletionFailed')}</span>
         </div>
       )}
@@ -820,7 +941,7 @@ export function Issues() {
                     style={unavailable ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
                   >
                     <div className={styles.attachmentFileName} style={unavailable ? { textDecoration: 'line-through' } : undefined}>
-                      📎 {attachment.file_name}
+                      <span role="img" aria-label="Attachment">📎</span> {attachment.file_name}
                       {getAttachmentStatusIndicator(attachment.file_name)}
                     </div>
                     <div className={styles.attachmentMeta}>
@@ -924,355 +1045,241 @@ export function Issues() {
   // EXPORT HANDLERS
   // ============================================================
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
     if (selectedRows.size === 0) return;
 
     const selectedIssues = issues.filter(issue => selectedRows.has(issue.id));
+    const issueIds = selectedIssues.map(issue => issue.id);
+    const fileName = `issues_export_${new Date().toISOString().split('T')[0]}.csv`;
 
-    // ALL headers - flattened structure for CSV
-    const headers = [
-      'ID',
-      t('pages.issues.columns.issue_code'),
-      t('pages.issues.columns.title'),
-      t('pages.issues.details.description'),
-      t('pages.issues.details.type'),
-      t('pages.issues.details.severity'),
-      t('pages.issues.columns.status'),
-      t('pages.issues.details.priority'),
-      t('pages.issues.details.category'),
-      t('pages.issues.details.reporterId'),
-      t('pages.issues.details.assigneeId'),
-      t('pages.issues.details.resolution'),
-      t('pages.issues.details.created_at'),
-      t('pages.issues.details.updated'),
-      t('pages.issues.details.resolved'),
-      t('pages.issues.details.closed'),
-      t('pages.issues.details.deleted'),
-      // Developer info
-      t('pages.issues.details.errorType'),
-      t('pages.issues.details.errorMessage'),
-      // System info (flattened)
-      t('pages.issues.details.browser'),
-      t('pages.issues.details.os'),
-      t('pages.issues.details.url'),
-      'Viewport',
-      'Screen',
-      'Timestamp',
-      'User Agent',
-      // Attachments count
-      t('pages.issues.details.attachments'),
-    ];
+    console.log(`[Issues] 📤 Exporting ${issueIds.length} issues as CSV via backend`);
 
-    // Map ALL issue data - flattened for CSV
-    const exportData = selectedIssues.map(issue => ({
-      id: issue.id,
-      issue_code: issue.issue_code,
-      title: issue.title,
-      description: issue.description || '',
-      type: issue.type,
-      severity: issue.severity,
-      status: issue.status,
-      priority: issue.priority,
-      category: issue.category || '',
-      reporter_id: issue.reporter_id,
-      assignee_id: issue.assignee_id || '',
-      resolution: issue.resolution || '',
-      created_at: issue.created_at,
-      updated_at: issue.updated_at || '',
-      resolved_at: issue.resolved_at || '',
-      closed_at: issue.closed_at || '',
-      deleted_at: issue.deleted_at || '',
-      // Developer info
-      error_type: issue.error_type || '',
-      error_message: issue.error_message || '',
-      // System info (flattened)
-      browser: issue.system_info?.browser || '',
-      os: issue.system_info?.os || '',
-      url: issue.system_info?.url || '',
-      viewport: issue.system_info?.viewport || '',
-      screen: issue.system_info?.screen || '',
-      timestamp: issue.system_info?.timestamp || '',
-      userAgent: issue.system_info?.userAgent || '',
-      // Attachments count
-      attachments_count: issue.attachments?.length || 0,
-    }));
-
-    exportToCSV(exportData, headers, `issues_export_${new Date().toISOString().split('T')[0]}`);
-    toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'CSV' }));
-  };
-
-  const handleExportJSON = () => {
-    if (selectedRows.size === 0) return;
-
-    const selectedIssues = issues.filter(issue => selectedRows.has(issue.id));
-
-    // Export FULL data including nested objects (system_info, attachments)
-    // Remove internal computed field (isActive) that was added for filtering
-    const exportData = selectedIssues.map(issue => {
-      const { isActive, ...cleanIssue } = issue as Issue & { isActive?: boolean };
-      return cleanIssue;
+    // STEP 1: Prepare export destination BEFORE download
+    const exportPrep = await prepareExportDestination({
+      behavior: user.exportBehavior || 'automatic',
+      fileName,
+      mimeType: 'text/csv',
+      suggestedExtension: '.csv',
     });
 
-    exportToJSON(exportData, `issues_export_${new Date().toISOString().split('T')[0]}`);
-    toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'JSON' }));
+    if (!exportPrep.success) {
+      console.log('[Issues] CSV export cancelled by user');
+      return;
+    }
+
+    // STEP 2: Download (no loading toast - CSV export is fast)
+    const result = await serviceWorkflow<{ issue_ids: string[] }, Blob>({
+      baseUrl: API_BASE_URL,
+      endpoint: '/issues/export?format=csv',
+      method: 'POST',
+      data: { issue_ids: issueIds },
+      healthChecks: { ping: true, sql: true, minio: false },
+      debug: analyticsSettings.logToConsole,
+      showToasts: true,
+      language: language,
+      caller: 'IssuesExportCSV',
+      responseType: 'blob',
+    });
+
+    // STEP 3: Write to destination
+    if (result.success && result.data) {
+      if (exportPrep.fileHandle) {
+        const writeResult = await writeToFileHandle(exportPrep.fileHandle, result.data);
+        if (writeResult.success) {
+          toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'CSV' }));
+        } else {
+          toast.error(t('pages.issues.exportFailed'));
+        }
+      } else {
+        triggerAutomaticDownload(result.data, exportPrep.fileName);
+        toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'CSV' }));
+      }
+    } else {
+      console.error('[Issues] ❌ CSV export failed:', result.error);
+      toast.error(t('pages.issues.exportFailed'));
+    }
+  };
+
+  const handleExportJSON = async () => {
+    if (selectedRows.size === 0) return;
+
+    const selectedIssues = issues.filter(issue => selectedRows.has(issue.id));
+    const issueIds = selectedIssues.map(issue => issue.id);
+    const fileName = `issues_export_${new Date().toISOString().split('T')[0]}.json`;
+
+    console.log(`[Issues] 📤 Exporting ${issueIds.length} issues as JSON via backend`);
+
+    // STEP 1: Prepare export destination BEFORE download
+    const exportPrep = await prepareExportDestination({
+      behavior: user.exportBehavior || 'automatic',
+      fileName,
+      mimeType: 'application/json',
+      suggestedExtension: '.json',
+    });
+
+    if (!exportPrep.success) {
+      console.log('[Issues] JSON export cancelled by user');
+      return;
+    }
+
+    // STEP 2: Download (no loading toast - JSON export is fast)
+    const result = await serviceWorkflow<{ issue_ids: string[] }, Blob>({
+      baseUrl: API_BASE_URL,
+      endpoint: '/issues/export?format=json',
+      method: 'POST',
+      data: { issue_ids: issueIds },
+      healthChecks: { ping: true, sql: true, minio: false },
+      debug: analyticsSettings.logToConsole,
+      showToasts: true,
+      language: language,
+      caller: 'IssuesExportJSON',
+      responseType: 'blob',
+    });
+
+    // STEP 3: Write to destination
+    if (result.success && result.data) {
+      if (exportPrep.fileHandle) {
+        const writeResult = await writeToFileHandle(exportPrep.fileHandle, result.data);
+        if (writeResult.success) {
+          toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'JSON' }));
+        } else {
+          toast.error(t('pages.issues.exportFailed'));
+        }
+      } else {
+        triggerAutomaticDownload(result.data, exportPrep.fileName);
+        toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'JSON' }));
+      }
+    } else {
+      console.error('[Issues] ❌ JSON export failed:', result.error);
+      toast.error(t('pages.issues.exportFailed'));
+    }
   };
 
   /**
-   * Create ZIP export with folder structure:
-   * issues_export_YYYY-MM-DD.zip
-   * ├── ISS-001_uuid/
-   * │   ├── issue.json
-   * │   ├── issue.csv
-   * │   └── attachments/
-   * │       ├── file1.png
-   * │       └── file2.pdf
-   * └── ISS-002_uuid/
-   *     └── ...
+   * Create ZIP export via backend endpoint.
+   * Backend generates ZIP with folder structure containing JSON, CSV, and attachments.
    *
-   * Error handling:
-   * - Deleted record (404): Skip and show in error modal (no retry)
-   * - MinIO error (503/network): Skip and show in error modal (with retry)
+   * UX Flow (v1.1.0):
+   * 1. If save-as-dialog mode: Show save dialog FIRST (before download)
+   * 2. If user cancels dialog: Return early (no download)
+   * 3. Start download with progress indicator
+   * 4. Write to chosen location or trigger automatic download
    */
-  const handleExportZIP = async (skipAttachments = false) => {
+  const handleExportZIP = async () => {
     if (selectedRows.size === 0) return;
 
     const selectedIssues = issues.filter(issue => selectedRows.has(issue.id));
+    const issueIds = selectedIssues.map(issue => issue.id);
+    const fileName = `issues_export_${new Date().toISOString().split('T')[0]}.zip`;
 
-    // Count total attachments
-    const totalAttachments = selectedIssues.reduce(
-      (sum, issue) => sum + (issue.attachments?.length || 0),
-      0
-    );
+    console.log(`[Issues] 📤 Exporting ${issueIds.length} issues as ZIP via backend`);
 
-    // If not skipping attachments and there are attachments, check MinIO availability first
-    if (!skipAttachments && totalAttachments > 0) {
-      setIsExportingZip(true);
-      // Loading overlay will show while checking MinIO
+    // ─────────────────────────────────────────────────────────────────
+    // STEP 1: Prepare export destination BEFORE download
+    // ─────────────────────────────────────────────────────────────────
+    const exportPrep = await prepareExportDestination({
+      behavior: user.exportBehavior || 'automatic',
+      fileName,
+      mimeType: 'application/zip',
+      suggestedExtension: '.zip',
+    });
 
-      try {
-        // Check MinIO availability by calling health endpoint
-        const healthResponse = await fetch(`${API_BASE_URL}/issues/health/minio`, {
-          method: 'GET',
-        });
+    // User cancelled save dialog - don't start download
+    if (!exportPrep.success) {
+      console.log('[Issues] Export cancelled by user');
+      return;
+    }
 
-        // Handle health check response
-        if (healthResponse.status === 404) {
-          // Health endpoint not implemented - proceed with download, handle errors there
-          console.log('[Issues] MinIO health endpoint not found (404) - proceeding with export');
-        } else if (!healthResponse.ok || (await healthResponse.json()).status !== 'healthy') {
-          // MinIO explicitly unhealthy - show modal to ask user
-          console.log('[Issues] MinIO health check returned unhealthy - showing modal');
-          setIsExportingZip(false);
-          setMinioExportUnavailable({
-            selectedIssues,
-            attachmentsCount: totalAttachments,
+    // ─────────────────────────────────────────────────────────────────
+    // STEP 2: Collect file list and show progress modal
+    // ─────────────────────────────────────────────────────────────────
+    exportCancelledRef.current = false; // Reset cancel flag
+
+    const fileList: ExportFile[] = [];
+    for (const issue of selectedIssues) {
+      if (issue.attachments && issue.attachments.length > 0) {
+        for (const attachment of issue.attachments) {
+          fileList.push({
+            name: attachment.file_name || attachment.original_name || 'unknown',
+            entityCode: issue.issue_code,
+            size: attachment.file_size || 0,
           });
-          return;
         }
-      } catch (error) {
-        // MinIO check failed - show modal
-        console.log('[Issues] MinIO health check failed:', error);
-        setIsExportingZip(false);
-        setMinioExportUnavailable({
-          selectedIssues,
-          attachmentsCount: totalAttachments,
-        });
-        return;
       }
     }
-
-    // Proceed with ZIP creation
+    setExportFiles(fileList);
     setIsExportingZip(true);
-    if (skipAttachments) {
-      toast.info(t('pages.issues.exportZipStarted', { count: selectedIssues.length }));
-    }
-
-    // Track errors
-    const deletedRecords: string[] = [];
-    const missingAttachments: string[] = [];
-    const minioErrors: string[] = [];
-    let successCount = 0;
+    setExportProgress({ phase: 'healthCheck', percentage: 0, downloadedBytes: 0, totalBytes: 0, totalKnown: false });
 
     try {
-      const zip = new JSZip();
-      const dateStr = new Date().toISOString().split('T')[0];
+      // ─────────────────────────────────────────────────────────────────
+      // STEP 3: Download with progress tracking
+      // ─────────────────────────────────────────────────────────────────
+      const result = await serviceWorkflow<{ issue_ids: string[] }, Blob>({
+        baseUrl: API_BASE_URL,
+        endpoint: '/issues/export?format=zip',
+        method: 'POST',
+        data: {
+          issue_ids: issueIds,
+        },
+        healthChecks: {
+          ping: true,
+          sql: true,
+          minio: true,
+        },
+        debug: analyticsSettings.logToConsole,
+        showToasts: true,
+        language: language,
+        caller: 'IssuesExportZIP',
+        responseType: 'blob',
+        callbacks: {
+          onProgress: (progress) => {
+            setExportProgress({
+              phase: progress.phase,
+              percentage: progress.percentage,
+              downloadedBytes: progress.downloadedBytes,
+              totalBytes: progress.totalBytes,
+              totalKnown: progress.totalKnown,
+            });
+          },
+        },
+      });
 
-      // CSV headers for individual issue export
-      const csvHeaders = [
-        'ID', 'Kód', 'Názov', 'Popis', 'Typ', 'Závažnosť', 'Stav', 'Priorita',
-        'Kategória', 'Reporter ID', 'Assignee ID', 'Riešenie',
-        'Vytvorené', 'Aktualizované', 'Vyriešené', 'Uzatvorené', 'Vymazané',
-        'Typ chyby', 'Chybová správa',
-        'Prehliadač', 'OS', 'URL', 'Viewport', 'Screen', 'Timestamp', 'User Agent',
-        'Počet príloh',
-      ];
+      // ─────────────────────────────────────────────────────────────────
+      // STEP 4: Write to destination (skip if cancelled)
+      // ─────────────────────────────────────────────────────────────────
+      if (exportCancelledRef.current) {
+        console.log('[Issues] Export was cancelled by user');
+        return;
+      }
 
-      for (const issue of selectedIssues) {
-        try {
-          // Folder name: issue_code_uuid
-          const folderName = `${issue.issue_code}_${issue.id}`;
-          const folder = zip.folder(folderName);
+      if (result.success && result.data) {
+        const blob = result.data;
 
-          if (!folder) continue;
-
-          // Clean issue data (remove isActive)
-          const { isActive, ...cleanIssue } = issue as Issue & { isActive?: boolean };
-
-          // Add issue.json (full data)
-          folder.file('issue.json', JSON.stringify(cleanIssue, null, 2));
-
-          // Create CSV content for single issue
-          const csvRow = [
-            issue.id,
-            issue.issue_code,
-            issue.title,
-            issue.description || '',
-            issue.type,
-            issue.severity,
-            issue.status,
-            issue.priority,
-            issue.category || '',
-            issue.reporter_id,
-            issue.assignee_id || '',
-            issue.resolution || '',
-            issue.created_at,
-            issue.updated_at || '',
-            issue.resolved_at || '',
-            issue.closed_at || '',
-            issue.deleted_at || '',
-            issue.error_type || '',
-            issue.error_message || '',
-            issue.system_info?.browser || '',
-            issue.system_info?.os || '',
-            issue.system_info?.url || '',
-            issue.system_info?.viewport || '',
-            issue.system_info?.screen || '',
-            issue.system_info?.timestamp || '',
-            issue.system_info?.userAgent || '',
-            issue.attachments?.length || 0,
-          ].map(val => {
-            const str = String(val);
-            // Escape quotes and wrap in quotes if contains comma or newline
-            if (str.includes(',') || str.includes('\n') || str.includes('"')) {
-              return `"${str.replace(/"/g, '""')}"`;
-            }
-            return str;
-          });
-
-          const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
-          folder.file('issue.csv', csvContent);
-
-          // Download and add attachments (if not skipping)
-          if (!skipAttachments && issue.attachments && issue.attachments.length > 0) {
-            const attachmentsFolder = folder.folder('attachments');
-            if (attachmentsFolder) {
-              for (const attachment of issue.attachments) {
-                try {
-                  // Download attachment from MinIO via backend
-                  const attachmentUrl = `${API_BASE_URL}/issues/${issue.id}/attachments/${encodeURIComponent(attachment.file_name)}`;
-                  const attachmentResponse = await fetch(attachmentUrl);
-
-                  if (attachmentResponse.ok) {
-                    const blob = await attachmentResponse.blob();
-                    attachmentsFolder.file(attachment.file_name, blob);
-                    console.log(`[Issues] ✅ Added attachment: ${attachment.file_name}`);
-                  } else if (attachmentResponse.status === 404) {
-                    // Attachment was deleted - track it
-                    console.warn(`[Issues] ⚠️ Attachment ${attachment.file_name} not found (404)`);
-                    missingAttachments.push(`${issue.issue_code}: ${attachment.file_name}`);
-                  } else if (attachmentResponse.status === 503) {
-                    // MinIO went down during download - track the issue
-                    console.warn(`[Issues] ⚠️ MinIO unavailable for ${issue.issue_code}`);
-                    if (!minioErrors.includes(issue.issue_code)) {
-                      minioErrors.push(issue.issue_code);
-                    }
-                  } else {
-                    // Other errors (500, etc.) - treat as missing/corrupted file
-                    console.warn(`[Issues] ⚠️ Failed to download: ${attachment.file_name} (${attachmentResponse.status})`);
-                    missingAttachments.push(`${issue.issue_code}: ${attachment.file_name}`);
-                  }
-                } catch (err) {
-                  // Network error - MinIO might have gone down
-                  console.error(`[Issues] ❌ Error downloading ${attachment.file_name}:`, err);
-                  if (!minioErrors.includes(issue.issue_code)) {
-                    minioErrors.push(issue.issue_code);
-                  }
-                }
-              }
-            }
+        if (exportPrep.fileHandle) {
+          // Write to user-selected location via File System API
+          const writeResult = await writeToFileHandle(exportPrep.fileHandle, blob);
+          if (writeResult.success) {
+            toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'ZIP' }));
+          } else {
+            console.error('[Issues] Failed to write file:', writeResult.error);
+            toast.error(t('pages.issues.exportFailed'));
           }
-
-          successCount++;
-        } catch (err) {
-          // Error processing this issue - continue with others
-          console.error(`[Issues] ❌ Error exporting issue ${issue.issue_code}:`, err);
-        }
-      }
-
-      // Generate ZIP first (we'll need it either way)
-      const zipBlob = successCount > 0 ? await zip.generateAsync({ type: 'blob' }) : null;
-      const zipFileName = `issues_export_${dateStr}.zip`;
-
-      // If there were missing attachments, show modal and wait for user decision
-      if (missingAttachments.length > 0) {
-        setExportErrors({
-          deletedRecords,
-          missingAttachments,
-          minioErrors,
-          successCount,
-          selectedIssues,
-          pendingZipBlob: zipBlob || undefined,
-          zipFileName,
-        });
-        setIsExportingZip(false);
-        return;
-      }
-
-      // If there were MinIO errors (503/network), show modal
-      if (minioErrors.length > 0) {
-        setExportErrors({
-          deletedRecords,
-          missingAttachments,
-          minioErrors,
-          successCount,
-          selectedIssues,
-          pendingZipBlob: zipBlob || undefined,
-          zipFileName,
-        });
-        setIsExportingZip(false);
-        return;
-      }
-
-      // No attachment errors - download ZIP directly
-      if (successCount > 0 && zipBlob) {
-        const url = URL.createObjectURL(zipBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = zipFileName;
-        link.click();
-        URL.revokeObjectURL(url);
-
-        const format = skipAttachments ? 'ZIP (bez príloh)' : 'ZIP';
-
-        if (deletedRecords.length > 0) {
-          toast.warning(t('pages.issues.exportPartialSuccess', {
-            success: successCount,
-            deleted: deletedRecords.length
-          }));
-        } else if (skipAttachments) {
-          toast.warning(t('pages.issues.exportSuccessNoAttachments', { count: successCount }));
         } else {
-          toast.success(t('pages.issues.exportSuccess', { count: successCount, format }));
+          // Automatic download fallback
+          triggerAutomaticDownload(blob, exportPrep.fileName);
+          toast.success(t('pages.issues.exportSuccess', { count: selectedIssues.length, format: 'ZIP' }));
         }
-      } else if (deletedRecords.length > 0) {
-        toast.error(t('pages.issues.exportZipNoContent'));
+      } else {
+        console.error('[Issues] ❌ ZIP export failed:', result.error);
+        if (!result.data) {
+          toast.error(t('pages.issues.exportFailed'));
+        }
       }
-    } catch (error) {
-      console.error('[Issues] ZIP export failed:', error);
-      toast.error(t('pages.issues.exportZipError'));
     } finally {
       setIsExportingZip(false);
-      setMinioExportUnavailable(null);
+      setExportProgress(null);
+      setExportFiles([]);
     }
   };
 
@@ -1291,21 +1298,12 @@ export function Issues() {
     setIsRetryingExport(true);
 
     try {
-      // Check MinIO availability again
-      const healthResponse = await fetch(`${API_BASE_URL}/issues/health/minio`, {
-        method: 'GET',
-      });
+      // Use checkMultipleStoragesHealth from @l-kern/config
+      const minioConfig = { type: 'minio' as const, baseUrl: 'http://localhost:9000', healthEndpoint: '/minio/health/live', displayName: 'MinIO Storage' };
+      const healthResult = await checkMultipleStoragesHealth([minioConfig]);
 
-      // If health endpoint doesn't exist (404), proceed anyway - we'll handle errors during download
-      if (healthResponse.status === 404) {
-        console.log('[Issues] Health endpoint not found (404) - proceeding with retry');
-        setMinioExportUnavailable(null);
-        handleExportZIP(false);
-        return;
-      }
-
-      if (!healthResponse.ok || (await healthResponse.json()).status !== 'healthy') {
-        // Explicitly unhealthy - stay on modal
+      if (!healthResult.allHealthy) {
+        // Still unhealthy - stay on modal
         toast.warning(t('pages.issues.minioExportError.title'));
         return;
       }
@@ -1313,7 +1311,7 @@ export function Issues() {
       // MinIO is healthy - close modal and proceed
       setMinioExportUnavailable(null);
       handleExportZIP(false);
-    } catch (error) {
+    } catch {
       // Network error - MinIO unavailable
       toast.warning(t('pages.issues.minioExportError.title'));
     } finally {
@@ -1332,36 +1330,31 @@ export function Issues() {
     setIsRetryingUpdate(true);
 
     try {
-      const result = await issueWorkflow<Issue>({
+      // Use useServiceWorkflow hook - callbacks handled automatically
+      const result = await executeWorkflow<Record<string, unknown>, Issue>({
+        baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
         endpoint: `/issues/${updateError.issueId}`,
         method: 'PUT',
         data: updateError.updates,
         permissionLevel: updateError.permissionLevel,
-        healthChecks: { minio: false },
-        messages: {
-          serviceDown: t('pages.issues.updateError.serviceDown'),
-          sqlDown: t('pages.issues.updateError.sqlDown'),
-          notFound: t('pages.issues.updateError.notFound'),
-          permissionDenied: t('pages.issues.updateError.permissionDenied'),
-          validation: t('pages.issues.updateError.validation'),
-          generic: t('pages.issues.updateError.generic'),
+        healthChecks: { ping: true, sql: true, minio: false, cache: true },
+        verification: {
+          enabled: true,
+          getEndpoint: (result: Issue) => `/issues/${result.id}`,
+          compareFields: Object.keys(updateError.updates),
         },
         debug: analyticsSettings.logIssueWorkflow,
         caller: 'Issues.handleRetryUpdate',
-        onServiceAlive: () => {
-          console.log('[Issues] ✅ Service is alive on retry');
-        },
-        onTakingLonger: () => {
-          toast.info(t('pages.issues.updateError.takingLonger'), { duration: 20000 });
-        },
-        onRetry: (attempt: number, max: number) => {
-          toast.info(t('pages.issues.updateError.retrying', { attempt, max }), { duration: 20000 });
-        },
+      }, {
+        // Page-specific messages (override universal defaults)
+        serviceDown: t('pages.issues.updateError.serviceDown'),
+        takingLonger: t('pages.issues.updateError.takingLonger'),
       });
 
       if (result.success && result.data) {
-        // Success! Close retry modal and update state
+        // Success! Close both retry modal AND edit modal
         setUpdateError(null);
+        setIssueToView(null);  // Close edit modal after successful retry
         toast.success(t('pages.issues.updateSuccess'));
 
         // Normalize enum values to lowercase for local state
@@ -1373,12 +1366,10 @@ export function Issues() {
           priority: result.data.priority.toLowerCase() as IssuePriority,
         };
 
-        // Update local state
+        // Update local state with saved data
         setIssues((prev) => prev.map((item) =>
           item.id === updateError.issueId ? { ...item, ...normalizedIssue } : item
         ));
-        // Update viewed issue
-        setIssueToView((prev) => prev ? { ...prev, ...normalizedIssue } : prev);
 
         console.log(`[Issues] ✅ Issue ${updateError.issueId} saved successfully on retry`);
       } else if (result.errorCode === 'SERVICE_DOWN' || result.errorCode === 'SQL_DOWN') {
@@ -1552,32 +1543,43 @@ export function Issues() {
     setIsPermanentDeleting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/issues/${issueToPermanentlyDelete.id}/permanent`, {
+      const result = await serviceWorkflow({
+        baseUrl: API_BASE_URL,
+        endpoint: `/issues/${issueToPermanentlyDelete.id}/permanent`,
         method: 'DELETE',
+        healthChecks: {
+          ping: true,
+          sql: true,
+          minio: true, // Check MinIO for delete operations (has attachments)
+        },
+        deleteVerification: {
+          enabled: true,
+          getVerifyEndpoint: (id) => `/issues/${id}/verify`,
+          entityType: 'issue',
+          entityId: issueToPermanentlyDelete.id,
+          entityCode: issueToPermanentlyDelete.issue_code,
+        },
+        callbacks: {
+          onDataIntegrityIssue: defaultDataIntegrityHandler, // Auto-create Issue for orphaned files
+          onError: (error, errorCode) => {
+            console.error(`[Issues] Delete error: ${errorCode} - ${error}`);
+          },
+        },
+        debug: true,
+        caller: 'Issues.handlePermanentDeleteConfirm',
       });
 
-      if (!response.ok) {
-        // Check for MinIO unavailable (503)
-        if (response.status === 503) {
+      if (!result.success) {
+        // Check for MinIO unavailable
+        if (result.errorCode === 'MINIO_UNAVAILABLE' || result.errorCode === 'MINIO_UNAVAILABLE_WITH_FILES') {
           console.log('[Issues] ⚠️ MinIO unavailable - showing special modal (no changes made yet)');
-          // Close the permanent delete modal and show MinIO unavailable modal
-          // NOTE: Backend did NOT mark the issue yet - user can cancel safely
           const issueToHandle = issueToPermanentlyDelete;
           setIssueToPermanentlyDelete(null);
           setMinioFailedItems([issueToHandle]);
-          // DON'T refresh - nothing has changed yet
           return;
         }
 
-        // Try to get detailed error message from response body
-        let errorDetail = response.statusText;
-        try {
-          const errorData = await response.json();
-          errorDetail = errorData.detail || errorDetail;
-        } catch {
-          // JSON parse failed, use statusText
-        }
-        throw new Error(errorDetail);
+        throw new Error(result.error || 'Delete failed');
       }
 
       console.log(`[Issues] ✅ Issue ${issueToPermanentlyDelete.issue_code} permanently deleted`);
@@ -1707,30 +1709,8 @@ export function Issues() {
   // ============================================================
   // RENDER
   // ============================================================
-
-  // ============================================================
-  // LOADING / ERROR STATES
-  // ============================================================
-
-  if (loading) {
-    return (
-      <BasePage>
-        <div className={styles.page}>
-          <PageHeader
-            title={t('pages.issues.title')}
-            subtitle={t('pages.issues.subtitle')}
-            breadcrumbs={[
-              { name: t('common.home'), href: '/' },
-              { name: t('pages.issues.breadcrumb'), isActive: true },
-            ]}
-          />
-          <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <p>Loading issues...</p>
-          </div>
-        </div>
-      </BasePage>
-    );
-  }
+  // NOTE: No separate loading state - FilteredDataGrid shows loading/error inside grid
+  // This ensures filter panel and grid layout are always visible
 
   return (
     <BasePage>
@@ -1799,6 +1779,9 @@ export function Issues() {
           // Auto-refresh every 5 seconds
           autoRefreshInterval={5000}
           onRefresh={() => fetchIssues()}
+          // Loading state - shows spinner inside DataGrid
+          loading={loading}
+          loadingSlow={loadingSlow}
           // Error state - shows inside DataGrid when service unavailable
           error={error}
           onRetry={() => {
@@ -1822,11 +1805,11 @@ export function Issues() {
                   disabled={selectedRows.size === 0 || !canExport}
                 />
                 <button
-                  className={styles.actionButton}
+                  className={styles.actionButtonDanger}
                   onClick={handleBulkDelete}
                   disabled={selectedRows.size === 0 || !canDelete}
                 >
-                  🗑️ {t('common.delete')}
+                  <span role="img" aria-label="Delete">🗑️</span> {t('common.delete')}
                 </button>
                 <button
                   className={styles.actionButtonSecondary}
@@ -2035,7 +2018,7 @@ export function Issues() {
                 {exportErrors.minioErrors.length > 0 && (
                   <div style={{ marginBottom: '12px' }}>
                     <p style={{ fontWeight: 600, marginBottom: '4px' }}>
-                      ⚠️ {t('pages.issues.exportErrors.minioTitle', { count: exportErrors.minioErrors.length })}:
+                      <span role="img" aria-label="Warning">⚠️</span> {t('pages.issues.exportErrors.minioTitle', { count: exportErrors.minioErrors.length })}:
                     </p>
                     <ul style={{ margin: 0, paddingLeft: '20px' }}>
                       {exportErrors.minioErrors.map(code => (
@@ -2073,35 +2056,26 @@ export function Issues() {
           canEdit={canEdit}
           canDelete={canDelete}
           onSave={async (issueId, updates, permissionLevel) => {
-            // Use universal issueWorkflow with retry logic
-            const result = await issueWorkflow<Issue>({
+            // Use useServiceWorkflow hook - callbacks handled automatically
+            const updatesObj = updates as Record<string, unknown>;
+            const result = await executeWorkflow<Record<string, unknown>, Issue>({
+              baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
               endpoint: `/issues/${issueId}`,
               method: 'PUT',
-              data: updates as Record<string, unknown>,
+              data: updatesObj,
               permissionLevel,
-              healthChecks: { minio: false },
-              messages: {
-                serviceDown: t('pages.issues.updateError.serviceDown'),
-                sqlDown: t('pages.issues.updateError.sqlDown'),
-                notFound: t('pages.issues.updateError.notFound'),
-                permissionDenied: t('pages.issues.updateError.permissionDenied'),
-                validation: t('pages.issues.updateError.validation'),
-                generic: t('pages.issues.updateError.generic'),
+              healthChecks: { ping: true, sql: true, minio: false, cache: true },
+              verification: {
+                enabled: true,
+                getEndpoint: (result: Issue) => `/issues/${result.id}`,
+                compareFields: Object.keys(updatesObj),
               },
               debug: analyticsSettings.logIssueWorkflow,
               caller: 'Issues.onSave',
-              onServiceAlive: () => {
-                console.log('[Issues] ✅ Service is alive');
-              },
-              onServiceDown: () => {
-                toast.error(t('pages.issues.updateError.serviceDown'), { duration: 20000 });
-              },
-              onTakingLonger: () => {
-                toast.info(t('pages.issues.updateError.takingLonger'), { duration: 20000 });
-              },
-              onRetry: (attempt: number, max: number) => {
-                toast.info(t('pages.issues.updateError.retrying', { attempt, max }), { duration: 20000 });
-              },
+            }, {
+              // Page-specific messages (override universal defaults)
+              serviceDown: t('pages.issues.updateError.serviceDown'),
+              takingLonger: t('pages.issues.updateError.takingLonger'),
             });
 
             if (result.success && result.data) {
@@ -2141,223 +2115,225 @@ export function Issues() {
             }
             return false;
           }}
-          onExport={(issue, format) => {
+          onExport={async (issue, format) => {
             console.log(`[Issues] Export issue ${issue.issue_code} as ${format}`);
 
             if (format === 'csv') {
-              // Single issue CSV export
-              const headers = [
-                'ID',
-                t('pages.issues.columns.issue_code'),
-                t('pages.issues.columns.title'),
-                t('pages.issues.details.description'),
-                t('pages.issues.details.type'),
-                t('pages.issues.details.severity'),
-                t('pages.issues.columns.status'),
-                t('pages.issues.details.priority'),
-                t('pages.issues.details.category'),
-                t('pages.issues.details.created_at'),
-              ];
-              const exportData = [{
-                id: issue.id,
-                issue_code: issue.issue_code,
-                title: issue.title,
-                description: issue.description || '',
-                type: issue.type,
-                severity: issue.severity,
-                status: issue.status,
-                priority: issue.priority,
-                category: issue.category || '',
-                created_at: issue.created_at,
-              }];
-              exportToCSV(exportData, headers, `issue_${issue.issue_code}_${new Date().toISOString().split('T')[0]}`);
-              toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'CSV' }));
+              const fileName = `issue_${issue.issue_code}_${new Date().toISOString().split('T')[0]}.csv`;
+
+              // STEP 1: Prepare destination BEFORE download
+              const exportPrep = await prepareExportDestination({
+                behavior: user.exportBehavior || 'automatic',
+                fileName,
+                mimeType: 'text/csv',
+                suggestedExtension: '.csv',
+              });
+
+              if (!exportPrep.success) {
+                console.log('[Issues] CSV export cancelled by user');
+                return;
+              }
+
+              // STEP 2: Download (no loading toast - CSV export is fast)
+              const result = await serviceWorkflow<{ issue_ids: string[] }, Blob>({
+                baseUrl: API_BASE_URL,
+                endpoint: '/issues/export?format=csv',
+                method: 'POST',
+                data: { issue_ids: [issue.id] },
+                healthChecks: { ping: true, sql: true, minio: false },
+                debug: analyticsSettings.logToConsole,
+                showToasts: true,
+                language: language,
+                caller: 'IssueViewModal.ExportCSV',
+                responseType: 'blob',
+              });
+
+              // STEP 3: Write to destination
+              if (result.success && result.data) {
+                if (exportPrep.fileHandle) {
+                  const writeResult = await writeToFileHandle(exportPrep.fileHandle, result.data);
+                  if (writeResult.success) {
+                    toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'CSV' }));
+                  } else {
+                    toast.error(t('pages.issues.exportFailed'));
+                  }
+                } else {
+                  triggerAutomaticDownload(result.data, exportPrep.fileName);
+                  toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'CSV' }));
+                }
+              } else {
+                toast.error(t('pages.issues.exportFailed'));
+              }
 
             } else if (format === 'json') {
-              // Single issue JSON export
-              const { isActive, ...cleanIssue } = issue as Issue & { isActive?: boolean };
-              exportToJSON([cleanIssue], `issue_${issue.issue_code}_${new Date().toISOString().split('T')[0]}`);
-              toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'JSON' }));
+              const fileName = `issue_${issue.issue_code}_${new Date().toISOString().split('T')[0]}.json`;
+
+              // STEP 1: Prepare destination BEFORE download
+              const exportPrep = await prepareExportDestination({
+                behavior: user.exportBehavior || 'automatic',
+                fileName,
+                mimeType: 'application/json',
+                suggestedExtension: '.json',
+              });
+
+              if (!exportPrep.success) {
+                console.log('[Issues] JSON export cancelled by user');
+                return;
+              }
+
+              // STEP 2: Download (no loading toast - JSON export is fast)
+              const result = await serviceWorkflow<{ issue_ids: string[] }, Blob>({
+                baseUrl: API_BASE_URL,
+                endpoint: '/issues/export?format=json',
+                method: 'POST',
+                data: { issue_ids: [issue.id] },
+                healthChecks: { ping: true, sql: true, minio: false },
+                debug: analyticsSettings.logToConsole,
+                showToasts: true,
+                language: language,
+                caller: 'IssueViewModal.ExportJSON',
+                responseType: 'blob',
+              });
+
+              // STEP 3: Write to destination
+              if (result.success && result.data) {
+                if (exportPrep.fileHandle) {
+                  const writeResult = await writeToFileHandle(exportPrep.fileHandle, result.data);
+                  if (writeResult.success) {
+                    toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'JSON' }));
+                  } else {
+                    toast.error(t('pages.issues.exportFailed'));
+                  }
+                } else {
+                  triggerAutomaticDownload(result.data, exportPrep.fileName);
+                  toast.success(t('pages.issues.exportSuccess', { count: 1, format: 'JSON' }));
+                }
+              } else {
+                toast.error(t('pages.issues.exportFailed'));
+              }
 
             } else if (format === 'zip') {
-              // Single issue ZIP export - use existing bulk function with selection
+              // Single issue ZIP export via backend - reuses bulk handleExportZIP
               setSelectedRows(new Set([issue.id]));
-              // Use setTimeout to ensure state update before calling handleExportZIP
               setTimeout(() => handleExportZIP(), 0);
             }
           }}
           onSaveAttachments={async (issueId, deletedAttachments, newFiles) => {
-            console.log('═══════════════════════════════════════════════════════════════');
-            console.log('[AttachmentSave] STEP 0: Starting attachment save operation');
-            console.log('[AttachmentSave] Issue ID:', issueId);
-            console.log('[AttachmentSave] Files to DELETE:', deletedAttachments.map(a => a.file_name));
-            console.log('[AttachmentSave] Files to UPLOAD:', newFiles.map(f => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`));
-            console.log('═══════════════════════════════════════════════════════════════');
+            // Get issue code for data integrity reporting
+            const currentIssue = issues.find(i => i.id === issueId);
 
-            try {
-              // ─────────────────────────────────────────────────────────────────
-              // STEP 1: Pre-flight Backend health check
-              // NOTE: MinIO is checked by backend during operations (CORS prevents direct check)
-              // ─────────────────────────────────────────────────────────────────
-              console.log('[AttachmentSave] STEP 1: Backend health check - STARTING');
-              console.log('[AttachmentSave] STEP 1: NOTE: MinIO checked by backend (CORS prevents direct browser check)');
+            // Step 1: Bulk delete attachments (if any)
+            if (deletedAttachments.length > 0) {
+              // Extended response type with results array
+              interface BulkDeleteResponse {
+                not_found_minio: number;
+                results: Array<{ filename: string; status: string; error?: string }>;
+              }
 
-              const healthStartTime = performance.now();
-              const healthResult = await checkMultipleStoragesHealth(
-                [
-                  {
-                    type: 'sql' as const,
-                    baseUrl: API_BASE_URL,
-                    healthEndpoint: '/health',
-                    displayName: 'Issues Service',
-                  },
-                ],
-                {
-                  onSlowOperation: () => {
-                    console.log('[AttachmentSave] STEP 1: Health check - SLOW (>5s)');
-                    toast.warning(t('storage.slowOperation'));
-                  },
-                  onRetry: (attempt, delay) => {
-                    console.log(`[AttachmentSave] STEP 1: Health check retry ${attempt}, waiting ${delay}ms`);
-                  },
-                }
-              );
-              const healthDuration = performance.now() - healthStartTime;
+              const deleteResult = await serviceWorkflow<{ filenames: string[] }, BulkDeleteResponse>({
+                baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+                endpoint: `/issues/${issueId}/attachments/bulk-delete`,
+                method: 'POST',
+                data: { filenames: deletedAttachments.map(a => a.file_name) },
+                healthChecks: { ping: true, sql: true, minio: true },
+                debug: analyticsSettings.logIssueWorkflow,
+                caller: 'Issues.bulkDeleteAttachments',
+              });
 
-              const sqlResult = healthResult.results.get('sql');
-              const statusIcon = sqlResult?.status === 'healthy' ? '✅' : '❌';
-              console.log(`[AttachmentSave] STEP 1: Issues Service: ${statusIcon} ${sqlResult?.status} (${sqlResult?.responseTime?.toFixed(0)}ms)`);
-
-              if (!healthResult.allHealthy) {
-                console.log('[AttachmentSave] STEP 1: Backend unavailable - ❌ CANNOT PROCEED');
-                toast.error(t('storage.unavailable', { storage: 'Issues Service' }));
+              if (!deleteResult.success) {
+                toast.error(t('pages.issues.attachmentEdit.saveError'));
                 return false;
               }
 
-              console.log(`[AttachmentSave] STEP 1: Backend health check - ✅ OK (${healthDuration.toFixed(0)}ms)`);
+              // Check for orphaned files (data integrity issue) - auto-create Issue
+              if (deleteResult.data?.not_found_minio && deleteResult.data.not_found_minio > 0) {
+                const orphanedFiles = deleteResult.data.results
+                  ?.filter(r => r.status === 'not_found_minio')
+                  .map(r => r.filename) || [];
 
-              // ─────────────────────────────────────────────────────────────────
-              // STEP 2: Delete marked attachments
-              // ─────────────────────────────────────────────────────────────────
-              if (deletedAttachments.length > 0) {
-                console.log(`[AttachmentSave] STEP 2: Deleting ${deletedAttachments.length} attachments - STARTING`);
+                console.warn(`[Issues] Data integrity: ${deleteResult.data.not_found_minio} orphaned attachment(s) found`);
 
-                for (let i = 0; i < deletedAttachments.length; i++) {
-                  const attachment = deletedAttachments[i];
-                  console.log(`[AttachmentSave] STEP 2.${i + 1}: Deleting "${attachment.file_name}" - STARTING`);
-
-                  const deleteUrl = `${API_BASE_URL}/issues/${issueId}/attachments/${attachment.file_name}`;
-                  console.log(`[AttachmentSave] STEP 2.${i + 1}: DELETE ${deleteUrl}`);
-
-                  const deleteStartTime = performance.now();
-                  const deleteResponse = await fetch(deleteUrl, { method: 'DELETE' });
-                  const deleteDuration = performance.now() - deleteStartTime;
-
-                  console.log(`[AttachmentSave] STEP 2.${i + 1}: Response status=${deleteResponse.status}, duration=${deleteDuration.toFixed(0)}ms`);
-
-                  if (!deleteResponse.ok) {
-                    console.log(`[AttachmentSave] STEP 2.${i + 1}: Deleting "${attachment.file_name}" - ❌ FAILED`);
-                    console.log('[AttachmentSave] ERROR: Delete failed, aborting operation');
-                    toast.error(t('pages.issues.attachmentEdit.saveError'));
-                    return false;
-                  }
-
-                  console.log(`[AttachmentSave] STEP 2.${i + 1}: Deleting "${attachment.file_name}" - ✅ OK`);
-                }
-
-                console.log('[AttachmentSave] STEP 2: All deletions - ✅ OK');
-              } else {
-                console.log('[AttachmentSave] STEP 2: No files to delete - SKIPPED');
-              }
-
-              // ─────────────────────────────────────────────────────────────────
-              // STEP 3: Upload new files
-              // ─────────────────────────────────────────────────────────────────
-              if (newFiles.length > 0) {
-                console.log(`[AttachmentSave] STEP 3: Uploading ${newFiles.length} files - STARTING`);
-
-                const formData = new FormData();
-                newFiles.forEach((file, i) => {
-                  formData.append('files', file);
-                  console.log(`[AttachmentSave] STEP 3: Added file ${i + 1}/${newFiles.length}: "${file.name}" (${(file.size / 1024).toFixed(1)} KB, type=${file.type})`);
+                // Auto-create Issue via Kafka
+                defaultDataIntegrityHandler({
+                  event_type: 'data_integrity.missing_attachment',
+                  source_service: 'Issues.bulkDeleteAttachments',
+                  source_entity: {
+                    type: 'issue',
+                    id: issueId,
+                    code: currentIssue?.issue_code,
+                  },
+                  detected_at: new Date().toISOString(),
+                  details: {
+                    missing_files: orphanedFiles,
+                    expected_location: `minio/issues-attachments/${issueId}/`,
+                  },
+                  issue_data: {
+                    title: currentIssue?.issue_code
+                      ? `Missing attachments in issue ${currentIssue.issue_code}`
+                      : `Missing attachments detected during bulk delete`,
+                    description: `Found ${orphanedFiles.length} file(s) in database but missing from MinIO storage.\n\n**Affected files:**\n${orphanedFiles.map(f => `- ${f}`).join('\n')}`,
+                    type: 'BUG',
+                    severity: 'MODERATE',
+                    category: 'DATA_INTEGRITY',
+                    priority: 'MEDIUM',
+                  },
                 });
-
-                const uploadUrl = `${API_BASE_URL}/issues/${issueId}/attachments`;
-                console.log(`[AttachmentSave] STEP 3: POST ${uploadUrl}`);
-
-                const uploadStartTime = performance.now();
-                const uploadResponse = await fetch(uploadUrl, { method: 'POST', body: formData });
-                const uploadDuration = performance.now() - uploadStartTime;
-
-                console.log(`[AttachmentSave] STEP 3: Response status=${uploadResponse.status}, duration=${uploadDuration.toFixed(0)}ms`);
-
-                if (!uploadResponse.ok) {
-                  const errorBody = await uploadResponse.text().catch(() => 'N/A');
-                  console.log('[AttachmentSave] STEP 3: Upload - ❌ FAILED');
-                  console.log('[AttachmentSave] ERROR: Response body:', errorBody);
-                  toast.error(t('pages.issues.attachmentEdit.saveError'));
-                  return false;
-                }
-
-                const uploadResult = await uploadResponse.json().catch(() => null);
-                console.log('[AttachmentSave] STEP 3: Upload result:', uploadResult);
-                console.log('[AttachmentSave] STEP 3: Upload - ✅ OK');
-              } else {
-                console.log('[AttachmentSave] STEP 3: No files to upload - SKIPPED');
               }
-
-              // ─────────────────────────────────────────────────────────────────
-              // STEP 4: Refresh issue data
-              // ─────────────────────────────────────────────────────────────────
-              console.log('[AttachmentSave] STEP 4: Refreshing issue data - STARTING');
-
-              const refreshUrl = `${API_BASE_URL}/issues/${issueId}`;
-              console.log(`[AttachmentSave] STEP 4: GET ${refreshUrl}`);
-
-              const refreshStartTime = performance.now();
-              const issueResponse = await fetch(refreshUrl);
-              const refreshDuration = performance.now() - refreshStartTime;
-
-              console.log(`[AttachmentSave] STEP 4: Response status=${issueResponse.status}, duration=${refreshDuration.toFixed(0)}ms`);
-
-              if (issueResponse.ok) {
-                const updatedIssue = await issueResponse.json();
-                console.log('[AttachmentSave] STEP 4: Issue attachments after update:', updatedIssue.attachments?.map((a: Attachment) => a.file_name) || []);
-
-                // Update local state
-                setIssues((prev) => prev.map((item) =>
-                  item.id === issueId ? { ...item, ...updatedIssue } : item
-                ));
-                // Update viewed issue
-                setIssueToView((prev) => prev ? { ...prev, ...updatedIssue } : prev);
-                // Clear attachment status cache for this issue - forces re-check
-                setAttachmentStatus((prev) => {
-                  const newMap = new Map(prev);
-                  newMap.delete(issueId);
-                  return newMap;
-                });
-
-                console.log('[AttachmentSave] STEP 4: State updated - ✅ OK');
-              } else {
-                console.log('[AttachmentSave] STEP 4: Refresh failed - ⚠️ WARNING (non-blocking)');
-              }
-
-              // ─────────────────────────────────────────────────────────────────
-              // COMPLETE
-              // ─────────────────────────────────────────────────────────────────
-              console.log('═══════════════════════════════════════════════════════════════');
-              console.log('[AttachmentSave] ALL STEPS COMPLETED - ✅ SUCCESS');
-              console.log('═══════════════════════════════════════════════════════════════');
-              return true;
-
-            } catch (error) {
-              console.log('═══════════════════════════════════════════════════════════════');
-              console.log('[AttachmentSave] UNEXPECTED ERROR - ❌ FAILED');
-              console.error('[AttachmentSave] Error details:', error);
-              console.log('═══════════════════════════════════════════════════════════════');
-              toast.error(t('pages.issues.attachmentEdit.saveError'));
-              return false;
             }
+
+            // Step 2: Upload new files (if any)
+            if (newFiles.length > 0) {
+              const uploadResult = await serviceWorkflow({
+                baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+                endpoint: `/issues/${issueId}/attachments`,
+                method: 'POST',
+                files: newFiles,
+                healthChecks: { ping: false, sql: false, minio: true }, // Already checked in step 1
+                debug: analyticsSettings.logIssueWorkflow,
+                caller: 'Issues.uploadAttachments',
+              });
+
+              if (!uploadResult.success) {
+                toast.error(t('pages.issues.attachmentEdit.saveError'));
+                return false;
+              }
+            }
+
+            // Step 3: Refresh entity (with permission level for field visibility)
+            const refreshResult = await serviceWorkflow<void, Issue>({
+              baseUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+              endpoint: `/issues/${issueId}`,
+              method: 'GET',
+              permissionLevel,
+              healthChecks: { ping: false, sql: false, minio: false },
+              debug: analyticsSettings.logIssueWorkflow,
+              caller: 'Issues.refreshAfterAttachments',
+            });
+
+            if (refreshResult.success && refreshResult.data) {
+              const updatedIssue = refreshResult.data;
+              // Normalize enum values to lowercase for local state (with null safety)
+              const normalizedIssue = {
+                ...updatedIssue,
+                type: (updatedIssue.type?.toLowerCase() ?? 'bug') as IssueType,
+                severity: (updatedIssue.severity?.toLowerCase() ?? 'moderate') as IssueSeverity,
+                status: (updatedIssue.status?.toLowerCase() ?? 'open') as IssueStatus,
+                priority: (updatedIssue.priority?.toLowerCase() ?? 'medium') as IssuePriority,
+              };
+
+              setIssues((prev) => prev.map((item) =>
+                item.id === issueId ? { ...item, ...normalizedIssue } : item
+              ));
+              setIssueToView((prev) => prev ? { ...prev, ...normalizedIssue } : prev);
+              setAttachmentStatus((prev) => {
+                const newMap = new Map(prev);
+                newMap.delete(issueId);
+                return newMap;
+              });
+            }
+
+            toast.success(t('pages.issues.attachmentEdit.saveSuccess'));
+            return true;
           }}
           onDelete={async (issue) => {
             try {
@@ -2406,29 +2382,23 @@ export function Issues() {
           }}
         />
 
-        {/* Loading Overlay for ZIP Export */}
-        {isExportingZip && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999,
-            }}
-          >
-            <Spinner size="large" />
-            <p style={{ color: 'white', marginTop: '16px', fontSize: '16px' }}>
-              {t('pages.issues.exportZipLoading')}
-            </p>
-          </div>
-        )}
+        {/* Export Progress Modal (reusable component from ui-components) */}
+        <ExportProgressModal
+          isOpen={isExportingZip}
+          format="ZIP"
+          progress={exportProgress}
+          files={exportFiles}
+          healthCheckText={t('pages.issues.exportZipLoading')}
+          downloadingText={t('pages.issues.exportLoading', { format: 'ZIP' })}
+          onCancel={() => {
+            console.log('[Issues] User cancelled export');
+            exportCancelledRef.current = true;
+            setIsExportingZip(false);
+            setExportProgress(null);
+            setExportFiles([]);
+            toast.info(t('common.cancelled'));
+          }}
+        />
       </div>
     </BasePage>
   );

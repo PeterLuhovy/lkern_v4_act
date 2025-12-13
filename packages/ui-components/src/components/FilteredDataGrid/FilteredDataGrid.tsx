@@ -55,6 +55,9 @@ export function FilteredDataGrid<T extends Record<string, any>>({
   betweenContent,
   autoRefreshInterval,
   onRefresh,
+  loading = false,
+  loadingMessage,
+  loadingSlow = false,
   error,
   onRetry,
 }: FilteredDataGridProps<T>) {
@@ -322,6 +325,9 @@ export function FilteredDataGrid<T extends Record<string, any>>({
         sortField={sortField}
         sortDirection={sortDirection}
         onSort={handleSort}
+        loading={loading}
+        loadingMessage={loadingMessage}
+        loadingSlow={loadingSlow}
         error={error}
         onRetry={onRetry}
       />

@@ -1,7 +1,7 @@
-﻿{
+{
   "app": {
     "name": "L-KERN Control Panel",
-    "version": "1.15.0",
+    "version": "1.16.0",
     "working_directory": "L:\\system\\lkern_codebase_v4_act"
   },
   "ui": {
@@ -75,9 +75,9 @@
     },
     "docker_stop_all": {
       "label": "Stop All",
-      "command": "powershell -Command \"Write-Host 'đź›‘ [1/8] Stopping LKMS801...' -ForegroundColor Yellow; Get-CimInstance Win32_Process | Where-Object {($_.Name -eq 'python.exe' -or $_.Name -eq 'pythonw.exe') -and $_.CommandLine -like '*app.main*'} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }; Write-Host 'âś“ LKMS801' -ForegroundColor Green; Start-Sleep -Seconds 1; Write-Host 'đź›‘ [2/8] Stopping LKMS901 Adminer...' -ForegroundColor Yellow\" & docker-compose stop lkms901-adminer & powershell -Command \"Write-Host 'âś“ LKMS901' -ForegroundColor Green; Write-Host 'đź›‘ [3/8] Stopping LKMS201 Web-UI...' -ForegroundColor Yellow\" & docker-compose stop lkms201-web-ui & powershell -Command \"Write-Host 'âś“ LKMS201' -ForegroundColor Green; Write-Host 'đź›‘ [4/8] Stopping LKMS105 Issues...' -ForegroundColor Yellow\" & docker-compose stop lkms105-issues & powershell -Command \"Write-Host 'âś“ LKMS105' -ForegroundColor Green; Write-Host 'đź›‘ [5/8] Stopping LKMS105 MinIO...' -ForegroundColor Yellow\" & docker-compose stop lkms105-minio & powershell -Command \"Write-Host 'âś“ LKMS105-minio' -ForegroundColor Green; Write-Host 'đź›‘ [6/8] Stopping LKMS105 DB...' -ForegroundColor Yellow\" & docker-compose stop lkms105-issues-db & powershell -Command \"Write-Host 'âś“ LKMS105-issues-db' -ForegroundColor Green; Write-Host 'đź›‘ [7/8] Stopping LKMS504 Kafka...' -ForegroundColor Yellow\" & docker-compose stop lkms504-kafka & powershell -Command \"Write-Host 'âś“ LKMS504' -ForegroundColor Green; Write-Host 'đź›‘ [8/8] Stopping LKMS503 Zookeeper...' -ForegroundColor Yellow\" & docker-compose stop lkms503-zookeeper & powershell -Command \"Write-Host 'âś“ LKMS503' -ForegroundColor Green; Write-Host 'âś… All services stopped!' -ForegroundColor Green\"",
+      "command": "powershell -Command \"Write-Host '[1/8] Stopping LKMS801...' -ForegroundColor Yellow; Get-CimInstance Win32_Process | Where-Object {($_.Name -eq 'python.exe' -or $_.Name -eq 'pythonw.exe') -and $_.CommandLine -like '*app.main*'} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }; Write-Host 'LKMS801 OK' -ForegroundColor Green; Start-Sleep -Seconds 1; Write-Host '[2/8] Stopping LKMS901 Adminer...' -ForegroundColor Yellow\" & docker-compose stop lkms901-adminer & powershell -Command \"Write-Host 'LKMS901 OK' -ForegroundColor Green; Write-Host '[3/8] Stopping LKMS201 Web-UI...' -ForegroundColor Yellow\" & docker-compose stop lkms201-web-ui & powershell -Command \"Write-Host 'LKMS201 OK' -ForegroundColor Green; Write-Host '[4/8] Stopping LKMS105 Issues...' -ForegroundColor Yellow\" & docker-compose stop lkms105-issues & powershell -Command \"Write-Host 'LKMS105 OK' -ForegroundColor Green; Write-Host '[5/8] Stopping LKMS105 MinIO...' -ForegroundColor Yellow\" & docker-compose stop lkms105-minio & powershell -Command \"Write-Host 'LKMS105-minio OK' -ForegroundColor Green; Write-Host '[6/8] Stopping LKMS105 DB...' -ForegroundColor Yellow\" & docker-compose stop lkms105-issues-db & powershell -Command \"Write-Host 'LKMS105-issues-db OK' -ForegroundColor Green; Write-Host '[7/8] Stopping LKMS504 Kafka...' -ForegroundColor Yellow\" & docker-compose stop lkms504-kafka & powershell -Command \"Write-Host 'LKMS504 OK' -ForegroundColor Green; Write-Host '[8/8] Stopping LKMS503 Zookeeper...' -ForegroundColor Yellow\" & docker-compose stop lkms503-zookeeper & powershell -Command \"Write-Host 'LKMS503 OK' -ForegroundColor Green; Write-Host 'All services stopped!' -ForegroundColor Green\"",
       "category": "Docker-All",
-      "description": "Stop all services sequentially (801â†’901â†’201â†’105â†’105-minioâ†’105-dbâ†’504â†’503)"
+      "description": "Stop all services sequentially (801->901->201->105->105-minio->105-db->504->503)"
     },
     "docker_restart_all": {
       "label": "Restart All",
@@ -110,108 +110,130 @@
       "description": "List all Docker containers (running and stopped)"
     },
     "docker_start_webui": {
-      "label": "â–¶ď¸Ź Start Web-UI",
+      "label": "Start Web-UI",
       "command": "docker-compose start lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Start lkms201-web-ui container"
     },
     "docker_stop_webui": {
-      "label": "âŹ¸ď¸Ź Stop Web-UI",
+      "label": "Stop Web-UI",
       "command": "docker-compose stop lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Stop lkms201-web-ui container"
     },
     "docker_restart_webui": {
-      "label": "đź” Restart Web-UI",
+      "label": "Restart Web-UI",
       "command": "docker-compose restart lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Restart lkms201-web-ui container"
     },
     "docker_rebuild_webui": {
-      "label": "đź”§ Rebuild Web-UI",
+      "label": "Rebuild Web-UI",
       "command": "docker-compose up --build -d lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Rebuild and start lkms201-web-ui container"
     },
     "docker_logs_webui": {
-      "label": "đź“ś Logs Web-UI",
+      "label": "Logs Web-UI",
       "command": "docker-compose logs --tail=100 lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Show last 100 lines of lkms201-web-ui logs"
     },
     "docker_remove_webui": {
-      "label": "đź—‘ď¸Ź Remove Web-UI",
+      "label": "Remove Web-UI",
       "command": "docker-compose rm -f lkms201-web-ui",
       "category": "Docker-WebUI",
       "description": "Remove lkms201-web-ui container (must be stopped first)"
     },
     "docker_logs_webui_v4": {
-      "label": "đź“ś Web-UI (v4)",
+      "label": "Web-UI (v4)",
       "command": "docker logs --tail=200 lkms201-web-ui",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms201-web-ui logs"
     },
     "docker_logs_webui_v3": {
-      "label": "đź“ś Web-UI (v3)",
+      "label": "Web-UI (v3)",
       "command": "docker logs --tail=200 lkms201-web-ui-v3",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms201-web-ui-v3 logs"
     },
     "docker_logs_contacts": {
-      "label": "đź“ś Contacts Service",
+      "label": "Contacts Service",
       "command": "docker logs --tail=200 lkms101-contacts",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms101-contacts logs"
     },
     "docker_logs_contacts_db": {
-      "label": "đź“ś Contacts DB",
+      "label": "Contacts DB",
       "command": "docker logs --tail=200 lkms101-contacts-db",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms101-contacts-db logs"
     },
     "docker_logs_adminer": {
-      "label": "đź“ś Adminer",
+      "label": "Adminer",
       "command": "docker logs --tail=200 lkms901-adminer",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms901-adminer logs"
     },
     "lkms801_start": {
-      "label": "â–¶ď¸Ź Start LKMS801",
+      "label": "Start LKMS801",
       "command": "cd services\\lkms801-system-ops && pythonw -m app.main",
       "category": "Docker-Native",
       "description": "Start LKMS801 System Operations Service (native Windows, hidden)"
     },
     "lkms801_stop": {
-      "label": "âŹ¸ď¸Ź Stop LKMS801",
+      "label": "Stop LKMS801",
       "command": "powershell -Command \"Get-CimInstance Win32_Process | Where-Object {($_.Name -eq 'python.exe' -or $_.Name -eq 'pythonw.exe') -and $_.CommandLine -like '*app.main*'} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }\"",
       "category": "Docker-Native",
       "description": "Stop LKMS801 service (PowerShell kill pythonw process)"
     },
     "lkms801_restart": {
-      "label": "đź” Restart LKMS801",
+      "label": "Restart LKMS801",
       "command": "powershell -Command \"Get-CimInstance Win32_Process | Where-Object {($_.Name -eq 'python.exe' -or $_.Name -eq 'pythonw.exe') -and $_.CommandLine -like '*app.main*'} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }\" & timeout /t 2 & cd services\\lkms801-system-ops && pythonw -m app.main",
       "category": "Docker-Native",
       "description": "Restart LKMS801 service (PowerShell stop + wait 2s + start)"
     },
     "lkms801_status": {
-      "label": "đź’“ LKMS801 Health",
+      "label": "LKMS801 Health",
       "command": "curl http://localhost:5801/health",
       "category": "Docker-Native",
       "description": "Check LKMS801 service health status"
     },
     "lkms801_compile_proto": {
-      "label": "đź”§ Compile Proto",
+      "label": "Compile Proto",
       "command": "cd services\\lkms801-system-ops && compile-proto.bat",
       "category": "Docker-Native",
       "description": "Compile gRPC proto files for LKMS801"
     },
     "lkms801_logs": {
-      "label": "đź“ś LKMS801 Logs",
+      "label": "LKMS801 Logs",
       "command": "powershell -Command \"Get-Content -Path 'services\\lkms801-system-ops\\logs\\service.log' -Wait -Tail 100 -ErrorAction SilentlyContinue\"",
       "category": "Docker-Native",
       "description": "Live stream LKMS801 service logs (last 100 lines + new entries)"
+    },
+    "kafka_list_topics": {
+      "label": "List Topics",
+      "command": "docker exec lkms504-kafka kafka-topics --bootstrap-server localhost:9092 --list",
+      "category": "Kafka",
+      "description": "List all Kafka topics"
+    },
+    "kafka_describe_topics": {
+      "label": "Describe All Topics",
+      "command": "docker exec lkms504-kafka kafka-topics --bootstrap-server localhost:9092 --describe",
+      "category": "Kafka",
+      "description": "Describe all Kafka topics with partition and replica details"
+    },
+    "kafka_consumer_groups": {
+      "label": "Consumer Groups",
+      "command": "docker exec lkms504-kafka kafka-consumer-groups --bootstrap-server localhost:9092 --list",
+      "category": "Kafka",
+      "description": "List all Kafka consumer groups"
+    },
+    "kafka_consumer_group_details": {
+      "label": "Consumer Group Details",
+      "command": "docker exec lkms504-kafka kafka-consumer-groups --bootstrap-server localhost:9092 --describe --all-groups",
+      "category": "Kafka",
+      "description": "Show details of all consumer groups (lag, offset, etc.)"
     }
   }
 }
-
-

@@ -3,15 +3,23 @@
 Issues Service - Main Application
 ================================================================
 File: services/lkms105-issues/app/main.py
-Version: v1.0.0
+Version: v1.2.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   FastAPI application entry point with REST + gRPC servers.
+Changelog:
+  v1.2.0 - Clarified Kafka consumer purpose (production/backend async events)
+         - Added POST /issues/system endpoint for sync issue creation
+  v1.1.0 - Added Kafka consumer for data integrity events (auto-create Issues)
+  v1.0.1 - /health returns HTTP 503 when unhealthy OR degraded (for Docker healthcheck)
+  v1.0.0 - Initial version
 ================================================================
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import asyncio
 import logging
 import uvicorn
@@ -23,12 +31,15 @@ from app.database import init_db, SessionLocal
 from app.api.rest import issues
 from app.api.rest import config as config_api
 from app.api.rest import cleanup
+from app.api.rest import sse
 from app.services.minio_client import minio_client
+from app.events.consumer import create_consumer
 
 # Global state for graceful degradation
 _db_available = False
 _minio_available = False
 _reconnect_task = None
+_kafka_consumer_task = None
 
 
 def is_db_available() -> bool:
@@ -39,6 +50,22 @@ def is_db_available() -> bool:
 def is_minio_available() -> bool:
     """Check if MinIO is available (for graceful degradation)."""
     return _minio_available
+
+
+async def _run_kafka_consumer(consumer):
+    """
+    Wrapper to run Kafka consumer with error handling and auto-reconnect.
+    Restarts consumer after connection failures.
+    """
+    retry_delay = 30  # seconds between reconnect attempts
+
+    while True:
+        try:
+            await consumer.start()
+        except Exception as e:
+            logger.error(f"Kafka consumer error: {e}")
+            logger.info(f"Retrying Kafka connection in {retry_delay}s...")
+            await asyncio.sleep(retry_delay)
 
 
 async def _dependency_reconnect_loop():
@@ -245,6 +272,8 @@ async def log_requests(request, call_next):
         raise
 
 # Include routers
+# IMPORTANT: SSE router MUST be before issues router to avoid /issues/events being matched as /issues/{issue_id}
+app.include_router(sse.router)
 app.include_router(issues.router)
 app.include_router(config_api.router)
 app.include_router(cleanup.router)
@@ -292,13 +321,32 @@ async def startup_event():
     else:
         logger.info("Application startup complete - all dependencies available")
 
+    # Start Kafka consumer for async issue creation (production systems, backend errors)
+    # For frontend/sync use cases, use REST endpoint: POST /issues/system
+    if _db_available:
+        try:
+            consumer = create_consumer()
+            _kafka_consumer_task = asyncio.create_task(_run_kafka_consumer(consumer))
+            logger.info("Kafka consumer started (production systems, backend async events)")
+        except Exception as e:
+            logger.warning(f"Failed to start Kafka consumer (will retry): {e}")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on application shutdown."""
-    global _reconnect_task
+    global _reconnect_task, _kafka_consumer_task
 
     logger.info("Shutting down application...")
+
+    # Cancel Kafka consumer task if running
+    if _kafka_consumer_task and not _kafka_consumer_task.done():
+        _kafka_consumer_task.cancel()
+        try:
+            await _kafka_consumer_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("Kafka consumer task cancelled")
 
     # Cancel reconnect task if running
     if _reconnect_task and not _reconnect_task.done():
@@ -346,10 +394,13 @@ async def health():
     - MinIO (Object Storage)
 
     Returns:
-        200 OK with detailed status of all dependencies
-        - status: "healthy" if all critical dependencies OK
-        - status: "degraded" if non-critical dependencies (MinIO) are down
-        - status: "unhealthy" if critical dependencies (SQL) are down
+        200 OK - status: "healthy" (all dependencies OK)
+        503 Service Unavailable - status: "degraded" or "unhealthy" (any dependency down)
+
+    Note: HTTP status code is important for Docker healthcheck!
+    - Docker healthcheck only checks HTTP status, not JSON content
+    - 503 = Docker marks container as "unhealthy"
+    - 200 = Docker marks container as "healthy"
     """
     start_time = time.time()
 
@@ -439,13 +490,22 @@ async def health():
 
     total_time = int((time.time() - start_time) * 1000)
 
-    return {
+    response_data = {
         "status": overall_status,
         "service": settings.SERVICE_NAME,
         "version": settings.SERVICE_VERSION,
         "dependencies": dependencies,
         "totalCheckTime": total_time,
     }
+
+    # Return HTTP 503 if any dependency is down (unhealthy or degraded)
+    # This is important for Docker healthcheck - it only checks HTTP status code
+    # Docker healthcheck is binary: 2xx = healthy, anything else = unhealthy
+    # Control Panel then shows "degraded" (orange) for Docker "unhealthy" state
+    if overall_status in ("unhealthy", "degraded"):
+        return JSONResponse(content=response_data, status_code=503)
+
+    return response_data
 
 
 def _sync_sql_check():

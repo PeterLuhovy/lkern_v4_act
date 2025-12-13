@@ -352,13 +352,13 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               >
                 {dataSource === 'mock' && (
                   <>
-                    <span className={styles.dataSourceIcon}>⚠️</span>
+                    <span className={styles.dataSourceIcon} role="img" aria-label="warning">⚠️</span>
                     <span className={styles.dataSourceText}>MOCK DATA</span>
                   </>
                 )}
                 {dataSource === 'error' && (
                   <>
-                    <span className={styles.dataSourceIcon}>🔴</span>
+                    <span className={styles.dataSourceIcon} role="img" aria-label="error">🔴</span>
                     <span className={styles.dataSourceText}>ORCHESTRATOR OFFLINE</span>
                   </>
                 )}
@@ -370,7 +370,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         <div className={styles.headerActions}>
           {/* THEME TOGGLE */}
           <div className={styles.themeToggle}>
-            <span className={styles.themeIcon}>
+            <span className={styles.themeIcon} role="img" aria-label={isDarkMode ? 'moon' : 'sun'}>
               {isDarkMode ? '🌙' : '☀️'}
             </span>
             <div
@@ -519,6 +519,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     <span
                       className={styles.serviceIcon}
                       style={{ color: getStatusColor(service.status) }}
+                      role="img"
+                      aria-label="database"
                     >
                       🗄️
                     </span>
@@ -539,7 +541,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({
                     : t('statusBar.backup.button')
                 }
               >
-                <span className={styles.backupIcon}>
+                <span className={styles.backupIcon} role="img" aria-label={isBackupRunning ? 'loading' : 'save'}>
                   {isBackupRunning ? '🔄' : '💾'}
                 </span>
                 <span className={styles.backupLabel}>

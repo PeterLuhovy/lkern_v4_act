@@ -5,15 +5,16 @@
  * DESCRIPTION: Universal workflow for issue operations (create/update)
  *              with health checks, retry logic and comprehensive logging.
  *              Configurable endpoint, method, and health checks via parameters.
- * VERSION: v1.0.0
+ * VERSION: v1.1.0
  * CREATED: 2025-12-01
- * UPDATED: 2025-12-01
+ * UPDATED: 2025-12-03
  * CHANGELOG:
+ *   v1.1.0 - Use SERVICE_ENDPOINTS from @l-kern/config (supports Docker/localhost)
  *   v1.0.0 - Universal workflow replacing separate create/update workflows
  * ================================================================
  */
 
-import { executeWithRetry, type ServiceCallResult, type RetryCallbacks } from '@l-kern/config';
+import { executeWithRetry, type ServiceCallResult, type RetryCallbacks, SERVICE_ENDPOINTS } from '@l-kern/config';
 
 // ============================================================
 // TYPES
@@ -123,7 +124,8 @@ export interface IssueWorkflowResult<T = unknown> {
 // CONFIGURATION
 // ============================================================
 
-const API_BASE_URL = 'http://localhost:4105';
+// Use SERVICE_ENDPOINTS from @l-kern/config (supports Docker/localhost)
+const API_BASE_URL = SERVICE_ENDPOINTS.issues.baseUrl;
 const PING_TIMEOUT = 5000;      // 5s - timeout for ping
 const HEALTH_TIMEOUT = 10000;   // 10s - full health check
 const API_TIMEOUT = 15000;      // 15s - API call timeout
@@ -578,6 +580,7 @@ async function callApiWithRetry<T = unknown>(config: ApiCallConfig): Promise<Api
       return {
         success: false,
         error: errorMsg,
+        errorCode,
         responseTime,
       };
     } catch (error) {

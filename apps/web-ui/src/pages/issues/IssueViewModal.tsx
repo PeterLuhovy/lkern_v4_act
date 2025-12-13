@@ -15,7 +15,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Modal, Card, Button, ExportButton } from '@l-kern/ui-components';
+import { Modal, Card, ExportButton } from '@l-kern/ui-components';
 import type { ExportFormat } from '@l-kern/ui-components';
 import {
   useTranslation,
@@ -138,7 +138,8 @@ export function IssueViewModal({
   }), [issue?.status, issue?.reporter_id, issue?.deleted_at, user?.id]);
 
   // Get field permissions for all issue fields
-  const fieldPermissions = useIssueFieldPermissions(
+  // Currently unused but kept for future field-level permission implementation
+  useIssueFieldPermissions(
     [
       // Overview fields
       'title', 'type', 'severity', 'status', 'priority', 'category',
@@ -215,7 +216,7 @@ export function IssueViewModal({
           <div className={styles.contactError}>
             <span className={styles.userId}>{fallbackId}</span>
             <span className={styles.contactServiceDown} title={lookup.error || ''}>
-              ⚠️ {t('services.unavailable')}
+              <span role="img" aria-hidden="true">⚠️</span> {t('services.unavailable')}
             </span>
           </div>
         );
@@ -225,7 +226,7 @@ export function IssueViewModal({
           <div className={styles.contactError}>
             <span className={styles.userIdDeleted}>{fallbackId}</span>
             <span className={styles.contactDeleted} title={lookup.error || ''}>
-              ❌ {t('services.entityDeleted')}
+              <span role="img" aria-hidden="true">❌</span> {t('services.entityDeleted')}
             </span>
           </div>
         );
@@ -235,7 +236,7 @@ export function IssueViewModal({
           <div className={styles.contactError}>
             <span className={styles.userId}>{fallbackId}</span>
             <span className={styles.contactFetchError} title={lookup.error || ''}>
-              ⚠️ {t('common.error')}
+              <span role="img" aria-hidden="true">⚠️</span> {t('common.error')}
             </span>
           </div>
         );
@@ -253,9 +254,10 @@ export function IssueViewModal({
 
   // Helper: check if field can be edited (for showing edit buttons)
   // Currently unused since canEditSection always returns canEdit prop
-  const canEditField = (_field: string): boolean => {
-    return true; // All fields editable for now
-  };
+  // Kept for future field-level permission implementation
+  // const canEditField = (_field: string): boolean => {
+  //   return true; // All fields editable for now
+  // };
 
   // Section-level edit permission
   // Always show edit button if canEdit prop is true - individual field permissions apply within modal
@@ -344,7 +346,8 @@ export function IssueViewModal({
       setAttachmentStatus(new Map()); // Reset
       checkAttachmentAvailability();
     }
-  }, [isOpen, issue?.id, issue?.attachments?.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, issue?.id]);
 
   // ============================================================
   // COLORS & BADGES
@@ -413,13 +416,13 @@ export function IssueViewModal({
     const status = attachmentStatus.get(fileName);
     switch (status) {
       case 'checking':
-        return <span title={t('pages.issues.details.attachmentChecking')} style={{ marginLeft: '8px' }}>⏳</span>;
+        return <span title={t('pages.issues.details.attachmentChecking')} style={{ marginLeft: '8px' }}><span role="img" aria-hidden="true">⏳</span></span>;
       case 'available':
-        return <span title={t('pages.issues.details.attachmentAvailable')} style={{ marginLeft: '8px', color: 'var(--color-status-success)' }}>✓</span>;
+        return <span title={t('pages.issues.details.attachmentAvailable')} style={{ marginLeft: '8px', color: 'var(--color-status-success)' }}><span role="img" aria-hidden="true">✓</span></span>;
       case 'unavailable':
-        return <span title={t('pages.issues.details.attachmentUnavailable')} style={{ marginLeft: '8px', color: 'var(--color-status-error)' }}>❌ {t('pages.issues.details.attachmentMissing')}</span>;
+        return <span title={t('pages.issues.details.attachmentUnavailable')} style={{ marginLeft: '8px', color: 'var(--color-status-error)' }}><span role="img" aria-hidden="true">❌</span> {t('pages.issues.details.attachmentMissing')}</span>;
       case 'error':
-        return <span title={t('pages.issues.details.attachmentError')} style={{ marginLeft: '8px', color: 'var(--color-status-warning)' }}>⚠️ {t('pages.issues.details.attachmentServiceDown')}</span>;
+        return <span title={t('pages.issues.details.attachmentError')} style={{ marginLeft: '8px', color: 'var(--color-status-warning)' }}><span role="img" aria-hidden="true">⚠️</span> {t('pages.issues.details.attachmentServiceDown')}</span>;
       default:
         return null;
     }
@@ -475,7 +478,8 @@ export function IssueViewModal({
   if (!issue) return null;
 
   // Get header class based on issue type
-  const typeKey = issue.type.toLowerCase();
+  // Safety check: type should never be null but handle edge cases during state updates
+  const typeKey = (issue.type || 'bug').toLowerCase();
   const headerClass = styles[`header${typeKey.charAt(0).toUpperCase() + typeKey.slice(1)}`];
   const modalId = `issue-view-${issue.id}`;
 
@@ -494,7 +498,7 @@ export function IssueViewModal({
           {/* Soft Delete Warning - shown when issue is deleted */}
           {issue.deleted_at !== null && (
             <div className={styles.deletedWarningBanner}>
-              <span className={styles.deletedIcon}>🗑️</span>
+              <span className={styles.deletedIcon} role="img" aria-hidden="true">🗑️</span>
               <span>{t('pages.issues.details.deletedItem')}</span>
             </div>
           )}
@@ -511,7 +515,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('overview')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -576,7 +580,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('description')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -593,7 +597,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('resolution')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -611,7 +615,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('developerInfo')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -672,7 +676,7 @@ export function IssueViewModal({
                     onClick={() => setAttachmentEditModalOpen(true)}
                     title={t('pages.issues.view.editAttachments')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -680,7 +684,7 @@ export function IssueViewModal({
                 <div className={styles.attachmentsList}>
                   {issue.attachments.map((file, index) => (
                     <div key={index} className={styles.attachmentItem}>
-                      <span className={styles.attachmentIcon}>📎</span>
+                      <span className={styles.attachmentIcon} role="img" aria-hidden="true">📎</span>
                       <div className={styles.attachmentInfo}>
                         {isAttachmentUnavailable(file.file_name) ? (
                           <span
@@ -723,7 +727,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('people')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -749,7 +753,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('timeline')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -787,7 +791,7 @@ export function IssueViewModal({
                     onClick={() => handleEditClick('activity')}
                     title={t('common.edit')}
                   >
-                    ✏️
+                    <span role="img" aria-hidden="true">✏️</span>
                   </button>
                 )}
               </div>
@@ -819,7 +823,7 @@ export function IssueViewModal({
                   disabled={isDeleting}
                   title={t('common.delete')}
                 >
-                  {isDeleting ? '⏳' : '🗑️'} {isDeleting ? t('common.loading') : t('common.delete')}
+                  {isDeleting ? <span role="img" aria-hidden="true">⏳</span> : <span role="img" aria-hidden="true">🗑️</span>} {isDeleting ? t('common.loading') : t('common.delete')}
                 </button>
               )
             ) : (
@@ -842,7 +846,7 @@ export function IssueViewModal({
                     disabled={isRestoring}
                     title={t('common.restore')}
                   >
-                    {isRestoring ? '⏳' : '♻️'} {isRestoring ? t('common.loading') : t('common.restore')}
+                    {isRestoring ? <span role="img" aria-hidden="true">⏳</span> : <span role="img" aria-hidden="true">♻️</span>} {isRestoring ? t('common.loading') : t('common.restore')}
                   </button>
                 )}
                 {canDelete && onHardDelete && (
@@ -855,7 +859,7 @@ export function IssueViewModal({
                     disabled={isRestoring}
                     title={t('pages.issues.bulkDelete.titlePermanent')}
                   >
-                    ⚠️ {t('pages.issues.bulkDelete.titlePermanent')}
+                    <span role="img" aria-hidden="true">⚠️</span> {t('pages.issues.bulkDelete.titlePermanent')}
                   </button>
                 )}
               </>

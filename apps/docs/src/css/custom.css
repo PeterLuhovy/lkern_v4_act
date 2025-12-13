@@ -1,0 +1,32 @@
+/*
+ * ================================================================
+ * FILE: custom.css
+ * PATH: /apps/docs/src/css/custom.css
+ * DESCRIPTION: Custom Docusaurus theme overrides
+ * VERSION: v1.0.0
+ * UPDATED: 2025-12-12
+ * ================================================================
+ */
+
+:root {
+  --ifm-color-primary: #9c27b0;
+  --ifm-color-primary-dark: #8c239e;
+  --ifm-color-primary-darker: #841f95;
+  --ifm-color-primary-darkest: #6d1a7b;
+  --ifm-color-primary-light: #a72fc2;
+  --ifm-color-primary-lighter: #af3bcb;
+  --ifm-color-primary-lightest: #be5cd5;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #ce93d8;
+  --ifm-color-primary-dark: #c57dd0;
+  --ifm-color-primary-darker: #c072cb;
+  --ifm-color-primary-darkest: #ad4cba;
+  --ifm-color-primary-light: #d7a9e0;
+  --ifm-color-primary-lighter: #dcb4e5;
+  --ifm-color-primary-lightest: #ead0f0;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}

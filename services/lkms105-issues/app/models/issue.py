@@ -250,5 +250,25 @@ class Issue(Base):
         comment="Link to deletion_audit - when set, item is pending cleanup (MinIO files not yet deleted)"
     )
 
+    # ============================================================
+    # PESSIMISTIC LOCKING
+    # ============================================================
+    # Used by edit modals to prevent concurrent editing.
+    # Lock is acquired when modal opens, released when closed.
+    # Note: locked_by_name is NOT stored - frontend does lookup by locked_by_id
+
+    locked_by_id = Column(
+        UUID(as_uuid=True),
+        nullable=True,
+        index=True,
+        comment="UUID of user who holds the lock (null = unlocked)"
+    )
+
+    locked_at = Column(
+        DateTime,
+        nullable=True,
+        comment="Timestamp when lock was acquired"
+    )
+
     def __repr__(self):
         return f"<Issue {self.issue_code}: {self.title}>"

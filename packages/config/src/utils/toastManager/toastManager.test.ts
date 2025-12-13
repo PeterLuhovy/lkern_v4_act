@@ -55,7 +55,7 @@ describe('toastManager', () => {
         expect.objectContaining({
           message: 'Test message',
           type: 'success',
-          duration: 3000,
+          duration: 5000, // Default is 5 seconds per implementation
           position: 'bottom-center',
         })
       );

@@ -23,6 +23,7 @@ export const sk: TranslationKeys = {
     home: 'Domov',
     save: 'Uložiť',
     cancel: 'Zrušiť',
+    cancelled: 'Zrušené',
     delete: 'Vymazať',
     restore: 'Obnoviť',
     permanentDelete: 'Trvalo vymazať',
@@ -70,6 +71,36 @@ export const sk: TranslationKeys = {
     notImplemented: 'Funkcia nie je implementovaná',
     typeToConfirm: 'Napíšte "{text}" pre potvrdenie',
     retry: 'Skúsiť znova',
+    unknown: 'Neznámy',
+    deletedItem: 'Vymazaná položka',
+    // Pessimistic Locking
+    locking: {
+      editedBy: 'Edituje: {{name}} (od {{time}})',
+      lockedTitle: 'Záznam je zamknutý',
+      lockedMessage: 'Tento záznam práve upravuje {{name}}. Môžete ho len prezerať.',
+      readOnlyMode: 'Režim len na čítanie',
+      forceUnlock: 'Vynútiť odomknutie',
+      forceUnlockConfirm: 'Naozaj chcete vynútiť odomknutie? Zmeny používateľa {{name}} môžu byť stratené.',
+      lockAcquired: 'Záznam bol zamknutý pre editáciu',
+      lockReleased: 'Zámok bol uvoľnený',
+      lockFailed: 'Nepodarilo sa zamknúť záznam',
+      unlockFailed: 'Nepodarilo sa odomknúť záznam',
+      // Lock monitoring
+      lockLost: 'Stratili ste zámok na tento záznam!',
+      lockLostHint: 'Vaše zmeny sú zachované. Čakáme na uvoľnenie záznamu...',
+      // Lock acquisition flow
+      acquiring: 'Získavam zámok...',
+      serviceUnavailable: 'Služba nie je dostupná',
+      serviceUnavailableTitle: 'Služba nedostupná',
+      serviceUnavailableMessage: 'Nepodarilo sa získať zámok pre editáciu. Služba momentálne neodpovedá.',
+      retryLock: 'Skúsiť znova',
+      closeModal: 'Zatvoriť',
+    },
+    // Aria Labels for Accessibility
+    ariaLabels: {
+      close: 'Zavrieť',
+      closeNotification: 'Zavrieť notifikáciu',
+    },
   },
   dashboard: {
     title: 'Dashboard',
@@ -136,6 +167,11 @@ export const sk: TranslationKeys = {
       titleMinLength: 'Názov musí mať minimálne 5 znakov',
       titleMaxLength: 'Názov môže mať maximálne 200 znakov',
       descriptionMinLength: 'Popis musí mať minimálne 10 znakov',
+      // Timeline validation
+      createdAfterUpdated: 'Dátum vytvorenia nemôže byť po dátume aktualizácie',
+      createdAfterResolved: 'Dátum vytvorenia nemôže byť po dátume vyriešenia',
+      createdAfterClosed: 'Dátum vytvorenia nemôže byť po dátume uzavretia',
+      resolvedAfterClosed: 'Dátum vyriešenia nemôže byť po dátume uzavretia',
     },
     modal: {
       title: 'Nahlásiť problém',
@@ -175,6 +211,7 @@ export const sk: TranslationKeys = {
       docs: 'Dokumentácia',
       performance: 'Výkon',
       security: 'Bezpečnosť',
+      dataIntegrity: 'Integrita dát',
     },
     status: {
       open: 'Otvorený',
@@ -205,6 +242,27 @@ export const sk: TranslationKeys = {
         failed: 'Zlyhané',
         partial: 'Čiastočné',
       },
+    },
+    // Resolve Issue Modal
+    resolveModal: {
+      title: 'Vyriešiť problém: {code}',
+      resolutionLabel: 'Riešenie',
+      resolutionPlaceholder: 'Popíšte ako bol tento problém vyriešený...',
+      resolutionHint: 'Vysvetlite čo bolo urobené pre vyriešenie problému a všetky relevantné detaily.',
+      submitButton: '✅ Označiť ako vyriešené',
+      errors: {
+        minLength: 'Riešenie musí mať minimálne 10 znakov',
+      },
+    },
+    // Close Issue Modal
+    closeModal: {
+      title: 'Zavrieť problém: {code}',
+      warningTitle: 'Zatvorenie tohto problému ho označí ako dokončený.',
+      warningMessage: 'Túto akciu nemožno vrátiť späť. Problém bude archivovaný a nedajú sa urobiť žiadne ďalšie zmeny.',
+      commentLabel: 'Komentár k zatvoreniu (Voliteľný)',
+      commentPlaceholder: 'Pridajte záverečné poznámky o tomto probléme (voliteľné)...',
+      commentHint: 'Môžete pridať dodatočné poznámky o tom, prečo sa tento problém zatvára.',
+      submitButton: '🔒 Zavrieť problém',
     },
   },
   components: {
@@ -306,6 +364,8 @@ export const sk: TranslationKeys = {
       cardDescription: 'Test card komponentu (varianty, hlavičky, obsah)',
       dataGridTitle: 'DataGrid Komponent',
       dataGridDescription: 'Test DataGrid komponentu (triedenie, výber, rozbalenie, akcie)',
+      entityEditModalTitle: 'EntityEditModal',
+      entityEditModalDescription: 'Univerzálny edit modal s konfiguráciou (sekcie, polia, permissions)',
       emptyStateTitle: 'EmptyState Komponent',
       emptyStateDescription: 'Test prázdnych stavov (varianty, ikony, akcie)',
       spinnerTitle: 'Spinner Komponent',
@@ -816,6 +876,7 @@ export const sk: TranslationKeys = {
       contacts: 'Kontakty',
       orders: 'Objednávky',
       issues: 'Problémy',
+      documentation: 'Dokumentácia',
       settings: 'Nastavenia',
       uploadNewImage: 'Nahrať nový obrázok',
       dragAndDrop: 'Potiahnuť a pustiť',
@@ -861,6 +922,8 @@ export const sk: TranslationKeys = {
         logToastsHint: 'Vypisuje toast notifikácie (Show/Hide/Clear) do konzoly',
         logFetchCalls: 'Fetch volania',
         logFetchCallsHint: 'Vypisuje API fetch volania s permission levelom do konzoly',
+        logSSEInvalidation: 'SSE Invalidácia',
+        logSSEInvalidationHint: 'Vypisuje SSE cache invalidation eventy (real-time updates) do konzoly',
         enableAll: 'Zapnúť všetko',
         disableAll: 'Vypnúť všetko',
       },
@@ -999,6 +1062,11 @@ export const sk: TranslationKeys = {
       processingBatch: 'Spracúvam {current}/{total}...',
       batchSuccess: 'Úspešne spracovaných {count} záznamov',
       batchPartial: 'Úspešných: {success}, Zlyhalo: {failed}',
+      connectionFailed: '⚠️ Zlyhanie pripojenia, skúšam znova...',
+      retrying: '🔄 Skúšam sa pripojiť... (pokus {attempt}/{max})',
+      serviceDown: '❌ Služba neodpovedá, skúste to neskôr',
+      sqlDown: '❌ Databáza nie je dostupná',
+      saveVerificationFailed: '❌ Dáta neboli správne uložené, skúste to znova',
     },
     storageTypes: {
       sql: 'Databáza',
@@ -1087,11 +1155,6 @@ export const sk: TranslationKeys = {
         active: 'Aktívny',
         isDeleted: 'Vymazaný',
       },
-      // Export translations
-      exportSuccess: '{count} položiek exportovaných ako {format}',
-      exportZipError: 'Chyba pri vytváraní ZIP archívu',
-      exportZipLoading: 'Vytvára sa ZIP archív...',
-      exportPartialAttachments: '{success} položiek exportovaných, {missing} príloh chýba',
       minioExportError: {
         title: '⚠️ Úložisko nedostupné',
       },
@@ -1348,6 +1411,50 @@ export const sk: TranslationKeys = {
         active: 'Aktívny',
       },
     },
+    entityEdit: {
+      contact: {
+        sections: {
+          basic: 'Základné údaje',
+          company: 'Firemné údaje',
+          notes: 'Poznámky',
+          timestamps: 'Časové údaje',
+        },
+        fields: {
+          firstName: 'Meno',
+          lastName: 'Priezvisko',
+          email: 'Email',
+          phone: 'Telefón',
+          company: 'Firma',
+          position: 'Pozícia',
+          type: 'Typ kontaktu',
+          status: 'Stav',
+          notes: 'Poznámky',
+          id: 'ID',
+          createdAt: 'Vytvorené',
+          updatedAt: 'Aktualizované',
+        },
+        placeholders: {
+          firstName: 'Zadajte meno...',
+          lastName: 'Zadajte priezvisko...',
+          email: 'email@example.com',
+          phone: '+421 900 123 456',
+          company: 'Názov firmy',
+          position: 'Pracovná pozícia',
+          notes: 'Sem napíšte poznámky o kontakte...',
+        },
+        hints: {
+          statusHint: 'Stav kontaktu určuje, či sa zobrazí v zoznamoch a či ho možno použiť v dokumentoch.',
+        },
+      },
+      validation: {
+        minLength2: 'Minimálne 2 znaky',
+      },
+      permission: {
+        immutableField: 'Toto pole nie je možné upraviť',
+        noAccess: 'Nemáte oprávnenie upravovať toto pole',
+        adminOnly: 'Len pre administrátorov',
+      },
+    },
   },
 
   contactType: {
@@ -1402,6 +1509,11 @@ export const sk: TranslationKeys = {
       standard: 'Štandardný',
       advanced: 'Pokročilý',
     },
+    userSwitcher: {
+      title: 'Prepnúť používateľa',
+      currentUser: 'Aktuálny používateľ',
+      selectUser: 'Vyberte používateľa',
+    },
   },
 
   permissions: {
@@ -1440,6 +1552,8 @@ export const sk: TranslationKeys = {
       noFilterResults: 'Žiadne výsledky',
       noFilterResultsHint: 'Skúste zmeniť alebo vymazať filtre',
       serviceUnavailable: 'Servis nedostupný',
+      loading: 'Načítavam dáta...',
+      loadingSlow: 'Trvá to dlhšie ako obvykle...',
     },
     filter: {
       searchPlaceholder: 'Hľadať...',
@@ -1527,5 +1641,18 @@ export const sk: TranslationKeys = {
   theme: {
     switchToLight: 'Prepnúť na svetlú tému',
     switchToDark: 'Prepnúť na tmavú tému',
+  },
+
+  // === SETTINGS ===
+  settings: {
+    title: 'Nastavenia',
+    exportBehavior: {
+      label: 'Správanie exportu',
+      hint: 'Vyber, ako chceš exportovať súbory',
+      automatic: 'Automatický download',
+      automaticDescription: 'Súbory sa stiahnu priamo do priečinka Downloads',
+      saveAsDialog: 'Dialóg "Uložiť ako"',
+      saveAsDialogDescription: 'Môžeš vybrať miesto a názov súboru',
+    },
   },
 };

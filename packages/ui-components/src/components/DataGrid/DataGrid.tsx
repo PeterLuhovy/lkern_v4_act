@@ -75,6 +75,12 @@ export interface DataGridProps<T = any> {
   actionsWidth?: number;
   gridId?: string; // For localStorage persistence and ARIA
   itemsPerPage?: number; // For min-height calculation (prevents page jumping)
+  /** Loading state - shows spinner instead of empty state */
+  loading?: boolean;
+  /** Custom loading message (default: "Načítavam dáta...") */
+  loadingMessage?: string;
+  /** Show "taking longer than usual" hint after delay */
+  loadingSlow?: boolean;
   /** Error message to show (e.g., "Service unavailable") - displays instead of empty state */
   error?: string | null;
   /** Retry callback for error state */
@@ -110,6 +116,9 @@ const DataGrid = <T extends Record<string, any>>({
   actionsWidth,
   gridId = 'dataGrid',
   itemsPerPage = 10,
+  loading = false,
+  loadingMessage,
+  loadingSlow = false,
   error = null,
   onRetry,
 }: DataGridProps<T>) => {
@@ -602,11 +611,28 @@ const DataGrid = <T extends Record<string, any>>({
         ))}
       </div>
 
-      {/* ERROR STATE ROW */}
-      {error && (
+      {/* LOADING STATE ROW */}
+      {loading && !error && (
         <div className={styles.emptyRow} role="row">
           <div className={styles.emptyRowContent} role="gridcell">
-            <div className={styles.errorIcon}>⚠️</div>
+            <div className={styles.loadingSpinner} role="img" aria-hidden="true">⏳</div>
+            <div className={styles.loadingTitle}>
+              {loadingMessage || t('pageTemplate.dataGrid.loading', { defaultValue: 'Načítavam dáta...' })}
+            </div>
+            {loadingSlow && (
+              <div className={styles.loadingHint}>
+                {t('pageTemplate.dataGrid.loadingSlow', { defaultValue: 'Trvá to dlhšie ako obvykle...' })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ERROR STATE ROW */}
+      {error && !loading && (
+        <div className={styles.emptyRow} role="row">
+          <div className={styles.emptyRowContent} role="gridcell">
+            <div className={styles.errorIcon} role="img" aria-hidden="true">⚠️</div>
             <div className={styles.errorTitle}>{t('pageTemplate.dataGrid.serviceUnavailable', { defaultValue: 'Servis nedostupný' })}</div>
             <div className={styles.errorHint}>{error}</div>
             {onRetry && (
@@ -619,7 +645,7 @@ const DataGrid = <T extends Record<string, any>>({
       )}
 
       {/* EMPTY STATE ROW */}
-      {isEmpty && !error && (
+      {isEmpty && !error && !loading && (
         <div className={styles.emptyRow} role="row">
           <div className={styles.emptyRowContent} role="gridcell">
             {hasActiveFilters ? (

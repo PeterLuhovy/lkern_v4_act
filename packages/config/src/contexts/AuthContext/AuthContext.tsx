@@ -4,20 +4,21 @@
  * PATH: /packages/config/src/contexts/AuthContext/AuthContext.tsx
  * DESCRIPTION: Authorization context with numeric permission level (0-100)
  *              and centralized permission checks (DRY)
- * VERSION: v3.1.0
+ * VERSION: v4.0.0
  * CREATED: 2025-11-22
- * UPDATED: 2025-11-24
+ * UPDATED: 2025-12-09
  * CHANGES:
+ *   - v4.0.0: Added test user switching (Peter, Test User 1-3)
+ *             Users have predefined IDs from environment variables
  *   - v3.1.0: Added centralized permissions object (canView, canCreate, canEdit, canDelete, canExport, canViewDeleted)
  *   - v3.0.0: Initial numeric permission system (0-100)
  * ================================================================
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import {
   getStoredPermissionLevel,
   setStoredPermissionLevel,
-  getBackendRole,
   QUICK_PERMISSION_LEVELS,
   canView,
   canCreate,
@@ -26,6 +27,8 @@ import {
   canExport,
   canViewDeleted,
 } from '../../permissions/index';
+import { TEST_USERS, TestUser } from '../../constants/system-constants';
+import type { ExportBehavior } from '../../utils/exportFile';
 
 /**
  * User permission levels in the system (DEPRECATED - Use permissionLevel instead)
@@ -44,6 +47,7 @@ export interface User {
   email: string;
   permissionLevel: number; // 0-100
   role: UserRole; // Derived from permissionLevel for backward compatibility
+  exportBehavior?: ExportBehavior; // Export file behavior preference (automatic download vs "Save As" dialog)
 }
 
 /**
@@ -77,12 +81,24 @@ function generateMockUser(permissionLevel: number): User {
     advanced: '550e8400-e29b-41d4-a716-446655440003',
   };
 
+  // Read export behavior from localStorage (for mock implementation)
+  let exportBehavior: 'automatic' | 'save-as-dialog' = 'automatic';
+  try {
+    const saved = localStorage.getItem('user-export-behavior');
+    if (saved === 'save-as-dialog') {
+      exportBehavior = 'save-as-dialog';
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+
   return {
     id: roleIds[role],
     name: `${roleNames[role]} (${permissionLevel})`,
     email: roleEmails[role],
     permissionLevel,
     role,
+    exportBehavior,
   };
 }
 
@@ -136,6 +152,12 @@ interface AuthContextType {
   isAuthenticated: boolean;
   /** Computed permissions (DRY - calculated once in context) */
   permissions: Permissions;
+  /** Available test users for switching */
+  testUsers: TestUser[];
+  /** Currently selected test user ID (null = auto-generated from level) */
+  selectedTestUserId: string | null;
+  /** Switch to a specific test user */
+  setTestUser: (userId: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -163,9 +185,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * - Get permission level from user's role/permissions
  */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Permission level state
   const [permissionLevel, setPermissionLevelState] = useState<number>(() => {
-    // Load permission level from localStorage or default to 30 (basic)
     return getStoredPermissionLevel();
+  });
+
+  // Selected test user ID (null = use auto-generated user from permission level)
+  const [selectedTestUserId, setSelectedTestUserId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('lkern-selected-test-user') || null;
+    } catch {
+      return null;
+    }
   });
 
   // Save permission level to localStorage when it changes
@@ -173,19 +204,81 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setStoredPermissionLevel(permissionLevel);
   }, [permissionLevel]);
 
-  // Generate user based on current permission level
-  const user = generateMockUser(permissionLevel);
+  // Save selected test user to localStorage
+  useEffect(() => {
+    try {
+      if (selectedTestUserId) {
+        localStorage.setItem('lkern-selected-test-user', selectedTestUserId);
+      } else {
+        localStorage.removeItem('lkern-selected-test-user');
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [selectedTestUserId]);
+
+  // Set test user - updates both user selection and permission level
+  const setTestUser = useCallback((userId: string | null) => {
+    setSelectedTestUserId(userId);
+    if (userId) {
+      const testUser = TEST_USERS.find((u) => u.id === userId);
+      if (testUser) {
+        setPermissionLevelState(testUser.permissionLevel);
+      }
+    }
+  }, []);
+
+  // Generate user based on current state
+  const user: User = useMemo(() => {
+    // If test user is selected, use their data
+    if (selectedTestUserId) {
+      const testUser = TEST_USERS.find((u) => u.id === selectedTestUserId);
+      if (testUser) {
+        // Read export behavior from localStorage (for mock implementation)
+        let exportBehavior: 'automatic' | 'save-as-dialog' = 'automatic';
+        try {
+          const saved = localStorage.getItem('user-export-behavior');
+          if (saved === 'save-as-dialog') {
+            exportBehavior = 'save-as-dialog';
+          }
+        } catch {
+          // Ignore localStorage errors
+        }
+
+        return {
+          id: testUser.id,
+          name: testUser.name,
+          email: testUser.email,
+          permissionLevel: testUser.permissionLevel,
+          role: testUser.role,
+          exportBehavior,
+        };
+      }
+    }
+    // Otherwise generate mock user from permission level
+    return generateMockUser(permissionLevel);
+  }, [selectedTestUserId, permissionLevel]);
+
   const currentRole = user.role;
 
   // Backward compatibility: setRole function that converts role to permission level
-  const setRole = (role: UserRole) => {
+  const setRole = useCallback((role: UserRole) => {
     const levelMap: Record<UserRole, number> = {
       basic: QUICK_PERMISSION_LEVELS.BASIC,
       standard: QUICK_PERMISSION_LEVELS.STANDARD,
       advanced: QUICK_PERMISSION_LEVELS.ADVANCED,
     };
     setPermissionLevelState(levelMap[role]);
-  };
+    // Clear test user selection when changing role directly
+    setSelectedTestUserId(null);
+  }, []);
+
+  // Override setPermissionLevel to clear test user selection
+  const setPermissionLevel = useCallback((level: number) => {
+    setPermissionLevelState(level);
+    // Clear test user selection when changing level directly
+    setSelectedTestUserId(null);
+  }, []);
 
   // Compute permissions once (memoized for performance)
   const permissions: Permissions = useMemo(() => ({
@@ -201,11 +294,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     user,
     authKey: ROLE_AUTH_KEYS[currentRole],
     permissionLevel,
-    setPermissionLevel: setPermissionLevelState,
+    setPermissionLevel,
     currentRole,
     setRole,
     isAuthenticated: true, // TODO: Replace with real auth check
     permissions,
+    testUsers: TEST_USERS,
+    selectedTestUserId,
+    setTestUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -91,6 +91,31 @@ class IssueCreateUserAdvance(BaseModel):
     attachments: Optional[List[Dict[str, Any]]] = Field(None, max_length=5)
 
 
+class IssueCreateSystem(BaseModel):
+    """
+    Schema for programmatic issue creation (system-generated).
+
+    Used by: Data integrity handlers, automated monitoring, cron jobs.
+    Requires: X-Permission-Level: 100 (Super Admin)
+
+    Key differences from user schemas:
+    - Accepts JSON body (not Form data)
+    - reporter_id can be set directly (e.g., SYSTEM_USER_ID)
+    - No file attachments (system issues are text-only)
+    """
+    title: str = Field(..., min_length=5, max_length=200, description="Issue title/summary")
+    description: str = Field(..., min_length=10, description="Issue description")
+    type: IssueType = Field(..., description="Issue type: BUG, FEATURE, IMPROVEMENT, QUESTION")
+
+    severity: Optional[IssueSeverity] = None
+    category: Optional[IssueCategory] = None
+    priority: Optional[IssuePriority] = None
+    reporter_id: Optional[UUID4] = Field(None, description="Reporter UUID (SYSTEM_USER for auto-generated)")
+    error_message: Optional[str] = None
+    error_type: Optional[str] = Field(None, max_length=100)
+    system_info: Optional[Dict[str, Any]] = Field(None, description="Metadata about auto-generation")
+
+
 # ============================================================
 # UPDATE SCHEMA
 # ============================================================
@@ -136,10 +161,32 @@ class IssueUpdate(BaseModel):
     # System info
     system_info: Optional[Dict[str, Any]] = None
 
-    # People (assignee can be updated via PUT)
+    # People (can be updated via PUT with appropriate permissions)
+    reporter_id: Optional[UUID4] = Field(
+        None,
+        description="UUID of reporter (Super Admin only - level 100)"
+    )
     assignee_id: Optional[UUID4] = Field(
         None,
-        description="UUID of assignee (from Contact service)"
+        description="UUID of assignee (Admin lvl 2+ - level 70)"
+    )
+
+    # Timestamps (Super Admin only - level 100)
+    created_at: Optional[datetime] = Field(
+        None,
+        description="Creation timestamp (Super Admin only)"
+    )
+    updated_at: Optional[datetime] = Field(
+        None,
+        description="Last update timestamp (Super Admin only)"
+    )
+    resolved_at: Optional[datetime] = Field(
+        None,
+        description="Resolution timestamp (Super Admin only)"
+    )
+    closed_at: Optional[datetime] = Field(
+        None,
+        description="Closure timestamp (Super Admin only)"
     )
 
 
@@ -229,5 +276,106 @@ class IssueResponse(BaseModel):
         description="Link to deletion_audit record if hard delete failed (partial status)"
     )
 
+    # Locking (name not stored - frontend does lookup by ID)
+    locked_by_id: Optional[UUID4] = Field(
+        None,
+        description="UUID of user who holds the lock (null = unlocked)"
+    )
+    locked_at: Optional[datetime] = Field(
+        None,
+        description="Timestamp when lock was acquired"
+    )
+
     class Config:
         from_attributes = True  # Pydantic v2 (was orm_mode in v1)
+
+
+# ============================================================
+# BULK ATTACHMENT DELETE SCHEMAS
+# ============================================================
+
+class BulkAttachmentDeleteRequest(BaseModel):
+    """Request schema for bulk attachment deletion."""
+    filenames: List[str] = Field(
+        ...,
+        min_length=1,
+        max_length=20,
+        description="List of filenames to delete (max 20)"
+    )
+
+
+class AttachmentDeleteResult(BaseModel):
+    """Result for a single attachment deletion."""
+    filename: str = Field(..., description="Filename that was processed")
+    status: str = Field(
+        ...,
+        description="Result status: 'deleted', 'not_found_db', 'not_found_minio', 'error'"
+    )
+    error: Optional[str] = Field(None, description="Error message if status is 'error'")
+
+
+class BulkAttachmentDeleteResponse(BaseModel):
+    """Response schema for bulk attachment deletion."""
+    total: int = Field(..., description="Total files requested for deletion")
+    deleted: int = Field(..., description="Successfully deleted count")
+    not_found_db: int = Field(..., description="Files not found in database metadata")
+    not_found_minio: int = Field(..., description="Files found in DB but not in MinIO (orphaned records)")
+    errors: int = Field(..., description="Files that failed to delete due to errors")
+    results: List[AttachmentDeleteResult] = Field(..., description="Detailed results per file")
+
+
+# ============================================================
+# LOCKING SCHEMAS
+# ============================================================
+
+class LockRequest(BaseModel):
+    """
+    Request schema for acquiring a lock.
+
+    Lock is acquired when user opens an edit modal.
+    Only user_id is needed - name lookup is done by frontend.
+    """
+    user_id: UUID4 = Field(..., description="UUID of the user requesting the lock")
+
+
+class LockResponse(BaseModel):
+    """
+    Response schema for lock operations.
+
+    Returns success status and lock info for conflict handling.
+    """
+    success: bool = Field(..., description="Whether the lock was acquired/released")
+    locked_by: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Info about who holds the lock (if locked by someone else)"
+    )
+
+
+class LockInfo(BaseModel):
+    """
+    Schema for lock information in conflict responses.
+
+    Returned when lock is held by another user (HTTP 409 Conflict).
+    Note: name is NOT included - frontend does lookup by ID.
+    """
+    id: Optional[str] = Field(None, description="UUID of user who holds the lock")
+    locked_at: Optional[str] = Field(None, description="ISO timestamp when lock was acquired")
+
+
+class IssueExportRequest(BaseModel):
+    """
+    Schema for bulk export request.
+
+    Request body for POST /issues/export endpoint.
+    Format is specified as query parameter (?format=csv|json|zip).
+    """
+    issue_ids: List[str] = Field(..., description="List of issue IDs to export")
+    skip_attachments: bool = Field(False, description="Skip attachments in ZIP export (ignored for csv/json)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "issue_ids": ["uuid-1", "uuid-2", "uuid-3"],
+                "skip_attachments": False
+            }
+        }

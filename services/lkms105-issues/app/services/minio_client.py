@@ -3,10 +3,14 @@
 Issues Service - MinIO Client
 ================================================================
 File: services/lkms105-issues/app/services/minio_client.py
-Version: v1.0.0
+Version: v1.1.0
 Created: 2025-11-08
+Updated: 2025-12-07
 Description:
   MinIO (S3-compatible) client for file attachment storage.
+Changelog:
+  v1.1.0 - Fixed delete_file to check if file exists before delete
+           (MinIO remove_object is idempotent, doesn't error on missing files)
 ================================================================
 """
 
@@ -163,18 +167,32 @@ class MinIOClient:
             object_name: Object name in bucket
 
         Returns:
-            True if deleted, False otherwise
+            True if file existed and was deleted
+            False if file did not exist (orphaned DB record)
 
         Raises:
             MinIOConnectionError: When MinIO server is not reachable
+            S3Error: For other S3 errors (permission denied, bucket not found, etc.)
         """
         try:
+            # First check if file exists (remove_object is idempotent - doesn't error on missing)
+            try:
+                self.client.stat_object(self.bucket, object_name)
+            except S3Error as e:
+                if e.code == "NoSuchKey":
+                    logger.warning(f"File not found in MinIO (orphaned record): {object_name}")
+                    return False
+                # Other S3 errors (permission denied, etc.) - propagate
+                logger.error(f"S3 error checking file {object_name}: {e.code} - {e}")
+                raise
+
+            # File exists, delete it
             self.client.remove_object(self.bucket, object_name)
             logger.info(f"Deleted file: {object_name}")
             return True
-        except S3Error as e:
-            logger.error(f"Error deleting file {object_name}: {e}")
-            return False
+        except S3Error:
+            # Re-raise S3 errors (already logged above or from remove_object)
+            raise
         except Exception as e:
             if self._is_connection_error(e):
                 self._handle_connection_error(e, f"delete file {object_name}")

@@ -29,11 +29,15 @@ CHANGES (v1.2.0):
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, status as http_status, Form, UploadFile, File, Header
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from datetime import datetime
+from io import BytesIO, StringIO
+import csv
+import zipfile
 import uuid
 import logging
 import json
@@ -44,15 +48,25 @@ from app.schemas import (
     IssueCreateUserBasic,
     IssueCreateUserStandard,
     IssueCreateUserAdvance,
+    IssueCreateSystem,
     IssueUpdate,
     IssueAssign,
     IssueResolve,
     IssueClose,
     IssueResponse,
     DeletionAuditResponse,
+    BulkAttachmentDeleteRequest,
+    BulkAttachmentDeleteResponse,
+    AttachmentDeleteResult,
+    # Locking schemas
+    LockRequest,
+    LockResponse,
+    # Export schemas
+    IssueExportRequest,
 )
 from app.services.issue_service import generate_issue_code, validate_status_transition
 from app.events.producer import publish_event
+from app.api.rest.sse import broadcast_cache_invalidation
 from app.services.minio_client import minio_client, MinIOConnectionError
 from app.permissions import (
     validate_update_fields,
@@ -410,6 +424,91 @@ async def create_issue(
 
     logger.info(f"Created Issue {issue.issue_code} (role={role}, attachments={len(attachments_metadata) if attachments_metadata else 0})")
 
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "created", str(issue.id))
+
+    return issue
+
+
+# ============================================================
+# CREATE ISSUE (System-Generated)
+# ============================================================
+
+# SYSTEM_USER_ID for auto-generated issues (must match frontend constant)
+SYSTEM_USER_ID = uuid.UUID("00000000-0000-4000-8000-000000000001")
+
+@router.post("/system", response_model=IssueResponse, status_code=http_status.HTTP_201_CREATED)
+async def create_system_issue(
+    issue_data: IssueCreateSystem,
+    db: Session = Depends(get_db_safe),
+    x_permission_level: int = Header(default=0, alias="X-Permission-Level"),
+):
+    """
+    Create system-generated issue (JSON body, no file attachments).
+
+    Used by: Data integrity handlers, automated monitoring, cron jobs.
+    Requires: X-Permission-Level: 100 (Super Admin)
+
+    Key differences from user endpoints:
+    - Accepts JSON body (not Form/multipart data)
+    - reporter_id can be set directly (defaults to SYSTEM_USER_ID)
+    - No file attachments (system issues are text-only)
+
+    Headers:
+        X-Permission-Level: 100 (required - Super Admin only)
+    """
+    # Security check - only Super Admin (level 100) can use this endpoint
+    if x_permission_level < 100:
+        logger.warning(f"Unauthorized system issue creation attempt (level={x_permission_level})")
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail="System issue creation requires Super Admin permissions (level 100)"
+        )
+
+    # Generate issue_code
+    issue_code = generate_issue_code(db, issue_data.type.value)
+
+    # Use provided reporter_id or default to SYSTEM_USER_ID
+    reporter_id = issue_data.reporter_id or SYSTEM_USER_ID
+
+    # Prepare issue data (convert enums to model-compatible values)
+    issue_dict = issue_data.model_dump(exclude={'reporter_id'})
+
+    # Create Issue entity
+    issue = Issue(
+        issue_code=issue_code,
+        reporter_id=reporter_id,
+        status=IssueStatus.OPEN,
+        **issue_dict
+    )
+
+    db.add(issue)
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"IntegrityError creating system issue {issue_code}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_409_CONFLICT,
+            detail=f"Duplicate issue code '{issue_code}'. Please try again."
+        )
+    db.refresh(issue)
+
+    # Publish Kafka event
+    await publish_event("issue.created", {
+        "id": str(issue.id),
+        "issue_code": issue.issue_code,
+        "type": issue.type.value,
+        "reporter_id": str(issue.reporter_id),
+        "system_generated": True,
+        "source": issue_data.system_info.get("source_service") if issue_data.system_info else "unknown",
+    })
+
+    logger.info(f"Created system issue {issue.issue_code} (reporter={reporter_id}, source={issue_data.system_info})")
+
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "created", str(issue.id))
+
     return issue
 
 
@@ -488,6 +587,9 @@ async def update_issue(
 
     logger.info(f"Updated Issue {issue.issue_code} (fields: {list(update_dict.keys())}, permission_level={x_permission_level})")
 
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "updated", str(issue.id))
+
     return issue
 
 
@@ -523,6 +625,9 @@ async def delete_issue(
     })
 
     logger.info(f"Soft-deleted Issue {issue.issue_code}")
+
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "deleted", str(issue.id))
 
     return None
 
@@ -560,6 +665,9 @@ async def restore_issue(
     })
 
     logger.info(f"Restored Issue {issue.issue_code}")
+
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "restored", str(issue.id))
 
     return issue
 
@@ -740,6 +848,10 @@ async def hard_delete_issue(
         })
 
         logger.info(f"Permanently deleted issue {issue_code} (audit_id={audit.id})")
+
+        # Broadcast cache invalidation to SSE clients
+        await broadcast_cache_invalidation("issues", "deleted", str(issue_id))
+
         return None
 
     except HTTPException:
@@ -874,6 +986,9 @@ async def assign_issue(
 
     logger.info(f"Assigned Issue {issue.issue_code} to {issue.assignee_id}")
 
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "updated", str(issue.id))
+
     return issue
 
 
@@ -920,6 +1035,9 @@ async def resolve_issue(
     })
 
     logger.info(f"Resolved Issue {issue.issue_code}")
+
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "updated", str(issue.id))
 
     return issue
 
@@ -974,6 +1092,9 @@ async def close_issue(
     })
 
     logger.info(f"Closed Issue {issue.issue_code}")
+
+    # Broadcast cache invalidation to SSE clients
+    await broadcast_cache_invalidation("issues", "updated", str(issue.id))
 
     return issue
 
@@ -1235,6 +1356,155 @@ async def upload_attachments(
 
 
 # ============================================================
+# BULK DELETE ATTACHMENTS
+# ============================================================
+
+@router.post("/{issue_id}/attachments/bulk-delete", response_model=BulkAttachmentDeleteResponse)
+async def bulk_delete_attachments(
+    issue_id: str,
+    request: BulkAttachmentDeleteRequest,
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Delete multiple attachments from an issue in a single request.
+
+    Returns detailed results for each file:
+    - deleted: Successfully deleted from both DB and MinIO
+    - not_found_db: File not found in issue's attachment metadata
+    - not_found_minio: File found in DB but missing in MinIO (orphaned record - cleaned up)
+    - error: Deletion failed due to an error
+
+    Note: Files marked as 'not_found_minio' are orphaned records. The DB metadata
+    is cleaned up, but this indicates a data integrity issue that should be investigated.
+    The frontend's serviceWorkflow will auto-create an Issue with category=DATA_INTEGRITY.
+
+    Args:
+        issue_id: Issue UUID
+        request: List of filenames to delete
+
+    Returns:
+        BulkAttachmentDeleteResponse with counts and per-file results
+
+    Raises:
+        404: Issue not found
+        503: MinIO unavailable
+    """
+    # Find issue (including soft-deleted - allow attachment management)
+    issue = db.query(Issue).filter(Issue.id == uuid.UUID(issue_id)).first()
+
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check MinIO availability
+    if not minio_client.check_health():
+        raise HTTPException(
+            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="File storage (MinIO) is currently unavailable"
+        )
+
+    attachments = issue.attachments or []
+    results: List[AttachmentDeleteResult] = []
+    deleted_count = 0
+    not_found_db_count = 0
+    not_found_minio_count = 0
+    error_count = 0
+    files_to_remove = []
+
+    for filename in request.filenames:
+        # Check if attachment exists in issue metadata
+        attachment_meta = next((a for a in attachments if a.get('file_name') == filename), None)
+
+        if not attachment_meta:
+            # File not in database metadata
+            results.append(AttachmentDeleteResult(
+                filename=filename,
+                status="not_found_db",
+                error=None
+            ))
+            not_found_db_count += 1
+            continue
+
+        # Get object name from metadata
+        object_name = attachment_meta.get('object_name', f"{issue_id}/{filename}")
+
+        try:
+            # Try to delete from MinIO
+            success = minio_client.delete_file(object_name)
+
+            if success:
+                # Successfully deleted from MinIO
+                results.append(AttachmentDeleteResult(
+                    filename=filename,
+                    status="deleted",
+                    error=None
+                ))
+                deleted_count += 1
+                files_to_remove.append(filename)
+            else:
+                # MinIO returned False - file doesn't exist (orphaned DB record)
+                logger.warning(
+                    f"Orphaned attachment record: {filename} in issue {issue.issue_code} "
+                    f"- DB metadata exists but MinIO file missing"
+                )
+                results.append(AttachmentDeleteResult(
+                    filename=filename,
+                    status="not_found_minio",
+                    error="File exists in database but not in storage (orphaned record)"
+                ))
+                not_found_minio_count += 1
+                files_to_remove.append(filename)  # Still clean up DB metadata
+
+        except MinIOConnectionError as e:
+            logger.error(f"MinIO connection error deleting {filename}: {str(e)}")
+            results.append(AttachmentDeleteResult(
+                filename=filename,
+                status="error",
+                error="Storage connection failed"
+            ))
+            error_count += 1
+        except Exception as e:
+            logger.error(f"Error deleting attachment {filename}: {str(e)}")
+            results.append(AttachmentDeleteResult(
+                filename=filename,
+                status="error",
+                error=str(e)
+            ))
+            error_count += 1
+
+    # Update DB metadata - remove all successfully processed files
+    if files_to_remove:
+        updated_attachments = [a for a in attachments if a.get('file_name') not in files_to_remove]
+        issue.attachments = updated_attachments if updated_attachments else None
+        db.commit()
+
+        logger.info(
+            f"Bulk deleted {len(files_to_remove)} attachments from issue {issue.issue_code}: "
+            f"deleted={deleted_count}, orphaned={not_found_minio_count}"
+        )
+
+        # Publish Kafka event for bulk deletion
+        await publish_event("issue.attachments_bulk_deleted", {
+            "id": str(issue.id),
+            "issue_code": issue.issue_code,
+            "deleted_count": deleted_count,
+            "orphaned_count": not_found_minio_count,
+            "filenames": files_to_remove,
+        })
+
+    return BulkAttachmentDeleteResponse(
+        total=len(request.filenames),
+        deleted=deleted_count,
+        not_found_db=not_found_db_count,
+        not_found_minio=not_found_minio_count,
+        errors=error_count,
+        results=results
+    )
+
+
+# ============================================================
 # DELETE SINGLE ATTACHMENT
 # ============================================================
 
@@ -1412,3 +1682,615 @@ async def download_attachment(
             status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error downloading file: {str(e)}"
         )
+
+
+# ============================================================
+# PESSIMISTIC LOCKING
+# ============================================================
+# Lock is acquired when user opens edit modal.
+# Lock is released when user closes modal (or saves).
+#
+# Unlock permission rules:
+# 1. Same user who locked → always allowed
+# 2. Super Admin (level 100) → always allowed (force unlock)
+# 3. Cleanup service (SYSTEM_USER_ID) → always allowed (stale lock cleanup)
+# 4. Other users → 403 Forbidden
+
+# Super Admin permission level
+SUPER_ADMIN_LEVEL = 100
+
+# Cleanup service user ID (same as SYSTEM_USER_ID)
+CLEANUP_SERVICE_USER_ID = uuid.UUID("00000000-0000-4000-8000-000000000001")
+
+
+@router.get("/{issue_id}/lock")
+async def check_lock_status(
+    issue_id: str,
+    x_user_id: str = Header(..., alias="X-User-ID", description="UUID of the user checking lock"),
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Check lock status for an issue (without acquiring it).
+
+    Used for polling to check if lock is still held and by whom.
+
+    Returns:
+        200 OK + is_locked: false → No lock on this issue
+        200 OK + is_locked: true, is_mine: true → Lock held by current user
+        200 OK + is_locked: true, is_mine: false, locked_by → Lock held by another user
+        404 Not Found → Issue not found
+    """
+    # Validate issue_id
+    try:
+        issue_uuid = uuid.UUID(issue_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid issue ID format"
+        )
+
+    # Validate user_id
+    try:
+        user_uuid = uuid.UUID(x_user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID format in X-User-ID header"
+        )
+
+    # Get issue
+    issue = db.query(Issue).filter(Issue.id == issue_uuid).first()
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check lock status
+    if issue.locked_by_id is None:
+        return {
+            "is_locked": False,
+            "is_mine": False,
+            "locked_by": None,
+        }
+
+    is_mine = issue.locked_by_id == user_uuid
+    return {
+        "is_locked": True,
+        "is_mine": is_mine,
+        "locked_by": {
+            "id": str(issue.locked_by_id),
+            "locked_at": issue.locked_at.isoformat() if issue.locked_at else None,
+        } if not is_mine else None,  # Only return locked_by info if not mine
+    }
+
+
+@router.post("/{issue_id}/lock", response_model=LockResponse)
+async def acquire_lock(
+    issue_id: str,
+    lock_request: LockRequest = Body(...),
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Acquire a lock on an issue for editing.
+
+    Called when user opens an edit modal.
+    Prevents concurrent editing by other users.
+
+    Returns:
+        200 OK + success: true → Lock acquired successfully
+        409 Conflict + locked_by → Lock held by another user (conflict info returned)
+        404 Not Found → Issue not found
+    """
+    # Validate issue_id
+    try:
+        issue_uuid = uuid.UUID(issue_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid issue ID format"
+        )
+
+    # Get issue
+    issue = db.query(Issue).filter(Issue.id == issue_uuid).first()
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # Check if already locked
+    if issue.locked_by_id is not None:
+        # Check if same user - allow re-lock (idempotent)
+        if issue.locked_by_id == lock_request.user_id:
+            logger.debug(f"Lock re-acquired by same user for issue {issue.issue_code}")
+            return LockResponse(success=True)
+
+        # Locked by someone else - return 409 Conflict (frontend does name lookup by ID)
+        logger.info(
+            f"Lock conflict for issue {issue.issue_code}: "
+            f"requested by {lock_request.user_id}, held by {issue.locked_by_id}"
+        )
+        raise HTTPException(
+            status_code=http_status.HTTP_409_CONFLICT,
+            detail={
+                "success": False,
+                "locked_by": {
+                    "id": str(issue.locked_by_id),
+                    "locked_at": issue.locked_at.isoformat() if issue.locked_at else None,
+                }
+            }
+        )
+
+    # Acquire lock (only ID and timestamp, no name)
+    issue.locked_by_id = lock_request.user_id
+    issue.locked_at = datetime.utcnow()
+
+    try:
+        db.commit()
+        logger.info(f"Lock acquired for issue {issue.issue_code} by user {lock_request.user_id}")
+        return LockResponse(success=True)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to acquire lock for issue {issue.issue_code}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to acquire lock"
+        )
+
+
+@router.delete("/{issue_id}/lock", response_model=LockResponse)
+async def release_lock(
+    issue_id: str,
+    x_user_id: str = Header(..., alias="X-User-ID", description="UUID of the user releasing the lock"),
+    x_permission_level: int = Header(default=0, alias="X-Permission-Level", description="Permission level (0-100)"),
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Release a lock on an issue.
+
+    Called when user closes edit modal (save or cancel).
+
+    Permission rules for unlock:
+    1. Same user who locked → always allowed
+    2. Super Admin (level 100) → always allowed (force unlock)
+    3. Cleanup service (SYSTEM_USER_ID) → always allowed (stale lock cleanup)
+    4. Other users → 403 Forbidden
+
+    Returns:
+        200 OK + success: true → Lock released successfully
+        200 OK + success: true → Issue was not locked (no-op)
+        403 Forbidden → Not authorized to release this lock
+        404 Not Found → Issue not found
+    """
+    # Validate issue_id
+    try:
+        issue_uuid = uuid.UUID(issue_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid issue ID format"
+        )
+
+    # Validate user_id
+    try:
+        user_uuid = uuid.UUID(x_user_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID format in X-User-ID header"
+        )
+
+    # Get issue
+    issue = db.query(Issue).filter(Issue.id == issue_uuid).first()
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue {issue_id} not found"
+        )
+
+    # If not locked, return success (no-op)
+    if issue.locked_by_id is None:
+        logger.debug(f"Release lock called on unlocked issue {issue.issue_code} - no-op")
+        return LockResponse(success=True)
+
+    # Check unlock permission
+    is_same_user = issue.locked_by_id == user_uuid
+    is_super_admin = x_permission_level >= SUPER_ADMIN_LEVEL
+    is_cleanup_service = user_uuid == CLEANUP_SERVICE_USER_ID
+
+    if not (is_same_user or is_super_admin or is_cleanup_service):
+        logger.warning(
+            f"Unauthorized unlock attempt for issue {issue.issue_code}: "
+            f"requested by {x_user_id}, locked by {issue.locked_by_id}"
+        )
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "Not authorized to release this lock",
+                "locked_by": {
+                    "id": str(issue.locked_by_id),
+                    "locked_at": issue.locked_at.isoformat() if issue.locked_at else None,
+                }
+            }
+        )
+
+    # Log unlock reason
+    if is_same_user:
+        unlock_reason = "same user"
+    elif is_super_admin:
+        unlock_reason = "super admin force unlock"
+    else:
+        unlock_reason = "cleanup service"
+
+    # Release lock
+    locked_by_id = issue.locked_by_id  # Save for logging
+    issue.locked_by_id = None
+    issue.locked_at = None
+
+    try:
+        db.commit()
+        logger.info(
+            f"Lock released for issue {issue.issue_code} ({unlock_reason}), "
+            f"was held by user {locked_by_id}"
+        )
+        return LockResponse(success=True)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to release lock for issue {issue.issue_code}: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to release lock"
+        )
+
+
+# ============================================================
+# BULK EXPORT
+# ============================================================
+
+@router.post("/export")
+async def export_issues(
+    format: str = Query(..., regex="^(csv|json|zip)$", description="Export format: csv, json, or zip"),
+    request: IssueExportRequest = Body(...),
+    db: Session = Depends(get_db_safe),
+):
+    """
+    Export multiple issues to CSV, JSON, or ZIP format.
+
+    Returns complete issue data (all fields) unlike frontend DataGrid export
+    which only includes visible columns.
+
+    **Query parameters:**
+    - format: Export format ('csv', 'json', or 'zip')
+
+    **Request body:**
+    ```json
+    {
+      "issue_ids": ["uuid-1", "uuid-2", "uuid-3"],
+      "skip_attachments": false  // Optional, for ZIP exports only
+    }
+    ```
+
+    **Returns:**
+    - CSV: StreamingResponse with text/csv content
+    - JSON: StreamingResponse with application/json content
+    - ZIP: StreamingResponse with application/zip content
+
+    **Error codes:**
+    - 400: Invalid format parameter
+    - 404: One or more issues not found
+    - 500: Export generation failed
+    """
+    logger.info(f"[Export] Exporting {len(request.issue_ids)} issues as {format}")
+
+    # Fetch issues from database
+    try:
+        issue_uuids = [uuid.UUID(issue_id) for issue_id in request.issue_ids]
+        issues = db.query(Issue).filter(Issue.id.in_(issue_uuids)).all()
+
+        if len(issues) != len(request.issue_ids):
+            found_ids = {str(issue.id) for issue in issues}
+            missing_ids = [id for id in request.issue_ids if id not in found_ids]
+            logger.warning(f"[Export] Issues not found: {missing_ids}")
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail=f"Issues not found: {', '.join(missing_ids)}"
+            )
+
+        logger.info(f"[Export] Found {len(issues)} issues in database")
+
+    except ValueError as e:
+        logger.error(f"[Export] Invalid UUID format: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid UUID format in issue_ids"
+        )
+
+    # Generate export based on format
+    try:
+        if format == "csv":
+            return _generate_csv_export(issues)
+        elif format == "json":
+            return _generate_json_export(issues)
+        elif format == "zip":
+            return await _generate_zip_export(issues, request.skip_attachments)
+        else:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported format: {format}"
+            )
+    except Exception as e:
+        logger.error(f"[Export] Failed to generate {format} export: {str(e)}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Export generation failed: {str(e)}"
+        )
+
+
+def _generate_csv_export(issues: List[Issue]) -> StreamingResponse:
+    """
+    Generate CSV export with all issue fields.
+
+    Returns StreamingResponse with CSV content.
+    """
+    logger.info(f"[Export] Generating CSV for {len(issues)} issues")
+
+    # CSV headers (all fields)
+    headers = [
+        'ID', 'Kód', 'Názov', 'Popis', 'Typ', 'Závažnosť', 'Stav', 'Priorita',
+        'Kategória', 'Reporter ID', 'Assignee ID', 'Riešenie',
+        'Vytvorené', 'Aktualizované', 'Vyriešené', 'Uzatvorené', 'Vymazané',
+        'Typ chyby', 'Chybová správa',
+        'Prehliadač', 'OS', 'URL', 'Viewport', 'Screen', 'Timestamp', 'User Agent',
+        'Počet príloh',
+    ]
+
+    # Generate CSV content
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(headers)
+
+    for issue in issues:
+        row = [
+            str(issue.id),
+            issue.issue_code,
+            issue.title,
+            issue.description or '',
+            issue.type.value,
+            issue.severity.value,
+            issue.status.value,
+            issue.priority.value,
+            issue.category.value if issue.category else '',
+            str(issue.reporter_id),
+            str(issue.assignee_id) if issue.assignee_id else '',
+            issue.resolution or '',
+            issue.created_at.isoformat(),
+            issue.updated_at.isoformat() if issue.updated_at else '',
+            issue.resolved_at.isoformat() if issue.resolved_at else '',
+            issue.closed_at.isoformat() if issue.closed_at else '',
+            issue.deleted_at.isoformat() if issue.deleted_at else '',
+            issue.error_type or '',
+            issue.error_message or '',
+            issue.system_info.get('browser', '') if issue.system_info else '',
+            issue.system_info.get('os', '') if issue.system_info else '',
+            issue.system_info.get('url', '') if issue.system_info else '',
+            issue.system_info.get('viewport', '') if issue.system_info else '',
+            issue.system_info.get('screen', '') if issue.system_info else '',
+            issue.system_info.get('timestamp', '') if issue.system_info else '',
+            issue.system_info.get('userAgent', '') if issue.system_info else '',
+            len(issue.attachments) if issue.attachments else 0,
+        ]
+        writer.writerow(row)
+
+    # Create streaming response - encode to bytes for correct Content-Length
+    csv_string = output.getvalue()
+    output.close()
+    csv_content = csv_string.encode('utf-8')
+
+    filename = f"issues_export_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+    logger.info(f"[Export] CSV generated: {filename} ({len(csv_content)} bytes)")
+
+    return StreamingResponse(
+        BytesIO(csv_content),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(len(csv_content))
+        }
+    )
+
+
+def _generate_json_export(issues: List[Issue]) -> StreamingResponse:
+    """
+    Generate JSON export with all issue fields.
+
+    Returns StreamingResponse with JSON content.
+    """
+    logger.info(f"[Export] Generating JSON for {len(issues)} issues")
+
+    # Convert issues to JSON-serializable format
+    issues_data = []
+    for issue in issues:
+        issue_dict = {
+            "id": str(issue.id),
+            "issue_code": issue.issue_code,
+            "title": issue.title,
+            "description": issue.description,
+            "type": issue.type.value,
+            "severity": issue.severity.value,
+            "status": issue.status.value,
+            "priority": issue.priority.value,
+            "category": issue.category.value if issue.category else None,
+            "reporter_id": str(issue.reporter_id),
+            "assignee_id": str(issue.assignee_id) if issue.assignee_id else None,
+            "resolution": issue.resolution,
+            "created_at": issue.created_at.isoformat(),
+            "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
+            "resolved_at": issue.resolved_at.isoformat() if issue.resolved_at else None,
+            "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+            "deleted_at": issue.deleted_at.isoformat() if issue.deleted_at else None,
+            "error_type": issue.error_type,
+            "error_message": issue.error_message,
+            "system_info": issue.system_info,
+            "attachments": issue.attachments,
+        }
+        issues_data.append(issue_dict)
+
+    # Generate JSON content - encode to bytes for correct Content-Length
+    json_string = json.dumps(issues_data, indent=2, ensure_ascii=False)
+    json_content = json_string.encode('utf-8')
+
+    filename = f"issues_export_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
+    logger.info(f"[Export] JSON generated: {filename} ({len(json_content)} bytes)")
+
+    return StreamingResponse(
+        BytesIO(json_content),
+        media_type="application/json",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(len(json_content))
+        }
+    )
+
+
+async def _generate_zip_export(issues: List[Issue], skip_attachments: bool = False) -> StreamingResponse:
+    """
+    Generate ZIP export with issue data and attachments.
+
+    Creates ZIP structure:
+    - ISS-001_uuid/
+      - issue.json
+      - issue.csv
+      - attachments/ (if not skipped)
+        - file1.png
+        - file2.pdf
+
+    Returns StreamingResponse with ZIP content.
+    """
+    logger.info(f"[Export] Generating ZIP for {len(issues)} issues (skip_attachments={skip_attachments})")
+
+    # Create ZIP in memory
+    zip_buffer = BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        # CSV headers for individual issue export
+        csv_headers = [
+            'ID', 'Kód', 'Názov', 'Popis', 'Typ', 'Závažnosť', 'Stav', 'Priorita',
+            'Kategória', 'Reporter ID', 'Assignee ID', 'Riešenie',
+            'Vytvorené', 'Aktualizované', 'Vyriešené', 'Uzatvorené', 'Vymazané',
+            'Typ chyby', 'Chybová správa',
+            'Prehliadač', 'OS', 'URL', 'Viewport', 'Screen', 'Timestamp', 'User Agent',
+            'Počet príloh',
+        ]
+
+        for issue in issues:
+            # Folder name: issue_code_uuid
+            folder_name = f"{issue.issue_code}_{issue.id}"
+
+            # Generate JSON content for this issue
+            issue_dict = {
+                "id": str(issue.id),
+                "issue_code": issue.issue_code,
+                "title": issue.title,
+                "description": issue.description,
+                "type": issue.type.value,
+                "severity": issue.severity.value,
+                "status": issue.status.value,
+                "priority": issue.priority.value,
+                "category": issue.category.value if issue.category else None,
+                "reporter_id": str(issue.reporter_id),
+                "assignee_id": str(issue.assignee_id) if issue.assignee_id else None,
+                "resolution": issue.resolution,
+                "created_at": issue.created_at.isoformat(),
+                "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
+                "resolved_at": issue.resolved_at.isoformat() if issue.resolved_at else None,
+                "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
+                "deleted_at": issue.deleted_at.isoformat() if issue.deleted_at else None,
+                "error_type": issue.error_type,
+                "error_message": issue.error_message,
+                "system_info": issue.system_info,
+                "attachments": issue.attachments,
+            }
+            json_content = json.dumps(issue_dict, indent=2, ensure_ascii=False)
+            zip_file.writestr(f"{folder_name}/issue.json", json_content)
+
+            # Generate CSV content for this issue
+            csv_output = StringIO()
+            csv_writer = csv.writer(csv_output)
+            csv_writer.writerow(csv_headers)
+            csv_row = [
+                str(issue.id),
+                issue.issue_code,
+                issue.title,
+                issue.description or '',
+                issue.type.value,
+                issue.severity.value,
+                issue.status.value,
+                issue.priority.value,
+                issue.category.value if issue.category else '',
+                str(issue.reporter_id),
+                str(issue.assignee_id) if issue.assignee_id else '',
+                issue.resolution or '',
+                issue.created_at.isoformat(),
+                issue.updated_at.isoformat() if issue.updated_at else '',
+                issue.resolved_at.isoformat() if issue.resolved_at else '',
+                issue.closed_at.isoformat() if issue.closed_at else '',
+                issue.deleted_at.isoformat() if issue.deleted_at else '',
+                issue.error_type or '',
+                issue.error_message or '',
+                issue.system_info.get('browser', '') if issue.system_info else '',
+                issue.system_info.get('os', '') if issue.system_info else '',
+                issue.system_info.get('url', '') if issue.system_info else '',
+                issue.system_info.get('viewport', '') if issue.system_info else '',
+                issue.system_info.get('screen', '') if issue.system_info else '',
+                issue.system_info.get('timestamp', '') if issue.system_info else '',
+                issue.system_info.get('userAgent', '') if issue.system_info else '',
+                len(issue.attachments) if issue.attachments else 0,
+            ]
+            csv_writer.writerow(csv_row)
+            csv_content = csv_output.getvalue()
+            csv_output.close()
+            zip_file.writestr(f"{folder_name}/issue.csv", csv_content)
+
+            # Download and add attachments (if not skipping)
+            if not skip_attachments and issue.attachments:
+                for attachment in issue.attachments:
+                    try:
+                        # Check MinIO health
+                        if not minio_client.check_health():
+                            logger.warning(f"[Export] MinIO unavailable, skipping attachment: {attachment['file_name']}")
+                            continue
+
+                        # Download file from MinIO
+                        object_name = attachment.get('object_name', f"{issue.id}/{attachment['file_name']}")
+                        file_data = minio_client.download_file(object_name)
+
+                        if file_data:
+                            zip_file.writestr(
+                                f"{folder_name}/attachments/{attachment['file_name']}",
+                                file_data
+                            )
+                            logger.info(f"[Export] ✅ Added attachment: {attachment['file_name']}")
+                        else:
+                            logger.warning(f"[Export] ⚠️ Attachment not found: {attachment['file_name']}")
+
+                    except MinIOConnectionError:
+                        logger.warning(f"[Export] MinIO connection error, skipping: {attachment['file_name']}")
+                    except Exception as e:
+                        logger.error(f"[Export] Error downloading attachment {attachment['file_name']}: {str(e)}")
+
+    # Get ZIP content
+    zip_buffer.seek(0)
+    zip_content = zip_buffer.read()
+
+    filename = f"issues_export_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.zip"
+    logger.info(f"[Export] ZIP generated: {filename} ({len(zip_content)} bytes)")
+
+    return StreamingResponse(
+        BytesIO(zip_content),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(len(zip_content))
+        }
+    )

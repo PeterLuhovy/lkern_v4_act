@@ -3,15 +3,19 @@
  * FILE: AttachmentEditModal.tsx
  * PATH: /apps/web-ui/src/pages/Issues/AttachmentEditModal.tsx
  * DESCRIPTION: Modal for editing issue attachments - add new and delete existing
- * VERSION: v1.0.0
+ * VERSION: v1.2.1
  * CREATED: 2025-11-29
- * UPDATED: 2025-11-29
+ * UPDATED: 2025-12-09
+ * CHANGELOG:
+ *   v1.2.1 - Fixed: markedForDeletion reset by auto-refresh (useRef for open transition)
+ *   v1.2.0 - Added pessimistic locking (acquires lock on open, releases on close)
+ *   v1.1.0 - Fixed attachment list not updating after delete (added localAttachments state)
  * ================================================================
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Modal, FileUpload, Spinner } from '@l-kern/ui-components';
-import { useTranslation, useToast } from '@l-kern/config';
+import { useTranslation, useToast, SERVICE_ENDPOINTS } from '@l-kern/config';
 import styles from './AttachmentEditModal.module.css';
 
 // ============================================================
@@ -66,6 +70,8 @@ export function AttachmentEditModal({
   // STATE
   // ============================================================
 
+  // Local copy of attachments (for immediate UI update after delete)
+  const [localAttachments, setLocalAttachments] = useState<Attachment[]>(existingAttachments);
   // Attachments marked for deletion
   const [markedForDeletion, setMarkedForDeletion] = useState<Set<string>>(new Set());
   // New files to upload
@@ -80,25 +86,39 @@ export function AttachmentEditModal({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // ============================================================
-  // RESET STATE ON MODAL OPEN
+  // RESET STATE ON MODAL OPEN OR ATTACHMENTS CHANGE
   // ============================================================
 
+  // Sync localAttachments with prop when it changes (e.g., after parent refresh)
+  // BUT only if nothing is marked for deletion (preserve user selection)
   useEffect(() => {
-    if (isOpen) {
+    if (markedForDeletion.size === 0) {
+      setLocalAttachments(existingAttachments);
+    }
+  }, [existingAttachments, markedForDeletion.size]);
+
+  // Reset state ONLY when modal OPENS (not on every prop change)
+  // Using ref to track previous isOpen state
+  const prevIsOpenRef = useRef(false);
+  useEffect(() => {
+    // Only reset when transitioning from closed to open
+    if (isOpen && !prevIsOpenRef.current) {
+      setLocalAttachments(existingAttachments);
       setMarkedForDeletion(new Set());
       setNewFiles([]);
       setFileError('');
       setFileLimitExceeded(false);
       setShowConfirmation(false);
     }
-  }, [isOpen]);
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen, existingAttachments]);
 
   // ============================================================
   // COMPUTED VALUES
   // ============================================================
 
   // Remaining attachments (not marked for deletion)
-  const remainingAttachments = existingAttachments.filter(
+  const remainingAttachments = localAttachments.filter(
     (att) => !markedForDeletion.has(att.file_name)
   );
 
@@ -153,13 +173,18 @@ export function AttachmentEditModal({
     setIsSaving(true);
 
     try {
-      const deletedAttachments = existingAttachments.filter((att) =>
+      const deletedAttachments = localAttachments.filter((att) =>
         markedForDeletion.has(att.file_name)
       );
 
       const success = await onSave(deletedAttachments, newFiles);
       if (success) {
         toast.success(t('pages.issues.attachmentEdit.saveSuccess'));
+        // Immediately update local attachments list (removes deleted items)
+        // This ensures UI reflects changes before parent props update
+        setLocalAttachments((prev) =>
+          prev.filter((att) => !markedForDeletion.has(att.file_name))
+        );
         // Reset state but keep modal open - user can add more files or close manually
         setMarkedForDeletion(new Set());
         setNewFiles([]);
@@ -185,13 +210,13 @@ export function AttachmentEditModal({
     const status = attachmentStatus.get(fileName);
     switch (status) {
       case 'checking':
-        return <span title={t('pages.issues.details.attachmentChecking')}>⏳</span>;
+        return <span role="img" aria-label={t('pages.issues.details.attachmentChecking')} title={t('pages.issues.details.attachmentChecking')}>⏳</span>;
       case 'available':
-        return <span title={t('pages.issues.details.attachmentAvailable')} style={{ color: 'var(--color-status-success)' }}>✓</span>;
+        return <span role="img" aria-label={t('pages.issues.details.attachmentAvailable')} title={t('pages.issues.details.attachmentAvailable')} style={{ color: 'var(--color-status-success)' }}>✓</span>;
       case 'unavailable':
-        return <span title={t('pages.issues.details.attachmentUnavailable')} style={{ color: 'var(--color-status-error)' }}>❌</span>;
+        return <span role="img" aria-label={t('pages.issues.details.attachmentUnavailable')} title={t('pages.issues.details.attachmentUnavailable')} style={{ color: 'var(--color-status-error)' }}>❌</span>;
       case 'error':
-        return <span title={t('pages.issues.details.attachmentError')} style={{ color: 'var(--color-status-warning)' }}>⚠️</span>;
+        return <span role="img" aria-label={t('pages.issues.details.attachmentError')} title={t('pages.issues.details.attachmentError')} style={{ color: 'var(--color-status-warning)' }}>⚠️</span>;
       default:
         return null;
     }
@@ -213,6 +238,11 @@ export function AttachmentEditModal({
       title={t('pages.issues.attachmentEdit.title')}
       size="md"
       maxWidth="600px"
+      locking={{
+        enabled: true,
+        recordId: issueId,
+        lockApiUrl: SERVICE_ENDPOINTS.issues.baseUrl,
+      }}
     >
       <div className={styles.content}>
         {/* Existing Attachments Section */}
@@ -221,9 +251,9 @@ export function AttachmentEditModal({
             {t('pages.issues.attachmentEdit.existingTitle')} ({remainingAttachments.length})
           </h4>
 
-          {existingAttachments.length > 0 ? (
+          {localAttachments.length > 0 ? (
             <div className={styles.attachmentList}>
-              {existingAttachments.map((attachment) => {
+              {localAttachments.map((attachment) => {
                 const isMarkedForDeletion = markedForDeletion.has(attachment.file_name);
                 const isUnavailable = attachmentStatus.get(attachment.file_name) === 'unavailable';
 
@@ -233,7 +263,7 @@ export function AttachmentEditModal({
                     className={`${styles.attachmentItem} ${isMarkedForDeletion ? styles.attachmentMarkedForDeletion : ''}`}
                   >
                     <div className={styles.attachmentInfo}>
-                      <span className={styles.attachmentIcon}>📎</span>
+                      <span role="img" aria-label="Attachment" className={styles.attachmentIcon}>📎</span>
                       <div className={styles.attachmentDetails}>
                         {isUnavailable || isMarkedForDeletion ? (
                           <span className={styles.attachmentNameDisabled}>
@@ -279,7 +309,7 @@ export function AttachmentEditModal({
           {/* Deletion summary */}
           {markedForDeletion.size > 0 && (
             <div className={styles.deletionSummary}>
-              ⚠️ {t('pages.issues.attachmentEdit.deletionWarning', { count: markedForDeletion.size })}
+              <span role="img" aria-label="Warning">⚠️</span> {t('pages.issues.attachmentEdit.deletionWarning', { count: markedForDeletion.size })}
             </div>
           )}
         </div>
@@ -357,11 +387,11 @@ export function AttachmentEditModal({
 
             {/* List of attachments to be deleted */}
             <ul className={styles.confirmList}>
-              {existingAttachments
+              {localAttachments
                 .filter((att) => markedForDeletion.has(att.file_name))
                 .map((att) => (
                   <li key={att.file_name} className={styles.confirmListItem}>
-                    📎 {att.file_name}
+                    <span role="img" aria-label="Attachment">📎</span> {att.file_name}
                     <span className={styles.confirmListSize}>({formatFileSize(att.file_size)})</span>
                   </li>
                 ))}

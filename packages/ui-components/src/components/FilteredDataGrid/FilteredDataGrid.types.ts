@@ -134,6 +134,14 @@ export interface FilteredDataGridProps<T = any> extends BaseComponentProps {
   /** Callback fired when auto-refresh triggers. Use this to refetch data from API. */
   onRefresh?: () => void;
 
+  // === LOADING STATE ===
+  /** Loading state - shows spinner instead of empty state */
+  loading?: boolean;
+  /** Custom loading message */
+  loadingMessage?: string;
+  /** Show "taking longer than usual" hint */
+  loadingSlow?: boolean;
+
   // === ERROR STATE ===
   /** Error message to show in DataGrid (e.g., "Service unavailable") */
   error?: string | null;

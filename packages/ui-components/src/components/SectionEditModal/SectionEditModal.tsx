@@ -3,8 +3,8 @@
  * FILE: SectionEditModal.tsx
  * PATH: /packages/ui-components/src/components/SectionEditModal/SectionEditModal.tsx
  * DESCRIPTION: Generic form builder modal with FieldDefinition system
- * VERSION: v1.0.0
- * UPDATED: 2025-11-01 17:00:00
+ * VERSION: v1.2.0
+ * UPDATED: 2025-12-09 10:00:00
  *
  * FEATURES:
  *   - Dynamic field rendering from FieldDefinition array
@@ -13,6 +13,7 @@
  *   - Clear form button with confirmation
  *   - Unsaved changes detection (delegated to base Modal)
  *   - Full translation support (SK/EN)
+ *   - Pessimistic Locking support (delegated to base Modal v4.0.0)
  *
  * USAGE:
  *   <SectionEditModal
@@ -25,12 +26,32 @@
  *     initialData={sectionData}
  *   />
  *
+ * USAGE WITH LOCKING:
+ *   <SectionEditModal
+ *     isOpen={isOpen}
+ *     onClose={handleClose}
+ *     onSave={handleSave}
+ *     title="Upraviť: Základné údaje"
+ *     modalId="edit-section"
+ *     fields={fieldDefinitions}
+ *     initialData={sectionData}
+ *     locking={{
+ *       enabled: true,
+ *       recordId: issueId,
+ *       lockApiUrl: "/api/issues",
+ *     }}
+ *   />
+ *
+ * CHANGES:
+ *   - v1.2.0: Delegated locking to base Modal component (Modal v4.0.0)
+ *   - v1.1.0: Initial pessimistic locking support
+ *
  * MIGRATED FROM: L-KERN v3 SectionEditModal.tsx (simplified for v4)
  * ================================================================
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Modal } from '../Modal';
+import { Modal, ModalLockingConfig } from '../Modal';
 import { Button } from '../Button';
 import { ConfirmModal } from '../ConfirmModal';
 import { FormField } from '../FormField';
@@ -130,9 +151,16 @@ export interface SectionEditModalProps {
   /**
    * Called when user saves the form
    * Receives entire form data object
+   *
+   * Can be sync or async:
+   * - Sync: `onSave={(data) => console.log(data)}`
+   * - Async: `onSave={async (data) => { await api.save(data); }}`
+   *
+   * If async and throws error with `status: 409`, modal switches to read-only mode.
+   * This handles the case when someone else took the lock while user was editing.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generic form data type
-  onSave: (data: Record<string, any>) => void;
+  onSave: (data: Record<string, any>) => void | Promise<void>;
 
   /**
    * Modal title (e.g., "Upraviť: Základné údaje")
@@ -184,6 +212,58 @@ export interface SectionEditModalProps {
    * @default "Zrušiť" (from translations)
    */
   cancelText?: string;
+
+  // ================================================================
+  // PESSIMISTIC LOCKING (delegated to base Modal)
+  // ================================================================
+
+  /**
+   * Pessimistic locking configuration (passed to base Modal)
+   * @example
+   * ```tsx
+   * <SectionEditModal
+   *   locking={{
+   *     enabled: true,
+   *     recordId: contactId,
+   *     lockApiUrl: '/api/contacts',
+   *   }}
+   * />
+   * ```
+   */
+  locking?: ModalLockingConfig;
+
+  /**
+   * Force read-only mode (ignores locking)
+   * @default false
+   */
+  readOnly?: boolean;
+
+  /**
+   * Callback when save fails with 409 conflict (lock was taken)
+   * Called with lock info about who now has the lock.
+   * Modal automatically switches to read-only mode.
+   *
+   * @example
+   * ```tsx
+   * <SectionEditModal
+   *   onSaveConflict={(lockInfo) => {
+   *     toast.error(`${lockInfo.lockedByName} prevzal editáciu`);
+   *   }}
+   * />
+   * ```
+   */
+  onSaveConflict?: (lockInfo: LockInfo) => void;
+}
+
+/**
+ * Error type for 409 Conflict responses
+ * Used to detect lock conflicts when saving
+ */
+export interface SaveConflictError extends Error {
+  status: 409;
+  lockedById?: string;
+  lockedByName?: string;
+  lockedAt?: string;
 }
 
 // ================================================================
@@ -246,11 +326,21 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
   showClearButton = true,
   saveText,
   cancelText,
+  // Locking (delegated to base Modal)
+  locking,
+  readOnly = false,
 }) => {
   const { t } = useTranslation();
 
   // Unsaved changes confirmation
   const unsavedConfirm = useConfirm();
+
+  // ================================================================
+  // LOCKING STATE (from base Modal callback)
+  // ================================================================
+
+  // Whether modal is in read-only mode due to lock conflict
+  const [isLockedByOther, setIsLockedByOther] = useState(false);
 
   // ================================================================
   // STATE
@@ -290,12 +380,24 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
     }
   }, [isOpen, initialData]);
 
+  /**
+   * Reset locking state when modal closes
+   */
+  useEffect(() => {
+    if (!isOpen) {
+      setIsLockedByOther(false);
+    }
+  }, [isOpen]);
+
   // ================================================================
   // COMPUTED
   // ================================================================
 
   // Check if there are any validation errors
   const hasValidationErrors = Object.keys(validationErrors).length > 0;
+
+  // Combined read-only mode (external prop OR locked by another user)
+  const isReadOnlyMode = readOnly || isLockedByOther;
 
   // ================================================================
   // HANDLERS
@@ -552,8 +654,8 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
   // ================================================================
 
   const footer = {
-    // Left slot: Clear button (if enabled)
-    left: showClearButton ? (
+    // Left slot: Clear button (if enabled AND not read-only)
+    left: showClearButton && !isReadOnlyMode ? (
       <Button
         variant="danger-subtle"
         onClick={handleClearClick}
@@ -563,7 +665,7 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
       </Button>
     ) : undefined,
 
-    // Right slot: Cancel + Save buttons
+    // Right slot: Cancel + Save buttons (Save hidden in read-only mode)
     right: (
       <>
         <Button
@@ -571,16 +673,18 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
           onClick={handleCancel}
           data-testid="section-edit-modal-cancel"
         >
-          {cancelText || t('common.cancel')}
+          {isReadOnlyMode ? t('common.close') : (cancelText || t('common.cancel'))}
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleSave}
-          disabled={hasValidationErrors}
-          data-testid="section-edit-modal-save"
-        >
-          {saveText || t('common.save')}
-        </Button>
+        {!isReadOnlyMode && (
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            disabled={hasValidationErrors}
+            data-testid="section-edit-modal-save"
+          >
+            {saveText || t('common.save')}
+          </Button>
+        )}
       </>
     ),
   };
@@ -595,14 +699,18 @@ export const SectionEditModal: React.FC<SectionEditModalProps> = ({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        onConfirm={unsavedConfirm.state.isOpen ? undefined : handleSave}
-        hasUnsavedChanges={isDirty}
+        onConfirm={unsavedConfirm.state.isOpen ? undefined : (isReadOnlyMode ? undefined : handleSave)}
+        hasUnsavedChanges={isReadOnlyMode ? false : isDirty}
         modalId={modalId}
         parentModalId={parentModalId}
         title={title}
         size={size}
         footer={footer}
+        // Locking (delegated to base Modal)
+        locking={locking}
+        onLockStatusChange={setIsLockedByOther}
       >
+        {/* Form fields - lock banner and read-only mode handled by Modal */}
         <div className={styles.formContainer}>
           {fields.map((field) => renderField(field))}
         </div>

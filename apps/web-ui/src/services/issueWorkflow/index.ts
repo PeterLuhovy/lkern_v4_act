@@ -3,12 +3,17 @@
  * FILE: index.ts
  * PATH: /apps/web-ui/src/services/issueWorkflow/index.ts
  * DESCRIPTION: Issue workflow service exports
- * VERSION: v2.0.0
+ * VERSION: v3.0.0
  * CREATED: 2025-11-30
- * UPDATED: 2025-12-01
+ * UPDATED: 2025-12-04
  * CHANGELOG:
+ *   v3.0.0 - DEPRECATED: Use serviceWorkflow from @l-kern/config instead
+ *            Only types are exported now, functions are deprecated
  *   v2.0.0 - Added universal issueWorkflow function
  *   v1.1.0 - Added updateIssueWorkflow exports
+ *
+ * @deprecated Use serviceWorkflow from @l-kern/config instead of these local workflows.
+ *             Only type exports are maintained for backward compatibility.
  * ================================================================
  */
 

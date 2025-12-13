@@ -10,6 +10,7 @@
 
 import React, { useEffect, useState } from 'react';
 import type { Toast as ToastType } from '@l-kern/config';
+import { useTranslation } from '@l-kern/config';
 import styles from './Toast.module.css';
 
 export interface ToastProps {
@@ -18,6 +19,7 @@ export interface ToastProps {
 }
 
 export const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
           type="button"
           className={styles.toast__closeButton}
           onClick={handleClose}
-          aria-label="Close notification"
+          aria-label={t('common.ariaLabels.closeNotification')}
         >
           ×
         </button>
