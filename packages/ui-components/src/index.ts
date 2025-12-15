@@ -128,11 +128,8 @@ export type { UserRole, IssueType, IssueSeverity, IssueCategory, IssuePriority }
 export { IssueTypeSelectModal } from './components/IssueTypeSelectModal';
 export type { IssueTypeSelectModalProps } from './components/IssueTypeSelectModal';
 
-export { AssignIssueModal } from './components/AssignIssueModal';
 
-export { ResolveIssueModal } from './components/ResolveIssueModal';
 
-export { CloseIssueModal } from './components/CloseIssueModal';
 
 // NOTE: EditIssueModal removed in v1.0.0 - use EntityEditModal with config instead
 
