@@ -1,0 +1,29 @@
+{
+  "id": "guides/code-examples",
+  "title": "Code Examples",
+  "description": "---",
+  "source": "@site/docs/guides/code-examples.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/code-examples",
+  "permalink": "/guides/code-examples",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "id": "code-examples",
+    "title": "Code Examples",
+    "sidebar_label": "Code Examples",
+    "sidebar_position": 6
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Documentation Standards",
+    "permalink": "/guides/documentation-standards"
+  },
+  "next": {
+    "title": "🧪 Testing",
+    "permalink": "/category/-testing"
+  }
+}

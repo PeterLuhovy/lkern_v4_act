@@ -1,0 +1,29 @@
+{
+  "id": "testing/testing-visual",
+  "title": "Visual Regression Testing (Optional)",
+  "description": "---",
+  "source": "@site/docs/testing/testing-visual.md",
+  "sourceDirName": "testing",
+  "slug": "/testing/testing-visual",
+  "permalink": "/testing/testing-visual",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "id": "testing-visual",
+    "title": "Visual Regression Testing (Optional)",
+    "sidebar_label": "Visual Testing",
+    "sidebar_position": 5
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "E2E Testing",
+    "permalink": "/testing/testing-e2e"
+  },
+  "next": {
+    "title": "Best Practices",
+    "permalink": "/testing/testing-best-practices"
+  }
+}

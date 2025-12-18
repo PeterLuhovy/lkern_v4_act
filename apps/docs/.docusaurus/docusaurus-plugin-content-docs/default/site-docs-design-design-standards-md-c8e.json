@@ -1,0 +1,29 @@
+{
+  "id": "design/design-standards",
+  "title": "Design Standards",
+  "description": "---",
+  "source": "@site/docs/design/design-standards.md",
+  "sourceDirName": "design",
+  "slug": "/design/design-standards",
+  "permalink": "/design/design-standards",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "design-standards",
+    "title": "Design Standards",
+    "sidebar_label": "Design Standards",
+    "sidebar_position": 1
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "🎨 Design",
+    "permalink": "/category/-design"
+  },
+  "next": {
+    "title": "📋 Project",
+    "permalink": "/category/-project"
+  }
+}

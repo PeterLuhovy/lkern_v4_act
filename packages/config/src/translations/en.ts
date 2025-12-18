@@ -1058,7 +1058,8 @@ export const en: TranslationKeys = {
       operationSuccess: 'Operation successful',
       operationFailed: 'Operation failed',
       recordNotFound: 'Record does not exist or was deleted',
-      verificationFailed: 'Field mismatch: {fields}',
+      fieldMismatch: 'Field mismatch: {fields}',
+      verificationFailed: '❌ Data was not saved correctly, please try again',
       processingBatch: 'Processing {current}/{total}...',
       batchSuccess: 'Successfully processed {count} records',
       batchPartial: 'Successful: {success}, Failed: {failed}',
@@ -1066,7 +1067,6 @@ export const en: TranslationKeys = {
       retrying: '🔄 Trying to connect... (attempt {attempt}/{max})',
       serviceDown: '❌ Service not responding, try again later',
       sqlDown: '❌ Database is unavailable',
-      saveVerificationFailed: '❌ Data was not saved correctly, please try again',
     },
     storageTypes: {
       sql: 'Database',

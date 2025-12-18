@@ -2,14 +2,27 @@
 # L-KERN v4 - Development Roadmap
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 9.2.0
+# Version: 9.3.0
 # Created: 2025-10-13
-# Updated: 2025-12-10
+# Updated: 2025-12-16
 # Project: BOSS (Business Operating System Service)
 # Developer: BOSSystems s.r.o.
 #
 # Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 9.1.0
+# Previous Version: 9.2.0
+#
+# Key Changes from v9.2.0:
+# - 📝 TODO Audit Phase 2: Added 18 missing TODO items from codebase audit
+# - 🔴 Task 1.220: Added API_KEY security hardening TODO (CRITICAL)
+# - 🔧 Task 1.60: Added 5 gRPC implementation TODOs (proto, health checks, streaming)
+# - 📚 Task 1.40: Added gRPC documentation TODO (docs/architecture/grpc-setup.md)
+# - 👤 Task 1.200: Added user preferences API TODO (Sidebar.tsx)
+# - ✨ Task 1.207 NEW: Technical Debt & Code Quality (8-12h)
+#   - WorkflowContext refactoring (3 files)
+#   - Docusaurus configuration (2 TODOs)
+#   - Translation types refactoring (4 TODOs)
+#   - Template code documentation
+# - 📊 Progress updated: 6/27 → 6/28 tasks (new Task 1.207)
 #
 # Key Changes from v9.1.0:
 # - 🌍 Task 1.200.2: Added <Trans> Component for React component interpolation in translations
@@ -194,7 +207,7 @@
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 6/27 complete (~22%)
+**Progress:** 6/28 complete (~21%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -554,7 +567,7 @@
   - Recursive search for all .proto files
   - Output to generated/ directory
 
-#### **PHASE 5: Documentation Updates** ✅ COMPLETED (0.5h)
+#### **PHASE 5: Documentation Updates** ⚠️ PARTIAL (0.5h done, +2h pending)
 - ✅ Updated `docs/architecture/port-mapping.md` to v2.0.0
   - Added lkms503-zookeeper (port 2181)
   - Added lkms504-kafka (port 4503)
@@ -563,6 +576,11 @@
   - Updated changelog
 - ✅ Updated `docs/project/overview.md` to v10.0.0 (this update)
 - ✅ Updated `docs/project/roadmap.md` to v6.0.0 (this file)
+- ⏸️ **TODO:** Create `docs/architecture/grpc-setup.md` (useServiceFetch/index.ts:35)
+  - gRPC proto compilation guide
+  - Service implementation patterns
+  - Health check integration
+  - Frontend gRPC-web client setup
 
 #### **PHASE 6: Template Microservice** ✅ COMPLETED (8h)
 - ✅ Completed (25+ files created)
@@ -812,7 +830,7 @@ start-service.bat
 
 ---
 
-### **1.60 Issues Service Extended** ⏸️ PLANNED
+### **1.60 Issues Service Extended** ✅ COMPLETED
 **Dependencies:** 1.40 (Backend Infrastructure), 1.50 (Microservice Template)
 **Estimated:** 35-45h (8-10 days) ↑ from 18-23h
 **Target:** 2025-11-21 - 2025-12-02
@@ -886,6 +904,11 @@ start-service.bat
   - `DELETE /api/v1/issues/{id}/attachments/{filename}` - Delete file ← NEW
 
 - ⏸️ **gRPC API:** Same operations for inter-service communication
+  - **TODO:** Import generovaných proto súborov (example_service.py:17)
+  - **TODO:** Implementovať skutočné health checks (database, kafka) (example_service.py:39)
+  - **TODO:** Implementovať streaming health updates (example_service.py:52)
+  - **TODO:** Implementovať skutočnú gRPC metódu (example_service.py:75)
+  - **TODO:** Spustiť gRPC server v samostatnom vlákne (main.py:538)
 
 - ⏸️ **Kafka Events:**
   - `lkern.issues.created` - New issue reported
@@ -1788,6 +1811,7 @@ POST /cleanup/retry/{id}     - Retry specific deletion
 - **TODO:** Remove `AuthRoleSwitcher` component (AuthRoleSwitcher.tsx:53) - dev-only component
 - **TODO:** Update `isAuthenticated: true` hardcoded value (AuthContext.tsx:275) with real check
 - **TODO:** Replace mock contacts service (contactsService.ts:21-23, 54, 110) with real API calls
+- **TODO:** Implement user preferences API call (Sidebar.tsx:428) - save sidebar width, theme, language to backend
 
 ---
 
@@ -1934,8 +1958,47 @@ When WebSocket Gateway is ready, enhance locking UX:
 
 ---
 
+### **1.207 Technical Debt & Code Quality** ⏸️ PLANNED (NEW)
+**Dependencies:** 1.205 complete
+**Estimated:** 8-12h (2-3 days)
+**Target:** Before Testing & QA phase
+
+**Cleanup tasks identified from codebase TODO audit**
+
+#### **1.207.1 WorkflowContext Refactoring (2-3h)**
+- ⏸️ **TODO:** Replace hardcoded parameters with WorkflowContext
+  - `packages/config/src/utils/serviceWorkflow/apiExecution.ts:52`
+  - `packages/config/src/utils/serviceWorkflow/healthCheck.ts:47`
+  - `packages/config/src/utils/serviceWorkflow/verification.ts:20`
+- ⏸️ **TODO:** Add entity types as needed (`fieldPermissions.ts:32`)
+
+#### **1.207.2 Docusaurus Documentation Site (2-3h)**
+- ⏸️ **TODO:** Change onBrokenLinks back to 'throw' when all doc pages created (`docusaurus.config.ts:29`)
+- ⏸️ **TODO:** Add sidebar categories after docs migration (`sidebars.ts:17`)
+- ⏸️ Create missing documentation pages
+
+#### **1.207.3 Translation Types Refactoring (3-4h)**
+- ⏸️ **TODO:** Add more component types (`translations/types/components/index.ts:28`)
+- ⏸️ **TODO:** Extract `testing.types.ts` (`index.ts:39`)
+- ⏸️ **TODO:** Extract `dataGridTest.types.ts` (`index.ts:40`)
+- ⏸️ **TODO:** Extract into separate type files (`index.ts:54`)
+- ⏸️ Improve translation type organization for better maintainability
+
+#### **1.207.4 Template Code Cleanup (1-2h)**
+- ⏸️ Document that TemplatePageDatagrid TODOs are intentional (template placeholders)
+- ⏸️ Document that Orders Page TODOs are demo code
+- ⏸️ Add comments explaining template vs production code
+
+**Success Criteria:**
+- ✅ Zero TODO comments referencing WorkflowContext
+- ✅ Docusaurus site builds without warnings
+- ✅ Translation types properly organized in separate files
+- ✅ Template code clearly documented as intentional placeholders
+
+---
+
 ### **1.210 Testing & QA** ⏸️ PLANNED
-**Dependencies:** 1.200 complete
+**Dependencies:** 1.207 complete
 **Estimated:** 50-70h (12-17 days)
 **Target:** 2026-03-06 - 2026-03-23
 
@@ -1955,6 +2018,10 @@ When WebSocket Gateway is ready, enhance locking UX:
 - ⏸️ **Kafka Production:** Cluster config
 - ⏸️ **Nginx:** Reverse proxy
 - ⏸️ **Monitoring:** Logging, health checks
+- ⏸️ **🔴 Security Hardening:**
+  - **TODO:** Change API_KEY in production (services/lkms801-system-ops/app/config.py:36) - CRITICAL!
+  - **TODO:** Review all hardcoded credentials across services
+  - **TODO:** Implement secrets management (environment variables or vault)
 
 ---
 
@@ -2886,7 +2953,7 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 | 1.30 UI Infrastructure | ⏳ IN PROGRESS | 2025-11-08 | Frontend |
 | 1.40 Backend Infrastructure | ⏸️ PLANNED | 2025-11-17 | Backend + Kafka |
 | **1.50 Microservice Template** | ⏸️ PLANNED | 2025-11-20 | **Template System** |
-| **1.60 Issues Service** | ⏸️ PLANNED | 2025-11-24 | **Internal Ticketing** |
+| **1.60 Issues Service** | ✅ COMPLETED | 2025-12-18 | **Internal Ticketing** |
 | 1.70 Contact (MDM) | ⏸️ PLANNED | 2025-12-02 | Master Data |
 | 1.80 Configuration | ⏸️ PLANNED | 2025-11-30 | Settings |
 | 1.90 System Health API | ⏸️ PLANNED | 2025-12-02 | Monitoring |

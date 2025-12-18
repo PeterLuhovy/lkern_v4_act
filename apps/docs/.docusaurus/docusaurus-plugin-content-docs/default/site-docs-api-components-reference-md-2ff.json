@@ -1,0 +1,29 @@
+{
+  "id": "api/components-reference",
+  "title": "UI Components Reference",
+  "description": "---",
+  "source": "@site/docs/api/components-reference.md",
+  "sourceDirName": "api",
+  "slug": "/api/components-reference",
+  "permalink": "/api/components-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "components-reference",
+    "title": "UI Components Reference",
+    "sidebar_label": "Components Reference",
+    "sidebar_position": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "@l-kern/ui-components",
+    "permalink": "/api/ui-components"
+  },
+  "next": {
+    "title": "Utilities Reference",
+    "permalink": "/api/utilities-reference"
+  }
+}

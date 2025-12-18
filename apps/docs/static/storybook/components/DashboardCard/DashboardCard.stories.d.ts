@@ -1,0 +1,17 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { DashboardCard } from './DashboardCard';
+declare const meta: Meta<typeof DashboardCard>;
+export default meta;
+type Story = StoryObj<typeof DashboardCard>;
+export declare const Default: Story;
+export declare const WithEmojiIcon: Story;
+export declare const WithComplexIcon: Story;
+export declare const OrdersCard: Story;
+export declare const InvoicesCard: Story;
+export declare const SettingsCard: Story;
+export declare const ReportsCard: Story;
+export declare const LongTitle: Story;
+export declare const LongDescription: Story;
+export declare const DashboardGrid: Story;
+export declare const TwoColumnLayout: Story;
+export declare const SingleColumn: Story;

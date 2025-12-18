@@ -1,0 +1,14 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { EditItemModal } from './EditItemModal';
+declare const meta: Meta<typeof EditItemModal>;
+export default meta;
+type Story = StoryObj<typeof EditItemModal>;
+export declare const AddEmail: Story;
+export declare const EditPhone: Story;
+export declare const WithClearButton: Story;
+export declare const WithUnsavedChanges: Story;
+export declare const SaveDisabled: Story;
+export declare const SmallSize: Story;
+export declare const LargeSize: Story;
+export declare const InteractiveForm: Story;
+export declare const AllSizes: Story;

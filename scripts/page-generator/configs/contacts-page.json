@@ -1,0 +1,184 @@
+{
+  "entityName": "Contacts",
+  "entityNameSingular": "Contact",
+  "path": "/contacts",
+  "columns": [
+    {
+      "field": "contact_code",
+      "title": "Contact Code",
+      "type": "string",
+      "width": 130,
+      "sortable": true
+    },
+    {
+      "field": "display_name",
+      "title": "Name",
+      "type": "string",
+      "width": 250,
+      "sortable": true
+    },
+    {
+      "field": "contact_type",
+      "title": "Type",
+      "type": "status",
+      "width": 140,
+      "sortable": true,
+      "options": ["person", "company", "organizational_unit"]
+    },
+    {
+      "field": "primary_email",
+      "title": "Email",
+      "type": "string",
+      "width": 200,
+      "sortable": false
+    },
+    {
+      "field": "primary_phone",
+      "title": "Phone",
+      "type": "string",
+      "width": 150,
+      "sortable": false
+    },
+    {
+      "field": "roles",
+      "title": "Roles",
+      "type": "string",
+      "width": 180,
+      "sortable": false
+    },
+    {
+      "field": "created_at",
+      "title": "Created",
+      "type": "string",
+      "width": 100,
+      "sortable": true
+    },
+    {
+      "field": "id",
+      "title": "ID",
+      "type": "string",
+      "hidden": true
+    },
+    {
+      "field": "is_deleted",
+      "title": "Deleted",
+      "type": "boolean",
+      "hidden": true
+    }
+  ],
+  "features": {
+    "search": true,
+    "filters": true,
+    "quickFilters": true,
+    "export": true,
+    "bulkActions": true,
+    "expandable": true,
+    "selection": true
+  },
+  "translations": {
+    "sk": {
+      "title": "Kontakty",
+      "subtitle": "Master Data Management - správa kontaktov",
+      "breadcrumb": "Kontakty",
+      "searchPlaceholder": "Hľadať kontakty podľa mena, kódu alebo emailu...",
+      "newItemButton": "+ Nový kontakt",
+      "newItemClicked": "Vytvorenie nového kontaktu",
+      "showInactiveLabel": "Zobraz vymazané kontakty",
+      "deleteConfirm": "Naozaj chcete vymazať kontakt {name}?",
+      "deleteSuccess": "Kontakt {name} bol úspešne vymazaný",
+      "detailsTitle": "Detail kontaktu: {name}",
+      "selectedCount": "Vybrané",
+      "clearSelection": "Zrušiť výber",
+      "bulkExport": "Exportovať {count} kontaktov",
+      "bulkDeleteConfirm": "Naozaj chcete vymazať {count} kontaktov?",
+      "bulkDeleteSuccess": "{count} kontaktov bolo úspešne vymazaných",
+      "columns": {
+        "contact_code": "Kód",
+        "display_name": "Názov",
+        "contact_type": "Typ",
+        "primary_email": "Email",
+        "primary_phone": "Telefón",
+        "roles": "Roly",
+        "created_at": "Vytvorené"
+      },
+      "details": {
+        "contact_code": "Kód kontaktu",
+        "display_name": "Názov",
+        "contact_type": "Typ kontaktu",
+        "primary_email": "Primárny email",
+        "primary_phone": "Primárny telefón",
+        "roles": "Priradené roly",
+        "created_at": "Dátum vytvorenia"
+      },
+      "filters": {
+        "typeTitle": "Typ kontaktu",
+        "typePerson": "Osoba",
+        "typeCompany": "Firma",
+        "typeOrganizationalUnit": "Organizačná jednotka",
+        "roleTitle": "Rola",
+        "roleSupplier": "Dodávateľ",
+        "roleCustomer": "Odberateľ",
+        "roleEmployee": "Zamestnanec",
+        "rolePartner": "Partner"
+      },
+      "quickFilters": {
+        "persons": "👤 Osoby",
+        "companies": "🏢 Firmy",
+        "suppliers": "📦 Dodávatelia",
+        "customers": "🛒 Odberatelia"
+      }
+    },
+    "en": {
+      "title": "Contacts",
+      "subtitle": "Master Data Management - contact management",
+      "breadcrumb": "Contacts",
+      "searchPlaceholder": "Search contacts by name, code, or email...",
+      "newItemButton": "+ New Contact",
+      "newItemClicked": "Creating new contact",
+      "showInactiveLabel": "Show deleted contacts",
+      "deleteConfirm": "Are you sure you want to delete contact {name}?",
+      "deleteSuccess": "Contact {name} has been successfully deleted",
+      "detailsTitle": "Contact Details: {name}",
+      "selectedCount": "Selected",
+      "clearSelection": "Clear selection",
+      "bulkExport": "Export {count} contacts",
+      "bulkDeleteConfirm": "Are you sure you want to delete {count} contacts?",
+      "bulkDeleteSuccess": "{count} contacts have been successfully deleted",
+      "columns": {
+        "contact_code": "Code",
+        "display_name": "Name",
+        "contact_type": "Type",
+        "primary_email": "Email",
+        "primary_phone": "Phone",
+        "roles": "Roles",
+        "created_at": "Created"
+      },
+      "details": {
+        "contact_code": "Contact Code",
+        "display_name": "Name",
+        "contact_type": "Contact Type",
+        "primary_email": "Primary Email",
+        "primary_phone": "Primary Phone",
+        "roles": "Assigned Roles",
+        "created_at": "Creation Date"
+      },
+      "filters": {
+        "typeTitle": "Contact Type",
+        "typePerson": "Person",
+        "typeCompany": "Company",
+        "typeOrganizationalUnit": "Organizational Unit",
+        "roleTitle": "Role",
+        "roleSupplier": "Supplier",
+        "roleCustomer": "Customer",
+        "roleEmployee": "Employee",
+        "rolePartner": "Partner"
+      },
+      "quickFilters": {
+        "persons": "👤 Persons",
+        "companies": "🏢 Companies",
+        "suppliers": "📦 Suppliers",
+        "customers": "🛒 Customers"
+      }
+    }
+  }
+}

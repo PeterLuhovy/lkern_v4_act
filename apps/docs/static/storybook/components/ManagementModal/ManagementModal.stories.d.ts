@@ -1,0 +1,12 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { ManagementModal } from './ManagementModal';
+declare const meta: Meta<typeof ManagementModal>;
+export default meta;
+type Story = StoryObj<typeof ManagementModal>;
+export declare const ManagePhones: Story;
+export declare const ManageEmails: Story;
+export declare const WithPrimaryItem: Story;
+export declare const EmptyState: Story;
+export declare const WithUnsavedChanges: Story;
+export declare const CustomMaxWidth: Story;
+export declare const Features: Story;

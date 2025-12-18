@@ -3,8 +3,8 @@
  * FILE: ToastContext.test.tsx
  * PATH: /packages/config/src/contexts/ToastContext/ToastContext.test.tsx
  * DESCRIPTION: Tests for ToastContext provider
- * VERSION: v1.0.0
- * UPDATED: 2025-10-19 16:10:00
+ * VERSION: v1.0.1
+ * UPDATED: 2025-12-16
  * ================================================================
  */
 
@@ -20,13 +20,21 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 describe('ToastContext', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    toastManager.clearAll();
+    // Clear toasts - wrap in act() since this triggers state updates in ToastProvider
+    await act(async () => {
+      toastManager.clearAll();
+      await Promise.resolve(); // Let event handlers complete
+    });
   });
 
-  afterEach(() => {
-    toastManager.clearAll();
+  afterEach(async () => {
+    // Clear toasts - wrap in act() since this triggers state updates in ToastProvider
+    await act(async () => {
+      toastManager.clearAll();
+      await Promise.resolve();
+    });
   });
 
   describe('useToastContext hook', () => {
@@ -185,8 +193,10 @@ describe('ToastContext', () => {
 
       expect(result.current.toasts).toHaveLength(1);
 
-      // Wait to ensure it doesn't auto-dismiss
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      // Wait to ensure it doesn't auto-dismiss - wrap in act() to handle any state updates
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      });
 
       expect(result.current.toasts).toHaveLength(1);
     });

@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Central registry of all L-KERN microservices",
-  "updated": "2025-11-24",
+  "updated": "2025-12-18",
   "services": [
     {
       "code": "lkms105-issues",
@@ -121,6 +121,20 @@
       },
       "health_check": "http://localhost:4901",
       "dependencies": ["lkms105-issues-db"]
+    },
+    {
+      "code": "lkms902-docs",
+      "name": "Documentation (Docusaurus)",
+      "name_sk": "Dokumentácia",
+      "type": "docker",
+      "container": "lkms902-docs",
+      "order": 902,
+      "category": "tools",
+      "ports": {
+        "http": 4902
+      },
+      "health_check": "http://localhost:4902",
+      "dependencies": []
     }
   ],
   "startup_order": [
@@ -131,10 +145,12 @@
     "lkms105-issues",
     "lkms201-web-ui",
     "lkms901-adminer",
+    "lkms902-docs",
     "lkms801-system-ops"
   ],
   "shutdown_order": [
     "lkms801-system-ops",
+    "lkms902-docs",
     "lkms201-web-ui",
     "lkms901-adminer",
     "lkms105-issues",

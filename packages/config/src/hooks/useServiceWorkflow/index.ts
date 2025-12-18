@@ -11,7 +11,6 @@
 
 export { useServiceWorkflow } from './useServiceWorkflow';
 export type {
-  ServiceWorkflowMessages,
   ExecuteConfig,
   UseServiceWorkflowReturn,
 } from './useServiceWorkflow';

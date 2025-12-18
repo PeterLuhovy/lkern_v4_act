@@ -1,0 +1,29 @@
+{
+  "id": "architecture/microservices-architecture",
+  "title": "Microservices Architecture Design",
+  "description": "Version: 1.0.0",
+  "source": "@site/docs/architecture/microservices-architecture.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/microservices-architecture",
+  "permalink": "/architecture/microservices-architecture",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "microservices-architecture",
+    "title": "Microservices Architecture Design",
+    "sidebar_label": "Microservices",
+    "sidebar_position": 2
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Overview",
+    "permalink": "/architecture/system-overview"
+  },
+  "next": {
+    "title": "Port Mapping",
+    "permalink": "/architecture/port-mapping"
+  }
+}

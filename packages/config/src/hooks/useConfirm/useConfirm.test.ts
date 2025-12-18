@@ -3,8 +3,8 @@
  * FILE: useConfirm.test.ts
  * PATH: /packages/config/src/hooks/useConfirm/useConfirm.test.ts
  * DESCRIPTION: Unit tests for useConfirm hook
- * VERSION: v1.0.0
- * UPDATED: 2025-10-20 16:00:00
+ * VERSION: v1.0.1
+ * UPDATED: 2025-12-16
  * ================================================================
  */
 
@@ -57,9 +57,12 @@ describe('useConfirm', () => {
     it('should return Promise', () => {
       const { result } = renderHook(() => useConfirm());
 
-      const promise = result.current.confirm('Test');
+      let promise: Promise<boolean>;
+      act(() => {
+        promise = result.current.confirm('Test');
+      });
 
-      expect(promise).toBeInstanceOf(Promise);
+      expect(promise!).toBeInstanceOf(Promise);
     });
   });
 

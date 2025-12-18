@@ -1,0 +1,18 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { default as DataGrid } from './DataGrid';
+declare const meta: Meta<typeof DataGrid>;
+export default meta;
+type Story = StoryObj<typeof DataGrid>;
+export declare const Default: Story;
+export declare const WithSorting: Story;
+export declare const WithSelection: Story;
+export declare const WithExpansion: Story;
+export declare const WithStatusColors: Story;
+export declare const WithActions: Story;
+export declare const LoadingState: Story;
+export declare const LoadingSlow: Story;
+export declare const ErrorState: Story;
+export declare const EmptyState: Story;
+export declare const EmptyWithFilters: Story;
+export declare const CompactMode: Story;
+export declare const FullFeatured: Story;

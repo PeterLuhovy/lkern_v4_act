@@ -10,5 +10,8 @@
   "routePrefix": "contacts",
   "routeSingular": "contact",
   "serviceDescription": "Contact Master Data Management service",
-  "serviceLongDescription": "Master Data Management (MDM) service for contacts. Manages all contact information including companies, persons, addresses, phone numbers, emails, and relationships. Serves as the single source of truth for contact data across the entire L-KERN ecosystem."
+  "serviceLongDescription": "Master Data Management (MDM) service for contacts. Manages all contact information including companies, persons, addresses, phone numbers, emails, and relationships. Serves as the single source of truth for contact data across the entire L-KERN ecosystem.",
+  "codePrefix": "con",
+  "hasRichEnums": false,
+  "hasFileUpload": false
 }

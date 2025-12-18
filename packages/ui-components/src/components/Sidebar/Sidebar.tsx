@@ -19,7 +19,7 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslation, useTheme, useAnalyticsContext, AnalyticsSettings, useAuthContext } from '@l-kern/config';
 import styles from './Sidebar.module.css';
-import logoImage from '../../assets/brand/divisions/lind/logo.png';
+import logoImage from '../../assets/logos/lkern-logo.png';
 import { AuthRoleSwitcher } from '../AuthRoleSwitcher/AuthRoleSwitcher';
 import { InfoHint } from '../InfoHint/InfoHint';
 

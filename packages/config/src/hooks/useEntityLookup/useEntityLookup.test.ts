@@ -3,9 +3,9 @@
  * FILE: useEntityLookup.test.ts
  * PATH: /packages/config/src/hooks/useEntityLookup/useEntityLookup.test.ts
  * DESCRIPTION: Unit tests for useEntityLookup and useBatchEntityLookup hooks
- * VERSION: v1.0.0
+ * VERSION: v1.0.1
  * CREATED: 2025-12-11
- * UPDATED: 2025-12-11
+ * UPDATED: 2025-12-16
  * ================================================================
  */
 
@@ -175,11 +175,13 @@ describe('useEntityLookup', () => {
       });
       expect(result.current.isLoading).toBe(true);
 
-      // Resolve and complete
-      act(() => {
+      // Resolve and complete - use async act() to handle state updates from promise resolution
+      await act(async () => {
         if (resolvePromise) {
           resolvePromise(mockEntity);
         }
+        // Allow promise callbacks to execute
+        await Promise.resolve();
       });
 
       await waitFor(() => {
@@ -286,11 +288,12 @@ describe('useEntityLookup', () => {
 
       expect(result.current.isLoading).toBe(true);
 
-      // Complete health check
-      act(() => {
+      // Complete health check - use async act() to handle state updates from promise resolution
+      await act(async () => {
         if (resolveHealth) {
           resolveHealth(true);
         }
+        await Promise.resolve();
       });
 
       await waitFor(() => {
@@ -612,10 +615,12 @@ describe('useEntityLookup', () => {
 
       expect(result.current.isLoading).toBe(true);
 
-      act(() => {
+      // Cleanup: resolve the pending promise to prevent test warnings
+      await act(async () => {
         if (resolveHealth) {
           resolveHealth(true);
         }
+        await Promise.resolve();
       });
     });
 
@@ -640,10 +645,12 @@ describe('useEntityLookup', () => {
 
       expect(result.current.isLoading).toBe(true);
 
-      act(() => {
+      // Cleanup: resolve the pending promise to prevent test warnings
+      await act(async () => {
         if (resolveFetch) {
           resolveFetch(mockEntity);
         }
+        await Promise.resolve();
       });
     });
 
@@ -941,8 +948,16 @@ describe('useBatchEntityLookup', () => {
       expect(result.current.getData(entityId)).toBeTruthy();
       expect(result.current.getStatus(entityId)).toBe('success');
 
-      // refetchAll should be callable - just verify it doesn't throw
-      expect(() => result.current.refetchAll()).not.toThrow();
+      // refetchAll should be callable - wrap in act() to handle async state updates
+      await act(async () => {
+        result.current.refetchAll();
+        await Promise.resolve();
+      });
+
+      // Wait for refetch to complete
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
     });
   });
 

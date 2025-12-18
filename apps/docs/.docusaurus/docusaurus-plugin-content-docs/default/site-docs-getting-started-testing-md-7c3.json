@@ -1,0 +1,29 @@
+{
+  "id": "getting-started/testing",
+  "title": "Testing Guide",
+  "description": "📋 Overview",
+  "source": "@site/docs/getting-started/testing.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/testing",
+  "permalink": "/getting-started/testing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "testing",
+    "title": "Testing Guide",
+    "sidebar_label": "Testing",
+    "sidebar_position": 2
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/getting-started/"
+  },
+  "next": {
+    "title": "Troubleshooting",
+    "permalink": "/getting-started/troubleshooting"
+  }
+}

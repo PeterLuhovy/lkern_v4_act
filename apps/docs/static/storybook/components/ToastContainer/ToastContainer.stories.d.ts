@@ -1,0 +1,13 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { ToastContainer } from './ToastContainer';
+declare const meta: Meta<typeof ToastContainer>;
+export default meta;
+type Story = StoryObj<typeof ToastContainer>;
+export declare const TopLeft: Story;
+export declare const TopCenter: Story;
+export declare const TopRight: Story;
+export declare const BottomLeft: Story;
+export declare const BottomCenter: Story;
+export declare const BottomRight: Story;
+export declare const MultipleToasts: Story;
+export declare const RealWorldExample: Story;

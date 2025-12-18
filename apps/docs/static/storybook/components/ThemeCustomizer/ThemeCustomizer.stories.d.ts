@@ -1,0 +1,14 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { ThemeCustomizer } from './ThemeCustomizer';
+declare const meta: Meta<typeof ThemeCustomizer>;
+export default meta;
+type Story = StoryObj<typeof ThemeCustomizer>;
+export declare const BottomRight: Story;
+export declare const BottomLeft: Story;
+export declare const TopRight: Story;
+export declare const TopLeft: Story;
+export declare const WithCollapsedStatusBar: Story;
+export declare const WithExpandedStatusBar: Story;
+export declare const AllPositions: Story;
+export declare const SettingsOverview: Story;
+export declare const DynamicPositioning: Story;

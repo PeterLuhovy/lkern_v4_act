@@ -1,0 +1,17 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { Input } from './Input';
+declare const meta: Meta<typeof Input>;
+export default meta;
+type Story = StoryObj<typeof Input>;
+export declare const Default: Story;
+export declare const Email: Story;
+export declare const Password: Story;
+export declare const Number: Story;
+export declare const Search: Story;
+export declare const WithError: Story;
+export declare const Valid: Story;
+export declare const Disabled: Story;
+export declare const FullWidth: Story;
+export declare const WithValue: Story;
+export declare const AllTypes: Story;
+export declare const AllStates: Story;

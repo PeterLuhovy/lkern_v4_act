@@ -1,0 +1,15 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { FilterPanel } from './FilterPanel';
+declare const meta: Meta<typeof FilterPanel>;
+export default meta;
+type Story = StoryObj<typeof FilterPanel>;
+export declare const Default: Story;
+export declare const WithQuickFilters: Story;
+export declare const WithFilterGroups: Story;
+export declare const WithCheckboxes: Story;
+export declare const WithItemsPerPage: Story;
+export declare const WithNewItemButton: Story;
+export declare const WithShowInactive: Story;
+export declare const WithStatusLegend: Story;
+export declare const Collapsed: Story;
+export declare const FullFeatured: Story;

@@ -1,0 +1,29 @@
+{
+  "id": "api/ui-components",
+  "title": "@l-kern/ui-components Package",
+  "description": "Type: Buildable React Component Library",
+  "source": "@site/docs/api/ui-components.md",
+  "sourceDirName": "api",
+  "slug": "/api/ui-components",
+  "permalink": "/api/ui-components",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "ui-components",
+    "title": "@l-kern/ui-components Package",
+    "sidebar_label": "@l-kern/ui-components",
+    "sidebar_position": 2
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "@l-kern/config",
+    "permalink": "/api/config"
+  },
+  "next": {
+    "title": "Components Reference",
+    "permalink": "/api/components-reference"
+  }
+}

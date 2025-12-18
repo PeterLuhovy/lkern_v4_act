@@ -1,0 +1,15 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { KeyboardShortcutsButton } from './KeyboardShortcutsButton';
+declare const meta: Meta<typeof KeyboardShortcutsButton>;
+export default meta;
+type Story = StoryObj<typeof KeyboardShortcutsButton>;
+export declare const BottomRight: Story;
+export declare const BottomLeft: Story;
+export declare const TopRight: Story;
+export declare const TopLeft: Story;
+export declare const WithCollapsedStatusBar: Story;
+export declare const WithExpandedStatusBar: Story;
+export declare const WithCallbacks: Story;
+export declare const AllPositions: Story;
+export declare const ShortcutsReference: Story;
+export declare const StackingBehavior: Story;

@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { TranslationProvider, ThemeProvider, ToastProvider, AnalyticsProvider, AuthProvider } from '@l-kern/config';
 import App from './app';
 import React from 'react';
-import { vi } from 'vitest';
 
 // Mock EventSource for jsdom environment (useSSEInvalidation uses it)
 class MockEventSource {

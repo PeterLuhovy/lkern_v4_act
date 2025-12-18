@@ -4,9 +4,9 @@
  * PATH: /packages/config/src/contexts/AnalyticsContext/AnalyticsContext.tsx
  * DESCRIPTION: Analytics configuration context with toggle functions
  *              Controls which analytics features are enabled/disabled
- * VERSION: v1.0.0
+ * VERSION: v1.0.1
  * CREATED: 2025-11-30
- * UPDATED: 2025-11-30
+ * UPDATED: 2025-12-16
  * ================================================================
  */
 
@@ -210,6 +210,7 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
       logIssueWorkflow: true,
       logToasts: true,
       logFetchCalls: true,
+      logSSEInvalidation: true,
     });
   }, []);
 
@@ -228,6 +229,7 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
       logIssueWorkflow: false,
       logToasts: false,
       logFetchCalls: false,
+      logSSEInvalidation: false,
     });
   }, []);
 

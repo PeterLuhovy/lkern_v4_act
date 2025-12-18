@@ -47,4 +47,8 @@ EXPOSE ${DOCS_PORT}
 
 # Development mode: Docusaurus dev server
 # Source code mounted via docker-compose volumes for hot-reload
-CMD yarn nx serve docs --port ${DOCS_PORT} --host 0.0.0.0
+# Using direct docusaurus command to bypass Nx (avoids hanging on project graph)
+WORKDIR /app/apps/docs
+# Serve pre-built static files (build folder mounted via volumes)
+# Using npx serve for simple static file serving
+CMD npx serve build --listen ${DOCS_PORT}

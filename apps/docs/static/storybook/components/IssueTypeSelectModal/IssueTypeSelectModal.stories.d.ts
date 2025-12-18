@@ -1,0 +1,12 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { IssueTypeSelectModal } from './IssueTypeSelectModal';
+declare const meta: Meta<typeof IssueTypeSelectModal>;
+export default meta;
+type Story = StoryObj<typeof IssueTypeSelectModal>;
+export declare const Default: Story;
+export declare const BugsOnly: Story;
+export declare const BugsAndQuestions: Story;
+export declare const FeaturesAndImprovements: Story;
+export declare const Interactive: Story;
+export declare const IssueTypes: Story;
+export declare const Workflow: Story;

@@ -1,0 +1,29 @@
+{
+  "id": "templates/hook",
+  "title": "Hook Template",
+  "description": "---",
+  "source": "@site/docs/templates/hook.md",
+  "sourceDirName": "templates",
+  "slug": "/templates/hook",
+  "permalink": "/templates/hook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "hook",
+    "title": "Hook Template",
+    "sidebar_label": "Hook Template",
+    "sidebar_position": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Component Template",
+    "permalink": "/templates/component"
+  },
+  "next": {
+    "title": "Utility Template",
+    "permalink": "/templates/utility"
+  }
+}

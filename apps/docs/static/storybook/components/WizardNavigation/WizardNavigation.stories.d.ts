@@ -1,0 +1,15 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { WizardNavigation } from './WizardNavigation';
+declare const meta: Meta<typeof WizardNavigation>;
+export default meta;
+type Story = StoryObj<typeof WizardNavigation>;
+export declare const FirstStep: Story;
+export declare const MiddleStep: Story;
+export declare const LastStep: Story;
+export declare const NextDisabled: Story;
+export declare const Submitting: Story;
+export declare const CustomLabels: Story;
+export declare const CustomCompleteLabel: Story;
+export declare const OnlyNextButton: Story;
+export declare const OnlyCompleteButton: Story;
+export declare const AllStates: Story;

@@ -1,0 +1,18 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { PageHeader } from './PageHeader';
+declare const meta: Meta<typeof PageHeader>;
+export default meta;
+type Story = StoryObj<typeof PageHeader>;
+export declare const Simple: Story;
+export declare const WithSubtitle: Story;
+export declare const WithLogo: Story;
+export declare const WithBreadcrumbs: Story;
+export declare const WithBreadcrumbsAndLogo: Story;
+export declare const WithButton: Story;
+export declare const WithMultipleButtons: Story;
+export declare const WithImageLogo: Story;
+export declare const NoRightLogo: Story;
+export declare const BothLogos: Story;
+export declare const CompleteExample: Story;
+export declare const MinimalExample: Story;
+export declare const VariousConfigurations: Story;

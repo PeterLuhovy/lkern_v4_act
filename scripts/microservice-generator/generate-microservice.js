@@ -5,8 +5,8 @@
  * FILE: generate-microservice.js
  * PATH: /scripts/microservice-generator/generate-microservice.js
  * DESCRIPTION: Generator for Python FastAPI microservices from template
- * VERSION: v1.0.1
- * UPDATED: 2025-11-08
+ * VERSION: v2.0.0
+ * UPDATED: 2025-12-16
  *
  * USAGE:
  * node scripts/microservice-generator/generate-microservice.js configs/config.json
@@ -14,6 +14,11 @@
  * npm run generate:microservice -- configs/config.json
  *
  * CONFIG FORMAT: See configs/test-service.json
+ *
+ * NEW IN v2.0.0:
+ * - codePrefix: Human-readable code prefix (e.g., ISS, ORD)
+ * - hasRichEnums: Enable Type/Status/Priority enums (default: true)
+ * - hasFileUpload: Enable MinIO integration (default: false)
  * ================================================================
  */
 
@@ -138,13 +143,17 @@ function generateMicroservice(config) {
     routeSingular,         // e.g., "issue"
     serviceDescription,    // e.g., "Issue tracking service"
     serviceLongDescription, // e.g., "Comprehensive issue tracking and management system"
+    // NEW in v2.0.0
+    codePrefix,            // e.g., "ISS" - for human-readable codes (ISS-2512-0001)
+    hasRichEnums = true,   // Enable Type/Status/Priority enums (default: true)
+    hasFileUpload = false, // Enable MinIO integration (default: false)
   } = config;
 
   // Validate required fields
   const requiredFields = [
     'serviceCode', 'serviceName', 'serviceSlug', 'restPort', 'grpcPort',
     'dbName', 'modelName', 'tableName', 'routePrefix', 'routeSingular',
-    'serviceDescription', 'serviceLongDescription'
+    'serviceDescription', 'serviceLongDescription', 'codePrefix'
   ];
 
   for (const field of requiredFields) {
@@ -152,6 +161,12 @@ function generateMicroservice(config) {
       throw new Error(`Missing required field: ${field}`);
     }
   }
+
+  // Log feature flags
+  console.log('📋 Feature flags:');
+  console.log(`   - codePrefix: ${codePrefix}`);
+  console.log(`   - hasRichEnums: ${hasRichEnums}`);
+  console.log(`   - hasFileUpload: ${hasFileUpload}\n`);
 
   // ============================================================
   // 1. COPY TEMPLATE
@@ -187,10 +202,142 @@ function generateMicroservice(config) {
     '{{ROUTE_SINGULAR}}': routeSingular,
     '{{SERVICE_DESCRIPTION}}': serviceDescription,
     '{{SERVICE_LONG_DESCRIPTION}}': serviceLongDescription,
+    // NEW in v2.0.0
+    '{{CODE_PREFIX}}': codePrefix,
   };
 
   replacePlaceholdersInDirectory(servicePath, replacements);
   console.log(`✅ Placeholders replaced in all files\n`);
+
+  // ============================================================
+  // 2.1 CONDITIONAL: hasRichEnums
+  // ============================================================
+  // If hasRichEnums is false, remove enum-related files and simplify model
+
+  if (!hasRichEnums) {
+    console.log('🔄 hasRichEnums=false: Removing enum definitions...\n');
+
+    // Delete enums.py
+    const enumsPath = path.join(servicePath, 'app', 'models', 'enums.py');
+    if (fs.existsSync(enumsPath)) {
+      fs.unlinkSync(enumsPath);
+      console.log(`   ❌ Deleted: ${enumsPath}`);
+    }
+
+    // Update models/__init__.py - remove enum imports
+    const modelsInitPath = path.join(servicePath, 'app', 'models', '__init__.py');
+    if (fs.existsSync(modelsInitPath)) {
+      let content = readFile(modelsInitPath);
+      // Remove enum import line
+      content = content.replace(/from app\.models\.enums import \([^)]+\)\n/g, '');
+      // Remove enum exports from __all__
+      content = content.replace(/"[^"]+Type",\n/g, '');
+      content = content.replace(/"[^"]+Status",\n/g, '');
+      content = content.replace(/"[^"]+Priority",\n/g, '');
+      content = content.replace(/"TYPE_CODE_PREFIXES",\n/g, '');
+      fs.writeFileSync(modelsInitPath, content);
+      console.log(`   ✏️  Simplified: ${modelsInitPath}`);
+    }
+
+    console.log(`✅ Enum definitions removed (hasRichEnums=false)\n`);
+  } else {
+    console.log('✅ Rich enums enabled (hasRichEnums=true)\n');
+  }
+
+  // ============================================================
+  // 2.2 CONDITIONAL: hasFileUpload
+  // ============================================================
+  // If hasFileUpload is false, remove MinIO-related files
+
+  if (!hasFileUpload) {
+    console.log('🔄 hasFileUpload=false: Removing MinIO integration...\n');
+
+    // Files to remove when hasFileUpload=false
+    const minioFiles = [
+      path.join(servicePath, 'app', 'services', 'minio_client.py'),
+      path.join(servicePath, 'app', 'api', 'rest', 'uploads.py'),
+    ];
+
+    for (const filePath of minioFiles) {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`   ❌ Deleted: ${filePath}`);
+      }
+    }
+
+    // Update services/__init__.py - remove minio import if present
+    const servicesInitPath = path.join(servicePath, 'app', 'services', '__init__.py');
+    if (fs.existsSync(servicesInitPath)) {
+      let content = readFile(servicesInitPath);
+      content = content.replace(/from app\.services\.minio_client import.*\n/g, '');
+      content = content.replace(/"minio_client",?\n?/g, '');
+      content = content.replace(/"MinioClient",?\n?/g, '');
+      fs.writeFileSync(servicesInitPath, content);
+      console.log(`   ✏️  Updated: ${servicesInitPath}`);
+    }
+
+    // Update api/rest/__init__.py - remove uploads router if present
+    const apiInitPath = path.join(servicePath, 'app', 'api', 'rest', '__init__.py');
+    if (fs.existsSync(apiInitPath)) {
+      let content = readFile(apiInitPath);
+      content = content.replace(/from app\.api\.rest\.uploads import.*\n/g, '');
+      content = content.replace(/.*uploads.*router.*\n/g, '');
+      fs.writeFileSync(apiInitPath, content);
+      console.log(`   ✏️  Updated: ${apiInitPath}`);
+    }
+
+    console.log(`✅ MinIO integration removed (hasFileUpload=false)\n`);
+  } else {
+    console.log('🔄 hasFileUpload=true: Enabling MinIO integration...\n');
+
+    // Uncomment MinIO imports in services/__init__.py
+    const servicesInitPath = path.join(servicePath, 'app', 'services', '__init__.py');
+    if (fs.existsSync(servicesInitPath)) {
+      let content = readFile(servicesInitPath);
+      // Uncomment MinIO import line
+      content = content.replace(
+        /# from app\.services\.minio_client import MinioService, get_minio_service/g,
+        'from app.services.minio_client import MinioService, get_minio_service'
+      );
+      // Uncomment __all__ entries
+      content = content.replace(/# "MinioService",/g, '"MinioService",');
+      content = content.replace(/# "get_minio_service",/g, '"get_minio_service",');
+      fs.writeFileSync(servicesInitPath, content);
+      console.log(`   ✏️  Enabled MinIO in: ${servicesInitPath}`);
+    }
+
+    // Uncomment uploads router in api/rest/__init__.py
+    const apiInitPath = path.join(servicePath, 'app', 'api', 'rest', '__init__.py');
+    if (fs.existsSync(apiInitPath)) {
+      let content = readFile(apiInitPath);
+      // Uncomment uploads router import
+      content = content.replace(
+        /# from app\.api\.rest\.uploads import router as uploads_router/g,
+        'from app.api.rest.uploads import router as uploads_router'
+      );
+      // Uncomment __all__ entry
+      content = content.replace(/# "uploads_router",/g, '"uploads_router",');
+      fs.writeFileSync(apiInitPath, content);
+      console.log(`   ✏️  Enabled uploads router in: ${apiInitPath}`);
+    }
+
+    // Uncomment MinIO vars in .env.template
+    const envTemplatePath = path.join(servicePath, '.env.template');
+    if (fs.existsSync(envTemplatePath)) {
+      let content = readFile(envTemplatePath);
+      // Uncomment MinIO config lines
+      content = content.replace(/# MINIO_ENDPOINT=/g, 'MINIO_ENDPOINT=');
+      content = content.replace(/# MINIO_ACCESS_KEY=/g, 'MINIO_ACCESS_KEY=');
+      content = content.replace(/# MINIO_SECRET_KEY=/g, 'MINIO_SECRET_KEY=');
+      content = content.replace(/# MINIO_BUCKET_NAME=/g, 'MINIO_BUCKET_NAME=');
+      content = content.replace(/# MINIO_SECURE=/g, 'MINIO_SECURE=');
+      content = content.replace(/# MAX_FILE_SIZE=/g, 'MAX_FILE_SIZE=');
+      fs.writeFileSync(envTemplatePath, content);
+      console.log(`   ✏️  Enabled MinIO vars in: ${envTemplatePath}`);
+    }
+
+    console.log(`✅ MinIO file upload enabled (hasFileUpload=true)\n`);
+  }
 
   // ============================================================
   // 3. INJECT INTO DOCKER-COMPOSE.YML

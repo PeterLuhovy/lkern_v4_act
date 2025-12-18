@@ -1,0 +1,29 @@
+{
+  "id": "project/roadmap",
+  "title": "L-KERN v4 Development Roadmap",
+  "description": "This roadmap is version 9.3.0, last updated 2025-12-16.",
+  "source": "@site/docs/project/roadmap.md",
+  "sourceDirName": "project",
+  "slug": "/project/roadmap",
+  "permalink": "/project/roadmap",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "roadmap",
+    "title": "L-KERN v4 Development Roadmap",
+    "sidebar_label": "Roadmap",
+    "sidebar_position": 1
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "📋 Project",
+    "permalink": "/category/-project"
+  },
+  "next": {
+    "title": "📝 Templates",
+    "permalink": "/category/-templates"
+  }
+}

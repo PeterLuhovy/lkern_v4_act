@@ -1,0 +1,39 @@
+# ================================================================
+# Contact Service (MDM) - Python Dependencies
+# ================================================================
+# File: services/lkms101-contacts/requirements.txt
+# Version: v1.0.0
+# Created: 2025-11-08
+# Description:
+#   Python dependencies for Contact Service (MDM) microservice.
+#   Generated from infrastructure/docker/requirements.txt.template
+# ================================================================
+
+# Core Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database (PostgreSQL + ORM + Migrations)
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+
+# gRPC (Inter-service Communication)
+grpcio==1.59.3
+grpcio-tools==1.59.3
+protobuf==4.25.0
+
+# Apache Kafka (Event-driven Architecture)
+kafka-python==2.0.2
+
+# Validation and Serialization
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.1
+
+# Utilities
+python-dotenv==1.0.0

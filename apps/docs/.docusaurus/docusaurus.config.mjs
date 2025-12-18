@@ -8,7 +8,7 @@ export default {
   "tagline": "Business Operating System Software",
   "favicon": "img/favicon.ico",
   "url": "http://localhost",
-  "baseUrl": "/en/",
+  "baseUrl": "/",
   "organizationName": "bossystems",
   "projectName": "l-kern-v4",
   "onBrokenLinks": "warn",

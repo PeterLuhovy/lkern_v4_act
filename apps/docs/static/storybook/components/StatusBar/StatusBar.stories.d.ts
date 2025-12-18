@@ -1,0 +1,18 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { StatusBar } from './StatusBar';
+declare const meta: Meta<typeof StatusBar>;
+export default meta;
+type Story = StoryObj<typeof StatusBar>;
+export declare const AllHealthy: Story;
+export declare const SomeUnhealthy: Story;
+export declare const CriticalDown: Story;
+export declare const MockData: Story;
+export declare const OrchestratorOffline: Story;
+export declare const WithUser: Story;
+export declare const WithoutUser: Story;
+export declare const WithRecentBackup: Story;
+export declare const NoBackupHistory: Story;
+export declare const MinimalServices: Story;
+export declare const ManyServices: Story;
+export declare const WithCallbacks: Story;
+export declare const ExpandedView: Story;

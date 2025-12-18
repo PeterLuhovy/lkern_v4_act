@@ -1,0 +1,29 @@
+{
+  "id": "api/utilities-reference",
+  "title": "Utility Functions Reference",
+  "description": "---",
+  "source": "@site/docs/api/utilities-reference.md",
+  "sourceDirName": "api",
+  "slug": "/api/utilities-reference",
+  "permalink": "/api/utilities-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "id": "utilities-reference",
+    "title": "Utility Functions Reference",
+    "sidebar_label": "Utilities Reference",
+    "sidebar_position": 4
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Components Reference",
+    "permalink": "/api/components-reference"
+  },
+  "next": {
+    "title": "🎨 Design",
+    "permalink": "/category/-design"
+  }
+}

@@ -26,6 +26,8 @@ networks:
 # VOLUMES
 # ================================================================
 volumes:
+  lkms101_db_data:
+    name: ${LKMS101_DB_VOLUME}
   lkms105_db_data:
     name: ${LKMS105_DB_VOLUME}
   lkms105_minio_data:
@@ -360,6 +362,62 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
+
+
+
+  # ================================================================
+  # Contact Service (MDM) - PostgreSQL Database
+  # ================================================================
+  lkms101-contacts-db:
+    image: ${LKMS101_DB_IMAGE}
+    container_name: ${LKMS101_DB_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${LKMS101_DB_NAME}
+      POSTGRES_USER: ${LKMS101_DB_USER}
+      POSTGRES_PASSWORD: ${LKMS101_DB_PASSWORD}
+    volumes:
+      - lkms101_db_data:/var/lib/postgresql/data
+    networks:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LKMS101_DB_USER} -d ${LKMS101_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ================================================================
+  # Contact Service (MDM) - FastAPI Application
+  # ================================================================
+  lkms101-contacts:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.backend.dev
+      args:
+        SERVICE_PATH: services/lkms101-contacts
+    container_name: ${LKMS101_CONTAINER_NAME}
+    depends_on:
+      lkms101-contacts-db:
+        condition: service_healthy
+    environment:
+      - SERVICE_NAME=Contact Service (MDM)
+      - REST_PORT=${LKMS101_REST_PORT}
+      - GRPC_PORT=${LKMS101_GRPC_PORT}
+      - DB_HOST=lkms101-contacts-db
+      - DB_PORT=5432
+      - DB_NAME=${LKMS101_DB_NAME}
+      - DB_USER=${LKMS101_DB_USER}
+      - DB_PASSWORD=${LKMS101_DB_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=lkms504-kafka:9092
+    ports:
+      - "${LKMS101_REST_PORT_EXTERNAL}:${LKMS101_REST_PORT}"
+      - "${LKMS101_GRPC_PORT_EXTERNAL}:${LKMS101_GRPC_PORT}"
+    volumes:
+      - ./services/lkms101-contacts:/app
+    networks:
+      - backend
+      - database
     restart: unless-stopped
 
 # ================================================================

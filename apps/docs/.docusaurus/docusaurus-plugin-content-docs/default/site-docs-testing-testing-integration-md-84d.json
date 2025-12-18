@@ -1,0 +1,29 @@
+{
+  "id": "testing/testing-integration",
+  "title": "Integration Testing Guide",
+  "description": "---",
+  "source": "@site/docs/testing/testing-integration.md",
+  "sourceDirName": "testing",
+  "slug": "/testing/testing-integration",
+  "permalink": "/testing/testing-integration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "testing-integration",
+    "title": "Integration Testing Guide",
+    "sidebar_label": "Integration Testing",
+    "sidebar_position": 3
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Unit Testing",
+    "permalink": "/testing/testing-unit"
+  },
+  "next": {
+    "title": "E2E Testing",
+    "permalink": "/testing/testing-e2e"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "architecture/system-overview",
+  "title": "System Overview",
+  "description": "Version: 11.1.0",
+  "source": "@site/docs/architecture/system-overview.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/system-overview",
+  "permalink": "/architecture/system-overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "system-overview",
+    "title": "System Overview",
+    "sidebar_label": "Overview",
+    "sidebar_position": 1
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "🏗️ Architecture",
+    "permalink": "/category/️-architecture"
+  },
+  "next": {
+    "title": "Microservices",
+    "permalink": "/architecture/microservices-architecture"
+  }
+}

@@ -1,0 +1,219 @@
+/*
+ * ================================================================
+ * FILE: contacts.proto
+ * PATH: /infrastructure/proto/contacts.proto
+ * DESCRIPTION: gRPC API definition for Contact Service (MDM)
+ * VERSION: v1.0.0
+ * UPDATED: 2025-12-18
+ *
+ * Used for internal microservice-to-microservice communication.
+ * ================================================================
+ */
+
+syntax = "proto3";
+
+package lkern.contacts.v1;
+
+option python_package = "app.grpc.contacts_pb2";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+// ================================================================
+// CONTACT SERVICE
+// ================================================================
+
+service ContactService {
+  // Single contact operations
+  rpc GetContact(GetContactRequest) returns (ContactResponse);
+  rpc GetContactByCode(GetContactByCodeRequest) returns (ContactResponse);
+
+  // Bulk operations (for other microservices)
+  rpc GetContactsBulk(GetContactsBulkRequest) returns (ContactsBulkResponse);
+  rpc GetContactsByRole(GetContactsByRoleRequest) returns (ContactsByRoleResponse);
+
+  // Validation (for duplicate detection)
+  rpc ValidateContact(ValidateContactRequest) returns (ValidateContactResponse);
+
+  // Quick lookup (lightweight)
+  rpc GetContactSummary(GetContactSummaryRequest) returns (ContactSummaryResponse);
+}
+
+// ================================================================
+// REQUEST MESSAGES
+// ================================================================
+
+message GetContactRequest {
+  string id = 1;  // UUID
+  bool include_deleted = 2;
+}
+
+message GetContactByCodeRequest {
+  string contact_code = 1;  // e.g., "con-2512-0001"
+  bool include_deleted = 2;
+}
+
+message GetContactsBulkRequest {
+  repeated string ids = 1;  // List of UUIDs
+  bool include_deleted = 2;
+}
+
+message GetContactsByRoleRequest {
+  string role_code = 1;  // e.g., "supplier", "customer", "employee"
+  int32 skip = 2;
+  int32 limit = 3;
+}
+
+message ValidateContactRequest {
+  // For person
+  google.protobuf.StringValue first_name = 1;
+  google.protobuf.StringValue last_name = 2;
+  google.protobuf.StringValue email = 3;
+  google.protobuf.StringValue phone = 4;
+
+  // For company
+  google.protobuf.StringValue company_name = 5;
+  google.protobuf.StringValue registration_number = 6;
+  google.protobuf.StringValue tax_id = 7;
+  google.protobuf.StringValue vat_id = 8;
+
+  // Exclude contact (for update scenarios)
+  google.protobuf.StringValue exclude_contact_id = 9;
+}
+
+message GetContactSummaryRequest {
+  string id = 1;
+}
+
+// ================================================================
+// RESPONSE MESSAGES
+// ================================================================
+
+message ContactResponse {
+  Contact contact = 1;
+  bool found = 2;
+}
+
+message ContactsBulkResponse {
+  repeated Contact contacts = 1;
+  int32 total = 2;
+}
+
+message ContactsByRoleResponse {
+  repeated Contact contacts = 1;
+  int32 total = 2;
+  string role_code = 3;
+}
+
+message ValidateContactResponse {
+  bool is_valid = 1;
+  repeated ValidationError errors = 2;
+  repeated PotentialDuplicate duplicates = 3;
+}
+
+message ValidationError {
+  string field = 1;
+  string message = 2;
+  string code = 3;  // e.g., "duplicate_email", "invalid_format"
+}
+
+message PotentialDuplicate {
+  string contact_id = 1;
+  string contact_code = 2;
+  string display_name = 3;
+  string contact_type = 4;
+  float similarity_score = 5;
+  string match_reason = 6;  // e.g., "same_email", "similar_name"
+}
+
+message ContactSummaryResponse {
+  string id = 1;
+  string contact_code = 2;
+  string display_name = 3;
+  string contact_type = 4;
+  string primary_email = 5;
+  string primary_phone = 6;
+  repeated string role_codes = 7;
+  bool is_active = 8;
+  bool found = 9;
+}
+
+// ================================================================
+// DATA MESSAGES
+// ================================================================
+
+message Contact {
+  string id = 1;
+  string contact_code = 2;
+  string contact_type = 3;  // "person", "company", "organizational_unit"
+  string display_name = 4;
+  bool is_active = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+
+  // Type-specific data (only one will be set)
+  PersonData person = 10;
+  CompanyData company = 11;
+  OrganizationalUnitData organizational_unit = 12;
+
+  // Related data
+  repeated ContactRole roles = 20;
+  repeated ContactEmail emails = 21;
+  repeated ContactPhone phones = 22;
+}
+
+message PersonData {
+  string first_name = 1;
+  string last_name = 2;
+  google.protobuf.StringValue middle_name = 3;
+  google.protobuf.StringValue title_before = 4;
+  google.protobuf.StringValue title_after = 5;
+  google.protobuf.StringValue gender = 6;
+  google.protobuf.Timestamp date_of_birth = 7;
+  google.protobuf.StringValue nationality_id = 8;
+}
+
+message CompanyData {
+  string company_name = 1;
+  google.protobuf.StringValue trade_name = 2;
+  google.protobuf.StringValue registration_number = 3;
+  google.protobuf.StringValue tax_id = 4;
+  google.protobuf.StringValue vat_id = 5;
+  bool vat_payer = 6;
+  google.protobuf.StringValue legal_form_id = 7;
+  google.protobuf.StringValue company_status = 8;
+  google.protobuf.Timestamp founded_date = 9;
+}
+
+message OrganizationalUnitData {
+  string unit_name = 1;
+  google.protobuf.StringValue unit_type_id = 2;
+  google.protobuf.StringValue parent_contact_id = 3;
+  google.protobuf.StringValue cost_center = 4;
+}
+
+message ContactRole {
+  string id = 1;
+  string role_type_code = 2;
+  string role_type_name = 3;
+  google.protobuf.StringValue related_contact_id = 4;
+  google.protobuf.StringValue related_contact_code = 5;
+  google.protobuf.Timestamp valid_from = 6;
+  google.protobuf.Timestamp valid_to = 7;
+  bool is_active = 8;
+}
+
+message ContactEmail {
+  string id = 1;
+  string email = 2;
+  string email_type = 3;
+  bool is_primary = 4;
+}
+
+message ContactPhone {
+  string id = 1;
+  string phone_number = 2;
+  string phone_type = 3;
+  bool is_primary = 4;
+  google.protobuf.StringValue country_code = 5;
+}

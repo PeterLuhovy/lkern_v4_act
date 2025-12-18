@@ -1058,7 +1058,8 @@ export const sk: TranslationKeys = {
       operationSuccess: 'Operácia úspešná',
       operationFailed: 'Operácia zlyhala',
       recordNotFound: 'Záznam neexistuje alebo bol vymazaný',
-      verificationFailed: 'Nesúlad polí: {fields}',
+      fieldMismatch: 'Nesúlad polí: {fields}',
+      verificationFailed: '❌ Dáta neboli správne uložené, skúste to znova',
       processingBatch: 'Spracúvam {current}/{total}...',
       batchSuccess: 'Úspešne spracovaných {count} záznamov',
       batchPartial: 'Úspešných: {success}, Zlyhalo: {failed}',
@@ -1066,7 +1067,6 @@ export const sk: TranslationKeys = {
       retrying: '🔄 Skúšam sa pripojiť... (pokus {attempt}/{max})',
       serviceDown: '❌ Služba neodpovedá, skúste to neskôr',
       sqlDown: '❌ Databáza nie je dostupná',
-      saveVerificationFailed: '❌ Dáta neboli správne uložené, skúste to znova',
     },
     storageTypes: {
       sql: 'Databáza',

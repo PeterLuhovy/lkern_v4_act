@@ -1,0 +1,29 @@
+{
+  "id": "guides/docker-standards",
+  "title": "Docker & DevOps Standards",
+  "description": "---",
+  "source": "@site/docs/guides/docker-standards.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/docker-standards",
+  "permalink": "/guides/docker-standards",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "id": "docker-standards",
+    "title": "Docker & DevOps Standards",
+    "sidebar_label": "Docker Standards",
+    "sidebar_position": 4
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Backend Standards",
+    "permalink": "/guides/backend-standards"
+  },
+  "next": {
+    "title": "Documentation Standards",
+    "permalink": "/guides/documentation-standards"
+  }
+}

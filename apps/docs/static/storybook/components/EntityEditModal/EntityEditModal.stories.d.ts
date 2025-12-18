@@ -1,0 +1,12 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { EntityEditModal } from './EntityEditModal';
+declare const meta: Meta<typeof EntityEditModal>;
+export default meta;
+type Story = StoryObj<typeof EntityEditModal>;
+export declare const BasicContact: Story;
+export declare const GridLayout: Story;
+export declare const StackLayout: Story;
+export declare const AllFieldTypes: Story;
+export declare const WithValidation: Story;
+export declare const PermissionBasedAccess: Story;
+export declare const Features: Story;

@@ -3,9 +3,9 @@
  * FILE: useAuth.test.tsx
  * PATH: /packages/config/src/hooks/useAuth/useAuth.test.tsx
  * DESCRIPTION: Unit tests for useAuth hook
- * VERSION: v1.0.0
+ * VERSION: v1.1.0
  * CREATED: 2025-12-11
- * UPDATED: 2025-12-11
+ * UPDATED: 2025-12-16
  * ================================================================
  */
 

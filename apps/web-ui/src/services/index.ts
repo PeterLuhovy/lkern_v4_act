@@ -12,9 +12,24 @@
  * ================================================================
  */
 
-// Contacts Service API
-export { contactsApi } from './contactsService';
-export type { Contact, ContactsApiError } from './contactsService';
+// Contacts Service API (LKMS101)
+export { contactsApi, contactsService } from './contactsService';
+export type {
+  Contact,
+  ContactType,
+  ContactPerson,
+  ContactCompany,
+  ContactOrganizationalUnit,
+  ContactRole,
+  ContactEmail,
+  ContactPhone,
+  ContactListItem,
+  ContactListResponse,
+  RoleType,
+  Country,
+  Language,
+  LegalForm,
+} from './contactsService';
 
 // Issue types (used by IssueCreateHandler and Issues page)
 // NOTE: For workflow operations, use serviceWorkflow from @l-kern/config

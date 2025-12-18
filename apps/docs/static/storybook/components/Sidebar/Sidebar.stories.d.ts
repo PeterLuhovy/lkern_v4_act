@@ -1,0 +1,15 @@
+import { Meta, StoryObj } from '@storybook/react';
+import { Sidebar } from './Sidebar';
+declare const meta: Meta<typeof Sidebar>;
+export default meta;
+type Story = StoryObj<typeof Sidebar>;
+export declare const Expanded: Story;
+export declare const Collapsed: Story;
+export declare const BasicNavigation: Story;
+export declare const NestedNavigation: Story;
+export declare const WithBadges: Story;
+export declare const WithAllFeatures: Story;
+export declare const MinimalSidebar: Story;
+export declare const ResizableWidth: Story;
+export declare const TabSystem: Story;
+export declare const ExpandedVsCollapsed: Story;

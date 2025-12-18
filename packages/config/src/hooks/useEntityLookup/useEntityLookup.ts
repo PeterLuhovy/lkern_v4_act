@@ -4,9 +4,9 @@
  * PATH: /packages/config/src/hooks/useEntityLookup/useEntityLookup.ts
  * DESCRIPTION: Universal hook for fetching entities from external services
  *              with health check, error handling, and caching
- * VERSION: v1.0.0
+ * VERSION: v1.0.1
  * CREATED: 2025-11-29
- * UPDATED: 2025-11-29
+ * UPDATED: 2025-12-16
  *
  * FEATURES:
  *   - Service health check before fetch
@@ -368,8 +368,12 @@ export function useBatchEntityLookup<T>({
   fetcherRef.current = fetcher;
   healthCheckerRef.current = healthChecker;
 
+  // Stabilize entityIds array reference to prevent infinite loops
+  // Arrays are compared by reference, so [1,2] !== [1,2] even with same values
+  const validIds = entityIds.filter((id): id is string => !!id);
+  const entityIdsKey = validIds.join(',');
+
   const fetchAll = useCallback(async () => {
-    const validIds = entityIds.filter((id): id is string => !!id);
     if (validIds.length === 0) return;
 
     setIsLoading(true);
@@ -428,11 +432,13 @@ export function useBatchEntityLookup<T>({
     setDataMap(newDataMap);
     setStatusMap(newStatusMap);
     setIsLoading(false);
-  }, [entityIds, service, cacheTtl]); // Note: fetcher/healthChecker use refs
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entityIdsKey, service, cacheTtl]); // Note: fetcher/healthChecker use refs, validIds derived from entityIdsKey
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entityIdsKey, service]); // Depend on stable key, not fetchAll reference
 
   const getData = useCallback((id: string) => dataMap.get(id) || null, [dataMap]);
   const getStatus = useCallback((id: string) => statusMap.get(id) || 'idle', [statusMap]);
