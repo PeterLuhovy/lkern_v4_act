@@ -57,12 +57,12 @@ describe('useConfirm', () => {
     it('should return Promise', () => {
       const { result } = renderHook(() => useConfirm());
 
-      let promise: Promise<boolean>;
+      let promise: Promise<boolean> | undefined;
       act(() => {
         promise = result.current.confirm('Test');
       });
 
-      expect(promise!).toBeInstanceOf(Promise);
+      expect(promise).toBeInstanceOf(Promise);
     });
   });
 

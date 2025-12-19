@@ -7,8 +7,8 @@ sidebar_position: 0
 
 # L-KERN v4 - Project Overview
 
-**Version:** 11.1.0
-**Last Updated:** 2025-11-24
+**Version:** 11.2.0
+**Last Updated:** 2025-12-19
 **Project:** BOSS (Business Operating System Service)
 **Developer:** BOSSystems s.r.o.
 
@@ -313,6 +313,25 @@ services/lkms-template/
 
 ## 🔄 Recent Changes
 
+**v11.2.0 (2025-12-19):**
+- 🔧 **Renamed logIssueWorkflow → logServiceWorkflow** (universal naming)
+  - ✅ AnalyticsContext: Updated settings interface and defaults
+  - ✅ Sidebar: Updated debug checkbox and translation keys
+  - ✅ Modal: Updated locking workflow debug flag
+  - ✅ Issues page: Updated all serviceWorkflow calls
+  - ✅ Translations: Updated SK/EN keys and types
+- 🔧 **Lint Fixes (0 errors, 0 warnings)**
+  - ✅ useConfirm.test.ts: Fixed non-null assertion
+  - ✅ useEntityLookup.ts: Removed invalid eslint-disable comments
+  - ✅ 17 Storybook stories: Fixed react-hooks/rules-of-hooks (render → Render)
+  - ✅ 11 Storybook stories: Fixed jsx-a11y/accessible-emoji (102+ emojis wrapped)
+  - ✅ ExportProgressModal.stories.tsx: Removed unused import
+  - ✅ FormField.stories.tsx: Used isValid state in UI
+- 📝 **Code Quality**
+  - ✅ config lint: 0 errors, 0 warnings
+  - ✅ ui-components lint: 0 errors, 0 warnings
+  - ✅ web-ui lint: 0 errors, 2 warnings (Contacts - ignored)
+
 **v11.1.0 (2025-11-24):**
 - 🔧 **L-KERN Control Panel ENHANCED v1.11.3 → v1.13.1**
 - 🔧 **Orchestrators REWRITTEN v2.x → v3.0.0**
@@ -385,6 +404,6 @@ services/lkms-template/
 
 ---
 
-**Last Updated:** 2025-11-24
+**Last Updated:** 2025-12-19
 **Maintainer:** BOSSystems s.r.o.
 **Next Review:** Before starting Task 1.70 (Contact MDM)

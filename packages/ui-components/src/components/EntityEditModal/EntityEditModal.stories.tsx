@@ -417,19 +417,19 @@ export const Features: Story = {
       <h3>EntityEditModal Features</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>⚙️ Config-Driven</h4>
+          <h4><span role="img" aria-label="settings">⚙️</span> Config-Driven</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Define fields via EntityEditConfig.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🔐 Permissions</h4>
+          <h4><span role="img" aria-label="lock">🔐</span> Permissions</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Fine-grained field-level access control.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📐 Grid/Stack</h4>
+          <h4><span role="img" aria-label="triangular ruler">📐</span> Grid/Stack</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Choose 1-column or 2-column layout.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>✅ Validation</h4>
+          <h4><span role="img" aria-label="checkmark">✅</span> Validation</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Custom validation per field.</p>
         </div>
       </div>

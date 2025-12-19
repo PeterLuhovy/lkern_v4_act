@@ -255,7 +255,7 @@ export const StackingBehavior: Story = {
           color: 'white',
           fontSize: '24px',
         }}>
-          🎨
+          <span role="img" aria-label="artist palette">🎨</span>
         </div>
         <div style={{
           position: 'absolute',

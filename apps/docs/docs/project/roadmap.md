@@ -7,7 +7,7 @@ sidebar_position: 1
 
 
 :::info Roadmap Version
-This roadmap is version **9.4.0**, last updated **2025-12-19**.
+This roadmap is version **9.5.0**, last updated **2025-12-19**.
 :::
 
 :::note Full Content

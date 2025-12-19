@@ -134,22 +134,22 @@ export const IssueTypes: Story = {
       <h3>Issue Type Buttons</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '600px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>🐛</div>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}><span role="img" aria-label="bug">🐛</span></div>
           <h4>Bug</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Something is broken or not working as expected.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>✨</div>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}><span role="img" aria-label="sparkles">✨</span></div>
           <h4>Feature</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Request a new feature or capability.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📈</div>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}><span role="img" aria-label="trending up">📈</span></div>
           <h4>Improvement</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Enhancement to existing functionality.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>❓</div>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}><span role="img" aria-label="question">❓</span></div>
           <h4>Question</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Ask for help or clarification.</p>
         </div>

@@ -34,7 +34,7 @@ type Story = StoryObj<typeof FilterPanel>;
 // ============================================================
 
 export const Default: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
@@ -56,7 +56,7 @@ export const Default: Story = {
 };
 
 export const WithQuickFilters: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilters, setActiveFilters] = useState(new Set<string>());
 
@@ -113,7 +113,7 @@ export const WithQuickFilters: Story = {
 };
 
 export const WithFilterGroups: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState(new Set<string>());
     const [priorityFilter, setPriorityFilter] = useState(new Set<string>());
@@ -175,7 +175,7 @@ export const WithFilterGroups: Story = {
 };
 
 export const WithCheckboxes: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState(new Set<string>());
 
@@ -221,7 +221,7 @@ export const WithCheckboxes: Story = {
 };
 
 export const WithItemsPerPage: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [itemsPerPage, setItemsPerPage] = useState(20);
 
@@ -246,7 +246,7 @@ export const WithItemsPerPage: Story = {
 };
 
 export const WithNewItemButton: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
@@ -270,7 +270,7 @@ export const WithNewItemButton: Story = {
 };
 
 export const WithShowInactive: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [showInactive, setShowInactive] = useState(false);
 
@@ -296,7 +296,7 @@ export const WithShowInactive: Story = {
 };
 
 export const WithStatusLegend: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const statusColors = {
@@ -335,7 +335,7 @@ export const WithStatusLegend: Story = {
 };
 
 export const Collapsed: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [collapsed, setCollapsed] = useState(true);
 
@@ -364,7 +364,7 @@ export const Collapsed: Story = {
 // ============================================================
 
 export const FullFeatured: Story = {
-  render: () => {
+  render: function Render() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState(new Set<string>());
     const [priorityFilter, setPriorityFilter] = useState(new Set<string>());

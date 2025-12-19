@@ -432,12 +432,10 @@ export function useBatchEntityLookup<T>({
     setDataMap(newDataMap);
     setStatusMap(newStatusMap);
     setIsLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityIdsKey, service, cacheTtl]); // Note: fetcher/healthChecker use refs, validIds derived from entityIdsKey
 
   useEffect(() => {
     fetchAll();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityIdsKey, service]); // Depend on stable key, not fetchAll reference
 
   const getData = useCallback((id: string) => dataMap.get(id) || null, [dataMap]);

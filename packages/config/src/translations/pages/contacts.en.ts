@@ -81,48 +81,9 @@ export const contactsPageEn = {
     suppliers: '📦 Suppliers',
     customers: '🛒 Customers',
   },
-  // Edit Modal
-  editContact: 'Edit Contact: {name}',
-  createContact: 'Create New Contact',
-  // Form sections
-  sections: {
-    basicInfo: 'Basic Information',
-    contactInfo: 'Contact Information',
-    companyInfo: 'Company Information',
-    unitInfo: 'Unit Information',
-  },
-  // Form fields
-  fields: {
-    firstName: 'First Name',
-    lastName: 'Last Name',
-    titleBefore: 'Title (prefix)',
-    titleAfter: 'Title (suffix)',
-    birthDate: 'Date of Birth',
-    gender: 'Gender',
-    companyName: 'Company Name',
-    registrationNumber: 'Registration Number',
-    taxId: 'Tax ID',
-    vatId: 'VAT ID',
-    legalForm: 'Legal Form',
-    unitName: 'Unit Name',
-    unitType: 'Unit Type',
-    parentCompany: 'Parent Company',
-    primaryEmail: 'Primary Email',
-    primaryPhone: 'Primary Phone',
-    primaryWebsite: 'Website',
-  },
-  // Placeholders
-  placeholders: {
-    titleBefore: 'e.g. Dr., Prof.',
-    titleAfter: 'e.g. PhD, MBA',
-    registrationNumber: 'e.g. 12345678',
-    taxId: 'e.g. 2012345678',
-    vatId: 'e.g. SK2012345678',
-  },
-  // Gender options
-  gender: {
-    male: 'Male',
-    female: 'Female',
-    other: 'Other',
+  statuses: {
+    person: 'Person',
+    company: 'Company',
+    organizational_unit: 'Org. Unit',
   },
 };

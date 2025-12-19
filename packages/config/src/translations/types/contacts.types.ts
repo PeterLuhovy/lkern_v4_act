@@ -81,48 +81,9 @@ export interface ContactsPageTranslations {
     suppliers: string;
     customers: string;
   };
-  // Edit Modal
-  editContact: string;
-  createContact: string;
-  // Form sections
-  sections: {
-    basicInfo: string;
-    contactInfo: string;
-    companyInfo: string;
-    unitInfo: string;
-  };
-  // Form fields
-  fields: {
-    firstName: string;
-    lastName: string;
-    titleBefore: string;
-    titleAfter: string;
-    birthDate: string;
-    gender: string;
-    companyName: string;
-    registrationNumber: string;
-    taxId: string;
-    vatId: string;
-    legalForm: string;
-    unitName: string;
-    unitType: string;
-    parentCompany: string;
-    primaryEmail: string;
-    primaryPhone: string;
-    primaryWebsite: string;
-  };
-  // Placeholders
-  placeholders: {
-    titleBefore: string;
-    titleAfter: string;
-    registrationNumber: string;
-    taxId: string;
-    vatId: string;
-  };
-  // Gender options
-  gender: {
-    male: string;
-    female: string;
-    other: string;
+  statuses: {
+    person: string;
+    company: string;
+    organizational_unit: string;
   };
 }

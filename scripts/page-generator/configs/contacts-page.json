@@ -2,6 +2,18 @@
   "entityName": "Contacts",
   "entityNameSingular": "Contact",
   "path": "/contacts",
+  "statusField": "contact_type",
+  "statuses": {
+    "person": {
+      "color": "COLORS.status.info"
+    },
+    "company": {
+      "color": "COLORS.status.success"
+    },
+    "organizational_unit": {
+      "color": "COLORS.status.warning"
+    }
+  },
   "columns": [
     {
       "field": "contact_code",
@@ -75,6 +87,45 @@
     "expandable": true,
     "selection": true
   },
+  "filters": [
+    {
+      "field": "contact_type",
+      "translationPrefix": "type",
+      "options": [
+        { "value": "person" },
+        { "value": "company" },
+        { "value": "organizational_unit" }
+      ]
+    },
+    {
+      "field": "roles",
+      "translationPrefix": "role",
+      "options": [
+        { "value": "supplier" },
+        { "value": "customer" },
+        { "value": "employee" },
+        { "value": "partner" }
+      ]
+    }
+  ],
+  "quickFilters": [
+    {
+      "id": "persons",
+      "filterFn": "item.contact_type === 'person'"
+    },
+    {
+      "id": "companies",
+      "filterFn": "item.contact_type === 'company'"
+    },
+    {
+      "id": "suppliers",
+      "filterFn": "item.roles?.includes('supplier')"
+    },
+    {
+      "id": "customers",
+      "filterFn": "item.roles?.includes('customer')"
+    }
+  ],
   "translations": {
     "sk": {
       "title": "Kontakty",
@@ -126,6 +177,11 @@
         "companies": "🏢 Firmy",
         "suppliers": "📦 Dodávatelia",
         "customers": "🛒 Odberatelia"
+      },
+      "statuses": {
+        "person": "Osoba",
+        "company": "Firma",
+        "organizational_unit": "Org. jednotka"
       }
     },
     "en": {
@@ -178,6 +234,11 @@
         "companies": "🏢 Companies",
         "suppliers": "📦 Suppliers",
         "customers": "🛒 Customers"
+      },
+      "statuses": {
+        "person": "Person",
+        "company": "Company",
+        "organizational_unit": "Org. Unit"
       }
     }
   }

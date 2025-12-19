@@ -332,9 +332,9 @@ const issueFields: FieldDefinition[] = [
     type: 'select',
     required: true,
     options: [
-      { value: 'bug', label: '🐛 Bug' },
-      { value: 'feature', label: '✨ Feature' },
-      { value: 'improvement', label: '📈 Improvement' },
+      { value: 'bug', label: <><span role="img" aria-label="bug">🐛</span> Bug</> },
+      { value: 'feature', label: <><span role="img" aria-label="sparkles">✨</span> Feature</> },
+      { value: 'improvement', label: <><span role="img" aria-label="trending up">📈</span> Improvement</> },
     ],
   },
   {
@@ -346,7 +346,7 @@ const issueFields: FieldDefinition[] = [
       { value: 'minor', label: 'Minor' },
       { value: 'moderate', label: 'Moderate' },
       { value: 'major', label: 'Major' },
-      { value: 'blocker', label: '🚨 Blocker' },
+      { value: 'blocker', label: <><span role="img" aria-label="alarm">🚨</span> Blocker</> },
     ],
   },
   {
@@ -358,7 +358,7 @@ const issueFields: FieldDefinition[] = [
       { value: 'low', label: 'Low' },
       { value: 'medium', label: 'Medium' },
       { value: 'high', label: 'High' },
-      { value: 'critical', label: '🔴 Critical' },
+      { value: 'critical', label: <><span role="img" aria-label="red circle">🔴</span> Critical</> },
     ],
   },
 ];
@@ -389,19 +389,19 @@ export const Features: Story = {
       <h3>SectionEditModal Features</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📝 Dynamic Fields</h4>
+          <h4><span role="img" aria-label="note">📝</span> Dynamic Fields</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Define form fields via FieldDefinition array.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>✅ Validation</h4>
+          <h4><span role="img" aria-label="checkmark">✅</span> Validation</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>HTML5 + custom validation with error messages.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🧹 Clear Form</h4>
+          <h4><span role="img" aria-label="broom">🧹</span> Clear Form</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Optional clear button with confirmation.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>💾 Dirty Tracking</h4>
+          <h4><span role="img" aria-label="save">💾</span> Dirty Tracking</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Unsaved changes detection.</p>
         </div>
       </div>

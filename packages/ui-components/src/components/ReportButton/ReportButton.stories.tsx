@@ -101,7 +101,7 @@ export const BottomLeft: Story = {
 // ============================================================
 
 export const WithModal: Story = {
-  render: () => {
+  render: function Render() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
@@ -196,7 +196,7 @@ export const MultiplePositions: Story = {
 };
 
 export const WithPageTemplate: Story = {
-  render: () => {
+  render: function Render() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (

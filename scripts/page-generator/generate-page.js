@@ -5,8 +5,8 @@
  * FILE: generate-page.js
  * PATH: /scripts/page-generator/generate-page.js
  * DESCRIPTION: Generator for DataGrid pages from template
- * VERSION: v1.1.0
- * UPDATED: 2025-11-27
+ * VERSION: v1.5.0
+ * UPDATED: 2025-12-19
  *
  * USAGE:
  * node scripts/page-generator/generate-page.js configs/config.json
@@ -139,7 +139,7 @@ function generatePage(config) {
   priority: 'low' | 'medium' | 'high';
   value: number;
   date: string;
-  isActive: boolean;`;
+  is_deleted: boolean;`;
 
   const interfaceFieldsNew = columns.map(col => {
     if (col.type === 'status') {
@@ -182,7 +182,8 @@ function generatePage(config) {
 
   const mockDataItems = Array.from({ length: 5 }, (_, i) => {
     const fields = columns.map(col => {
-      if (col.hidden) return null;
+      // Always include id field (required for selection), skip other hidden columns
+      if (col.hidden && col.field !== 'id') return null;
       return `${col.field}: ${generateMockValue(col, i)}`;
     }).filter(Boolean).join(', ');
     return `  { ${fields} }`;
@@ -198,48 +199,145 @@ function generatePage(config) {
 
   const columnsDefOld = /const columns = \[[^\]]+\];/s;
   const columnsDefNew = `const columns = [\n${columns.filter(col => !col.hidden).map(col => {
+    // Determine render function based on column type
+    let renderFn = null;
+    if (col.render === 'currency') {
+      renderFn = '      render: (value: number) => `$${value.toLocaleString()}`';
+    } else if (col.type === 'status') {
+      // Status columns should render translated labels
+      renderFn = `      render: (value: string) => t('pages.${entityLower}.statuses.' + value) || value`;
+    }
+
     const parts = [
       `      title: t('pages.${entityLower}.columns.${col.field}')`,
       `      field: '${col.field}'`,
       col.sortable ? '      sortable: true' : null,
       col.width ? `      width: ${col.width}` : null,
-      col.render === 'currency' ? '      render: (value: number) => `$${value.toLocaleString()}`' : null,
+      renderFn,
     ].filter(Boolean).join(',\n');
     return `    {\n${parts}\n    }`;
   }).join(',\n')}\n  ];`;
   generatedTsx = generatedTsx.replace(columnsDefOld, columnsDefNew);
 
   // ============================================================
-  // GENERATE STATUS COLORS
+  // GENERATE STATUS COLORS & LABELS (from config.statuses)
   // ============================================================
 
+  // Check for explicit statuses in config, fallback to status column options
   const statusCol = columns.find(col => col.type === 'status' && col.field === 'status');
-  if (statusCol && statusCol.options) {
-    const statusColorsMap = {
-      'active': 'COLORS.status.success',
-      'pending': 'COLORS.status.warning',
-      'inactive': 'COLORS.status.error',
-      'completed': 'COLORS.status.info',
-      'cancelled': 'COLORS.status.muted',
-      'draft': 'COLORS.status.warning',
-      'published': 'COLORS.status.success',
-      'archived': 'COLORS.status.muted',
-    };
+  const configStatuses = config.statuses || null;
 
+  // Default color mapping for common status values
+  const defaultColorMap = {
+    'active': 'COLORS.status.success',
+    'pending': 'COLORS.status.warning',
+    'inactive': 'COLORS.status.error',
+    'completed': 'COLORS.status.info',
+    'cancelled': 'COLORS.status.muted',
+    'draft': 'COLORS.status.warning',
+    'published': 'COLORS.status.success',
+    'archived': 'COLORS.status.muted',
+    'open': 'COLORS.status.success',
+    'closed': 'COLORS.status.muted',
+    'resolved': 'COLORS.status.info',
+    'rejected': 'COLORS.status.error',
+    'assigned': 'COLORS.status.warning',
+    'in_progress': 'COLORS.status.info',
+  };
+
+  if (configStatuses) {
+    // Use explicit statuses from config
     const statusColorsOld = /const statusColors = \{[^\}]+\};/s;
-    const statusColorsNew = `const statusColors = {\n${statusCol.options.map(opt =>
-      `    ${opt}: ${statusColorsMap[opt] || 'COLORS.status.muted'}`
+    const statusColorsNew = `const statusColors = {\n${Object.entries(configStatuses).map(([key, status]) =>
+      `    ${key}: ${status.color.startsWith('COLORS.') ? status.color : `'${status.color}'`}`
     ).join(',\n')},\n    deleted: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Deleted items - theme-aware red\n  };`;
     generatedTsx = generatedTsx.replace(statusColorsOld, statusColorsNew);
+
+    // Generate statusLabels
+    const statusLabelsOld = /const statusLabels = \{[^\}]+\};/s;
+    const statusLabelsNew = `const statusLabels = {\n${Object.entries(configStatuses).map(([key]) =>
+      `    ${key}: t('pages.${entityLower}.statuses.${key}')`
+    ).join(',\n')},\n  };`;
+    generatedTsx = generatedTsx.replace(statusLabelsOld, statusLabelsNew);
+  } else if (statusCol && statusCol.options) {
+    // Fallback to status column options (legacy behavior)
+    const statusColorsOld = /const statusColors = \{[^\}]+\};/s;
+    const statusColorsNew = `const statusColors = {\n${statusCol.options.map(opt =>
+      `    ${opt}: ${defaultColorMap[opt] || 'COLORS.status.muted'}`
+    ).join(',\n')},\n    deleted: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Deleted items - theme-aware red\n  };`;
+    generatedTsx = generatedTsx.replace(statusColorsOld, statusColorsNew);
+
+    // Generate statusLabels from column options
+    const statusLabelsOld = /const statusLabels = \{[^\}]+\};/s;
+    const statusLabelsNew = `const statusLabels = {\n${statusCol.options.map(opt =>
+      `    ${opt}: t('pages.${entityLower}.filters.status${opt.charAt(0).toUpperCase() + opt.slice(1)}')`
+    ).join(',\n')},\n  };`;
+    generatedTsx = generatedTsx.replace(statusLabelsOld, statusLabelsNew);
   }
 
   // ============================================================
-  // FIX GET ROW STATUS - Always check is_deleted first
+  // GENERATE FILTERS (from config.filters)
   // ============================================================
 
-  // Replace getRowStatus to check is_deleted first (for deleted item red background)
-  const getRowStatusOld = /getRowStatus=\{\(row\) => row\.\w+\}/;
-  const getRowStatusNew = `getRowStatus={(row) => row.is_deleted ? 'deleted' : row.status}`;
+  // Match entire filters block from declaration to QUICK FILTERS comment
+  const filtersBlockStart = generatedTsx.indexOf('const filters: FilterConfig[]');
+  const filtersBlockEnd = generatedTsx.indexOf('// ============================================================\n  // QUICK FILTERS');
+
+  if (filtersBlockStart !== -1 && filtersBlockEnd !== -1) {
+    const beforeFilters = generatedTsx.substring(0, filtersBlockStart);
+    const afterFilters = generatedTsx.substring(filtersBlockEnd);
+
+    let filtersNew;
+    if (config.filters && config.filters.length > 0) {
+      // Generate filters array from config
+      filtersNew = `const filters: FilterConfig[] = [\n${config.filters.map(filter => {
+        const optionsStr = filter.options.map(opt =>
+          `      { value: '${opt.value}', label: t('pages.${entityLower}.filters.${filter.translationPrefix || filter.field}${opt.value.charAt(0).toUpperCase() + opt.value.slice(1).replace(/_./g, m => m[1].toUpperCase())}') }`
+        ).join(',\n');
+        return `    {\n      field: '${filter.field}',\n      title: t('pages.${entityLower}.filters.${filter.translationPrefix || filter.field}Title'),\n      options: [\n${optionsStr},\n      ],\n    }`;
+      }).join(',\n')}\n  ];\n\n  `;
+    } else {
+      // No filters configured - generate empty array
+      filtersNew = `const filters: FilterConfig[] = [];\n\n  `;
+    }
+
+    generatedTsx = beforeFilters + filtersNew + afterFilters;
+  }
+
+  // ============================================================
+  // GENERATE QUICK FILTERS (from config.quickFilters)
+  // ============================================================
+
+  // Match entire quickFilters block from declaration to COLUMNS comment
+  const quickFiltersBlockStart = generatedTsx.indexOf('const quickFilters: QuickFilterConfig[]');
+  const quickFiltersBlockEnd = generatedTsx.indexOf('// ============================================================\n  // COLUMNS');
+
+  if (quickFiltersBlockStart !== -1 && quickFiltersBlockEnd !== -1) {
+    const beforeQuickFilters = generatedTsx.substring(0, quickFiltersBlockStart);
+    const afterQuickFilters = generatedTsx.substring(quickFiltersBlockEnd);
+
+    let quickFiltersNew;
+    if (config.quickFilters && config.quickFilters.length > 0) {
+      // Generate quickFilters array from config
+      quickFiltersNew = `const quickFilters: QuickFilterConfig[] = [\n${config.quickFilters.map(qf => {
+        return `    {\n      id: '${qf.id}',\n      label: t('pages.${entityLower}.quickFilters.${qf.id.replace(/-./g, m => m[1].toUpperCase())}'),\n      filterFn: (item: ${entityNameSingular}) => ${qf.filterFn},\n    }`;
+      }).join(',\n')}\n  ];\n\n  `;
+    } else {
+      // No quick filters configured - generate empty array
+      quickFiltersNew = `const quickFilters: QuickFilterConfig[] = [];\n\n  `;
+    }
+
+    generatedTsx = beforeQuickFilters + quickFiltersNew + afterQuickFilters;
+  }
+
+  // ============================================================
+  // FIX GET ROW STATUS - Use configurable statusField
+  // ============================================================
+
+  // Use statusField from config (default: 'status') for row coloring
+  const statusField = config.statusField || 'status';
+  const getRowStatusOld = /getRowStatus=\{\(row\) => row\.is_deleted \? 'inactive' : row\.status\}/;
+  const getRowStatusNew = `getRowStatus={(row) => row.is_deleted ? 'deleted' : row.${statusField}}`;
   generatedTsx = generatedTsx.replace(getRowStatusOld, getRowStatusNew);
 
   // ============================================================

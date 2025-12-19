@@ -17,8 +17,7 @@
 
 import { useState, useCallback } from 'react';
 import { CreateIssueModal, IssueTypeSelectModal, ConfirmModal } from '@l-kern/ui-components';
-import { useTranslation, useToast, useAuthContext, getBackendRole, useAnalyticsSettings, serviceWorkflow, SERVICE_ENDPOINTS, type ServiceWorkflowResult } from '@l-kern/config';
-import { type CreatedIssue } from '../../services';
+import { useTranslation, useToast, useAuthContext, getBackendRole, useAnalyticsSettings, serviceWorkflow, SERVICE_ENDPOINTS, type ServiceWorkflowResult, type CreatedIssue } from '@l-kern/config';
 
 // ============================================================
 // TYPES
@@ -190,7 +189,7 @@ export function IssueCreateHandler({
         timeout: 5000,
       },
       permissionLevel: permissionLevel,
-      debug: analyticsSettings.logIssueWorkflow,
+      debug: analyticsSettings.logServiceWorkflow,
       caller: isRetry ? 'IssueCreateHandler (RETRY)' : 'IssueCreateHandler',
       callbacks: {
         onServiceAlive: () => {
@@ -210,7 +209,7 @@ export function IssueCreateHandler({
         },
       },
     });
-  }, [permissionLevel, analyticsSettings.logIssueWorkflow, toast, t]);
+  }, [permissionLevel, analyticsSettings.logServiceWorkflow, toast, t]);
 
   // Handle workflow result - defined BEFORE handleCreateIssue to avoid no-use-before-define warning
   const handleWorkflowResult = useCallback((result: ServiceWorkflowResult<CreatedIssue>, formData: IssueFormData) => {

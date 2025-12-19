@@ -81,48 +81,9 @@ export const contactsPageSk = {
     suppliers: '📦 Dodávatelia',
     customers: '🛒 Odberatelia',
   },
-  // Edit Modal
-  editContact: 'Upraviť kontakt: {name}',
-  createContact: 'Vytvoriť nový kontakt',
-  // Form sections
-  sections: {
-    basicInfo: 'Základné údaje',
-    contactInfo: 'Kontaktné údaje',
-    companyInfo: 'Údaje o firme',
-    unitInfo: 'Údaje o jednotke',
-  },
-  // Form fields
-  fields: {
-    firstName: 'Meno',
-    lastName: 'Priezvisko',
-    titleBefore: 'Titul pred menom',
-    titleAfter: 'Titul za menom',
-    birthDate: 'Dátum narodenia',
-    gender: 'Pohlavie',
-    companyName: 'Názov firmy',
-    registrationNumber: 'IČO',
-    taxId: 'DIČ',
-    vatId: 'IČ DPH',
-    legalForm: 'Právna forma',
-    unitName: 'Názov jednotky',
-    unitType: 'Typ jednotky',
-    parentCompany: 'Materská firma',
-    primaryEmail: 'Primárny email',
-    primaryPhone: 'Primárny telefón',
-    primaryWebsite: 'Web stránka',
-  },
-  // Placeholders
-  placeholders: {
-    titleBefore: 'napr. Ing., Mgr.',
-    titleAfter: 'napr. PhD., MBA',
-    registrationNumber: 'napr. 12345678',
-    taxId: 'napr. 2012345678',
-    vatId: 'napr. SK2012345678',
-  },
-  // Gender options
-  gender: {
-    male: 'Muž',
-    female: 'Žena',
-    other: 'Iné',
+  statuses: {
+    person: 'Osoba',
+    company: 'Firma',
+    organizational_unit: 'Org. jednotka',
   },
 };

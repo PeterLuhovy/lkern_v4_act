@@ -161,7 +161,7 @@ export const WithStatusColors: Story = {
 };
 
 export const WithSelection: Story = {
-  render: () => {
+  render: function Render() {
     const [selectedRows, setSelectedRows] = useState(new Set<string>());
 
     return (
@@ -192,7 +192,7 @@ export const WithSelection: Story = {
 };
 
 export const WithExpansion: Story = {
-  render: () => {
+  render: function Render() {
     const [expandedRows, setExpandedRows] = useState(new Set<string>());
 
     const handleToggle = (rowId: string) => {
@@ -441,7 +441,7 @@ export const LargePageSize: Story = {
 // ============================================================
 
 export const FullFeatured: Story = {
-  render: () => {
+  render: function Render() {
     const [selectedRows, setSelectedRows] = useState(new Set<string>());
     const [expandedRows, setExpandedRows] = useState(new Set<string>());
 

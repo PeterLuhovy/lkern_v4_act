@@ -55,7 +55,7 @@ type Story = StoryObj<typeof Pagination>;
 // ============================================================
 
 export const Default: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -78,7 +78,7 @@ export const Default: Story = {
 };
 
 export const FewPages: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -101,7 +101,7 @@ export const FewPages: Story = {
 };
 
 export const ManyPages: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(10);
 
     return (
@@ -124,7 +124,7 @@ export const ManyPages: Story = {
 };
 
 export const FirstPage: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -147,7 +147,7 @@ export const FirstPage: Story = {
 };
 
 export const LastPage: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(20);
 
     return (
@@ -170,7 +170,7 @@ export const LastPage: Story = {
 };
 
 export const SinglePage: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -193,7 +193,7 @@ export const SinglePage: Story = {
 };
 
 export const WithToggle: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
     const [enabled, setEnabled] = useState(true);
 
@@ -237,7 +237,7 @@ export const Disabled: Story = {
 };
 
 export const SmallItemsPerPage: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -260,7 +260,7 @@ export const SmallItemsPerPage: Story = {
 };
 
 export const LargeItemsPerPage: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
 
     return (
@@ -287,7 +287,7 @@ export const LargeItemsPerPage: Story = {
 // ============================================================
 
 export const InteractiveDemo: Story = {
-  render: () => {
+  render: function Render() {
     const [currentPage, setCurrentPage] = useState(1);
     const [enabled, setEnabled] = useState(true);
     const totalPages = 15;

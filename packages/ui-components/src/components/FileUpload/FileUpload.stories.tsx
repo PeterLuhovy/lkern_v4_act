@@ -59,14 +59,14 @@ type Story = StoryObj<typeof FileUpload>;
 // ============================================================
 
 export const Default: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return <FileUpload value={files} onChange={setFiles} />;
   },
 };
 
 export const WithError: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState<string>('');
 
@@ -82,7 +82,7 @@ export const WithError: Story = {
 };
 
 export const CustomMaxFiles: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -102,7 +102,7 @@ export const CustomMaxFiles: Story = {
 };
 
 export const CustomMaxSize: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -122,7 +122,7 @@ export const CustomMaxSize: Story = {
 };
 
 export const ImagesOnly: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -144,7 +144,7 @@ export const ImagesOnly: Story = {
 };
 
 export const PDFOnly: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -166,7 +166,7 @@ export const PDFOnly: Story = {
 };
 
 export const WithoutDragDrop: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -186,7 +186,7 @@ export const WithoutDragDrop: Story = {
 };
 
 export const WithoutPaste: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -206,7 +206,7 @@ export const WithoutPaste: Story = {
 };
 
 export const WithoutHint: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <FileUpload
@@ -230,7 +230,7 @@ export const WithoutHint: Story = {
 // ============================================================
 
 export const WithLimitExceededCallback: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     const [isOverLimit, setIsOverLimit] = useState(false);
 
@@ -243,7 +243,7 @@ export const WithLimitExceededCallback: Story = {
           onFileLimitExceeded={setIsOverLimit}
         />
         <div style={{ marginTop: '16px', padding: '12px', background: '#f5f5f5', borderRadius: '4px' }}>
-          <strong>Submit button status:</strong> {isOverLimit ? '❌ Disabled' : '✅ Enabled'}
+          <strong>Submit button status:</strong> {isOverLimit ? <><span role="img" aria-label="cross">❌</span> Disabled</> : <><span role="img" aria-label="checkmark">✅</span> Enabled</>}
         </div>
       </div>
     );
@@ -258,7 +258,7 @@ export const WithLimitExceededCallback: Story = {
 };
 
 export const WithPasteLimitCallback: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     const [toastMessage, setToastMessage] = useState<string>('');
 
@@ -284,7 +284,7 @@ export const WithPasteLimitCallback: Story = {
             border: '1px solid #ffc107',
             color: '#856404',
           }}>
-            ⚠️ {toastMessage}
+            <span role="img" aria-label="warning">⚠️</span> {toastMessage}
           </div>
         )}
         <div style={{ marginTop: '16px', padding: '12px', background: '#f5f5f5', borderRadius: '4px' }}>
@@ -303,7 +303,7 @@ export const WithPasteLimitCallback: Story = {
 };
 
 export const CompleteExample: Story = {
-  render: () => {
+  render: function Render() {
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState<string>('');
     const [isOverLimit, setIsOverLimit] = useState(false);
@@ -350,7 +350,7 @@ export const CompleteExample: Story = {
             border: '1px solid #ffc107',
             color: '#856404',
           }}>
-            ⚠️ {toastMessage}
+            <span role="img" aria-label="warning">⚠️</span> {toastMessage}
           </div>
         )}
 
@@ -373,10 +373,10 @@ export const CompleteExample: Story = {
         <div style={{ marginTop: '16px', padding: '12px', background: '#f5f5f5', borderRadius: '4px' }}>
           <strong>Features:</strong>
           <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-            <li>📎 Click or drag & drop files</li>
-            <li>📋 Paste images with Ctrl+V</li>
-            <li>🚫 Hard limit for paste (blocks when at max)</li>
-            <li>⚠️ Soft limit for drag & drop (adds all, disables submit)</li>
+            <li><span role="img" aria-label="paperclip">📎</span> Click or drag & drop files</li>
+            <li><span role="img" aria-label="clipboard">📋</span> Paste images with Ctrl+V</li>
+            <li><span role="img" aria-label="no entry">🚫</span> Hard limit for paste (blocks when at max)</li>
+            <li><span role="img" aria-label="warning">⚠️</span> Soft limit for drag & drop (adds all, disables submit)</li>
           </ul>
         </div>
       </div>

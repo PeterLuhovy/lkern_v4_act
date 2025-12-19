@@ -187,26 +187,31 @@ export const WithLabelHint: Story = {
 };
 
 export const WithValidation: Story = {
-  render: () => {
+  render: function Render() {
     const [isValid, setIsValid] = useState(false);
 
     return (
-      <FormField
-        label="Email"
-        required
-        validate={(value) => {
-          if (!value) return 'Email is required';
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            return 'Invalid email format';
-          }
-          return undefined;
-        }}
-        onValidChange={setIsValid}
-        successMessage="Email is valid"
-        reserveMessageSpace
-      >
-        <Input type="email" placeholder="user@example.com" />
-      </FormField>
+      <div>
+        <FormField
+          label="Email"
+          required
+          validate={(value) => {
+            if (!value) return 'Email is required';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+              return 'Invalid email format';
+            }
+            return undefined;
+          }}
+          onValidChange={setIsValid}
+          successMessage="Email is valid"
+          reserveMessageSpace
+        >
+          <Input type="email" placeholder="user@example.com" />
+        </FormField>
+        <p style={{ marginTop: '8px', color: isValid ? 'green' : 'gray' }}>
+          Form valid: {isValid ? 'Yes' : 'No'}
+        </p>
+      </div>
     );
   },
   parameters: {
@@ -219,7 +224,7 @@ export const WithValidation: Story = {
 };
 
 export const ControlledMode: Story = {
-  render: () => {
+  render: function Render() {
     const [keyword, setKeyword] = useState('');
     const [showError, setShowError] = useState(false);
 

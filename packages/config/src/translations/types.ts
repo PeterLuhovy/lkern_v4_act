@@ -948,8 +948,8 @@ export interface TranslationKeys {
         logPermissionsHint: string;
         logModalStack: string;
         logModalStackHint: string;
-        logIssueWorkflow: string;
-        logIssueWorkflowHint: string;
+        logServiceWorkflow: string;
+        logServiceWorkflowHint: string;
         logToasts: string;
         logToastsHint: string;
         logFetchCalls: string;

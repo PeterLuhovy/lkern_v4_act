@@ -88,7 +88,7 @@ export const Default: Story = {
 };
 
 export const WithSorting: Story = {
-  render: () => {
+  render: function RenderWithSorting() {
     const [sortField, setSortField] = useState('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -123,7 +123,7 @@ export const WithSorting: Story = {
 };
 
 export const WithSelection: Story = {
-  render: () => {
+  render: function RenderWithSelection() {
     const [selectedRows, setSelectedRows] = useState(new Set<string>());
 
     return (
@@ -158,7 +158,7 @@ export const WithSelection: Story = {
 };
 
 export const WithExpansion: Story = {
-  render: () => {
+  render: function RenderWithExpansion() {
     const [expandedRows, setExpandedRows] = useState(new Set<string>());
 
     const handleToggle = (rowId: string) => {
@@ -360,7 +360,7 @@ export const CompactMode: Story = {
 // ============================================================
 
 export const FullFeatured: Story = {
-  render: () => {
+  render: function RenderFullFeatured() {
     const [selectedRows, setSelectedRows] = useState(new Set<string>());
     const [expandedRows, setExpandedRows] = useState(new Set<string>());
     const [sortField, setSortField] = useState('name');

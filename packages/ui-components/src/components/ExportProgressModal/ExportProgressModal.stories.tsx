@@ -9,7 +9,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { ExportProgressModal, ExportProgress, ExportFile } from './ExportProgressModal';
+import { ExportProgressModal, type ExportFile } from './ExportProgressModal';
 
 const meta: Meta<typeof ExportProgressModal> = {
   title: 'Components/Modals/ExportProgressModal',
@@ -376,19 +376,19 @@ export const Features: Story = {
       <h3>ExportProgressModal Features</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📊 Progress Bar</h4>
+          <h4><span role="img" aria-label="chart">📊</span> Progress Bar</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Determinate (with total) or indeterminate (unknown size).</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📎 File List</h4>
+          <h4><span role="img" aria-label="paperclip">📎</span> File List</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Shows all files being exported with sizes.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>⚙️ serviceWorkflow</h4>
+          <h4><span role="img" aria-label="settings">⚙️</span> serviceWorkflow</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Integrates with serviceWorkflow onProgress callback.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🚫 Cancellable</h4>
+          <h4><span role="img" aria-label="no entry">🚫</span> Cancellable</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Optional cancel button to abort download.</p>
         </div>
       </div>

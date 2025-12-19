@@ -69,7 +69,7 @@ export const ManagePhones: Story = {
     modalId: 'manage-phones',
     items: samplePhones,
     emptyStateMessage: 'Žiadne telefónne čísla',
-    emptyStateIcon: '📱',
+    emptyStateIcon: <span role="img" aria-label="mobile phone">📱</span>,
     renderItem: (item, { onEdit, onDelete, editHint, deleteHint }) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
         <div style={{ flex: 1 }}>
@@ -78,10 +78,10 @@ export const ManagePhones: Story = {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button size="xs" variant="ghost" onClick={() => onEdit(item.id)} title={editHint}>
-            ✏️
+            <span role="img" aria-label="edit">✏️</span>
           </Button>
           <Button size="xs" variant="danger-subtle" onClick={() => onDelete(item.id)} title={deleteHint}>
-            🗑️
+            <span role="img" aria-label="trash">🗑️</span>
           </Button>
         </div>
       </div>
@@ -100,7 +100,7 @@ export const ManageEmails: Story = {
     modalId: 'manage-emails',
     items: sampleEmails,
     emptyStateMessage: 'Žiadne emailové adresy',
-    emptyStateIcon: '📧',
+    emptyStateIcon: <span role="img" aria-label="email">📧</span>,
     renderItem: (item, { onEdit, onDelete, editHint, deleteHint }) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
         <div style={{ flex: 1 }}>
@@ -109,10 +109,10 @@ export const ManageEmails: Story = {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button size="xs" variant="ghost" onClick={() => onEdit(item.id)} title={editHint}>
-            ✏️
+            <span role="img" aria-label="edit">✏️</span>
           </Button>
           <Button size="xs" variant="danger-subtle" onClick={() => onDelete(item.id)} title={deleteHint}>
-            🗑️
+            <span role="img" aria-label="trash">🗑️</span>
           </Button>
         </div>
       </div>
@@ -138,13 +138,13 @@ export const WithPrimaryItem: Story = {
     enablePrimary: true,
     primaryItemId: 1,
     emptyStateMessage: 'Žiadne emailové adresy',
-    emptyStateIcon: '📧',
+    emptyStateIcon: <span role="img" aria-label="email">📧</span>,
     renderItem: (item, { onEdit, onDelete, onSetPrimary, isPrimary, editHint, deleteHint, primaryHint }) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
             {item.email}
-            {isPrimary && <span style={{ fontSize: '12px' }}>⭐ Primárny</span>}
+            {isPrimary && <span style={{ fontSize: '12px' }}><span role="img" aria-label="star">⭐</span> Primárny</span>}
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>{item.type}</div>
         </div>
@@ -156,14 +156,14 @@ export const WithPrimaryItem: Story = {
               onClick={() => onSetPrimary(item.id)}
               title={primaryHint}
             >
-              {isPrimary ? '⭐' : '☆'}
+              {isPrimary ? <span role="img" aria-label="star">⭐</span> : <span role="img" aria-label="star outline">☆</span>}
             </Button>
           )}
           <Button size="xs" variant="ghost" onClick={() => onEdit(item.id)} title={editHint}>
-            ✏️
+            <span role="img" aria-label="edit">✏️</span>
           </Button>
           <Button size="xs" variant="danger-subtle" onClick={() => onDelete(item.id)} title={deleteHint}>
-            🗑️
+            <span role="img" aria-label="trash">🗑️</span>
           </Button>
         </div>
       </div>
@@ -186,7 +186,7 @@ export const EmptyState: Story = {
     modalId: 'manage-phones-empty',
     items: [],
     emptyStateMessage: 'Zatiaľ ste nepridali žiadne telefónne čísla',
-    emptyStateIcon: '📱',
+    emptyStateIcon: <span role="img" aria-label="mobile phone">📱</span>,
     renderItem: () => null,
   },
 };
@@ -203,7 +203,7 @@ export const WithUnsavedChanges: Story = {
     items: sampleEmails,
     hasUnsavedChanges: true,
     emptyStateMessage: 'Žiadne emailové adresy',
-    emptyStateIcon: '📧',
+    emptyStateIcon: <span role="img" aria-label="email">📧</span>,
     renderItem: (item, { onEdit, onDelete, editHint, deleteHint }) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
         <div style={{ flex: 1 }}>
@@ -212,10 +212,10 @@ export const WithUnsavedChanges: Story = {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button size="xs" variant="ghost" onClick={() => onEdit(item.id)} title={editHint}>
-            ✏️
+            <span role="img" aria-label="edit">✏️</span>
           </Button>
           <Button size="xs" variant="danger-subtle" onClick={() => onDelete(item.id)} title={deleteHint}>
-            🗑️
+            <span role="img" aria-label="trash">🗑️</span>
           </Button>
         </div>
       </div>
@@ -246,7 +246,7 @@ export const CustomMaxWidth: Story = {
     items: samplePhones,
     maxWidth: '900px',
     emptyStateMessage: 'Žiadne kontakty',
-    emptyStateIcon: '👤',
+    emptyStateIcon: <span role="img" aria-label="user">👤</span>,
     renderItem: (item, { onEdit, onDelete, editHint, deleteHint }) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
         <div style={{ flex: 1 }}>
@@ -255,10 +255,10 @@ export const CustomMaxWidth: Story = {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button size="xs" variant="ghost" onClick={() => onEdit(item.id)} title={editHint}>
-            ✏️
+            <span role="img" aria-label="edit">✏️</span>
           </Button>
           <Button size="xs" variant="danger-subtle" onClick={() => onDelete(item.id)} title={deleteHint}>
-            🗑️
+            <span role="img" aria-label="trash">🗑️</span>
           </Button>
         </div>
       </div>
@@ -276,19 +276,19 @@ export const Features: Story = {
       <h3>ManagementModal Features</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>✨ List Management</h4>
+          <h4><span role="img" aria-label="sparkles">✨</span> List Management</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Add, edit, delete items with confirmation dialogs.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>⭐ Primary Item</h4>
+          <h4><span role="img" aria-label="star">⭐</span> Primary Item</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Mark one item as primary (e.g., default email).</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🗑️ Delete All</h4>
+          <h4><span role="img" aria-label="trash">🗑️</span> Delete All</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Clear all items with danger confirmation.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📭 Empty State</h4>
+          <h4><span role="img" aria-label="open mailbox with lowered flag">📭</span> Empty State</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Custom icon and message when list is empty.</p>
         </div>
       </div>

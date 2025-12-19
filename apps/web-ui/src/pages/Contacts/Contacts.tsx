@@ -4,59 +4,82 @@
  * FILE: Contacts.tsx
  * PATH: /apps/web-ui/src/pages/Contacts/Contacts.tsx
  * DESCRIPTION: Universal contacts for DataGrid pages with FilteredDataGrid
- * VERSION: v1.2.0
- * UPDATED: 2025-12-09
+ * VERSION: v1.3.0
+ * UPDATED: 2025-12-19
  *
  * * ================================================================
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner, EntityEditModal } from '@l-kern/ui-components';
+import { useState } from 'react';
+import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
 import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
 import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsContext, COLORS, formatDate, exportToCSV, exportToJSON } from '@l-kern/config';
 import styles from './Contacts.module.css';
-import { getContactEditConfig } from './ContactEditConfig';
 
 // ============================================================
 // API CONFIGURATION
 // ============================================================
 
 /**
- * Service endpoint configuration for Contact MDM Service (LKMS101)
+ * Service endpoint configuration
+ *
+ * 🔧 CUSTOMIZATION:
+ * Update baseUrl to match your microservice (e.g., lkms105-issues, lkms102-contacts)
+ *
+ * NOTE: This is commented out as it's not used in the contacts directly.
+ * Uncomment and use when implementing actual API calls.
  */
-const SERVICE_ENDPOINTS = {
-  baseUrl: 'http://localhost:4101',  // Contact Service (MDM) REST API
-};
+// const SERVICE_ENDPOINTS = {
+//   baseUrl: 'http://localhost:4105/api',  // 🔧 UPDATE: Change port for your service
+// };
 
 // ============================================================
 // DATA TYPES
 // ============================================================
 
 /**
- * Contact interface matching Contact MDM backend schema
+ * Contact interface
+ *
+ * 🔧 CUSTOMIZATION:
+ * Replace with your entity fields (e.g., Order, Contact, Invoice)
  */
 interface Contact {
-  id: string;
   contact_code: string;
-  contact_type: 'person' | 'company' | 'organizational_unit';
-  display_name: string;
-  primary_email?: string;
-  primary_phone?: string;
-  roles: string;
-  created_at: string;
-  is_deleted: boolean;
+    display_name: string;
+    contact_type: 'person' | 'company' | 'organizational_unit';
+    primary_email: string;
+    primary_phone: string;
+    roles: string;
+    created_at: string;
+    id: string;
+    is_deleted: boolean;
 }
 
 // ============================================================
-// MOCK DATA (fallback when API unavailable)
+// MOCK DATA
 // ============================================================
 
+/**
+ * Mock data for testing
+ *
+ * 🔧 CUSTOMIZATION:
+ * Replace with your entity data or API fetch
+ */
 const mockData: Contact[] = [
-  { id: '1', contact_code: 'CON-2512-0001', display_name: 'Ján Novák', contact_type: 'person', primary_email: 'jan.novak@example.com', primary_phone: '+421 911 123 456', roles: 'Employee, Customer', created_at: '2025-12-01', is_deleted: false },
-  { id: '2', contact_code: 'CON-2512-0002', display_name: 'Firma ABC s.r.o.', contact_type: 'company', primary_email: 'info@abc.sk', primary_phone: '+421 2 1234 5678', roles: 'Supplier', created_at: '2025-12-05', is_deleted: false },
-  { id: '3', contact_code: 'CON-2512-0003', display_name: 'IT Oddelenie', contact_type: 'organizational_unit', primary_email: 'it@company.sk', primary_phone: '+421 2 9876 5432', roles: 'Department', created_at: '2025-12-10', is_deleted: false },
+  { contact_code: 'Sample contact_code 1', display_name: 'Sample display_name 1', contact_type: 'person', primary_email: 'user1@example.com', primary_phone: 'Sample primary_phone 1', roles: 'Sample roles 1', created_at: 'Sample created_at 1', id: 'CON-001' },
+  { contact_code: 'Sample contact_code 2', display_name: 'Sample display_name 2', contact_type: 'company', primary_email: 'user2@example.com', primary_phone: 'Sample primary_phone 2', roles: 'Sample roles 2', created_at: 'Sample created_at 2', id: 'CON-002' },
+  { contact_code: 'Sample contact_code 3', display_name: 'Sample display_name 3', contact_type: 'organizational_unit', primary_email: 'user3@example.com', primary_phone: 'Sample primary_phone 3', roles: 'Sample roles 3', created_at: 'Sample created_at 3', id: 'CON-003' },
+  { contact_code: 'Sample contact_code 4', display_name: 'Sample display_name 4', contact_type: 'person', primary_email: 'user4@example.com', primary_phone: 'Sample primary_phone 4', roles: 'Sample roles 4', created_at: 'Sample created_at 4', id: 'CON-004' },
+  { contact_code: 'Sample contact_code 5', display_name: 'Sample display_name 5', contact_type: 'company', primary_email: 'user5@example.com', primary_phone: 'Sample primary_phone 5', roles: 'Sample roles 5', created_at: 'Sample created_at 5', id: 'CON-005' }
 ];
+
+// Add computed 'isActive' field (inverted from 'is_deleted')
+// FilteredDataGrid expects 'true' = active, but is_deleted has 'true' = inactive
+const dataWithActive = mockData.map((item) => ({
+  ...item,
+  isActive: !item.is_deleted,
+}));
 
 // ============================================================
 // COMPONENT
@@ -107,69 +130,33 @@ export function Contacts() {
     zipFileName?: string;
   } | null>(null);
 
-  // Data state - fetched from API or mock fallback
-  const [contacts, setContacts] = useState<Contact[]>(mockData);
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
-
-  // Edit modal state
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [editSectionId, setEditSectionId] = useState<string>('basic');
-
-  // Computed data with isActive field for FilteredDataGrid
-  const dataWithActive = contacts.map((item) => ({
-    ...item,
-    isActive: !item.is_deleted,
-  }));
-
-  // ============================================================
-  // API FETCH
-  // ============================================================
-
-  /**
-   * Fetch contacts from API with fallback to mock data
-   */
-  const fetchContacts = useCallback(async (includeDeleted = false) => {
-    setIsLoading(true);
-    setApiError(null);
-
-    try {
-      const url = `${SERVICE_ENDPOINTS.baseUrl}/contacts?include_deleted=${includeDeleted}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setContacts(data.items || []);
-      console.log('[Contacts] ✅ Loaded', data.items?.length || 0, 'contacts from API');
-    } catch (error) {
-      console.warn('[Contacts] ⚠️ API unavailable, using mock data:', error);
-      setApiError('API unavailable - showing mock data');
-      setContacts(mockData);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Initial data fetch
-  useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts]);
-
   // ============================================================
   // STATUS COLORS
   // ============================================================
 
   /**
-   * Row background colors based on contact type
+   * Row background colors based on status
+   *
+   * 🔧 CUSTOMIZATION:
+   * Adjust colors and statuses to match your entity
    */
   const statusColors = {
-    person: COLORS.status.info,       // Blue for persons
-    company: COLORS.status.success,   // Green for companies
-    organizational_unit: COLORS.status.warning, // Orange for org units
-    inactive: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Red for deleted
+    person: COLORS.status.info,
+    company: COLORS.status.success,
+    organizational_unit: COLORS.status.warning,
+    deleted: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Deleted items - theme-aware red
+  };
+
+  /**
+   * Status labels for legend display
+   *
+   * 🔧 CUSTOMIZATION:
+   * Labels shown in the status legend (translated)
+   */
+  const statusLabels = {
+    person: t('pages.contacts.statuses.person'),
+    company: t('pages.contacts.statuses.company'),
+    organizational_unit: t('pages.contacts.statuses.organizational_unit'),
   };
 
   // ============================================================
@@ -177,18 +164,31 @@ export function Contacts() {
   // ============================================================
 
   /**
-   * Filter configurations for Contact MDM
+   * Filter configurations (dropdown filters in FilterPanel)
+   *
+   * 🔧 CUSTOMIZATION:
+   * Add/remove filters based on your entity fields
    */
   const filters: FilterConfig[] = [
     {
       field: 'contact_type',
       title: t('pages.contacts.filters.typeTitle'),
       options: [
-        { value: 'person', label: t('pages.contacts.filters.typePerson') },
-        { value: 'company', label: t('pages.contacts.filters.typeCompany') },
-        { value: 'organizational_unit', label: t('pages.contacts.filters.typeOrganizationalUnit') },
+      { value: 'person', label: t('pages.contacts.filters.typePerson') },
+      { value: 'company', label: t('pages.contacts.filters.typeCompany') },
+      { value: 'organizational_unit', label: t('pages.contacts.filters.typeOrganizationalUnit') },
       ],
     },
+    {
+      field: 'roles',
+      title: t('pages.contacts.filters.roleTitle'),
+      options: [
+      { value: 'supplier', label: t('pages.contacts.filters.roleSupplier') },
+      { value: 'customer', label: t('pages.contacts.filters.roleCustomer') },
+      { value: 'employee', label: t('pages.contacts.filters.roleEmployee') },
+      { value: 'partner', label: t('pages.contacts.filters.rolePartner') },
+      ],
+    }
   ];
 
   // ============================================================
@@ -196,7 +196,10 @@ export function Contacts() {
   // ============================================================
 
   /**
-   * Quick filters for Contact MDM
+   * Quick filters (pill-style filters with custom logic)
+   *
+   * 🔧 CUSTOMIZATION:
+   * Add custom filter logic based on your business rules
    */
   const quickFilters: QuickFilterConfig[] = [
     {
@@ -212,13 +215,13 @@ export function Contacts() {
     {
       id: 'suppliers',
       label: t('pages.contacts.quickFilters.suppliers'),
-      filterFn: (item: Contact) => item.roles?.toLowerCase().includes('supplier'),
+      filterFn: (item: Contact) => item.roles?.includes('supplier'),
     },
     {
       id: 'customers',
       label: t('pages.contacts.quickFilters.customers'),
-      filterFn: (item: Contact) => item.roles?.toLowerCase().includes('customer'),
-    },
+      filterFn: (item: Contact) => item.roles?.includes('customer'),
+    }
   ];
 
   // ============================================================
@@ -253,7 +256,8 @@ export function Contacts() {
       title: t('pages.contacts.columns.contact_type'),
       field: 'contact_type',
       sortable: true,
-      width: 140
+      width: 140,
+      render: (value: string) => t('pages.contacts.statuses.' + value) || value
     },
     {
       title: t('pages.contacts.columns.primary_email'),
@@ -293,8 +297,8 @@ export function Contacts() {
       label: '👁️',
       title: t('common.view'),
       onClick: (item: Contact) => {
-        setEditingContact(item);
-        setEditSectionId('basic');
+        alert(`${t('common.view')}: ${item.contact_code}`);
+        // TODO: Implement view modal
       },
       variant: 'secondary' as const,
       // View is always visible for all users
@@ -303,8 +307,8 @@ export function Contacts() {
       label: '✏️',
       title: t('common.edit'),
       onClick: (item: Contact) => {
-        setEditingContact(item);
-        setEditSectionId('basic');
+        alert(`${t('common.edit')}: ${item.contact_code}`);
+        // TODO: Implement edit modal
       },
       variant: 'primary' as const,
       disabled: () => !canEdit, // Disabled if no permission
@@ -668,7 +672,7 @@ export function Contacts() {
         for (const item of activeItems) {
           // TODO: Replace with actual API call
           // await fetch(`${API_BASE_URL}/contacts/${item.id}`, { method: 'DELETE' });
-          console.log(`[Contacts] ✅ Soft deleted ${item.id}`);
+          if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Soft deleted ${item.id}`);
         }
       }
 
@@ -689,7 +693,7 @@ export function Contacts() {
 
           // Mock: Simulate success
           successfulHardDeletes.push(item);
-          console.log(`[Contacts] ✅ Hard deleted ${item.id}`);
+          if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Hard deleted ${item.id}`);
         }
       }
 
@@ -698,7 +702,7 @@ export function Contacts() {
 
       // If any items failed due to MinIO, show special modal
       if (failedItems.length > 0) {
-        console.log(`[Contacts] ⚠️ ${failedItems.length} items failed due to MinIO`);
+        if (analyticsSettings.logToConsole) console.log(`[Contacts] ⚠️ ${failedItems.length} items failed due to MinIO`);
         setMinioFailedItems(failedItems);
         const failedIds = new Set(failedItems.map(i => i.id));
         setSelectedRows(new Set([...selectedRows].filter(id => failedIds.has(id))));
@@ -759,7 +763,7 @@ export function Contacts() {
       // if (!response.ok) {
       //   // Check for MinIO unavailable (503)
       //   if (response.status === 503) {
-      //     console.log('[Contacts] ⚠️ MinIO unavailable - showing special modal');
+      //     if (analyticsSettings.logToConsole) console.log('[Contacts] ⚠️ MinIO unavailable - showing special modal');
       //     const itemToHandle = itemToPermanentlyDelete;
       //     setItemToPermanentlyDelete(null);
       //     setMinioFailedItems([itemToHandle]);  // Unified state - array with single item
@@ -768,7 +772,7 @@ export function Contacts() {
       //   throw new Error(`Failed to permanently delete item: ${response.statusText}`);
       // }
 
-      console.log(`[Contacts] ✅ Item ${itemToPermanentlyDelete.id} permanently deleted`);
+      if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Item ${itemToPermanentlyDelete.id} permanently deleted`);
 
       // Close modal
       setItemToPermanentlyDelete(null);
@@ -816,12 +820,12 @@ export function Contacts() {
         //
         // if (response.ok) {
         //   successCount++;
-        //   console.log(`[Contacts] ✅ Item ${item.id} marked for deletion`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Item ${item.id} marked for deletion`);
         // }
 
         // Mock: Simulate success
         successCount++;
-        console.log(`[Contacts] ✅ Item ${item.id} marked for deletion`);
+        if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Item ${item.id} marked for deletion`);
       }
 
       // Close modal and clear selection
@@ -866,15 +870,15 @@ export function Contacts() {
         //
         // if (response.status === 503) {
         //   stillFailedItems.push(item);
-        //   console.log(`[Contacts] ⚠️ MinIO still unavailable for ${item.id}`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Contacts] ⚠️ MinIO still unavailable for ${item.id}`);
         // } else if (response.ok) {
         //   successCount++;
-        //   console.log(`[Contacts] ✅ Item ${item.id} permanently deleted on retry`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Item ${item.id} permanently deleted on retry`);
         // }
 
         // Mock: Simulate success
         successCount++;
-        console.log(`[Contacts] ✅ Item ${item.id} permanently deleted on retry`);
+        if (analyticsSettings.logToConsole) console.log(`[Contacts] ✅ Item ${item.id} permanently deleted on retry`);
       }
 
       if (stillFailedItems.length > 0) {
@@ -901,34 +905,6 @@ export function Contacts() {
       console.error('[Contacts] ❌ Error during retry delete:', error);
     } finally {
       setIsRetryingDelete(false);
-    }
-  };
-
-  /**
-   * Handle saving contact edits from EntityEditModal
-   */
-  const handleEditSave = async (updatedData: Record<string, unknown>) => {
-    if (!editingContact) return;
-
-    console.log('[Contacts] Saving contact:', editingContact.id, updatedData);
-
-    try {
-      const response = await fetch(`${SERVICE_ENDPOINTS.baseUrl}/contacts/${editingContact.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      toast.success(t('common.saved'));
-      setEditingContact(null);
-      await fetchContacts();
-    } catch (error) {
-      console.error('[Contacts] ❌ Error saving contact:', error);
-      toast.error(t('common.error'));
     }
   };
 
@@ -992,9 +968,11 @@ export function Contacts() {
           renderExpandedContent={renderExpandedContent}
           // Actions
           actions={actions}
-          // Status Colors
-          getRowStatus={(row) => row.is_deleted ? 'inactive' : row.contact_type}
+          // Status Colors & Legend
+          getRowStatus={(row) => row.is_deleted ? 'deleted' : row.contact_type}
           statusColors={statusColors}
+          statusLabels={statusLabels}
+          showStatusLegend={true}
           // Grid ID (for localStorage persistence)
           gridId="contactsPageDatagrid"
           // Bulk Actions Bar
@@ -1193,22 +1171,6 @@ export function Contacts() {
             }
             confirmButtonLabel={t('pages.contacts.exportErrors.downloadWithoutMissing')}
             cancelButtonLabel={t('common.cancel')}
-          />
-        )}
-
-        {/* Entity Edit Modal for Contact Details */}
-        {editingContact && (
-          <EntityEditModal
-            isOpen={true}
-            onClose={() => setEditingContact(null)}
-            onSave={handleEditSave}
-            title={t('pages.contacts.editContact', { name: editingContact.display_name })}
-            config={getContactEditConfig(editingContact.contact_type)}
-            initialData={{
-              ...editingContact,
-              // Map nested person/company data if present
-            }}
-            initialSectionId={editSectionId}
           />
         )}
 

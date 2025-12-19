@@ -4,8 +4,8 @@
  * FILE: TemplatePageDatagrid.tsx
  * PATH: /apps/web-ui/src/pages/TemplatePageDatagrid/TemplatePageDatagrid.tsx
  * DESCRIPTION: Universal template for DataGrid pages with FilteredDataGrid
- * VERSION: v1.2.0
- * UPDATED: 2025-12-09
+ * VERSION: v1.3.0
+ * UPDATED: 2025-12-19
  *
  * 📖 USAGE:
  * This is a REFERENCE TEMPLATE for creating new DataGrid pages.
@@ -160,6 +160,18 @@ export function TemplatePageDatagrid() {
     active: COLORS.status.success,   // Green
     pending: COLORS.status.warning,  // Orange
     inactive: theme === 'light' ? COLORS.status.inactiveLight : COLORS.status.inactive, // Red (theme-aware)
+  };
+
+  /**
+   * Status labels for legend display
+   *
+   * 🔧 CUSTOMIZATION:
+   * Labels shown in the status legend (translated)
+   */
+  const statusLabels = {
+    active: t('pages.template.filters.statusActive'),
+    pending: t('pages.template.filters.statusPending'),
+    inactive: t('pages.template.filters.statusInactive'),
   };
 
   // ============================================================
@@ -967,9 +979,11 @@ export function TemplatePageDatagrid() {
           renderExpandedContent={renderExpandedContent}
           // Actions
           actions={actions}
-          // Status Colors
+          // Status Colors & Legend
           getRowStatus={(row) => row.is_deleted ? 'inactive' : row.status}
           statusColors={statusColors}
+          statusLabels={statusLabels}
+          showStatusLegend={true}
           // Grid ID (for localStorage persistence)
           gridId="templatePageDatagrid"
           // Bulk Actions Bar

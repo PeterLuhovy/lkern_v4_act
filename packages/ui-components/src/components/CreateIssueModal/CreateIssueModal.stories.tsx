@@ -274,27 +274,27 @@ export const Features: Story = {
       <h3>CreateIssueModal Features</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>👤 Role-Based Forms</h4>
+          <h4><span role="img" aria-label="user">👤</span> Role-Based Forms</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Different field sets for basic/standard/advanced users.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🖥️ System Info</h4>
+          <h4><span role="img" aria-label="desktop computer">🖥️</span> System Info</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Auto-collects browser, OS, URL, viewport.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>📎 File Upload</h4>
+          <h4><span role="img" aria-label="paperclip">📎</span> File Upload</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Up to 5 files, 10MB max each.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>✅ Validation</h4>
+          <h4><span role="img" aria-label="checkmark">✅</span> Validation</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Title (5-200 chars), description (10+ chars).</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>🎨 Colored Headers</h4>
+          <h4><span role="img" aria-label="artist palette">🎨</span> Colored Headers</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Different colors for bug/feature/improvement/question.</p>
         </div>
         <div style={{ padding: '16px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h4>💾 Pre-fill Support</h4>
+          <h4><span role="img" aria-label="save">💾</span> Pre-fill Support</h4>
           <p style={{ fontSize: '14px', color: '#666' }}>Accept initialData from ReportButton.</p>
         </div>
       </div>
@@ -325,51 +325,51 @@ export const RoleComparison: Story = {
         <tbody>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Title</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Description</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Severity (bug/improvement)</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Category</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Priority</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>Error Type/Message</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅ (bugs only)</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span> (bugs only)</td>
           </tr>
           <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
             <td style={{ padding: '12px' }}>System Info</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>❌</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="cross">❌</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
           <tr>
             <td style={{ padding: '12px' }}>File Attachments</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
-            <td style={{ textAlign: 'center', padding: '12px' }}>✅</td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
+            <td style={{ textAlign: 'center', padding: '12px' }}><span role="img" aria-label="checkmark">✅</span></td>
           </tr>
         </tbody>
       </table>

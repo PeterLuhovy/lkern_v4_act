@@ -35,11 +35,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { BasePage, PageHeader, FilteredDataGrid, IssueTypeSelectModal, ConfirmModal, ExportButton, ExportProgressModal } from '@l-kern/ui-components';
 import type { ExportFile, ExportProgress } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
-import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsSettings, COLORS, formatDateTime, formatDate, checkMultipleStoragesHealth, useServiceWorkflow, serviceWorkflow, SERVICE_ENDPOINTS, SYSTEM_USER_ID, defaultDataIntegrityHandler, prepareExportDestination, writeToFileHandle, triggerAutomaticDownload } from '@l-kern/config';
+import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsSettings, COLORS, formatDateTime, formatDate, checkMultipleStoragesHealth, useServiceWorkflow, serviceWorkflow, SERVICE_ENDPOINTS, SYSTEM_USER_ID, defaultDataIntegrityHandler, prepareExportDestination, writeToFileHandle, triggerAutomaticDownload, type CreatedIssue } from '@l-kern/config';
 import { DeletionAuditModal } from './DeletionAuditModal';
 import { IssueViewModal } from './IssueViewModal';
 import { IssueCreateHandler } from './IssueCreateHandler';
-import { type CreatedIssue } from '../../services';
 import styles from './Issues.module.css';
 
 // ============================================================
@@ -1343,7 +1342,7 @@ export function Issues() {
           getEndpoint: (result: Issue) => `/issues/${result.id}`,
           compareFields: Object.keys(updateError.updates),
         },
-        debug: analyticsSettings.logIssueWorkflow,
+        debug: analyticsSettings.logServiceWorkflow,
         caller: 'Issues.handleRetryUpdate',
       }, {
         // Page-specific messages (override universal defaults)
@@ -2070,7 +2069,7 @@ export function Issues() {
                 getEndpoint: (result: Issue) => `/issues/${result.id}`,
                 compareFields: Object.keys(updatesObj),
               },
-              debug: analyticsSettings.logIssueWorkflow,
+              debug: analyticsSettings.logServiceWorkflow,
               caller: 'Issues.onSave',
             }, {
               // Page-specific messages (override universal defaults)
@@ -2236,7 +2235,7 @@ export function Issues() {
                 method: 'POST',
                 data: { filenames: deletedAttachments.map(a => a.file_name) },
                 healthChecks: { ping: true, sql: true, minio: true },
-                debug: analyticsSettings.logIssueWorkflow,
+                debug: analyticsSettings.logServiceWorkflow,
                 caller: 'Issues.bulkDeleteAttachments',
               });
 
@@ -2289,7 +2288,7 @@ export function Issues() {
                 method: 'POST',
                 files: newFiles,
                 healthChecks: { ping: false, sql: false, minio: true }, // Already checked in step 1
-                debug: analyticsSettings.logIssueWorkflow,
+                debug: analyticsSettings.logServiceWorkflow,
                 caller: 'Issues.uploadAttachments',
               });
 
@@ -2306,7 +2305,7 @@ export function Issues() {
               method: 'GET',
               permissionLevel,
               healthChecks: { ping: false, sql: false, minio: false },
-              debug: analyticsSettings.logIssueWorkflow,
+              debug: analyticsSettings.logServiceWorkflow,
               caller: 'Issues.refreshAfterAttachments',
             });
 

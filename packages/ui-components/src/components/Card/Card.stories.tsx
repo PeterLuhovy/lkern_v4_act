@@ -142,7 +142,7 @@ export const WithImage: Story = {
           color: 'white',
           fontSize: '48px'
         }}>
-          🖼️
+          <span role="img" aria-label="framed picture">🖼️</span>
         </div>
         <div style={{ padding: '16px' }}>
           <h3 style={{ margin: '0 0 8px 0' }}>Card with Image</h3>
@@ -188,7 +188,7 @@ export const WithFooter: Story = {
           color: 'var(--theme-text-muted, #757575)'
         }}>
           <span>Last updated: 2025-12-16</span>
-          <span>👁️ 42 views</span>
+          <span><span role="img" aria-label="eye">👁️</span> 42 views</span>
         </div>
       </div>
     ),

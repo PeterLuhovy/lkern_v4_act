@@ -244,7 +244,7 @@ export const LargeSize: Story = {
 // ============================================================
 
 export const InteractiveForm: Story = {
-  render: () => {
+  render: function Render() {
     const [email, setEmail] = useState('');
     const [isDirty, setIsDirty] = useState(false);
 

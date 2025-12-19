@@ -464,11 +464,11 @@ export const Modal: React.FC<ModalProps> = ({
 
   // Try to get settings from AnalyticsContext (sidebar toggles)
   let contextShowDebugBarModal = true;
-  let contextLogIssueWorkflow = false;
+  let contextLogServiceWorkflow = false;
   try {
     const analyticsContext = useAnalyticsContext();
     contextShowDebugBarModal = analyticsContext.settings.showDebugBarModal;
-    contextLogIssueWorkflow = analyticsContext.settings.logIssueWorkflow;
+    contextLogServiceWorkflow = analyticsContext.settings.logServiceWorkflow;
   } catch {
     // AnalyticsContext not available, use default values
   }
@@ -508,7 +508,7 @@ export const Modal: React.FC<ModalProps> = ({
       userName: user.name,
       permissionLevel,
     },
-    debug: contextLogIssueWorkflow, // Controlled by sidebar "Log Issue Workflow" checkbox
+    debug: contextLogServiceWorkflow, // Controlled by sidebar "Service Workflow" checkbox
     showToasts: true, // Show toast notifications for lock operations
     callbacks: {
       onLockAcquired: () => {

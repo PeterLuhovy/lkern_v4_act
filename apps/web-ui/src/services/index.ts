@@ -31,6 +31,5 @@ export type {
   LegalForm,
 } from './contactsService';
 
-// Issue types (used by IssueCreateHandler and Issues page)
-// NOTE: For workflow operations, use serviceWorkflow from @l-kern/config
-export type { CreatedIssue } from './issueWorkflow';
+// NOTE: CreatedIssue type moved to @l-kern/config (serviceWorkflow/types.ts)
+// For workflow operations, use serviceWorkflow from @l-kern/config

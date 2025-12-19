@@ -38,8 +38,8 @@ export interface AnalyticsSettings {
   logPermissions: boolean;
   /** Log modalStack operations to console */
   logModalStack: boolean;
-  /** Log IssueWorkflow operations (create, health check, verify) */
-  logIssueWorkflow: boolean;
+  /** Log ServiceWorkflow operations (create, health check, verify) */
+  logServiceWorkflow: boolean;
   /** Log toast notifications to console */
   logToasts: boolean;
   /** Log API fetch calls with permission level to console */
@@ -61,7 +61,7 @@ const DEFAULT_SETTINGS: AnalyticsSettings = {
   showDebugBarModal: true,
   logPermissions: true,
   logModalStack: true,
-  logIssueWorkflow: true,
+  logServiceWorkflow: true,
   logToasts: true,
   logFetchCalls: true,
   logSSEInvalidation: true,
@@ -207,7 +207,7 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
       showDebugBarModal: true,
       logPermissions: true,
       logModalStack: true,
-      logIssueWorkflow: true,
+      logServiceWorkflow: true,
       logToasts: true,
       logFetchCalls: true,
       logSSEInvalidation: true,
@@ -226,7 +226,7 @@ export const AnalyticsProvider: React.FC<{ children: ReactNode }> = ({ children 
       showDebugBarModal: false,
       logPermissions: false,
       logModalStack: false,
-      logIssueWorkflow: false,
+      logServiceWorkflow: false,
       logToasts: false,
       logFetchCalls: false,
       logSSEInvalidation: false,

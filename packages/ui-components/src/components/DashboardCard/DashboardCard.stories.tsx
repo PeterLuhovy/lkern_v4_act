@@ -56,7 +56,7 @@ type Story = StoryObj<typeof DashboardCard>;
 export const Default: Story = {
   args: {
     path: '/forms',
-    icon: '📝',
+    icon: <span role="img" aria-label="note">📝</span>,
     title: 'Form Components',
     description: 'Test form inputs and validation',
   },
@@ -65,7 +65,7 @@ export const Default: Story = {
 export const WithEmojiIcon: Story = {
   args: {
     path: '/contacts',
-    icon: '👥',
+    icon: <span role="img" aria-label="people">👥</span>,
     title: 'Contacts',
     description: 'Manage customer contacts and relationships',
   },
@@ -81,7 +81,7 @@ export const WithComplexIcon: Story = {
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
       }}>
-        📊
+        <span role="img" aria-label="chart">📊</span>
       </div>
     ),
     title: 'Analytics Dashboard',
@@ -96,7 +96,7 @@ export const WithComplexIcon: Story = {
 export const OrdersCard: Story = {
   args: {
     path: '/orders',
-    icon: '📦',
+    icon: <span role="img" aria-label="package">📦</span>,
     title: 'Orders',
     description: 'View and manage customer orders',
   },
@@ -105,7 +105,7 @@ export const OrdersCard: Story = {
 export const InvoicesCard: Story = {
   args: {
     path: '/invoices',
-    icon: '💳',
+    icon: <span role="img" aria-label="credit card">💳</span>,
     title: 'Invoices',
     description: 'Create and track invoices',
   },
@@ -114,7 +114,7 @@ export const InvoicesCard: Story = {
 export const SettingsCard: Story = {
   args: {
     path: '/settings',
-    icon: '⚙️',
+    icon: <span role="img" aria-label="settings">⚙️</span>,
     title: 'Settings',
     description: 'Configure system preferences',
   },
@@ -123,7 +123,7 @@ export const SettingsCard: Story = {
 export const ReportsCard: Story = {
   args: {
     path: '/reports',
-    icon: '📈',
+    icon: <span role="img" aria-label="trending up">📈</span>,
     title: 'Reports',
     description: 'Generate financial and operational reports',
   },
@@ -136,7 +136,7 @@ export const ReportsCard: Story = {
 export const LongTitle: Story = {
   args: {
     path: '/long-title',
-    icon: '📚',
+    icon: <span role="img" aria-label="books">📚</span>,
     title: 'Very Long Dashboard Card Title Example',
     description: 'Testing how the card handles longer titles',
   },
@@ -145,7 +145,7 @@ export const LongTitle: Story = {
 export const LongDescription: Story = {
   args: {
     path: '/long-description',
-    icon: '📝',
+    icon: <span role="img" aria-label="note">📝</span>,
     title: 'Documentation',
     description: 'This is a much longer description to test how the dashboard card component handles text wrapping and layout when descriptions exceed the typical length.',
   },
@@ -168,37 +168,37 @@ export const DashboardGrid: Story = {
       }}>
         <DashboardCard
           path="/dashboard"
-          icon="🏠"
+          icon={<span role="img" aria-label="home">🏠</span>}
           title="Dashboard"
           description="Overview of key metrics"
         />
         <DashboardCard
           path="/contacts"
-          icon="👥"
+          icon={<span role="img" aria-label="people">👥</span>}
           title="Contacts"
           description="Manage customer contacts"
         />
         <DashboardCard
           path="/orders"
-          icon="📦"
+          icon={<span role="img" aria-label="package">📦</span>}
           title="Orders"
           description="View and process orders"
         />
         <DashboardCard
           path="/invoices"
-          icon="💳"
+          icon={<span role="img" aria-label="credit card">💳</span>}
           title="Invoices"
           description="Create and track invoices"
         />
         <DashboardCard
           path="/reports"
-          icon="📈"
+          icon={<span role="img" aria-label="trending up">📈</span>}
           title="Reports"
           description="Business analytics and insights"
         />
         <DashboardCard
           path="/settings"
-          icon="⚙️"
+          icon={<span role="img" aria-label="settings">⚙️</span>}
           title="Settings"
           description="System configuration"
         />
@@ -225,25 +225,25 @@ export const TwoColumnLayout: Story = {
       }}>
         <DashboardCard
           path="/income"
-          icon="💰"
+          icon={<span role="img" aria-label="money bag">💰</span>}
           title="Income"
           description="Track revenue and earnings"
         />
         <DashboardCard
           path="/expenses"
-          icon="💸"
+          icon={<span role="img" aria-label="money with wings">💸</span>}
           title="Expenses"
           description="Manage business expenses"
         />
         <DashboardCard
           path="/inventory"
-          icon="📦"
+          icon={<span role="img" aria-label="package">📦</span>}
           title="Inventory"
           description="Stock management"
         />
         <DashboardCard
           path="/customers"
-          icon="👥"
+          icon={<span role="img" aria-label="people">👥</span>}
           title="Customers"
           description="Customer database"
         />
@@ -270,19 +270,19 @@ export const SingleColumn: Story = {
       }}>
         <DashboardCard
           path="/profile"
-          icon="👤"
+          icon={<span role="img" aria-label="user">👤</span>}
           title="My Profile"
           description="View and edit your profile"
         />
         <DashboardCard
           path="/notifications"
-          icon="🔔"
+          icon={<span role="img" aria-label="bell">🔔</span>}
           title="Notifications"
           description="Manage your notifications"
         />
         <DashboardCard
           path="/help"
-          icon="❓"
+          icon={<span role="img" aria-label="question">❓</span>}
           title="Help & Support"
           description="Get help and documentation"
         />
