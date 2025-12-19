@@ -1,7 +1,7 @@
 {
   "id": "testing/testing-e2e",
   "title": "E2E Testing Guide (Playwright)",
-  "description": "---",
+  "description": "📋 Overview",
   "source": "@site/docs/testing/testing-e2e.md",
   "sourceDirName": "testing",
   "slug": "/testing/testing-e2e",

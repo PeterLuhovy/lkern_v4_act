@@ -55,7 +55,7 @@ class ContactRole(Base):
     # Relationships
     contact = relationship("Contact", back_populates="roles", foreign_keys=[contact_id])
     role_type = relationship("RoleType", back_populates="contact_roles")
-    related_contact = relationship("Contact", foreign_keys=[related_contact_id])
+    related_contact = relationship("Contact", foreign_keys=[related_contact_id], overlaps="related_to_roles")
 
     @property
     def is_active(self) -> bool:

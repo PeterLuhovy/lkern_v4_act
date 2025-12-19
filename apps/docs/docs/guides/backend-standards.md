@@ -2977,7 +2977,7 @@ class Issue(Base):
 **See also:**
 - [coding-standards.md](coding-standards.md) - Core standards (DRY, file headers, naming)
 - [code-examples.md](code-examples.md) - Practical code examples
-- [testing-guide.md](testing-guide.md) - pytest testing patterns
+- [testing-overview.md](../testing/testing-overview.md) - pytest testing patterns
 
 ---
 

@@ -42,17 +42,17 @@
       "plugin": "plugin---docusaurus-debugb-38-ad3"
     }
   },
-  "/-345": {
+  "/-54c": {
     "__comp": "__comp---theme-docs-root-5-e-9-0b6",
     "__context": {
       "plugin": "plugin---aba-d70"
     }
   },
-  "/-138": {
+  "/-ce6": {
     "__comp": "__comp---theme-doc-version-roota-7-b-5de",
     "__props": "__props---22-d-307"
   },
-  "/-33d": {
+  "/-cff": {
     "__comp": "__comp---theme-doc-roota-94-67a"
   },
   "/api/components-reference-290": {
@@ -154,6 +154,14 @@
   "/guides/frontend-standards-fd6": {
     "__comp": "__comp---theme-doc-item-178-a40",
     "content": "content---guides-frontend-standards-6-e-4-b67"
+  },
+  "/guides/toast-usage-f4b": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---guides-toast-usagec-21-dba"
+  },
+  "/project/overview-0a7": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---project-overviewaee-b2b"
   },
   "/project/roadmap-9da": {
     "__comp": "__comp---theme-doc-item-178-a40",

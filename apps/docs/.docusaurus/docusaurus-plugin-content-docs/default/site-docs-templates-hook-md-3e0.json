@@ -1,7 +1,7 @@
 {
   "id": "templates/hook",
   "title": "Hook Template",
-  "description": "---",
+  "description": "Overview",
   "source": "@site/docs/templates/hook.md",
   "sourceDirName": "templates",
   "slug": "/templates/hook",

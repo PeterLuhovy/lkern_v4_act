@@ -5,24 +5,6 @@ sidebar_label: Unit Testing
 sidebar_position: 2
 ---
 
-# ================================================================
-# L-KERN v4 - Unit Testing Guide
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-unit.md
-# Version: 2.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-30
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Comprehensive guide for unit testing in L-KERN v4. Covers frontend
-#   (Vitest + React Testing Library) and backend (pytest) unit testing
-#   patterns, examples, and best practices.
-# ================================================================
-
----
-
 ## 📋 Overview
 
 **What is Unit Testing?**

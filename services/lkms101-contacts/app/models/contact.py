@@ -47,7 +47,8 @@ class Contact(Base):
     # Relationships - type-specific extensions
     person = relationship("ContactPerson", back_populates="contact", uselist=False, cascade="all, delete-orphan")
     company = relationship("ContactCompany", back_populates="contact", uselist=False, cascade="all, delete-orphan")
-    organizational_unit = relationship("ContactOrganizationalUnit", back_populates="contact", uselist=False, cascade="all, delete-orphan")
+    organizational_unit = relationship("ContactOrganizationalUnit", back_populates="contact", uselist=False, cascade="all, delete-orphan",
+                                       foreign_keys="ContactOrganizationalUnit.contact_id")
 
     # Relationships - roles
     roles = relationship("ContactRole", back_populates="contact", cascade="all, delete-orphan",

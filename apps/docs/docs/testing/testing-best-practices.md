@@ -5,24 +5,6 @@ sidebar_label: Best Practices
 sidebar_position: 6
 ---
 
-# ================================================================
-# L-KERN v4 - Testing Best Practices
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-best-practices.md
-# Version: 1.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-19
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Comprehensive testing best practices for L-KERN v4. Covers test
-#   isolation, flaky test prevention, coverage requirements, naming
-#   conventions, debugging, and CI/CD integration.
-# ================================================================
-
----
-
 ## 📋 Overview
 
 This document defines **testing best practices** for L-KERN v4. Following these practices ensures **reliable, maintainable, and fast tests**.

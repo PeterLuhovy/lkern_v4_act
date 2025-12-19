@@ -99,69 +99,14 @@ services:
   # ============================================================
   # BUSINESS MICROSERVICES (LKMS 100-199)
   # ============================================================
-
-  # lkms101-contacts:
-  #   build:
-  #     context: .
-  #     dockerfile: ${LKMS101_DOCKERFILE}
-  #   container_name: ${LKMS101_CONTAINER_NAME}
-  #   restart: ${LKMS101_RESTART_POLICY}
-  #   environment:
-  #     - SERVICE_NAME=${LKMS101_SERVICE_NAME}
-  #     - SERVICE_VERSION=${LKMS101_VERSION}
-  #     - SERVER_HOST=${LKMS101_SERVER_HOST}
-  #     - SERVER_RELOAD=${LKMS101_SERVER_RELOAD}
-  #     - LOG_LEVEL=${LKMS101_LOG_LEVEL}
-  #     - DEBUG=${LKMS101_DEBUG}
-  #     - DATABASE_HOST=${LKMS101_DB_HOST}
-  #     - DATABASE_PORT=${LKMS101_DB_PORT}
-  #     - DATABASE_NAME=${LKMS101_DB_NAME}
-  #     - DATABASE_USER=${LKMS101_DB_USER}
-  #     - DATABASE_PASSWORD=${LKMS101_DB_PASSWORD}
-  #     - CORS_ORIGINS=${CORS_ORIGINS_DEV}
-  #     - CORS_MAX_AGE=${CORS_MAX_AGE}
-  #     - CORS_ALLOW_CREDENTIALS=${CORS_ALLOW_CREDENTIALS}
-  #   ports:
-  #     - "${LKMS101_PORT_EXTERNAL}:${LKMS101_PORT_INTERNAL}"
-  #   volumes:
-  #     - ./services/lkms101-contacts/src:/app/src:ro
-  #     - ./packages:/app/packages:ro
-  #   networks:
-  #     - backend
-  #     - database
-  #   depends_on:
-  #     lkms501-postgres:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:${LKMS101_PORT_INTERNAL}/health"]
-  #     interval: ${LKMS101_HEALTHCHECK_INTERVAL}
-  #     timeout: ${LKMS101_HEALTHCHECK_TIMEOUT}
-  #     retries: ${LKMS101_HEALTHCHECK_RETRIES}
-  #     start_period: ${LKMS101_HEALTHCHECK_START_PERIOD}
+  # Active services: lkms101-contacts, lkms105-issues
+  # See definitions below in their respective sections
 
   # ============================================================
   # DATA SERVICES (LKMS 500-599)
   # ============================================================
-
-  # lkms501-postgres:
-  #   image: ${LKMS501_IMAGE}
-  #   container_name: ${LKMS501_CONTAINER_NAME}
-  #   restart: ${LKMS501_RESTART_POLICY}
-  #   environment:
-  #     - POSTGRES_USER=${LKMS501_POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${LKMS501_POSTGRES_PASSWORD}
-  #     - POSTGRES_DB=${LKMS501_POSTGRES_DB}
-  #   ports:
-  #     - "${LKMS501_PORT_EXTERNAL}:${LKMS501_PORT_INTERNAL}"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - database
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${LKMS501_POSTGRES_USER}"]
-  #     interval: ${LKMS501_HEALTHCHECK_INTERVAL}
-  #     timeout: ${LKMS501_HEALTHCHECK_TIMEOUT}
-  #     retries: ${LKMS501_HEALTHCHECK_RETRIES}
+  # PostgreSQL, Kafka, MinIO, Redis databases and message brokers
+  # See definitions below in their respective sections
 
   # ============================================================
   # DEVELOPMENT TOOLS (LKMS 900-999)

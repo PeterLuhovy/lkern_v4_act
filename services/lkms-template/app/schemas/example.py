@@ -95,7 +95,7 @@ class {{MODEL_NAME}}Response({{MODEL_NAME}}Base):
     - is_deleted: Check if record has been soft-deleted
     """
 
-    id: int
+    id: UUID
     entity_code: str = Field(..., description="Human-readable code (PREFIX-RRMM-NNNN)")
 
     # Classification
@@ -152,7 +152,7 @@ class StatusChangeRequest(BaseModel):
 class StatusChangeResponse(BaseModel):
     """Response for status change operation."""
 
-    id: int
+    id: UUID
     entity_code: str
     old_status: {{MODEL_NAME}}Status
     new_status: {{MODEL_NAME}}Status
@@ -167,7 +167,7 @@ class StatusChangeResponse(BaseModel):
 class DeleteResponse(BaseModel):
     """Response for soft delete operation."""
 
-    id: int
+    id: UUID
     entity_code: str
     status: str = "deleted"
     deleted_at: datetime
@@ -177,7 +177,7 @@ class DeleteResponse(BaseModel):
 class RestoreResponse(BaseModel):
     """Response for restore operation."""
 
-    id: int
+    id: UUID
     entity_code: str
     status: str = "restored"
     message: str = "Record restored successfully"

@@ -1,7 +1,7 @@
 {
   "id": "testing/testing-integration",
   "title": "Integration Testing Guide",
-  "description": "---",
+  "description": "📋 Overview",
   "source": "@site/docs/testing/testing-integration.md",
   "sourceDirName": "testing",
   "slug": "/testing/testing-integration",

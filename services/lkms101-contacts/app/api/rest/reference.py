@@ -42,7 +42,7 @@ async def list_role_types(
     query = db.query(RoleType)
     if is_active is not None:
         query = query.filter(RoleType.is_active == is_active)
-    return query.order_by(RoleType.display_order, RoleType.code).all()
+    return query.order_by(RoleType.category, RoleType.role_code).all()
 
 
 @router.get("/role-types/{role_type_id}", response_model=RoleTypeResponse)

@@ -1,7 +1,7 @@
 {
   "id": "templates/utility",
   "title": "Utility Template",
-  "description": "---",
+  "description": "Overview",
   "source": "@site/docs/templates/utility.md",
   "sourceDirName": "templates",
   "slug": "/templates/utility",

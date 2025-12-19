@@ -5,9 +5,6 @@ sidebar_label: Documentation Standards
 sidebar_position: 5
 ---
 
-
----
-
 ## 📋 Table of Contents
 
 1. [Overview](#overview)
@@ -503,9 +500,9 @@ docker exec lkms201-web-ui npx nx test ui-components --coverage
 
 ## Related Components
 
-- **[Input](Input.md)** - Form input field
-- **[FormField](FormField.md)** - Label + Input wrapper
-- **[Modal](Modal.md)** - Modal dialog (uses Button in footer)
+- **Input** - Form input field
+- **FormField** - Label + Input wrapper
+- **Modal** - Modal dialog (uses Button in footer)
 
 ---
 
@@ -667,9 +664,9 @@ function DeleteButton() {
 ## Resources
 
 ### Internal Links
-- [Coding Standards](../programming/coding-standards.md)
-- [Design System](../design/component-design-system.md)
-- [Testing Guide](../programming/testing-overview.md)
+- [Coding Standards](../guides/coding-standards.md)
+- [Design System](../design/design-standards.md)
+- [Testing Guide](../testing/testing-overview.md)
 
 ### External References
 - [React 19 Documentation](https://react.dev)
@@ -830,7 +827,7 @@ Explain how hook works internally (state management, side effects, etc.)
 
 ## Related Hooks
 
-- **[otherHook](otherHook.md)** - Description
+- **otherHook** - Description
 
 ---
 
@@ -977,8 +974,8 @@ if (validateEmail(email)) {
 
 ## Related Utilities
 
-- **[phone-validation](phone-validation.md)** - Phone number utilities
-- **[date-validation](date-validation.md)** - Date utilities
+- **phone-validation** - Phone number utilities
+- **date-validation** - Date utilities
 
 ---
 

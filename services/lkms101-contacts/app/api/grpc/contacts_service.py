@@ -24,8 +24,8 @@ from app.database import get_db
 from app.services import ContactService, RoleService, CommunicationService
 from app.models import Contact, ContactRole, ContactEmail, ContactPhone
 
-# TODO: Import generated proto files after running compile-proto.sh
-# from app.grpc import contacts_pb2, contacts_pb2_grpc
+# Import generated proto files (compiled from infrastructure/proto/contacts.proto)
+from app.grpc import contacts_pb2, contacts_pb2_grpc
 
 logger = logging.getLogger(__name__)
 

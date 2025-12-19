@@ -5,25 +5,6 @@ sidebar_label: Utility Template
 sidebar_position: 4
 ---
 
-# ================================================================
-# &lt;Utility Name&gt; (e.g., "Email Validation")
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\utils\&lt;utility-name&gt;.md
-# Version: 1.0.0
-# Created: YYYY-MM-DD
-# Updated: YYYY-MM-DD
-# Utility Location: packages/config/src/utils/&lt;utility-name&gt;/&lt;utility-name&gt;.ts
-# Package: @l-kern/config
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Brief 1-2 sentence description of what this utility file contains.
-#   (e.g., "Email validation, normalization, and parsing utilities")
-# ================================================================
-
----
-
 ## Overview
 
 **Purpose**: One-sentence description of utility purpose
@@ -282,15 +263,15 @@ docker exec lkms201-web-ui npx nx test config --coverage
 
 ## Related Utilities
 
-- **[related-utility-1](related-utility-1.md)** - Brief description of relationship
-- **[related-utility-2](related-utility-2.md)** - Brief description of relationship
+- **related-utility-1** - Brief description of relationship
+- **related-utility-2** - Brief description of relationship
 
 ---
 
 ## Related Components
 
-- **[Component1](../components/Component1.md)** - Uses functionName
-- **[Component2](../components/Component2.md)** - Uses anotherFunction
+- **Component1** - Uses functionName
+- **Component2** - Uses anotherFunction
 
 ---
 
@@ -436,9 +417,9 @@ return validateEmail(input);
 ## Resources
 
 ### Internal Links
-- [Coding Standards](../programming/coding-standards.md)
-- [Testing Guide](../programming/testing-overview.md)
-- [Design Tokens](../packages/config.md#design-tokens)
+- [Coding Standards](../guides/coding-standards.md)
+- [Testing Guide](../testing/testing-overview.md)
+- [Design Tokens](../api/config.md#design-tokens)
 
 ### External References
 - [RFC 5322 (Email)](https://tools.ietf.org/html/rfc5322)

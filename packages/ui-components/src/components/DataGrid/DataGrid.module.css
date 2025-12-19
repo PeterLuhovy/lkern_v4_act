@@ -21,7 +21,10 @@
   border: var(--border-width-thin, 1px) solid var(--theme-border);
   border-left: var(--border-width-heavy, 6px) solid var(--color-brand-primary);
   border-radius: var(--radius-lg);
-  transition: all var(--duration-modal) var(--ease-out);
+  width: 100%; /* Prevent width changes affecting siblings */
+  box-sizing: border-box;
+  transition: background var(--duration-modal) var(--ease-out),
+              border-color var(--duration-modal) var(--ease-out);
   /* Allow text selection in cells and expanded content */
 }
 

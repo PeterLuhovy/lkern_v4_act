@@ -15,7 +15,7 @@ Welcome to the **L-KERN v4** documentation - Business Operating System Software 
 ## 🚀 Quick Navigation
 
 ### Getting Started
-- [Installation & Docker Setup](./getting-started/getting-started) - Setup your development environment
+- [Installation & Docker Setup](./getting-started/) - Setup your development environment
 - [Testing Guide](./getting-started/testing) - How to run and write tests
 - [Troubleshooting](./getting-started/troubleshooting) - Common issues and solutions
 

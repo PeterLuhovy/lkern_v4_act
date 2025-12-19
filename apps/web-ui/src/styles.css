@@ -3,14 +3,23 @@
  * FILE: styles.css
  * PATH: apps/web-ui/src/styles.css
  * DESCRIPTION: Global styles for web-ui app including ThemeCustomizer settings
- * VERSION: v1.2.0
- * UPDATED: 2025-11-30
+ * VERSION: v1.3.0
+ * UPDATED: 2025-12-19
  * CHANGES:
+ *   - v1.3.0: Added scrollbar-gutter: stable to prevent layout shift on scroll
  *   - v1.2.0: Refactored font-size to override --font-size-* CSS variables (no !important)
  *   - v1.1.0: Fixed font-size bug - medium now has element-level !important like small/large
  *   - v1.0.0: Initial version with font-size, high-contrast, compact, reduced-motion
  * ================================================================
  */
+
+/* ================================================================
+ * HTML BASE STYLES
+ * Scrollbar gutter prevents layout shift when scrollbar appears/disappears
+ * ================================================================ */
+html {
+  scrollbar-gutter: stable;
+}
 
 /* ================================================================
  * ROOT DEFAULT VARIABLES

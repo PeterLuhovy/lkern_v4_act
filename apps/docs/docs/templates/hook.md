@@ -5,24 +5,6 @@ sidebar_label: Hook Template
 sidebar_position: 3
 ---
 
-# ================================================================
-# &lt;hookName&gt;
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\hooks\&lt;hookName&gt;.md
-# Version: 1.0.0
-# Created: YYYY-MM-DD
-# Updated: YYYY-MM-DD
-# Hook Location: packages/config/src/hooks/&lt;hookName&gt;/&lt;hookName&gt;.ts
-# Package: @l-kern/config
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Brief 1-2 sentence description of what this hook does.
-# ================================================================
-
----
-
 ## Overview
 
 **Purpose**: One-sentence description of primary purpose
@@ -359,15 +341,15 @@ docker exec lkms201-web-ui npx nx test config --coverage
 
 ## Related Hooks
 
-- **[relatedHook1](relatedHook1.md)** - Brief description of relationship
-- **[relatedHook2](relatedHook2.md)** - Brief description of relationship
+- **relatedHook1** - Brief description of relationship
+- **relatedHook2** - Brief description of relationship
 
 ---
 
 ## Related Components
 
-- **[Component1](../components/Component1.md)** - Uses this hook
-- **[Component2](../components/Component2.md)** - Uses this hook
+- **Component1** - Uses this hook
+- **Component2** - Uses this hook
 
 ---
 
@@ -440,9 +422,9 @@ const { value1 } = hookName(data, options);
 ## Resources
 
 ### Internal Links
-- [Coding Standards](../programming/coding-standards.md)
-- [Testing Guide](../programming/testing-overview.md)
-- [Hooks Best Practices](../programming/frontend-standards.md#react-hooks)
+- [Coding Standards](../guides/coding-standards.md)
+- [Testing Guide](../testing/testing-overview.md)
+- [Hooks Best Practices](../guides/frontend-standards.md#react-hooks)
 
 ### External References
 - [React Hooks Documentation](https://react.dev/reference/react)

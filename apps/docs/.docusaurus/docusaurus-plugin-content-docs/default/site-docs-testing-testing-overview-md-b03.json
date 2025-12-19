@@ -1,7 +1,7 @@
 {
   "id": "testing/testing-overview",
   "title": "Testing Overview",
-  "description": "---",
+  "description": "📋 Overview",
   "source": "@site/docs/testing/testing-overview.md",
   "sourceDirName": "testing",
   "slug": "/testing/testing-overview",

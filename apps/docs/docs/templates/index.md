@@ -168,9 +168,9 @@ Sections:
 
 ## Need Help?
 
-- **Full documentation guide**: [docs/programming/documentation-standards.md](../programming/documentation-standards.md)
-- **Main documentation map**: [docs/README.md](../README.md)
-- **Coding standards**: [docs/programming/coding-standards.md](../programming/coding-standards.md)
+- **Full documentation guide**: [Documentation Standards](../guides/documentation-standards.md)
+- **Main documentation map**: [Intro](../intro.md)
+- **Coding standards**: [Coding Standards](../guides/coding-standards.md)
 
 ---
 

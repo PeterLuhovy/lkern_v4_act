@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "L-KERN Control Panel",
-    "version": "1.16.0",
+    "version": "1.18.0",
     "working_directory": "L:\\system\\lkern_codebase_v4_act"
   },
   "ui": {
@@ -174,6 +174,78 @@
       "command": "docker logs --tail=200 lkms901-adminer",
       "category": "Docker-Logs",
       "description": "Show last 200 lines of lkms901-adminer logs"
+    },
+    "docker_logs_docs": {
+      "label": "Docs",
+      "command": "docker logs --tail=200 lkms902-docs",
+      "category": "Docker-Logs",
+      "description": "Show last 200 lines of lkms902-docs logs"
+    },
+    "docker_start_docs": {
+      "label": "Start Docs",
+      "command": "docker-compose up -d lkms902-docs",
+      "category": "Docker-Docs",
+      "description": "Start Documentation service (Docusaurus)"
+    },
+    "docker_stop_docs": {
+      "label": "Stop Docs",
+      "command": "docker-compose stop lkms902-docs",
+      "category": "Docker-Docs",
+      "description": "Stop Documentation service"
+    },
+    "docker_restart_docs": {
+      "label": "Restart Docs",
+      "command": "docker-compose restart lkms902-docs",
+      "category": "Docker-Docs",
+      "description": "Restart Documentation service"
+    },
+    "docker_rebuild_docs": {
+      "label": "Rebuild Docs",
+      "command": "docker-compose up --build -d lkms902-docs",
+      "category": "Docker-Docs",
+      "description": "Rebuild and start Documentation service container"
+    },
+    "docs_health": {
+      "label": "Docs Health",
+      "command": "curl -s http://localhost:4902 -o /dev/null -w \"HTTP Status: %%{http_code}\"",
+      "category": "Docker-Docs",
+      "description": "Check Documentation service health status"
+    },
+    "docker_start_contacts": {
+      "label": "Start Contacts",
+      "command": "docker-compose up -d lkms101-contacts-db lkms101-contacts",
+      "category": "Docker-Contacts",
+      "description": "Start Contact MDM service and database"
+    },
+    "docker_stop_contacts": {
+      "label": "Stop Contacts",
+      "command": "docker-compose stop lkms101-contacts lkms101-contacts-db",
+      "category": "Docker-Contacts",
+      "description": "Stop Contact MDM service and database"
+    },
+    "docker_restart_contacts": {
+      "label": "Restart Contacts",
+      "command": "docker-compose restart lkms101-contacts",
+      "category": "Docker-Contacts",
+      "description": "Restart Contact MDM service (keeps DB running)"
+    },
+    "docker_rebuild_contacts": {
+      "label": "Rebuild Contacts",
+      "command": "docker-compose up --build -d lkms101-contacts",
+      "category": "Docker-Contacts",
+      "description": "Rebuild and start Contact MDM service container"
+    },
+    "contacts_health": {
+      "label": "Contacts Health",
+      "command": "curl http://localhost:4101/health",
+      "category": "Docker-Contacts",
+      "description": "Check Contact MDM service health status"
+    },
+    "contacts_migrate": {
+      "label": "Run Migrations",
+      "command": "docker exec lkms101-contacts alembic upgrade head",
+      "category": "Docker-Contacts",
+      "description": "Run Alembic database migrations"
     },
     "lkms801_start": {
       "label": "Start LKMS801",

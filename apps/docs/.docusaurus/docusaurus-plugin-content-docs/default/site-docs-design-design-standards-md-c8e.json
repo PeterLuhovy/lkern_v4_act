@@ -1,7 +1,7 @@
 {
   "id": "design/design-standards",
   "title": "Design Standards",
-  "description": "---",
+  "description": "🎯 Core Principle: Zero Hardcoded Values",
   "source": "@site/docs/design/design-standards.md",
   "sourceDirName": "design",
   "slug": "/design/design-standards",
@@ -23,7 +23,7 @@
     "permalink": "/category/-design"
   },
   "next": {
-    "title": "📋 Project",
-    "permalink": "/category/-project"
+    "title": "📝 Templates",
+    "permalink": "/category/-templates"
   }
 }

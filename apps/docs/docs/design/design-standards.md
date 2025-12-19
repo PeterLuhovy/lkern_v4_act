@@ -5,27 +5,6 @@ sidebar_label: Design Standards
 sidebar_position: 1
 ---
 
-# ================================================================
-# L-KERN v4 - Design Standards (Single Source of Truth)
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\design\design-standards.md
-# Version: 1.1.0
-# Created: 2025-11-02
-# Updated: 2025-11-02
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   **SINGLE SOURCE OF TRUTH** for all design standards.
-#   Zero hardcoded values in CSS - everything via design tokens.
-#   Unified system with modifiers (base ± offset pattern).
-#
-# Replaces: component-design-system.md, design-system-unified.md
-# Implementation: See docs/temp/implementation-plan-design-refactor.md
-# ================================================================
-
----
-
 ## 🎯 Core Principle: Zero Hardcoded Values
 
 **CRITICAL RULE:** **NO hardcoded values in CSS files.**

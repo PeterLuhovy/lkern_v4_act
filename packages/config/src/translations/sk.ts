@@ -15,6 +15,7 @@ import type { TranslationKeys } from './types';
 // ============================================================
 import { ordersPageSk } from './pages/orders';
 import { issuesPageSk } from './pages/issues';
+import { contactsPageSk } from './pages/contacts';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 export const sk: TranslationKeys = {
@@ -113,8 +114,10 @@ export const sk: TranslationKeys = {
     pages: 'Stránky',
     ordersDescription: 'Správa objednávok - vytváranie, upravovanie a sledovanie stavu objednávok',
     issuesDescription: 'Sledovanie a správa projektových problémov, chýb a požiadaviek',
+    contactsDescription: 'Správa kontaktov - osoby, firmy, organizačné jednotky',
     testingDescription: 'Testovanie všetkých UI komponentov - Formuláre, Badge, Card, EmptyState, Spinner, Utility funkcie',
     testing: 'Testovanie',
+    keyboardShortcuts: 'Klávesové skratky',
   },
   contacts: {
     title: 'Kontakty',
@@ -1084,6 +1087,7 @@ export const sk: TranslationKeys = {
   pages: {
     orders: ordersPageSk,
     issues: issuesPageSk,
+    contacts: contactsPageSk,
     //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     template: {
       title: 'Šablóna stránky',

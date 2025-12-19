@@ -5,24 +5,6 @@ sidebar_label: Visual Testing
 sidebar_position: 5
 ---
 
-# ================================================================
-# Visual Regression Testing Guide (OPTIONAL - NOT IMPLEMENTED)
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-visual.md
-# Version: 1.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-19
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Overview of visual regression testing (screenshot comparison).
-#   This document explains what visual regression testing is and
-#   why L-KERN v4 does NOT implement it due to high maintenance cost.
-# ================================================================
-
----
-
 ## 🚨 IMPORTANT NOTE
 
 **Visual regression testing is OPTIONAL and currently NOT IMPLEMENTED in L-KERN v4.**
@@ -281,10 +263,9 @@ Since L-KERN is an **internal ERP system**, we prioritize **functional correctne
 
 ## 🔗 Related Documentation
 
-- **[testing-guide.md](testing-guide.md)** - Overall testing strategy for L-KERN v4
 - **[testing-overview.md](testing-overview.md)** - Testing philosophy and tools overview
-- **[code-examples.md](code-examples.md)** - Practical testing examples (Vitest, React Testing Library)
-- **[frontend-standards.md](frontend-standards.md)** - Frontend development standards
+- **[code-examples.md](../guides/code-examples.md)** - Practical testing examples (Vitest, React Testing Library)
+- **[frontend-standards.md](../guides/frontend-standards.md)** - Frontend development standards
 
 ---
 

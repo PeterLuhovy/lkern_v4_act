@@ -229,7 +229,7 @@ services/lkms-template/
 ```
 
 **Generator Features:**
-- Copies template → services/lkms{code}-{slug}/
+- Copies template → `services/lkms{code}-{slug}/`
 - Replaces 11 placeholders in all files
 - Injects services into docker-compose.yml
 - Injects configuration into .env

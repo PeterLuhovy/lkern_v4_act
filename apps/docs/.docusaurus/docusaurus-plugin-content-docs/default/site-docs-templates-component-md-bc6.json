@@ -1,7 +1,7 @@
 {
   "id": "templates/component",
   "title": "Component Template",
-  "description": "---",
+  "description": "Overview",
   "source": "@site/docs/templates/component.md",
   "sourceDirName": "templates",
   "slug": "/templates/component",

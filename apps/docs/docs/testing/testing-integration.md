@@ -5,24 +5,6 @@ sidebar_label: Integration Testing
 sidebar_position: 3
 ---
 
-# ================================================================
-# L-KERN v4 - Integration Testing Guide
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-integration.md
-# Version: 1.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-19
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Comprehensive guide for integration testing in L-KERN v4. Covers
-#   frontend integration tests (components + API stubs with MSW) and
-#   backend integration tests (FastAPI + test database).
-# ================================================================
-
----
-
 ## 📋 Overview
 
 **What is Integration Testing?**

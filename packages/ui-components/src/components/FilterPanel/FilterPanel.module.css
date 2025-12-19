@@ -21,7 +21,11 @@
   flex-direction: column;
   gap: var(--spacing-y-md, 16px);
   position: relative;
-  transition: all var(--duration-state) var(--ease-smooth);
+  width: 100%; /* Prevent width changes on collapse/expand */
+  box-sizing: border-box;
+  transition: padding var(--duration-state) var(--ease-smooth),
+              background var(--duration-state) var(--ease-smooth),
+              border-color var(--duration-state) var(--ease-smooth);
 }
 
 /* === PANEL HEADER (always visible) === */

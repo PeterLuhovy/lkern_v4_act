@@ -5,24 +5,6 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
-# ================================================================
-# L-KERN v4 - Testing Overview
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-overview.md
-# Version: 2.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-19
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Main testing documentation hub for L-KERN v4. Provides overview
-#   of testing strategy, test types, tools, and links to detailed
-#   guides for each testing approach.
-# ================================================================
-
----
-
 ## 📋 Overview
 
 This is the **main testing documentation** for L-KERN v4 project.
@@ -508,9 +490,9 @@ afterAll(() => server.close());
 - Testing JavaScript (testingjavascript.com)
 
 ### L-KERN v4 Related Docs
-- [frontend-standards.md](frontend-standards.md) - React/TypeScript patterns
-- [backend-standards.md](backend-standards.md) - Python/FastAPI patterns
-- [code-examples.md](code-examples.md) - Practical code examples
+- [frontend-standards.md](../guides/frontend-standards.md) - React/TypeScript patterns
+- [backend-standards.md](../guides/backend-standards.md) - Python/FastAPI patterns
+- [code-examples.md](../guides/code-examples.md) - Practical code examples
 
 ---
 

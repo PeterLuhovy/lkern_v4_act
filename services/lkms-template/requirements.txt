@@ -29,6 +29,7 @@ kafka-python==2.0.2
 # Validation and Serialization
 pydantic==2.5.0
 pydantic-settings==2.1.0
+email-validator==2.1.0  # Required for EmailStr type
 
 # Testing
 pytest==7.4.3

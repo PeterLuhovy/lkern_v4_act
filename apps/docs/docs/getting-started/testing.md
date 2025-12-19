@@ -219,7 +219,7 @@ describe('RadioGroup', () => {
 });
 ```
 
-**See:** [programming/code-examples.md#frontend-testing](programming/code-examples.md#frontend-testing) for more examples.
+**See:** [../guides/code-examples.md#frontend-testing](../guides/code-examples.md#frontend-testing) for more examples.
 
 ---
 
@@ -332,8 +332,8 @@ Use browser DevTools to inspect computed styles:
 4. Check **Computed** tab for final calculated value
 
 **See Also:**
-- [coding-standards.md#dry-principle](programming/coding-standards.md#dry-principle) - DRY compliance rules
-- [coding-standards.md#theme-css-variables](programming/coding-standards.md#theme-css-variables) - Available theme variables
+- [coding-standards.md#dry-principle](../guides/coding-standards.md#dry-principle) - DRY compliance rules
+- [coding-standards.md#theme-css-variables](../guides/coding-standards.md#theme-css-variables) - Available theme variables
 
 ---
 
@@ -483,7 +483,7 @@ def test_get_contacts(db_session):
     assert isinstance(data, list)
 ```
 
-**See:** [programming/code-examples.md#backend-testing](programming/code-examples.md#backend-testing) for more examples.
+**See:** [../guides/code-examples.md#backend-testing](../guides/code-examples.md#backend-testing) for more examples.
 
 ---
 
@@ -806,8 +806,8 @@ docker exec lkms201-web-ui ls -la packages/ui-components/coverage/
 
 ## 🔗 Related Documentation
 
-- [Coding Standards](programming/coding-standards.md#testing-standards) - Testing conventions
-- [Code Examples](programming/code-examples.md#testing) - Test examples
+- [Coding Standards](../guides/coding-standards.md#testing-standards) - Testing conventions
+- [Code Examples](../guides/code-examples.md#testing) - Test examples
 - [Troubleshooting](troubleshooting.md#testing-issues) - Common test problems
 
 ---

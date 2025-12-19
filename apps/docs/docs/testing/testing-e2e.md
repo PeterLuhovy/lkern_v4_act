@@ -5,24 +5,6 @@ sidebar_label: E2E Testing
 sidebar_position: 4
 ---
 
-# ================================================================
-# L-KERN v4 - E2E Testing Guide (Playwright)
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\programming\testing-e2e.md
-# Version: 1.0.0
-# Created: 2025-10-19
-# Updated: 2025-10-19
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Comprehensive guide for End-to-End (E2E) testing in L-KERN v4 using
-#   Playwright. Covers browser automation, complete user flows, Page Object
-#   Model pattern, debugging, and best practices for stable E2E tests.
-# ================================================================
-
----
-
 ## 📋 Overview
 
 **What is E2E Testing?**

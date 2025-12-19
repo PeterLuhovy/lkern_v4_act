@@ -15,6 +15,7 @@ import type { TranslationKeys } from './types';
 // ============================================================
 import { ordersPageEn } from './pages/orders.en';
 import { issuesPageEn } from './pages/issues.en';
+import { contactsPageEn } from './pages/contacts.en';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 export const en: TranslationKeys = {
@@ -113,8 +114,10 @@ export const en: TranslationKeys = {
     pages: 'Pages',
     ordersDescription: 'Order management - create, edit and track order status',
     issuesDescription: 'Track and manage project issues, bugs and feature requests',
+    contactsDescription: 'Contact management - persons, companies, organizational units',
     testingDescription: 'Test all UI components - Forms, Badge, Card, EmptyState, Spinner, Utility Functions',
     testing: 'Testing',
+    keyboardShortcuts: 'Keyboard Shortcuts',
   },
   contacts: {
     title: 'Contacts',
@@ -1084,6 +1087,7 @@ export const en: TranslationKeys = {
   pages: {
     orders: ordersPageEn,
     issues: issuesPageEn,
+    contacts: contactsPageEn,
     //--GENERATE-PAGE-PLACEHOLDER-PAGES--
     template: {
       title: 'Page Template',

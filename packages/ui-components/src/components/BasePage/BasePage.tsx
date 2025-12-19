@@ -356,7 +356,6 @@ export const BasePage: React.FC<BasePageProps> = ({
       icon: '🏠',
       onClick: () => navigate('/'),
       children: [
-        { path: '/dashboard', labelKey: 'components.sidebar.dashboard', icon: '📊' }, // Not yet implemented (no onClick = disabled)
         {
           path: '/testing',
           labelKey: 'dashboard.testing',
@@ -396,11 +395,9 @@ export const BasePage: React.FC<BasePageProps> = ({
             },
           ],
         },
-        { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥' }, // Not yet implemented (no onClick = disabled)
-        { path: '/orders', labelKey: 'components.sidebar.orders', icon: '📦', onClick: () => navigate('/orders') },
+        { path: '/contacts', labelKey: 'components.sidebar.contacts', icon: '👥', onClick: () => navigate('/contacts') },
         { path: '/issues', labelKey: 'components.sidebar.issues', icon: '🐛', onClick: () => navigate('/issues') },
         { path: '/docs', labelKey: 'components.sidebar.documentation', icon: '📚', onClick: () => window.open('http://localhost:4902', '_blank') },
-        { path: '/settings', labelKey: 'components.sidebar.settings', icon: '⚙️' }, // Not yet implemented (no onClick = disabled)
       ],
     },
   ];

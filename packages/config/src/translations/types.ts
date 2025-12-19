@@ -13,6 +13,7 @@
 // ============================================================
 import type { OrdersPageTranslations } from './types/orders.types';
 import type { IssuesPageTranslations } from './types/issues.types';
+import type { ContactsPageTranslations } from './types/contacts.types';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 // ============================================================
@@ -1115,6 +1116,7 @@ export interface TranslationKeys {
   pages: {
     orders: OrdersPageTranslations;
     issues: IssuesPageTranslations;
+    contacts: ContactsPageTranslations;
     //--GENERATE-PAGE-PLACEHOLDER-TYPES--
     template: {
       title: string;

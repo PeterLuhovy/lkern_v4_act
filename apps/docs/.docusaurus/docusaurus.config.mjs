@@ -76,7 +76,7 @@ export default {
             },
             {
               "label": "Architecture",
-              "to": "/architecture"
+              "to": "/architecture/microservices-architecture"
             }
           ]
         },

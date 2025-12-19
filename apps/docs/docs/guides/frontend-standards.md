@@ -1107,7 +1107,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
 **See also:**
 - [coding-standards.md](coding-standards.md) - Core standards (DRY, file headers, naming)
 - [code-examples.md](code-examples.md) - Practical code examples
-- [testing-guide.md](testing-guide.md) - Vitest testing patterns
+- [testing-overview.md](../testing/testing-overview.md) - Vitest testing patterns
 
 ---
 

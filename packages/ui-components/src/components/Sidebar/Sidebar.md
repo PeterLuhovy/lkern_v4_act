@@ -2,9 +2,9 @@
 # Sidebar
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\Sidebar\Sidebar.md
-# Version: 3.0.0
+# Version: 3.0.1
 # Created: 2025-11-02
-# Updated: 2025-11-02
+# Updated: 2025-12-19
 # Source: packages/ui-components/src/components/Sidebar/Sidebar.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -1118,6 +1118,9 @@ const navItems = useMemo<SidebarNavItem[]>(() => [
 
 ## Changelog
 
+### v3.0.1 (2025-12-19)
+- 🐛 **Fixed logo layout shift** - Added `min-height: 80px` to logo container to prevent jumping during image load
+
 ### v3.0.0 (2025-11-02)
 - 🎉 **Complete redesign** - Modern dark theme with floating submenu
 - ✅ **Floating submenu** - Hover on collapsed items shows tooltip
@@ -1181,7 +1184,7 @@ const navItems = useMemo<SidebarNavItem[]>(() => [
 
 ---
 
-**Last Updated**: 2025-11-02
+**Last Updated**: 2025-12-19
 **Maintainer**: BOSSystems s.r.o.
-**Documentation Version**: 3.0.0
-**Component Version**: 3.0.0
+**Documentation Version**: 3.0.1
+**Component Version**: 3.0.1

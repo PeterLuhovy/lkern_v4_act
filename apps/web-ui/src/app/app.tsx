@@ -13,8 +13,8 @@ import { Route, Routes } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { ToastContainer } from '@l-kern/ui-components';
 import { useSSEInvalidation } from '@l-kern/config';
-import { Orders } from '../pages/Orders';
 import { Issues } from '../pages/Issues';
+import { Contacts } from '../pages/Contacts';
 //--GENERATE-PAGE-PLACEHOLDER-IMPORT--
 
 // Test-only pages (development) - ALL testing pages in __tests__/pages/
@@ -46,8 +46,8 @@ export function App() {
       <Routes>
         {/* Production routes */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/orders" element={<Orders />} />
         <Route path="/issues" element={<Issues />} />
+        <Route path="/contacts" element={<Contacts />} />
         {/*--GENERATE-PAGE-PLACEHOLDER-ROUTE--*/}
 
         {/* Testing routes */}

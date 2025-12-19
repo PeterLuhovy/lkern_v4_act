@@ -1058,9 +1058,9 @@ import { Button, Input, Card, Badge } from '@l-kern/ui-components';
 ## 🔗 Related Documentation
 
 - [Package Documentation](./ui-components.md) - Setup and installation
-- [Design System](../design/component-design-system.md) - Visual design language
-- [Coding Standards](../programming/coding-standards.md) - Component guidelines
-- [Code Examples](../programming/code-examples.md) - Practical examples
+- [Design System](../design/design-standards.md) - Visual design language
+- [Coding Standards](../guides/coding-standards.md) - Component guidelines
+- [Code Examples](../guides/code-examples.md) - Practical examples
 
 ---
 

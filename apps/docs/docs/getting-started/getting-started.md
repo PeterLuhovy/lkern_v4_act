@@ -281,9 +281,9 @@ docker exec lkms201-web-ui yarn list --pattern <package-name>
 
 ## 🔗 Next Steps
 
-1. **Read** [Project Overview](PROJECT-OVERVIEW.md) - Understand architecture
-2. **Review** [Coding Standards](programming/coding-standards.md) - Learn conventions
-3. **Study** [Code Examples](programming/code-examples.md) - Practical patterns
+1. **Read** [Project Overview](../project/roadmap.md) - Understand architecture
+2. **Review** [Coding Standards](../guides/coding-standards.md) - Learn conventions
+3. **Study** [Code Examples](../guides/code-examples.md) - Practical patterns
 4. **Run** [Tests](testing.md) - Verify your setup with tests
 5. **Explore** [Troubleshooting](troubleshooting.md) - Common issues and solutions
 

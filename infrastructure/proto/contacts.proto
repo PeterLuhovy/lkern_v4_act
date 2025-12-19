@@ -14,7 +14,7 @@ syntax = "proto3";
 
 package lkern.contacts.v1;
 
-option python_package = "app.grpc.contacts_pb2";
+// Note: Generated files will be contacts_pb2.py and contacts_pb2_grpc.py
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";

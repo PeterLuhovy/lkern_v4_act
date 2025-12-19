@@ -31,7 +31,7 @@ import { useState } from 'react';
 import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
 import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
-import { useTranslation, useAuthContext, useTheme, useToast, COLORS, formatDate, exportToCSV, exportToJSON } from '@l-kern/config';
+import { useTranslation, useAuthContext, useTheme, useToast, useAnalyticsContext, COLORS, formatDate, exportToCSV, exportToJSON } from '@l-kern/config';
 import styles from './TemplatePageDatagrid.module.css';
 
 // ============================================================
@@ -106,11 +106,14 @@ export function TemplatePageDatagrid() {
   const { permissionLevel, permissions } = useAuthContext();
   const { theme } = useTheme();
   const toast = useToast();
+  const { settings: analyticsSettings } = useAnalyticsContext();
 
   // Authorization checks - Use centralized permissions from context (DRY)
   const { canCreate, canEdit, canDelete, canExport, canViewDeleted } = permissions;
-  console.log('[TemplatePageDatagrid] 🔐 Permission level:', permissionLevel);
-  console.log('[TemplatePageDatagrid] 🔐 Authorization:', { canCreate, canEdit, canDelete, canExport, canViewDeleted });
+  if (analyticsSettings.logPermissions) {
+    console.log('[TemplatePageDatagrid] 🔐 Permission level:', permissionLevel);
+    console.log('[TemplatePageDatagrid] 🔐 Authorization:', { canCreate, canEdit, canDelete, canExport, canViewDeleted });
+  }
 
   // State management
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
@@ -668,7 +671,7 @@ export function TemplatePageDatagrid() {
         for (const item of activeItems) {
           // TODO: Replace with actual API call
           // await fetch(`${API_BASE_URL}/template/${item.id}`, { method: 'DELETE' });
-          console.log(`[Template] ✅ Soft deleted ${item.id}`);
+          if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Soft deleted ${item.id}`);
         }
       }
 
@@ -689,7 +692,7 @@ export function TemplatePageDatagrid() {
 
           // Mock: Simulate success
           successfulHardDeletes.push(item);
-          console.log(`[Template] ✅ Hard deleted ${item.id}`);
+          if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Hard deleted ${item.id}`);
         }
       }
 
@@ -698,7 +701,7 @@ export function TemplatePageDatagrid() {
 
       // If any items failed due to MinIO, show special modal
       if (failedItems.length > 0) {
-        console.log(`[Template] ⚠️ ${failedItems.length} items failed due to MinIO`);
+        if (analyticsSettings.logToConsole) console.log(`[Template] ⚠️ ${failedItems.length} items failed due to MinIO`);
         setMinioFailedItems(failedItems);
         const failedIds = new Set(failedItems.map(i => i.id));
         setSelectedRows(new Set([...selectedRows].filter(id => failedIds.has(id))));
@@ -759,7 +762,7 @@ export function TemplatePageDatagrid() {
       // if (!response.ok) {
       //   // Check for MinIO unavailable (503)
       //   if (response.status === 503) {
-      //     console.log('[Template] ⚠️ MinIO unavailable - showing special modal');
+      //     if (analyticsSettings.logToConsole) console.log('[Template] ⚠️ MinIO unavailable - showing special modal');
       //     const itemToHandle = itemToPermanentlyDelete;
       //     setItemToPermanentlyDelete(null);
       //     setMinioFailedItems([itemToHandle]);  // Unified state - array with single item
@@ -768,7 +771,7 @@ export function TemplatePageDatagrid() {
       //   throw new Error(`Failed to permanently delete item: ${response.statusText}`);
       // }
 
-      console.log(`[Template] ✅ Item ${itemToPermanentlyDelete.id} permanently deleted`);
+      if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Item ${itemToPermanentlyDelete.id} permanently deleted`);
 
       // Close modal
       setItemToPermanentlyDelete(null);
@@ -816,12 +819,12 @@ export function TemplatePageDatagrid() {
         //
         // if (response.ok) {
         //   successCount++;
-        //   console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
         // }
 
         // Mock: Simulate success
         successCount++;
-        console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
+        if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Item ${item.id} marked for deletion`);
       }
 
       // Close modal and clear selection
@@ -866,15 +869,15 @@ export function TemplatePageDatagrid() {
         //
         // if (response.status === 503) {
         //   stillFailedItems.push(item);
-        //   console.log(`[Template] ⚠️ MinIO still unavailable for ${item.id}`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Template] ⚠️ MinIO still unavailable for ${item.id}`);
         // } else if (response.ok) {
         //   successCount++;
-        //   console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
+        //   if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
         // }
 
         // Mock: Simulate success
         successCount++;
-        console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
+        if (analyticsSettings.logToConsole) console.log(`[Template] ✅ Item ${item.id} permanently deleted on retry`);
       }
 
       if (stillFailedItems.length > 0) {

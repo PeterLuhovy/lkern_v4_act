@@ -20,7 +20,9 @@ Description:
 ================================================================
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum
+import uuid
+
+from sqlalchemy import Column, String, DateTime, Boolean, Enum, text
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from sqlalchemy.sql import func
 from app.database import Base
@@ -32,7 +34,7 @@ class {{MODEL_NAME}}(Base):
     Example model - replace with actual business entity.
 
     Attributes:
-        id: Primary key (auto-increment)
+        id: Primary key (UUID)
         entity_code: Human-readable code (e.g., TYA-2512-0042)
         name: Entity name
         description: Entity description
@@ -60,7 +62,13 @@ class {{MODEL_NAME}}(Base):
     # ================================================================
     # PRIMARY KEY & IDENTIFIER
     # ================================================================
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+        index=True
+    )
 
     # Human-readable code: PREFIX-RRMM-NNNN (e.g., TYA-2512-0042)
     # Generated automatically on creation via code_generator.py

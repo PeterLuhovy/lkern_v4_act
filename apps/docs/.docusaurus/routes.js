@@ -39,15 +39,15 @@ export default [
   },
   {
     path: '/',
-    component: ComponentCreator('/', '345'),
+    component: ComponentCreator('/', '54c'),
     routes: [
       {
         path: '/',
-        component: ComponentCreator('/', '138'),
+        component: ComponentCreator('/', 'ce6'),
         routes: [
           {
             path: '/',
-            component: ComponentCreator('/', '33d'),
+            component: ComponentCreator('/', 'cff'),
             routes: [
               {
                 path: '/api/components-reference',
@@ -196,6 +196,18 @@ export default [
               {
                 path: '/guides/frontend-standards',
                 component: ComponentCreator('/guides/frontend-standards', 'fd6'),
+                exact: true,
+                sidebar: "docsSidebar"
+              },
+              {
+                path: '/guides/toast-usage',
+                component: ComponentCreator('/guides/toast-usage', 'f4b'),
+                exact: true,
+                sidebar: "docsSidebar"
+              },
+              {
+                path: '/project/overview',
+                component: ComponentCreator('/project/overview', '0a7'),
                 exact: true,
                 sidebar: "docsSidebar"
               },

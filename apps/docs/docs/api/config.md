@@ -50,7 +50,7 @@ packages/config/
 │   ├── constants/
 │   │   ├── index.ts          # Re-exports all constants
 │   │   ├── api-config.ts     # API URLs, timeouts, HTTP configuration
-│   │   ├── ports.ts          # Port mapping (LKMS{XXX} → 4{XXX})
+│   │   ├── ports.ts          # Port mapping (`LKMS{XXX}` → `4{XXX}`)
 │   │   ├── services.ts       # Service names and metadata
 │   │   └── design-tokens.ts  # CSS variables, colors, spacing
 │   ├── translations/
@@ -608,4 +608,4 @@ When adding new configuration:
 **Maintainer**: BOSSystems s.r.o.
 **Related Docs**:
 - [Port Mapping Strategy](../architecture/port-mapping.md)
-- [Project Overview](../project/overview.md)
+- [Project Overview](../project/roadmap.md)

@@ -1,7 +1,7 @@
 {
   "id": "testing/testing-visual",
   "title": "Visual Regression Testing (Optional)",
-  "description": "---",
+  "description": "🚨 IMPORTANT NOTE",
   "source": "@site/docs/testing/testing-visual.md",
   "sourceDirName": "testing",
   "slug": "/testing/testing-visual",

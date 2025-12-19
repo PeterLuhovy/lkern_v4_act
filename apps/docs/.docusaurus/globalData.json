@@ -96,8 +96,18 @@
               "sidebar": "docsSidebar"
             },
             {
+              "id": "guides/toast-usage",
+              "path": "/guides/toast-usage",
+              "sidebar": "docsSidebar"
+            },
+            {
               "id": "intro",
               "path": "/",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "project/overview",
+              "path": "/project/overview",
               "sidebar": "docsSidebar"
             },
             {
@@ -156,6 +166,11 @@
               "sidebar": "docsSidebar"
             },
             {
+              "id": "/category/-project",
+              "path": "/category/-project",
+              "sidebar": "docsSidebar"
+            },
+            {
               "id": "/category/-getting-started",
               "path": "/category/-getting-started",
               "sidebar": "docsSidebar"
@@ -183,11 +198,6 @@
             {
               "id": "/category/-design",
               "path": "/category/-design",
-              "sidebar": "docsSidebar"
-            },
-            {
-              "id": "/category/-project",
-              "path": "/category/-project",
               "sidebar": "docsSidebar"
             },
             {

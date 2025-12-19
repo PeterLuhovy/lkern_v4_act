@@ -1,0 +1,29 @@
+{
+  "id": "project/overview",
+  "title": "Project Overview",
+  "description": "Version: 11.1.0",
+  "source": "@site/docs/project/overview.md",
+  "sourceDirName": "project",
+  "slug": "/project/overview",
+  "permalink": "/project/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 0,
+  "frontMatter": {
+    "id": "overview",
+    "title": "Project Overview",
+    "sidebar_label": "Overview",
+    "sidebar_position": 0
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "📋 Project",
+    "permalink": "/category/-project"
+  },
+  "next": {
+    "title": "Roadmap",
+    "permalink": "/project/roadmap"
+  }
+}

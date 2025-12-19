@@ -14,7 +14,7 @@ sidebar_position: 3
 **Developer:** BOSSystems s.r.o.
 
 **Description:**
-Complete port mapping strategy using 1:1 mapping pattern (LKMS{XXX} → Port 4{XXX}) for all services and infrastructure.
+Complete port mapping strategy using 1:1 mapping pattern (`LKMS-XXX` → Port `4XXX`) for all services and infrastructure.
 
 **Pattern**: 1:1 Mapping (LKMS number = Port number)
 
@@ -22,7 +22,7 @@ Complete port mapping strategy using 1:1 mapping pattern (LKMS{XXX} → Port 4{X
 
 ## 🎯 Port Mapping Pattern
 
-**Simple Rule**: `LKMS{XXX}` service uses port `4{XXX}`
+**Simple Rule**: `LKMS-XXX` service uses port `4XXX`
 
 ### **Pattern Breakdown:**
 
@@ -115,7 +115,7 @@ Development-only services (not in production).
 
 ## 🔌 gRPC Internal Communication
 
-### **gRPC Port Convention: 5{XXX}**
+### **gRPC Port Convention: 5XXX**
 
 Backend services expose **TWO ports**:
 - **REST API (4XXX)**: External HTTP/JSON communication (frontend → backend)
@@ -128,7 +128,7 @@ Backend services expose **TWO ports**:
 | lkms105 | issues | 4105 | **5105** | Issues service (REST + gRPC) |
 | lkms107 | auth | 4107 | **5107** | Authentication service (REST + gRPC) |
 
-**Pattern**: REST port 4{XXX} → gRPC port 5{XXX}
+**Pattern**: REST port 4XXX → gRPC port 5XXX
 
 **Example:**
 ```yaml
@@ -206,7 +206,7 @@ Data service?       → 500-599
 Dev tool?           → 900-999
 ```
 
-**Step 2**: Assign port = 4{LKMS}
+**Step 2**: Assign port = `4{LKMS}`
 ```
 lkms108 (new business service) → Port 4108
 lkms204 (new frontend app)     → Port 4204
@@ -268,4 +268,4 @@ lkms204 (new frontend app)     → Port 4204
 - Updated elasticsearch to lkms505
 
 **v1.0.0 (2025-10-13)**:
-- Initial port mapping strategy with 1:1 pattern (LKMS{XXX} → 4{XXX})
+- Initial port mapping strategy with 1:1 pattern (`LKMS-XXX` → `4XXX`)

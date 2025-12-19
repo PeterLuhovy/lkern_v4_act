@@ -296,3 +296,23 @@ export interface ServiceWorkflowConfig<TData = unknown, TResult = unknown> {
   /** Response type to parse (default: 'json') */
   responseType?: 'json' | 'blob' | 'text';
 }
+
+// ============================================================
+// DOMAIN-SPECIFIC TYPES (migrated from legacy workflows)
+// ============================================================
+
+/**
+ * Response type for newly created Issue.
+ * Used by IssueCreateHandler after successful POST to /issues/
+ */
+export interface CreatedIssue {
+  id: string;
+  issue_code: string;
+  title: string;
+  attachments?: Array<{
+    file_name: string;
+    file_path: string;
+    file_size: number;
+    content_type: string;
+  }>;
+}

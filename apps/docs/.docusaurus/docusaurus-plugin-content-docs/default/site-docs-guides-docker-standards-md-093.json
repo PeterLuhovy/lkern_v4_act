@@ -1,7 +1,7 @@
 {
   "id": "guides/docker-standards",
   "title": "Docker & DevOps Standards",
-  "description": "---",
+  "description": "📋 Overview",
   "source": "@site/docs/guides/docker-standards.md",
   "sourceDirName": "guides",
   "slug": "/guides/docker-standards",

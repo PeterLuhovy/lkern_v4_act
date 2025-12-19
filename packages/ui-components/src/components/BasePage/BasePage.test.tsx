@@ -3,8 +3,8 @@
  * FILE: BasePage.test.tsx
  * PATH: /packages/ui-components/src/components/BasePage/BasePage.test.tsx
  * DESCRIPTION: Tests for BasePage component
- * VERSION: v1.0.0
- * UPDATED: 2025-10-19 16:20:00
+ * VERSION: v1.1.0
+ * UPDATED: 2025-12-19 12:00:00
  * ================================================================
  */
 
@@ -111,6 +111,24 @@ vi.mock('@l-kern/config', async () => {
     }),
   };
 });
+
+// localStorage mock for JSDOM environment
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = String(value); },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { store = {}; },
+    get length() { return Object.keys(store).length; },
+    key: (index: number) => Object.keys(store)[index] || null,
+  };
+})();
+
+// Define localStorage if not available (JSDOM issue)
+if (typeof globalThis.localStorage === 'undefined') {
+  Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
+}
 
 describe('BasePage', () => {
   beforeEach(() => {
@@ -459,6 +477,32 @@ describe('BasePage', () => {
       // Note: Testing nested navigation expansion is the responsibility
       // of Sidebar.test.tsx, not BasePage tests. BasePage just verifies
       // that Sidebar component is rendered with navigation items.
+    });
+
+    it('sidebar default items include Issues but NOT Dashboard/Orders/Settings (v4.0.2)', () => {
+      // v4.0.2: Removed unimplemented nav items (Dashboard, Orders, Settings)
+      // Pre-expand Home item so children (Issues, Contacts) are visible
+      localStorage.setItem('sidebar-expanded-items', JSON.stringify(['/']));
+
+      renderWithTranslation(
+        <BasePage showSidebar={true}>
+          <div>Content</div>
+        </BasePage>
+      );
+
+      // Issues link should be present (production page) - child of Home
+      expect(screen.getByText('Problémy')).toBeInTheDocument(); // Slovak for "Issues"
+
+      // Contacts should be present (disabled but visible) - child of Home
+      expect(screen.getByText('Kontakty')).toBeInTheDocument(); // Slovak for "Contacts"
+
+      // REMOVED nav items should NOT be present in sidebar
+      // Note: 'Nastavenia' text exists in Sidebar tabs (User Settings), so we check for specific nav links
+      expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
+      expect(screen.queryByText('Objednávky')).not.toBeInTheDocument(); // Slovak for "Orders"
+      // Settings nav item was removed - but 'Nastavenia' tab still exists in sidebar
+      // So we verify there's no link with href="/settings" instead
+      expect(document.querySelector('a[href="/settings"]')).not.toBeInTheDocument();
     });
 
     it('dynamic sidebar width updates from localStorage', async () => {

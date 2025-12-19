@@ -5,24 +5,6 @@ sidebar_label: Component Template
 sidebar_position: 2
 ---
 
-# ================================================================
-# &lt;ComponentName&gt;
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\components\&lt;ComponentName&gt;.md
-# Version: 1.0.0
-# Created: YYYY-MM-DD
-# Updated: YYYY-MM-DD
-# Component Location: packages/ui-components/src/components/&lt;ComponentName&gt;/&lt;ComponentName&gt;.tsx
-# Package: @l-kern/ui-components
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Description:
-#   Brief 1-2 sentence description of what this component does.
-# ================================================================
-
----
-
 ## Overview
 
 **Purpose**: One-sentence description of primary purpose
@@ -334,7 +316,7 @@ docker exec lkms201-web-ui npx nx test ui-components --coverage
 
 ## Related Components
 
-- **[RelatedComponent](RelatedComponent.md)** - Brief description of relationship
+- **RelatedComponent** - Brief description of relationship
 
 ---
 
@@ -431,9 +413,9 @@ function Example1() {
 ## Resources
 
 ### Internal Links
-- [Coding Standards](../programming/coding-standards.md)
-- [Design System](../design/component-design-system.md)
-- [Testing Guide](../programming/testing-overview.md)
+- [Coding Standards](../guides/coding-standards.md)
+- [Design System](../design/design-standards.md)
+- [Testing Guide](../testing/testing-overview.md)
 
 ### External References
 - [React 19 Documentation](https://react.dev)

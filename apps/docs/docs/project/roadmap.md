@@ -5,186 +5,14 @@ sidebar_label: Roadmap
 sidebar_position: 1
 ---
 
-# ================================================================
-# L-KERN v4 - Development Roadmap
-# ================================================================
-# File: L:\system\lkern_codebase_v4_act\docs\project\roadmap.md
-# Version: 9.4.0
-# Created: 2025-10-13
-# Updated: 2025-12-17
-# Project: BOSS (Business Operating System Service)
-# Developer: BOSSystems s.r.o.
-#
-# Architecture: Domain-Driven Microservices (Bounded Context)
-# Previous Version: 9.3.0
-#
-# Key Changes from v9.3.0:
-# - ✅ Task 1.207.2: Docusaurus Documentation Site COMPLETED
-#   - Migrated 19 docs to Docusaurus format
-#   - Fixed MDX errors in 4 files (roadmap, design-standards, docs-standards, testing-best-practices)
-#   - Sidebar categories configured, all pages working
-# - ✅ Task 1.208 NEW: Storybook Component Documentation COMPLETED
-#   - Storybook 8.4.7 setup with Vite, React 19, TranslationProvider
-#   - 40 component stories created (Forms, Feedback, Layout, Modals, Data, Utility)
-#   - Integrated with Docusaurus at /storybook/
-#   - A11y addon for accessibility testing
-# - 📊 Progress updated: Phase 1 documentation complete
-#
-# Key Changes from v9.2.0:
-# - 📝 TODO Audit Phase 2: Added 18 missing TODO items from codebase audit
-# - 🔴 Task 1.220: Added API_KEY security hardening TODO (CRITICAL)
-# - 🔧 Task 1.60: Added 5 gRPC implementation TODOs (proto, health checks, streaming)
-# - 📚 Task 1.40: Added gRPC documentation TODO (docs/architecture/grpc-setup.md)
-# - 👤 Task 1.200: Added user preferences API TODO (Sidebar.tsx)
-# - ✨ Task 1.207 NEW: Technical Debt & Code Quality (8-12h)
-#   - WorkflowContext refactoring (3 files)
-#   - Docusaurus configuration (2 TODOs)
-#   - Translation types refactoring (4 TODOs)
-#   - Template code documentation
-# - 📊 Progress updated: 6/27 → 6/28 tasks (new Task 1.207)
-#
-# Key Changes from v9.1.0:
-# - 🌍 Task 1.200.2: Added Trans Component for React component interpolation in translations
-# - 🔗 Enable legal texts with embedded links (GDPR consent, Terms of Service, Privacy Policy)
-# - 📝 Authentication pages will use Trans for forgot password links, registration consent, email formatting
-# - ⏱️ Task 1.200 estimate updated: 25-30h → 28-33h (+3h for translation infrastructure)
-# - 🎯 Lightweight implementation (~50 lines) without external dependencies
-#
-# Key Changes from v9.0.0:
-# - 📝 TODO Audit: Added all codebase TODO comments to roadmap sections
-# - 📝 Task 1.60: Added 7 TODO items from Issues.tsx, IssueEditModal.tsx, IssueViewModal.tsx, AssignIssueModal.tsx
-# - 📝 Task 1.200: Added 5 TODO items for mock auth replacement (useAuth, AuthContext, AuthRoleSwitcher)
-# - 📝 Task 3.40: Added ESLint config fix + DataGrid keyboard navigation TODO
-# - 📝 Task 1.30.9: Added Page Generator enhancement TODO (CSV/PDF export, auto translation keys)
-#
-# Key Changes from v8.9.0:
-# - ✨ Task 1.204 Realtime Gateway Service ADDED (Phase 1, OPTIONAL - NOT REQUIRED FOR MVP)
-# - 🔌 Centralized WebSocket Gateway with Redis Pub/Sub (15-20h estimate)
-# - 📡 Single endpoint for all real-time notifications (locks, chat, updates)
-# - 📝 TODO: Return to Issues Service for unlock notifications after gateway
-# - 🎯 Priority: Orders & Price Quotes (1.140 Sales Service) - MVP focus
-# - ⚠️ Pessimistic Locking UI implemented (Modal v4.0.0), backend template ready
-#
-# Key Changes from v8.8.0:
-# - ✨ useEntityLookup hook IMPLEMENTED - universal entity fetch with health check workflow
-# - 🔗 Contacts Service integration PREPARED for Issues (mock API, ready for real service)
-# - 🎯 People section now shows contact name + position (with loading/error states)
-# - 🪝 Hook features: health check, caching (TTL), retry logic, batch support
-# - 📁 Files: hooks/useEntityLookup, services/contactsService.ts, IssueViewModal.tsx
-# - 🚀 Pattern ready for: MinIO export, any external service integration
-#
-# Key Changes from v8.7.0:
-# - ✨ Field-Level Permissions IMPLEMENTED for Issues Service
-# - 🔐 Frontend: useFieldPermission hook, disabled/blurred fields based on user level
-# - 🔐 Backend: PUT endpoint validates per-field permissions (403 if forbidden)
-# - 📊 Permission matrix: viewLevel + editLevel per field (0-100 numeric levels)
-# - 🎯 Files: permissions/types.ts, issueFieldPermissions.ts, fieldPermissions.ts
-# - 🪝 New hook: useIssueFieldPermissions (batch permission check for UI)
-#
-# Key Changes from v8.6.0:
-# - ✨ Task 1.60.4 Manager Issue Dashboard ADDED (Phase 1, 15-20h)
-# - 📊 Kanban board view, bulk operations, team management, statistics
-# - 🔐 Manager-only access (permission level ≥50)
-# - 🎯 Separate route: /dashboard/issues (distinct from user /issues page)
-#
-# Key Changes from v8.5.0:
-# - ✨ Task 1.90.3 Deletion Cleanup Service ADDED (Phase 1, 3-4h, cron job)
-# - 🔄 Eventual Deletion Pattern implemented in Issues Service (frontend + backend)
-# - 📊 Cleanup cron job: Daily 02:00, calls /cleanup/retry on all services
-# - 🎯 Phase 1 simplified cleanup (REST endpoints), Phase 2 adds Celery + alerting
-#
-# Key Changes from v8.4.0:
-# - ✨ Task 2.07 Async Background Cleanup & Deletion Retry ADDED (Phase 2, 40-50h)
-# - 📚 Deletion Audit Workflow documentation added to backend-standards.md (v2.1.0)
-# - 🏗️ Hybrid architecture: Audit Table (queryable logs) + Kafka Events (async processing)
-# - 🔄 Soft delete: deleted_at timestamp, keep MinIO files for recovery
-# - 🔁 Hard delete: External resources → Audit → Database (with retry logic in Phase 2)
-# - 📊 Phase 2 progress: 0/12 tasks (includes 2.05 optional, 2.07 new)
-# - 🎯 Foundation for robust deletion workflow: Phase 1 = sync, Phase 2 = async + retry
-#
-# Key Changes from v8.3.0:
-# - 🔧 L-KERN Control Panel ENHANCED v1.11.3 → v1.13.1 (UI improvements + timing system)
-# - 🔧 Orchestrators REWRITTEN v2.x → v3.0.0 (comprehensive timing system, live updates)
-# - ✨ Startup Orchestrator: Live timer (MM:SS:MS), parallel health checks, 50-entry statistics
-# - ✨ Shutdown Orchestrator: Live timer, per-service timing, sequential verification
-# - ✨ Cleanup Orchestrator: Two-step confirmation, live timer, destructive cleanup
-# - ✨ Control Panel: Terminal wrapping controls, Docker-All button layout (2 rows), hover styling
-# - ✨ Central Services Registry: services_registry.json (single source of truth for all services)
-# - 📚 Documentation: 3 orchestrator .md files (startup, shutdown, cleanup) - comprehensive guides
-# - ⚡ Performance: Startup 2-8x faster (parallel health checks), shutdown 20s avg, cleanup 30s avg
-#
-# Key Changes from v8.2.0:
-# - ✨ Timezone configuration ADDED to Configuration Service (LKMS199) scope
-# - 🐛 Issues Service: Fixed issue_code generation bug (duplicate key violation)
-# - 🧹 Issues Service frontend: Debug console logs removed
-# - 📝 Code quality: Removed 8+ console.log statements from Issues.tsx, IssueEditModal.tsx
-# - 🎯 Task 1.60 adjusted to reference fixed code generation algorithm
-#
-# ================================================================
 
 :::info Roadmap Version
-This roadmap is version **9.3.0**, last updated **2025-12-16**.
+This roadmap is version **9.4.0**, last updated **2025-12-19**.
 :::
 
 :::note Full Content
 This file has been migrated to Docusaurus format. The complete roadmap content from the original markdown file is preserved below.
 :::
-
-#
-# Key Changes from v8.1.0:
-# - ✨ Task 1.55 System Operations Service (LKMS801) ADDED (6-8h, native Windows gRPC service)
-# - 🔧 L-KERN Control Panel ENHANCED (3 buttons: START/STOP/CLEAN, window height 1130px)
-# - 📊 Progress: 6/26 tasks complete (~23%, up from 5/25 tasks)
-#
-# Key Changes from v8.0.0:
-# - 📈 Task 2.01 Event Store UPDATED (80-100h → 120-150h, +30h learning curve, +20h security)
-# - ✨ Task 2.05 Blockchain Integration Extension ADDED (OPTIONAL, 40-50h, full Hyperledger)
-# - ✨ Task 2.06 Advanced Health Monitoring ADDED (Phase 2, 35-45h, service-specific metrics)
-# - 📝 Part 3 Security & Honeypot Layer ADDED (section 3.7, tamper detection, fake endpoints)
-# - 📝 Part 4 External Events Admin Workflow ADDED (section 4.6.6, weekly/quarterly review)
-# - 📝 Part 4 Rate Limiting & Queue Management ADDED (section 4.7, concurrent job limits)
-# - ⚠️ Testing Strategy warnings added to Tasks 2.01, 2.05, 2.06, 2.10
-# - 📊 Phase 2 total updated: 345-435h (265-335h if 2.05 skipped), Grand Total: 450-565h
-# - 🔍 Task 1.40 review: Basic health checks sufficient for MVP, Phase 2 expansion added
-#
-# Key Changes from v7.2.0:
-# - 🎯 Extended Architecture Implementation Plan Complete (8 parts, 335-425h estimate)
-# - ✨ Task 1.155 Calendar Service ADDED (Phase 1, 40-50h, Office 365-like calendar)
-# - ✨ Task 1.205 Messaging Service ADDED (Phase 1, 30-40h, WebSocket real-time chat)
-# - 📈 Task 1.60 Issues Service UPDATED (18-23h → 35-45h, extended features)
-# - ✨ Task 2.01 Event Store + Blockchain ADDED (Phase 2, 80-100h, Hyperledger Fabric)
-# - ✨ Task 2.02 Temporal Analytics ADDED (Phase 2, 60-80h, time-travel queries)
-# - ✨ Task 2.03 Graph Visualization ADDED (Phase 2, 40-50h, Neo4j + D3.js)
-# - ✨ Task 2.04 Dashboard Phase 2 ADDED (Phase 2, 50-60h, multi-service aggregation)
-# - ✨ Task 3.05 Dashboard Phase 3 ADDED (Phase 3, 40-50h, SharePoint-like widgets)
-# - 📊 Progress updated: Phase 1 (5/25 tasks, ~20%), Phase 2 (+4 tasks), Phase 3 (+1 task)
-# - 📄 Complete implementation plans in docs/temp/ (8 separate files + master index)
-#
-# Key Changes from v7.1.0:
-# - ✅ Task 1.60.2 Issues Service Frontend - PARTIAL COMPLETION (2025-11-09)
-# - ✅ IssueTypeSelectModal completed (two-step workflow, DRY compliance)
-# - ✅ CreateIssueModal refactored (FormField + Input + Select components)
-# - ✅ Real-time validation (Title: min 3 chars, Description: min 3 chars)
-# - ✅ Type-based screenshot validation (required ONLY for BUG type)
-# - ✅ Browser context auto-population (browser, OS, URL, viewport, timestamp)
-# - ⚠️ WARNING: Frontend 80% complete but missing documentation and tests
-# - ⚠️ Missing: Component docs, 50 unit/integration/CRUD/E2E tests
-# - ⚠️ Many bugs in filtering, sorting, validation logic
-#
-# Key Changes from v6.1.0:
-# - ✅ Task 1.40 Backend Infrastructure COMPLETED (Kafka + Universal Dockerfile + gRPC)
-# - ✅ Task 1.50 Microservice Template COMPLETED (25+ files + generator script)
-# - ✅ Progress: 5/23 tasks complete (22%, up from 13%)
-# - ✅ Backend microservices foundation ready for rapid service generation
-# - ⏸️ Task 1.60 Issues Service skeleton generated (needs customization for role-based UI + file uploads)
-#
-# Key Changes from v4.4.2:
-# - ✅ Numbering changed from 1.1, 1.2, 1.3... to 1.10, 1.20, 1.30... (increments of 10)
-# - ✅ Added: 1.50 Microservice Template (FastAPI + PostgreSQL + Kafka + gRPC)
-# - ✅ Added: 1.60 Issues Service (moved from Phase 2.5, before Contact MDM)
-# - ✅ Renumbered all tasks to allow inserting new tasks between existing ones
-# - ✅ Architecture reference: docs/architecture/microservices-architecture.md
-# ================================================================
 
 ---
 
@@ -239,7 +67,7 @@ This file has been migrated to Docusaurus format. The complete roadmap content f
 
 **Goal:** Build minimum viable product and deploy to production
 **Timeline:** Oct 2025 - Jun 2026
-**Progress:** 6/28 complete (~21%)
+**Progress:** 7/23 complete (~30%)
 **Architecture:** Domain-Driven Microservices
 
 ---
@@ -250,7 +78,7 @@ This file has been migrated to Docusaurus format. The complete roadmap content f
 - ✅ React 19 web-ui (port 4201)
 - ✅ @l-kern/config package
 - ✅ Documentation structure
-- ✅ Port mapping strategy (LKMS-XXX → 4XXX)
+- ✅ Port mapping strategy (`LKMS-XXX` → `4XXX`)
 
 ---
 
@@ -281,7 +109,7 @@ This file has been migrated to Docusaurus format. The complete roadmap content f
 - ✅ 148 tests passing
 
 #### **1.30.4 Modal System v3.0** ✅ COMPLETED (2025-11-02)
-**Reference:** See [implementation-plan-modal-system-v3.md](../temp/implementation-plan-modal-system-v3.md) for detailed specs (6 phases, 60-90h)
+**Reference:** See implementation-plan-modal-system-v3.md (internal) for detailed specs (6 phases, 60-90h)
 
 **1.30.4.1 Base Infrastructure** ✅ COMPLETED
 - ✅ Modal component (centered, drag & drop, nested modals) - 46 tests
@@ -396,7 +224,7 @@ This file has been migrated to Docusaurus format. The complete roadmap content f
 
 **Goal:** Eliminate ALL hardcoded values from CSS. Everything via design tokens.
 
-**Implementation Plan:** [implementation-plan-design-refactor.md](../temp/implementation-plan-design-refactor.md)
+**Implementation Plan:** implementation-plan-design-refactor.md (internal)
 **Standards:** [design-standards.md](../design/design-standards.md) - Single source of truth
 
 #### **Phase 0: Audit & Baseline** ✅ COMPLETED (4h)
@@ -738,7 +566,7 @@ This file has been migrated to Docusaurus format. The complete roadmap content f
 #### **Generator Script** ✅ COMPLETED (PHASE 7)
 - ✅ Created `scripts/microservice-generator/generate-microservice.js` (v1.0.1)
 - ✅ JSON config system (11 variables: service name, code, slug, ports, db, model, routes, descriptions)
-- ✅ Copy lkms-template → `lkms{code}-{slug}`
+- ✅ Copy lkms-template → ``lkms{code}-{slug}``
 - ✅ Replace all 11 placeholders in all files
 - ✅ Inject services into docker-compose.yml (2 containers: app + db)
 - ✅ Inject service config into .env
@@ -870,7 +698,7 @@ start-service.bat
 **Database:** lkms105_issues (PostgreSQL)
 **Storage:** MinIO bucket: `lkern-issues`
 
-📄 **Implementation Plan:** [docs/temp/part-02-issues-service-extended.md](../temp/part-02-issues-service-extended.md) (comprehensive)
+📄 **Implementation Plan:** docs/temp/part-02-issues-service-extended.md (internal) (comprehensive)
 
 **Role-Based Ticketing System with Extended Collaboration Features**
 
@@ -1070,14 +898,15 @@ start-service.bat
 
 ---
 
-### **1.70 Contact (MDM) Service** ⏸️ PLANNED
+### **1.70 Contact (MDM) Service** ⏳ IN PROGRESS
 **Dependencies:** 1.50 complete (uses microservice template)
 **Estimated:** 40-50h (10-12 days)
-**Target:** 2025-11-25 - 2025-12-10
+**Started:** 2025-12-19
+**Target:** 2025-12-30
 **Ports:** 4101 (REST), 5101 (gRPC)
 **Database:** lkms101_contacts
 
-**📄 Implementation Plan:** [docs/temp/contacts-mdm-implementation-plan.md](../temp/contacts-mdm-implementation-plan.md) (3413 lines, fully validated)
+**📄 Implementation Plan:** docs/temp/contacts-mdm-implementation-plan.md (internal) (3413 lines, fully validated)
 
 **🔗 Integration Prepared (v8.9.0):**
 - ✅ `useEntityLookup` hook - Universal service fetch with health check, caching, retry
@@ -1241,16 +1070,18 @@ start-service.bat
 - ⏸️ 50+ unit tests (API endpoints, validation, Kafka events)
 
 #### **1.70.2 Frontend (15-20h)**
-- ⏸️ Contacts page with FilteredDataGrid
+- ✅ Contacts page with FilteredDataGrid (2025-12-19)
+- ✅ Translation keys structure (SK/EN) - contacts.types.ts, contacts.ts, contacts.en.ts
+- ✅ EntityEditModal integration (person/company/org-unit dynamic forms)
+- ✅ Frontend tests (Contacts.spec.tsx - 10 tests)
 - ⏸️ Contact detail view (tabbed interface: Basic Info, Roles, Addresses, Communication, Relations)
-- ⏸️ Create/Edit modal with SectionEditModal (dynamic fields based on contact type: PERSON/COMPANY/ORGANIZATIONAL_UNIT)
 - ⏸️ Role management modal (add/edit/remove roles with validity periods)
 - ⏸️ Address management modal (add/edit/remove addresses)
 - ⏸️ Communication management (emails, phones, websites) with type selection
 - ⏸️ Relations management (tags, languages, social networks, countries, business areas)
 - ⏸️ Universal validation integration (real-time duplicate checking)
 - ⏸️ Exponential retry logic for 500 errors (10s toast warning, 20s timeout)
-- ⏸️ 60+ translation keys (SK/EN)
+- ⏸️ Remaining translation keys (60+ total)
 - ⏸️ 40+ integration tests
 
 #### Success Criteria:
@@ -1297,7 +1128,7 @@ Already implemented in `useServiceFetch` hook (packages/config/src/hooks/useServ
 **Target:** 2025-11-25 - 2025-11-30 (parallel with 1.70)
 **Ports:** 4199 (REST), 5199 (gRPC)
 **Database:** lkms199_config
-**Implementation Plan:** [docs/temp/config-service-implementation-plan.md](../temp/config-service-implementation-plan.md)
+**Implementation Plan:** docs/temp/config-service-implementation-plan.md (internal)
 
 **Shared regulatory and global configuration data (VAT rates, exchange rates, travel allowances, meal deductions, global settings, analytics settings)**
 
@@ -1594,7 +1425,7 @@ POST /cleanup/retry/:id      - Retry specific deletion
 **Ports:** 4806 (REST), 5806 (gRPC)
 **Database:** lkms806_calendar
 
-📄 **Implementation Plan:** [docs/temp/part-06-calendar-service.md](../temp/part-06-calendar-service.md)
+📄 **Implementation Plan:** docs/temp/part-06-calendar-service.md (internal)
 
 **Office 365-Like Calendar System with Event Management**
 
@@ -1773,7 +1604,7 @@ POST /cleanup/retry/:id      - Retry specific deletion
     - Example: emailSent with interpolated userEmail in email tags
   - `auth.legal.*` - Legal texts (GDPR, terms, privacy)
 - ⏸️ **Update documentation**
-  - File: `docs/programming/coding-standards.md`
+  - File: `docs/../guides/coding-standards.md`
   - Add section: "Translation System - React Component Interpolation"
   - Examples: When to use \`\<Trans\>\` vs \`t()\`, type safety, security notes
   - Export from `packages/config/src/index.ts`
@@ -1944,7 +1775,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Ports:** 4807 (REST + WebSocket), 5807 (gRPC), 6379 (Redis)
 **Database:** lkms807_messaging
 
-📄 **Implementation Plan:** [docs/temp/part-07-messaging-service.md](../temp/part-07-messaging-service.md)
+📄 **Implementation Plan:** docs/temp/part-07-messaging-service.md (internal)
 
 **Real-Time Chat System with WebSocket and Redis Pub/Sub**
 
@@ -2133,7 +1964,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Ports:** 4901 (REST), 5901 (gRPC), 7050 (Orderer), 7051 (Peer)
 **Database:** Hyperledger Fabric + PostgreSQL
 
-📄 **Implementation Plan:** [docs/temp/part-03-event-store-blockchain.md](../temp/part-03-event-store-blockchain.md)
+📄 **Implementation Plan:** docs/temp/part-03-event-store-blockchain.md (internal)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define:
 - Unit tests (hash chain, CRUD operations, data anonymization)
@@ -2220,7 +2051,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Ports:** 4902 (REST), 5902 (gRPC)
 **Database:** PostgreSQL + TimescaleDB
 
-📄 **Implementation Plan:** [docs/temp/part-04-temporal-analytics.md](../temp/part-04-temporal-analytics.md)
+📄 **Implementation Plan:** docs/temp/part-04-temporal-analytics.md (internal)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define timeline reconstruction tests (accuracy, performance), cache tests (hit rate, staleness), rate limiting tests (concurrent jobs, queue overflow), external events integration tests.
 
@@ -2278,7 +2109,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Ports:** 4903 (REST), 5903 (gRPC), 7474 (Neo4j HTTP), 7687 (Neo4j Bolt)
 **Database:** Neo4j 5.x
 
-📄 **Implementation Plan:** [docs/temp/part-05-graph-visualization.md](../temp/part-05-graph-visualization.md)
+📄 **Implementation Plan:** docs/temp/part-05-graph-visualization.md (internal)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define Neo4j sync tests (Kafka to graph lag, CRUD operations), graph query tests (shortest path, centrality algorithms), visualization tests (D3.js rendering, performance with large graphs), data consistency tests.
 
@@ -2330,7 +2161,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Ports:** 4904 (REST), 5904 (gRPC)
 **Database:** PostgreSQL + Redis (caching)
 
-📄 **Implementation Plan:** [docs/temp/part-08-dashboard-microservice.md](../temp/part-08-dashboard-microservice.md) (Phase 2 sections)
+📄 **Implementation Plan:** docs/temp/part-08-dashboard-microservice.md (internal) (Phase 2 sections)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define data aggregation tests (gRPC client calls, cache invalidation), widget tests (KPI calculations, chart rendering), layout tests (drag-and-drop, save/load), performance tests (multi-service query latency).
 
@@ -2374,7 +2205,7 @@ When WebSocket Gateway is ready, enhance locking UX:
 **Target:** Phase 2 (after 2.01, if needed)
 **Status:** ⏸️ OPTIONAL - Can be SKIPPED if hash chain sufficient
 
-📄 **Implementation Plan:** [docs/temp/part-03-event-store-blockchain.md](../temp/part-03-event-store-blockchain.md) (Hyperledger sections)
+📄 **Implementation Plan:** docs/temp/part-03-event-store-blockchain.md (internal) (Hyperledger sections)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define Hyperledger Fabric chaincode tests, blockchain integrity tests, performance benchmarks.
 
@@ -2730,7 +2561,7 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 **Estimated:** 8-12h (2-3 days)
 **Target:** Phase 2 (after MVP)
 
-📄 **Implementation Plan:** [docs/temp/part-02-issues-service-extended.md](../temp/part-02-issues-service-extended.md) (section "Roadmap Phase 2: Advanced Features")
+📄 **Implementation Plan:** docs/temp/part-02-issues-service-extended.md (internal) (section "Roadmap Phase 2: Advanced Features")
 
 **Advanced comment threading and UX improvements**
 
@@ -2781,7 +2612,7 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 **Target:** Phase 3 timeline
 **Service:** lkms904 Dashboard Microservice (existing)
 
-📄 **Implementation Plan:** [docs/temp/part-08-dashboard-microservice.md](../temp/part-08-dashboard-microservice.md) (Phase 3)
+📄 **Implementation Plan:** docs/temp/part-08-dashboard-microservice.md (internal) (Phase 3)
 
 ⚠️ **Testing Strategy Required:** Before implementation, define widget library tests (widget rendering, data binding), dashboard sharing tests (permissions, access control), mobile responsive tests (layout adaptation, touch interactions), alert tests (threshold triggers, notifications).
 
@@ -3016,17 +2847,17 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 
 ## 📊 Quick Progress Overview
 
-**Phase 1 Progress:** 3/23 tasks complete (~13%)
+**Phase 1 Progress:** 7/23 tasks complete (~30%)
 
 | Task | Status | Target | Architecture |
 |------|--------|--------|--------------|
 | 1.10 Infrastructure | ✅ COMPLETED | 2025-10-15 | Foundation |
 | 1.20 Coding Standards | ✅ COMPLETED | 2025-10-15 | Foundation |
-| 1.30 UI Infrastructure | ⏳ IN PROGRESS | 2025-11-08 | Frontend |
-| 1.40 Backend Infrastructure | ⏸️ PLANNED | 2025-11-17 | Backend + Kafka |
-| **1.50 Microservice Template** | ⏸️ PLANNED | 2025-11-20 | **Template System** |
-| **1.60 Issues Service** | ⏸️ PLANNED | 2025-11-24 | **Internal Ticketing** |
-| 1.70 Contact (MDM) | ⏸️ PLANNED | 2025-12-02 | Master Data |
+| 1.30 UI Infrastructure | ✅ COMPLETED | 2025-11-08 | Frontend |
+| 1.40 Backend Infrastructure | ✅ COMPLETED | 2025-11-17 | Backend + Kafka |
+| 1.50 Microservice Template | ✅ COMPLETED | 2025-11-20 | Template System |
+| 1.60 Issues Service | ✅ COMPLETED | 2025-11-24 | Internal Ticketing |
+| **1.70 Contact (MDM)** | **⏳ IN PROGRESS** | 2025-12-30 | **Master Data** |
 | 1.80 Configuration | ⏸️ PLANNED | 2025-11-30 | Settings |
 | 1.90 System Health API | ⏸️ PLANNED | 2025-12-02 | Monitoring |
 | 1.100 Page Templates | ⏸️ PLANNED | 2025-12-05 | Frontend |

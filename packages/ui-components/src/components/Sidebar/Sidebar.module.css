@@ -84,6 +84,7 @@
   margin-right: 24px; /* Space for toggle button */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: opacity 100ms var(--ease-out);
+  min-height: 80px; /* Fixed height to prevent layout shift during image load */
 }
 
 .sidebar__logoIcon {

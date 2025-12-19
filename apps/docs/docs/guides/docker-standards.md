@@ -5,8 +5,6 @@ sidebar_label: Docker Standards
 sidebar_position: 4
 ---
 
----
-
 ## 📋 Overview
 
 This document contains **Docker and DevOps standards** for L-KERN v4.
@@ -543,7 +541,7 @@ services:
 - ✅ Multi-stage Dockerfile builds (production + development)
 - ✅ docker-compose development setup
 - ✅ Hot-reload configuration (Vite polling + uvicorn reload)
-- ✅ Container naming convention (lkms{id}-{name})
+- ✅ Container naming convention (`lkms{id}-{name}`)
 - ✅ Volume management (named volumes + bind mounts)
 - ✅ Common Docker commands
 - ✅ Environment variable handling

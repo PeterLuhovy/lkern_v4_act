@@ -1,7 +1,7 @@
 {
   "id": "testing/testing-best-practices",
   "title": "Testing Best Practices",
-  "description": "---",
+  "description": "📋 Overview",
   "source": "@site/docs/testing/testing-best-practices.md",
   "sourceDirName": "testing",
   "slug": "/testing/testing-best-practices",

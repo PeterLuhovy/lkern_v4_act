@@ -639,8 +639,8 @@ Features:
 ## 🔗 Related Documentation
 
 - [Package Documentation](./config.md) - Setup and installation
-- [Coding Standards](../programming/coding-standards.md) - Usage guidelines
-- [Code Examples](../programming/code-examples.md) - Practical examples
+- [Coding Standards](../guides/coding-standards.md) - Usage guidelines
+- [Code Examples](../guides/code-examples.md) - Practical examples
 
 ---
 

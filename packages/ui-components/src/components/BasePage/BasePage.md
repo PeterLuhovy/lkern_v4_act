@@ -2,9 +2,9 @@
 # BasePage
 # ================================================================
 # File: L:\system\lkern_codebase_v4_act\packages\ui-components\src\components\BasePage\BasePage.md
-# Version: 4.0.1
+# Version: 4.0.2
 # Created: 2025-10-19
-# Updated: 2025-11-02
+# Updated: 2025-12-19
 # Component Location: packages/ui-components/src/components/BasePage/BasePage.tsx
 # Package: @l-kern/ui-components
 # Project: BOSS (Business Operating System Service)
@@ -222,18 +222,27 @@ BasePage provides a default tree navigation structure:
 
 **Structure:**
 - **Home** (root)
-  - Dashboard (not yet implemented, disabled)
   - **Testing** (submenu)
-    - Badge Test
-    - Card Test
-    - Empty State Test
-    - Icons Test (v4.0.1+)
-    - Modal v3 Test
-    - Toast Test
-    - Utility Test
+    - **Components** (category)
+      - Badge Test
+      - Card Test
+      - DataGrid Test
+      - Empty State Test
+      - Forms Test
+      - Glass Modal Test
+      - Icons Test
+      - Modal v3 Test
+      - Spinner Test
+      - Toast Test
+      - Utility Test
+      - Wizard Demo
+    - **Pages** (category)
+      - Filtered Grid Demo
+      - Template Page Datagrid
+      - Base Page Template
   - Contacts (not yet implemented, disabled)
-  - Orders (not yet implemented, disabled)
-  - Settings (not yet implemented, disabled)
+  - Issues
+  - Docs (external link)
 
 **Custom Items:**
 ```tsx
@@ -849,6 +858,12 @@ function OptimizedPage() {
 
 ## Changelog
 
+### v4.0.2 (2025-12-19)
+- 🗑️ **REMOVED**: Dashboard, Orders, Settings nav items (not yet implemented)
+- ✅ **UPDATED**: Default sidebar structure now shows Testing with Components/Pages categories
+- ✅ **UPDATED**: Sidebar now includes all component test pages and page templates
+- 📚 **DOCS**: Updated Default Sidebar Items documentation to match current structure
+
 ### v4.0.1 (2025-11-02)
 - ✅ **NEW**: Automatic activePath detection for Sidebar via `useLocation().pathname`
 - ✅ **NEW**: Default sidebar items now include Icons test page (`/testing/icons`)
@@ -946,6 +961,6 @@ it('should show help on Ctrl+H', async () => {
 
 ---
 
-**Last Updated**: 2025-11-02
+**Last Updated**: 2025-12-19
 **Maintainer**: BOSSystems s.r.o.
-**Documentation Version**: 4.0.1
+**Documentation Version**: 4.0.2

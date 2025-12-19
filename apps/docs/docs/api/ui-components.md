@@ -599,7 +599,7 @@ describe('Button', () => {
 });
 ```
 
-See: [testing.md](../testing.md) for complete testing guide.
+See: [testing.md](../getting-started/testing.md) for complete testing guide.
 
 ---
 
@@ -713,10 +713,10 @@ expect(button.className).toContain('primary');
 
 ## 📚 Related Documentation
 
-- [Testing Guide](../testing.md) - How to run tests
+- [Testing Guide](../getting-started/testing.md) - How to run tests
 - [@l-kern/config](config.md) - Design tokens & constants
-- [Coding Standards](../programming/coding-standards.md) - Code conventions
-- [Code Examples](../programming/code-examples.md) - Component examples
+- [Coding Standards](../guides/coding-standards.md) - Code conventions
+- [Code Examples](../guides/code-examples.md) - Component examples
 
 ---
 

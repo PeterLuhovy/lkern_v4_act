@@ -76,17 +76,6 @@ export const HomePage: React.FC = () => {
         <div className={styles.navigationSection}>
           <h2 className={styles.navigationTitle}>{t('dashboard.pages')}</h2>
           <div className={styles.navigationList}>
-            <Link to="/orders" className={styles.navigationLink}>
-              <Card variant="elevated">
-                <div className={styles.navigationCard}>
-                  <span aria-hidden="true">📦</span> {t('components.sidebar.orders')}
-                </div>
-                <p className={styles.navigationCardText}>
-                  {t('dashboard.ordersDescription')}
-                </p>
-              </Card>
-            </Link>
-
             <Link to="/issues" className={styles.navigationLink}>
               <Card variant="elevated">
                 <div className={styles.navigationCard}>

@@ -35,6 +35,8 @@ export type {
   DataIntegrityIssueType,
   // Download progress (v5.1.0)
   DownloadProgress,
+  // Domain-specific types (migrated from legacy workflows)
+  CreatedIssue,
 } from './types';
 
 // Data integrity utilities

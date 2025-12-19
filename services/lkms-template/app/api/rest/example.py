@@ -111,7 +111,7 @@ async def list_{{ROUTE_PREFIX}}(
 
 @router.get("/{item_id}", response_model={{MODEL_NAME}}Response)
 async def get_{{ROUTE_SINGULAR}}(
-    item_id: int,
+    item_id: UUID,
     include_deleted: bool = Query(False, description="Allow fetching soft-deleted records"),
     db: Session = Depends(get_db),
 ):
@@ -195,7 +195,7 @@ async def create_{{ROUTE_SINGULAR}}(
 
 @router.put("/{item_id}", response_model={{MODEL_NAME}}Response)
 async def update_{{ROUTE_SINGULAR}}(
-    item_id: int,
+    item_id: UUID,
     item_data: {{MODEL_NAME}}Update,
     db: Session = Depends(get_db),
 ):
@@ -242,7 +242,7 @@ async def update_{{ROUTE_SINGULAR}}(
 
 @router.post("/{item_id}/status", response_model=StatusChangeResponse)
 async def change_status(
-    item_id: int,
+    item_id: UUID,
     request: StatusChangeRequest,
     db: Session = Depends(get_db),
 ):
@@ -307,7 +307,7 @@ async def change_status(
 
 @router.delete("/{item_id}", response_model=DeleteResponse)
 async def soft_delete_{{ROUTE_SINGULAR}}(
-    item_id: int,
+    item_id: UUID,
     db: Session = Depends(get_db),
 ):
     """
@@ -351,7 +351,7 @@ async def soft_delete_{{ROUTE_SINGULAR}}(
 
 @router.post("/{item_id}/restore", response_model=RestoreResponse)
 async def restore_{{ROUTE_SINGULAR}}(
-    item_id: int,
+    item_id: UUID,
     db: Session = Depends(get_db),
 ):
     """
@@ -391,7 +391,7 @@ async def restore_{{ROUTE_SINGULAR}}(
 
 @router.delete("/{item_id}/permanent", status_code=status.HTTP_204_NO_CONTENT)
 async def hard_delete_{{ROUTE_SINGULAR}}(
-    item_id: int,
+    item_id: UUID,
     db: Session = Depends(get_db),
 ):
     """
@@ -427,7 +427,7 @@ async def hard_delete_{{ROUTE_SINGULAR}}(
 
 @router.post("/{item_id}/lock", response_model=LockResponse)
 async def acquire_lock(
-    item_id: int,
+    item_id: UUID,
     lock_request: Optional[LockRequest] = None,
     x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
     x_user_name: Optional[str] = Header(None, alias="X-User-Name"),
@@ -509,7 +509,7 @@ async def acquire_lock(
 
 @router.delete("/{item_id}/lock", response_model=UnlockResponse)
 async def release_lock(
-    item_id: int,
+    item_id: UUID,
     x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
     x_is_admin: Optional[str] = Header(None, alias="X-Is-Admin"),
     db: Session = Depends(get_db),

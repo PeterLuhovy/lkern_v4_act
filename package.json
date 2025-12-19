@@ -21,7 +21,8 @@
     "affected:test": "nx affected --target=test",
     "affected:lint": "nx affected --target=lint",
     "graph": "nx graph",
-    "clean": "nx reset"
+    "clean": "nx reset",
+    "clean:cache": "rm -rf node_modules/.vite && echo 'Vite cache cleared'"
   },
   "dependencies": {
     "jszip": "^3.10.1",

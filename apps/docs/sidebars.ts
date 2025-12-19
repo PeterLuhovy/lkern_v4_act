@@ -3,9 +3,11 @@
  * FILE: sidebars.ts
  * PATH: /apps/docs/sidebars.ts
  * DESCRIPTION: Sidebar navigation configuration for documentation
- * VERSION: v2.0.0
- * UPDATED: 2025-12-16
+ * VERSION: v2.2.0
+ * UPDATED: 2025-12-19
  * CHANGELOG:
+ *   v2.2.0 - Moved Project category to top (after intro), collapsed: false
+ *   v2.1.0 - Added project/overview and guides/toast-usage
  *   v2.0.0 - Complete documentation structure after migration
  *   v1.0.0 - Initial minimal version
  * ================================================================
@@ -16,6 +18,16 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   docsSidebar: [
     'intro',
+    {
+      type: 'category',
+      label: '📋 Project',
+      collapsed: false,
+      link: { type: 'generated-index', description: 'Project overview and development roadmap' },
+      items: [
+        'project/overview',
+        'project/roadmap',
+      ],
+    },
     {
       type: 'category',
       label: '🚀 Getting Started',
@@ -47,6 +59,7 @@ const sidebars: SidebarsConfig = {
         'guides/docker-standards',
         'guides/documentation-standards',
         'guides/code-examples',
+        'guides/toast-usage',
       ],
     },
     {
@@ -79,14 +92,6 @@ const sidebars: SidebarsConfig = {
       link: { type: 'generated-index', description: 'UI/UX design standards and guidelines' },
       items: [
         'design/design-standards',
-      ],
-    },
-    {
-      type: 'category',
-      label: '📋 Project',
-      link: { type: 'generated-index', description: 'Project overview and roadmap' },
-      items: [
-        'project/roadmap',
       ],
     },
     {
