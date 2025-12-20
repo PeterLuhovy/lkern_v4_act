@@ -90,3 +90,7 @@ docker-compose.override.yml
 
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+# Storybook build artifacts
+**/storybook-static
+**/static/storybook
+**/build/storybook
