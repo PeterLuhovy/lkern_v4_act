@@ -10,7 +10,7 @@
 
 import React from 'react';
 import type { Preview } from '@storybook/react';
-import { TranslationProvider } from '@l-kern/config';
+import { TranslationProvider, AuthProvider, ThemeProvider, ToastProvider, AnalyticsProvider } from '@l-kern/config';
 
 // Import global styles
 import '@l-kern/ui-components/styles/global.css';
@@ -19,9 +19,17 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <TranslationProvider>
-        <div style={{ padding: '1rem' }}>
-          <Story />
-        </div>
+        <ThemeProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <AnalyticsProvider>
+                <div style={{ padding: '1rem' }}>
+                  <Story />
+                </div>
+              </AnalyticsProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </TranslationProvider>
     ),
   ],

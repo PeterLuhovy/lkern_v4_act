@@ -185,7 +185,7 @@ class RoleService:
         query = self.db.query(Contact).join(ContactRole).filter(
             ContactRole.role_type_id == role_type.id,
             ContactRole.valid_to == None,
-            Contact.is_deleted == False,
+            Contact.deleted_at.is_(None),
         )
 
         total = query.count()

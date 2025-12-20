@@ -209,7 +209,7 @@ docker-compose logs -f lkms201-web-ui
 | PostgreSQL | lkms501 | 5432 | 4501 | PostgreSQL |
 | Adminer | lkms901 | 8080 | 4901 | HTTP |
 
-**See:** [architecture/port-mapping.md](architecture/port-mapping.md) for complete mapping strategy.
+**See:** [Port Mapping](../architecture/port-mapping.md) for complete mapping strategy.
 
 ---
 
@@ -294,7 +294,7 @@ docker exec lkms201-web-ui yarn list --pattern <package-name>
 **Documentation:**
 - [Testing Guide](testing.md) - How to run tests
 - [Troubleshooting](troubleshooting.md) - Common problems and solutions
-- [Port Mapping](architecture/port-mapping.md) - Service ports reference
+- [Port Mapping](../architecture/port-mapping.md) - Service ports reference
 
 **Common Issues:**
 - Hot-reload not working → [Troubleshooting: Hot-reload](troubleshooting.md#hot-reload-not-working)

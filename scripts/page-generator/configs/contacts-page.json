@@ -2,6 +2,7 @@
   "entityName": "Contacts",
   "entityNameSingular": "Contact",
   "path": "/contacts",
+  "apiBaseUrl": "http://localhost:4101",
   "statusField": "contact_type",
   "statuses": {
     "person": {
@@ -15,13 +16,6 @@
     }
   },
   "columns": [
-    {
-      "field": "contact_code",
-      "title": "Contact Code",
-      "type": "string",
-      "width": 130,
-      "sortable": true
-    },
     {
       "field": "display_name",
       "title": "Name",
@@ -52,18 +46,22 @@
       "sortable": false
     },
     {
+      "field": "contact_code",
+      "title": "Contact Code",
+      "type": "string",
+      "hidden": true
+    },
+    {
       "field": "roles",
       "title": "Roles",
       "type": "string",
-      "width": 180,
-      "sortable": false
+      "hidden": true
     },
     {
       "field": "created_at",
       "title": "Created",
       "type": "string",
-      "width": 100,
-      "sortable": true
+      "hidden": true
     },
     {
       "field": "id",

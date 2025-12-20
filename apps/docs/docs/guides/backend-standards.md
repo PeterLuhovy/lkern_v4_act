@@ -5,8 +5,6 @@ sidebar_label: Backend Standards
 sidebar_position: 3
 ---
 
----
-
 ## 📋 Overview
 
 This document contains **backend-specific** coding standards for L-KERN v4. For core standards (DRY, file headers, naming), see [coding-standards.md](coding-standards.md).

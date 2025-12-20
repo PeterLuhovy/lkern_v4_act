@@ -303,8 +303,7 @@ def upgrade() -> None:
                 'organizational_unit'
             )),
 
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+            -- Soft delete (NULL = active, timestamp = deleted)
             deleted_at TIMESTAMP NULL,
             deleted_by_id UUID NULL,
 
@@ -317,8 +316,7 @@ def upgrade() -> None:
 
         CREATE INDEX idx_contacts_code ON contacts(contact_code);
         CREATE INDEX idx_contacts_type ON contacts(contact_type);
-        CREATE INDEX idx_contacts_deleted ON contacts(is_deleted);
-        CREATE INDEX idx_contacts_deleted_at ON contacts(deleted_at) WHERE deleted_at IS NULL;
+        CREATE INDEX idx_contacts_active ON contacts(deleted_at) WHERE deleted_at IS NULL;
     """)
 
     # Table 10: contact_roles (M:N - L149-314)
@@ -373,9 +371,6 @@ def upgrade() -> None:
             gender VARCHAR(10) NULL CHECK (gender IN ('male', 'female', 'other')),
             nationality_id UUID NULL REFERENCES nationalities(id) ON DELETE SET NULL,
 
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-
             -- Audit fields
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -416,9 +411,6 @@ def upgrade() -> None:
                 'dissolved'
             )),
 
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-
             -- Audit fields
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -445,9 +437,6 @@ def upgrade() -> None:
 
             -- Parent company
             parent_company_id UUID NULL REFERENCES contacts(id) ON DELETE SET NULL,
-
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
             -- Audit fields
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -630,8 +619,8 @@ def upgrade() -> None:
             -- Primary flag
             is_primary BOOLEAN NOT NULL DEFAULT FALSE,
 
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+            -- Soft delete (NULL = active, timestamp = deleted)
+            deleted_at TIMESTAMP NULL,
 
             -- Audit fields
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -645,7 +634,7 @@ def upgrade() -> None:
         CREATE INDEX idx_contact_emails_email ON contact_emails(email);
         CREATE INDEX idx_contact_emails_type ON contact_emails(email_type);
         CREATE INDEX idx_contact_emails_primary ON contact_emails(contact_id, is_primary)
-            WHERE is_primary = TRUE AND is_deleted = FALSE;
+            WHERE is_primary = TRUE AND deleted_at IS NULL;
     """)
 
     # Table 19: contact_phones (L1409-1489)
@@ -666,8 +655,8 @@ def upgrade() -> None:
             -- Primary flag
             is_primary BOOLEAN NOT NULL DEFAULT FALSE,
 
-            -- Soft delete
-            is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+            -- Soft delete (NULL = active, timestamp = deleted)
+            deleted_at TIMESTAMP NULL,
 
             -- Audit fields
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -682,7 +671,7 @@ def upgrade() -> None:
         CREATE INDEX idx_contact_phones_country ON contact_phones(country_id);
         CREATE INDEX idx_contact_phones_type ON contact_phones(phone_type);
         CREATE INDEX idx_contact_phones_primary ON contact_phones(contact_id, is_primary)
-            WHERE is_primary = TRUE AND is_deleted = FALSE;
+            WHERE is_primary = TRUE AND deleted_at IS NULL;
     """)
 
     # Table 20: contact_websites (L1492-1593)

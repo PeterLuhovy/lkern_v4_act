@@ -99,7 +99,7 @@ const sidebars: SidebarsConfig = {
       label: '📝 Templates',
       link: { type: 'generated-index', description: 'Code templates for components, hooks, and utilities' },
       items: [
-        'templates/index',
+        'templates/templates-overview',
         'templates/component',
         'templates/hook',
         'templates/utility',

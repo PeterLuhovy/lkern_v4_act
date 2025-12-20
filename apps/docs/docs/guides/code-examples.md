@@ -5,9 +5,6 @@ sidebar_label: Code Examples
 sidebar_position: 6
 ---
 
-
----
-
 ## 📋 Overview
 
 Tento dokument obsahuje **praktické príklady kódu** pre L-KERN v4 projekt. Všetky príklady sú plne funkčné a dodržiavajú [coding-standards.md](coding-standards.md).

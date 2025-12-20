@@ -3,8 +3,8 @@
  * FILE: docusaurus.config.ts
  * PATH: /apps/docs/docusaurus.config.ts
  * DESCRIPTION: Docusaurus configuration for L-KERN v4 documentation
- * VERSION: v1.0.0
- * UPDATED: 2025-12-12
+ * VERSION: v1.1.0
+ * UPDATED: 2025-12-19
  * ================================================================
  */
 
@@ -28,6 +28,8 @@ const config: Config = {
   // Changed from 'throw' to 'warn' to allow build with placeholder links
   // TODO: Change back to 'throw' when all documentation pages are created
   onBrokenLinks: 'warn',
+  // NOTE: onBrokenMarkdownLinks will be deprecated in Docusaurus v4
+  // Migrate to markdown.hooks.onBrokenMarkdownLinks when upgrading to v4
   onBrokenMarkdownLinks: 'warn',
 
   i18n: {

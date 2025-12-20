@@ -172,7 +172,7 @@ class ContactService:
         ).filter(Contact.id == contact_id)
 
         if not include_deleted:
-            query = query.filter(Contact.is_deleted == False)
+            query = query.filter(Contact.deleted_at.is_(None))
 
         return query.first()
 
@@ -185,7 +185,7 @@ class ContactService:
         ).filter(Contact.contact_code == contact_code)
 
         if not include_deleted:
-            query = query.filter(Contact.is_deleted == False)
+            query = query.filter(Contact.deleted_at.is_(None))
 
         return query.first()
 
@@ -205,7 +205,7 @@ class ContactService:
         )
 
         if not include_deleted:
-            query = query.filter(Contact.is_deleted == False)
+            query = query.filter(Contact.deleted_at.is_(None))
 
         if contact_type:
             query = query.filter(Contact.contact_type == contact_type)
@@ -286,17 +286,8 @@ class ContactService:
         if not contact:
             return None
 
-        contact.is_deleted = True
         contact.deleted_at = datetime.utcnow()
         contact.deleted_by_id = deleted_by_id
-
-        # Also mark type-specific entity as deleted
-        if contact.person:
-            contact.person.is_deleted = True
-        elif contact.company:
-            contact.company.is_deleted = True
-        elif contact.organizational_unit:
-            contact.organizational_unit.is_deleted = True
 
         self.db.commit()
         self.db.refresh(contact)
@@ -313,19 +304,11 @@ class ContactService:
     async def restore(self, contact_id: UUID) -> Optional[Contact]:
         """Restore soft-deleted contact."""
         contact = self.get_by_id(contact_id, include_deleted=True)
-        if not contact or not contact.is_deleted:
+        if not contact or contact.deleted_at is None:
             return None
 
-        contact.is_deleted = False
         contact.deleted_at = None
         contact.deleted_by_id = None
-
-        if contact.person:
-            contact.person.is_deleted = False
-        elif contact.company:
-            contact.company.is_deleted = False
-        elif contact.organizational_unit:
-            contact.organizational_unit.is_deleted = False
 
         self.db.commit()
         self.db.refresh(contact)

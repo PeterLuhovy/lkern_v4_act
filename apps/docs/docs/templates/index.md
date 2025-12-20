@@ -1,5 +1,6 @@
 ---
-id: index
+id: templates-overview
+slug: index
 title: Documentation Templates
 sidebar_label: Overview
 sidebar_position: 1

@@ -10,7 +10,7 @@
  * * ================================================================
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
 import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
@@ -30,9 +30,9 @@ import styles from './Contacts.module.css';
  * NOTE: This is commented out as it's not used in the contacts directly.
  * Uncomment and use when implementing actual API calls.
  */
-// const SERVICE_ENDPOINTS = {
-//   baseUrl: 'http://localhost:4105/api',  // 🔧 UPDATE: Change port for your service
-// };
+const SERVICE_ENDPOINTS = {
+  baseUrl: 'http://localhost:4101',
+};
 
 // ============================================================
 // DATA TYPES
@@ -45,11 +45,11 @@ import styles from './Contacts.module.css';
  * Replace with your entity fields (e.g., Order, Contact, Invoice)
  */
 interface Contact {
-  contact_code: string;
-    display_name: string;
+  display_name: string;
     contact_type: 'person' | 'company' | 'organizational_unit';
     primary_email: string;
     primary_phone: string;
+    contact_code: string;
     roles: string;
     created_at: string;
     id: string;
@@ -67,19 +67,29 @@ interface Contact {
  * Replace with your entity data or API fetch
  */
 const mockData: Contact[] = [
-  { contact_code: 'Sample contact_code 1', display_name: 'Sample display_name 1', contact_type: 'person', primary_email: 'user1@example.com', primary_phone: 'Sample primary_phone 1', roles: 'Sample roles 1', created_at: 'Sample created_at 1', id: 'CON-001' },
-  { contact_code: 'Sample contact_code 2', display_name: 'Sample display_name 2', contact_type: 'company', primary_email: 'user2@example.com', primary_phone: 'Sample primary_phone 2', roles: 'Sample roles 2', created_at: 'Sample created_at 2', id: 'CON-002' },
-  { contact_code: 'Sample contact_code 3', display_name: 'Sample display_name 3', contact_type: 'organizational_unit', primary_email: 'user3@example.com', primary_phone: 'Sample primary_phone 3', roles: 'Sample roles 3', created_at: 'Sample created_at 3', id: 'CON-003' },
-  { contact_code: 'Sample contact_code 4', display_name: 'Sample display_name 4', contact_type: 'person', primary_email: 'user4@example.com', primary_phone: 'Sample primary_phone 4', roles: 'Sample roles 4', created_at: 'Sample created_at 4', id: 'CON-004' },
-  { contact_code: 'Sample contact_code 5', display_name: 'Sample display_name 5', contact_type: 'company', primary_email: 'user5@example.com', primary_phone: 'Sample primary_phone 5', roles: 'Sample roles 5', created_at: 'Sample created_at 5', id: 'CON-005' }
+  { display_name: 'Sample display_name 1', contact_type: 'person', primary_email: 'user1@example.com', primary_phone: 'Sample primary_phone 1', id: 'CON-001' },
+  { display_name: 'Sample display_name 2', contact_type: 'company', primary_email: 'user2@example.com', primary_phone: 'Sample primary_phone 2', id: 'CON-002' },
+  { display_name: 'Sample display_name 3', contact_type: 'organizational_unit', primary_email: 'user3@example.com', primary_phone: 'Sample primary_phone 3', id: 'CON-003' },
+  { display_name: 'Sample display_name 4', contact_type: 'person', primary_email: 'user4@example.com', primary_phone: 'Sample primary_phone 4', id: 'CON-004' },
+  { display_name: 'Sample display_name 5', contact_type: 'company', primary_email: 'user5@example.com', primary_phone: 'Sample primary_phone 5', id: 'CON-005' }
 ];
 
-// Add computed 'isActive' field (inverted from 'is_deleted')
-// FilteredDataGrid expects 'true' = active, but is_deleted has 'true' = inactive
-const dataWithActive = mockData.map((item) => ({
-  ...item,
-  isActive: !item.is_deleted,
-}));
+// ============================================================
+// API RESPONSE TYPES
+// ============================================================
+
+/**
+ * API list response structure
+ *
+ * 🔧 CUSTOMIZATION:
+ * Adjust to match your API response format
+ */
+interface ContactsListApiResponse {
+  items: Contact[];
+  total: number;
+  skip: number;
+  limit: number;
+}
 
 // ============================================================
 // COMPONENT
@@ -98,6 +108,76 @@ export function Contacts() {
     console.log('[Contacts] 🔐 Permission level:', permissionLevel);
     console.log('[Contacts] 🔐 Authorization:', { canCreate, canEdit, canDelete, canExport, canViewDeleted });
   }
+
+  // ============================================================
+  // API DATA STATE
+  // ============================================================
+
+  /**
+   * 🔧 CUSTOMIZATION: Choose ONE of these approaches:
+   *
+   * OPTION A: Mock Data (default - for development/testing)
+   * - Uses static mockData array defined above
+   * - No API calls, instant loading
+   *
+   * OPTION B: Real API (uncomment for production)
+   * - Fetches from SERVICE_ENDPOINTS.baseUrl
+   * - Shows loading spinner during fetch
+   * - Handles errors gracefully
+   */
+
+  // OPTION A: Mock Data (DISABLED - using real API)
+  // const [items] = useState<Contact[]>(mockData);
+  // const [isLoading] = useState(false);
+  // const [apiError] = useState<string | null>(null);
+
+  // OPTION B: Real API (ACTIVE)
+  const [items, setItems] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  //
+    /**
+   * Fetch items from API
+   *
+   * ⚠️ IMPORTANT: Dependencies must be STABLE (primitives only)
+   * - DO NOT add toast, t, or other hook returns as dependencies
+   * - These change on every render and cause infinite loops!
+   */
+  const fetchItems = useCallback(async () => {
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      const response = await fetch(`${SERVICE_ENDPOINTS.baseUrl}/contacts/?limit=100`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data: ContactsListApiResponse = await response.json();
+      setItems(data.items);
+      if (analyticsSettings.logToConsole) {
+        console.log(`[Contacts] ✅ Loaded ${data.items.length} items from API`);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load items';
+      setApiError(errorMsg);
+      console.error('[Contacts] ❌ API Error:', errorMsg);
+      // Note: Error displayed via apiError state in UI (not toast - avoids re-render loop)
+    } finally {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsSettings.logToConsole]); // Only stable primitive dependencies!
+  //
+  // Load items on mount only (empty deps = run once)
+  useEffect(() => {
+    fetchItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty array = run only on mount, NOT on every render
+
+  // Computed data with isActive field for FilteredDataGrid
+  const dataWithActive = items.map((item) => ({
+    ...item,
+    isActive: !item.is_deleted,  // Invert: is_deleted=true means inactive
+  }));
 
   // State management
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
@@ -241,12 +321,6 @@ export function Contacts() {
    */
   const columns = [
     {
-      title: t('pages.contacts.columns.contact_code'),
-      field: 'contact_code',
-      sortable: true,
-      width: 130
-    },
-    {
       title: t('pages.contacts.columns.display_name'),
       field: 'display_name',
       sortable: true,
@@ -268,17 +342,6 @@ export function Contacts() {
       title: t('pages.contacts.columns.primary_phone'),
       field: 'primary_phone',
       width: 150
-    },
-    {
-      title: t('pages.contacts.columns.roles'),
-      field: 'roles',
-      width: 180
-    },
-    {
-      title: t('pages.contacts.columns.created_at'),
-      field: 'created_at',
-      sortable: true,
-      width: 100
     }
   ];
 
@@ -297,7 +360,7 @@ export function Contacts() {
       label: '👁️',
       title: t('common.view'),
       onClick: (item: Contact) => {
-        alert(`${t('common.view')}: ${item.contact_code}`);
+        alert(`${t('common.view')}: ${item.display_name}`);
         // TODO: Implement view modal
       },
       variant: 'secondary' as const,
@@ -307,7 +370,7 @@ export function Contacts() {
       label: '✏️',
       title: t('common.edit'),
       onClick: (item: Contact) => {
-        alert(`${t('common.edit')}: ${item.contact_code}`);
+        alert(`${t('common.edit')}: ${item.display_name}`);
         // TODO: Implement edit modal
       },
       variant: 'primary' as const,
@@ -358,7 +421,7 @@ export function Contacts() {
    */
   const renderExpandedContent = (item: Contact) => (
     <div className={styles.expandedContent}>
-      <h4>{t('pages.contacts.detailsTitle', { name: item.contact_code })}</h4>
+      <h4>{t('pages.contacts.detailsTitle', { name: item.display_name })}</h4>
 
       {/* Soft Delete Warning */}
       {item.is_deleted && (
@@ -381,9 +444,6 @@ export function Contacts() {
 
       <div className={styles.detailsGrid}>
         <div>
-          <strong>{t('pages.contacts.details.contact_code')}:</strong> {item.contact_code}
-        </div>
-        <div>
           <strong>{t('pages.contacts.details.display_name')}:</strong> {item.display_name}
         </div>
         <div>
@@ -394,12 +454,6 @@ export function Contacts() {
         </div>
         <div>
           <strong>{t('pages.contacts.details.primary_phone')}:</strong> {item.primary_phone}
-        </div>
-        <div>
-          <strong>{t('pages.contacts.details.roles')}:</strong> {item.roles}
-        </div>
-        <div>
-          <strong>{t('pages.contacts.details.created_at')}:</strong> {item.created_at}
         </div>
       </div>
     </div>
@@ -638,7 +692,7 @@ export function Contacts() {
   const handleBulkDelete = () => {
     if (selectedRows.size === 0) return;
 
-    const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+    const selectedItems = items.filter(item => selectedRows.has(item.id));
     const activeItems = selectedItems.filter(item => !item.is_deleted);
     const deletedItems = selectedItems.filter(item => item.is_deleted);
 
@@ -663,7 +717,7 @@ export function Contacts() {
   const executeBulkDelete = async () => {
     setIsBulkDeleting(true);
     try {
-      const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+      const selectedItems = items.filter(item => selectedRows.has(item.id));
       const activeItems = selectedItems.filter(item => !item.is_deleted);
       const deletedItems = selectedItems.filter(item => item.is_deleted);
 
@@ -924,7 +978,25 @@ export function Contacts() {
             { name: t('pages.contacts.breadcrumb'), isActive: true },
           ]}
         />
-        {/* FilteredDataGrid Component */}
+
+        {/* Loading state (for API mode) */}
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+            <Spinner size="large" />
+          </div>
+        )}
+
+        {/* Error state (for API mode) */}
+        {apiError && !isLoading && (
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-status-error)' }}>
+            <p>{t('pages.contacts.loadError')}: {apiError}</p>
+            {/* 🔧 CUSTOMIZATION: Add retry button when using real API */}
+            {/* <button onClick={fetchItems} style={{ marginTop: '12px' }}>{t('common.retry')}</button> */}
+          </div>
+        )}
+
+        {/* FilteredDataGrid Component - only show when not loading */}
+        {!isLoading && !apiError && (
         <FilteredDataGrid
           data={dataWithActive}
           columns={columns}
@@ -1009,6 +1081,7 @@ export function Contacts() {
             </div>
           }
         />
+        )}
 
         {/* Delete Confirmation Modal (Soft Delete) */}
         {itemToDelete && (

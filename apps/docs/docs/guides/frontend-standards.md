@@ -5,8 +5,6 @@ sidebar_label: Frontend Standards
 sidebar_position: 2
 ---
 
----
-
 ## 📋 Overview
 
 This document contains **frontend-specific** coding standards for L-KERN v4. For core standards (DRY, translations, theme), see [coding-standards.md](coding-standards.md).

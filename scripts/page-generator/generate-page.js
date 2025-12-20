@@ -5,8 +5,13 @@
  * FILE: generate-page.js
  * PATH: /scripts/page-generator/generate-page.js
  * DESCRIPTION: Generator for DataGrid pages from template
- * VERSION: v1.5.0
- * UPDATED: 2025-12-19
+ * VERSION: v1.6.0
+ * UPDATED: 2025-12-20
+ *
+ * NEW in v1.6.0:
+ * - Added apiBaseUrl config option for mock/API mode switching
+ * - apiBaseUrl: null → Mock Data mode (for development/testing)
+ * - apiBaseUrl: "http://localhost:4101" → Real API mode (for production)
  *
  * USAGE:
  * node scripts/page-generator/generate-page.js configs/config.json
@@ -90,7 +95,12 @@ function generatePage(config) {
     routePath,           // e.g., "/orders"
     columns,             // Array of column definitions
     features = {},       // Optional features
+    apiBaseUrl = null,   // e.g., "http://localhost:4101" - null = mock mode
   } = config;
+
+  // Determine if using real API or mock data
+  const useRealApi = apiBaseUrl !== null && apiBaseUrl !== undefined && apiBaseUrl !== '';
+  console.log(`📡 Data mode: ${useRealApi ? `API (${apiBaseUrl})` : 'Mock Data'}`);
 
   // Derived names
   const entityLower = toCamelCase(entityName); // orders
@@ -192,6 +202,79 @@ function generatePage(config) {
   const mockDataOld = /const mockData: \w+\[\] = \[[^\]]+\];/s;
   const mockDataNew = `const mockData: ${entityNameSingular}[] = [\n${mockDataItems}\n];`;
   generatedTsx = generatedTsx.replace(mockDataOld, mockDataNew);
+
+  // ============================================================
+  // CONFIGURE API/MOCK MODE
+  // ============================================================
+
+  if (useRealApi) {
+    // OPTION B: Real API mode - uncomment API code, comment mock code
+
+    // 1. Uncomment SERVICE_ENDPOINTS
+    generatedTsx = generatedTsx.replace(
+      /\/\/ const SERVICE_ENDPOINTS = \{[\s\S]*?\/\/ \};/,
+      `const SERVICE_ENDPOINTS = {\n  baseUrl: '${apiBaseUrl}',\n};`
+    );
+
+    // 2. Comment out OPTION A (Mock Data)
+    generatedTsx = generatedTsx.replace(
+      /\/\/ OPTION A: Mock Data \(DEFAULT\)\n  const \[items\] = useState<\w+\[\]>\(mockData\);\n  const \[isLoading\] = useState\(false\);\n  const \[apiError\] = useState<string \| null>\(null\);/,
+      `// OPTION A: Mock Data (DISABLED - using real API)\n  // const [items] = useState<${entityNameSingular}[]>(mockData);\n  // const [isLoading] = useState(false);\n  // const [apiError] = useState<string | null>(null);`
+    );
+
+    // 3. Uncomment OPTION B (Real API) - remove comment slashes
+    generatedTsx = generatedTsx.replace(
+      /\/\/ OPTION B: Real API \(UNCOMMENT FOR PRODUCTION\)\n  \/\/ const \[items, setItems\]/,
+      `// OPTION B: Real API (ACTIVE)\n  const [items, setItems]`
+    );
+    // Uncomment all lines in OPTION B section
+    generatedTsx = generatedTsx.replace(
+      /\/\/ const \[items, setItems\] = useState<\w+\[\]>\(\[\]\);/,
+      `const [items, setItems] = useState<${entityNameSingular}[]>([]);`
+    );
+    generatedTsx = generatedTsx.replace(
+      /\/\/ const \[isLoading, setIsLoading\] = useState\(true\);/,
+      `const [isLoading, setIsLoading] = useState(true);`
+    );
+    generatedTsx = generatedTsx.replace(
+      /\/\/ const \[apiError, setApiError\] = useState<string \| null>\(null\);/,
+      `const [apiError, setApiError] = useState<string | null>(null);`
+    );
+
+    // 4. Uncomment fetchItems function (multi-line)
+    // First, find the commented fetchItems block and uncomment it
+    const fetchItemsPattern = /\/\/\s*\/\*\*\s*\n\s*\/\/\s*\* Fetch items from API[\s\S]*?\/\/\s*\}, \[analyticsSettings\.logToConsole\]\);/;
+    const fetchItemsMatch = generatedTsx.match(fetchItemsPattern);
+    if (fetchItemsMatch) {
+      const uncommented = fetchItemsMatch[0]
+        .split('\n')
+        .map(line => line.replace(/^\s*\/\/\s?/, '  '))
+        .join('\n');
+      generatedTsx = generatedTsx.replace(fetchItemsPattern, uncommented);
+    }
+
+    // 5. Uncomment useEffect
+    generatedTsx = generatedTsx.replace(
+      /\/\/\s*\/\/ Load items on mount only[\s\S]*?\/\/\s*\}, \[\]\);/,
+      `// Load items on mount only (empty deps = run once)\n  useEffect(() => {\n    fetchItems();\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, []);`
+    );
+
+    // 6. Update API endpoint in fetchItems
+    generatedTsx = generatedTsx.replace(
+      /\$\{SERVICE_ENDPOINTS\.baseUrl\}\/items\/\?limit=100/g,
+      `\${SERVICE_ENDPOINTS.baseUrl}/${entityLower}/?limit=100`
+    );
+
+    // 7. Update log messages
+    generatedTsx = generatedTsx.replace(
+      /\[Template\]/g,
+      `[${entityName}]`
+    );
+
+    console.log('✅ API mode configured');
+  } else {
+    console.log('✅ Mock data mode configured (default)');
+  }
 
   // ============================================================
   // GENERATE COLUMNS DEFINITIONS
@@ -470,7 +553,13 @@ export { ${entityName} } from './${entityName}';
   console.log('   1. ✅ Page fully generated and registered!');
   console.log('   2. Add sidebar item to BasePage defaultSidebarItems (manual)');
   console.log('   3. Customize columns, filters, and actions');
-  console.log('   4. Connect to real API (replace mock data)');
+  if (useRealApi) {
+    console.log(`   4. ✅ API mode active (${apiBaseUrl})`);
+    console.log('   5. Ensure backend service is running');
+  } else {
+    console.log('   4. To switch to API: add "apiBaseUrl": "http://localhost:PORT" to config');
+    console.log('   5. Then regenerate: node scripts/page-generator/generate-page.js <config>');
+  }
   console.log('\n🎉 Done!\n');
 }
 

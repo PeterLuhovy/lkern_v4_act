@@ -55,7 +55,6 @@ class PersonResponse(PersonBase):
     """Schema for person response."""
     id: UUID
     contact_id: UUID
-    is_deleted: bool = False
     created_at: datetime
     updated_at: datetime
     nationality: Optional[NationalityResponse] = None
@@ -112,7 +111,6 @@ class CompanyResponse(CompanyBase):
     """Schema for company response."""
     id: UUID
     contact_id: UUID
-    is_deleted: bool = False
     created_at: datetime
     updated_at: datetime
     legal_form: Optional[LegalFormResponse] = None
@@ -150,7 +148,6 @@ class OrganizationalUnitResponse(OrganizationalUnitBase):
     """Schema for organizational unit response."""
     id: UUID
     contact_id: UUID
-    is_deleted: bool = False
     created_at: datetime
     updated_at: datetime
     unit_type: Optional[OrganizationalUnitTypeResponse] = None
@@ -198,8 +195,7 @@ class ContactResponse(BaseModel):
     id: UUID
     contact_code: str
     contact_type: str
-    is_deleted: bool = False
-    deleted_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None  # NULL = active, timestamp = deleted
     created_at: datetime
     updated_at: datetime
     created_by_id: Optional[UUID] = None
@@ -232,7 +228,7 @@ class ContactListResponse(BaseModel):
     contact_code: str
     contact_type: str
     display_name: str
-    is_deleted: bool = False
+    deleted_at: Optional[datetime] = None  # NULL = active, timestamp = deleted
     created_at: datetime
 
     class Config:

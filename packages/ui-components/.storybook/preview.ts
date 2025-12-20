@@ -10,7 +10,7 @@
 
 import type { Preview } from '@storybook/react';
 import React from 'react';
-import { TranslationProvider, ThemeProvider } from '@l-kern/config';
+import { TranslationProvider, ThemeProvider, AuthProvider, ToastProvider, AnalyticsProvider } from '@l-kern/config';
 
 const preview: Preview = {
   parameters: {
@@ -42,14 +42,26 @@ const preview: Preview = {
           ThemeProvider,
           null,
           React.createElement(
-            'div',
-            {
-              style: {
-                padding: '1rem',
-                fontFamily: 'var(--font-primary, Inter, sans-serif)',
-              },
-            },
-            React.createElement(Story)
+            AuthProvider,
+            null,
+            React.createElement(
+              ToastProvider,
+              null,
+              React.createElement(
+                AnalyticsProvider,
+                null,
+                React.createElement(
+                  'div',
+                  {
+                    style: {
+                      padding: '1rem',
+                      fontFamily: 'var(--font-primary, Inter, sans-serif)',
+                    },
+                  },
+                  React.createElement(Story)
+                )
+              )
+            )
           )
         )
       );

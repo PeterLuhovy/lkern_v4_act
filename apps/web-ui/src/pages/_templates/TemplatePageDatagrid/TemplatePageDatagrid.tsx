@@ -27,7 +27,7 @@
  * ================================================================
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BasePage, PageHeader, ConfirmModal, ExportButton, Spinner } from '@l-kern/ui-components';
 import { FilteredDataGrid } from '@l-kern/ui-components';
 import type { FilterConfig, QuickFilterConfig } from '@l-kern/ui-components';
@@ -90,12 +90,22 @@ const mockData: TemplateItem[] = [
   { id: 'TMP-005', name: 'Charlie Brown', email: 'charlie@example.com', status: 'pending', priority: 'medium', value: 2100, date: '2025-11-20', is_deleted: false },
 ];
 
-// Add computed 'isActive' field (inverted from 'is_deleted')
-// FilteredDataGrid expects 'true' = active, but is_deleted has 'true' = inactive
-const dataWithActive = mockData.map((item) => ({
-  ...item,
-  isActive: !item.is_deleted,
-}));
+// ============================================================
+// API RESPONSE TYPES
+// ============================================================
+
+/**
+ * API list response structure
+ *
+ * 🔧 CUSTOMIZATION:
+ * Adjust to match your API response format
+ */
+interface TemplateListApiResponse {
+  items: TemplateItem[];
+  total: number;
+  skip: number;
+  limit: number;
+}
 
 // ============================================================
 // COMPONENT
@@ -114,6 +124,76 @@ export function TemplatePageDatagrid() {
     console.log('[TemplatePageDatagrid] 🔐 Permission level:', permissionLevel);
     console.log('[TemplatePageDatagrid] 🔐 Authorization:', { canCreate, canEdit, canDelete, canExport, canViewDeleted });
   }
+
+  // ============================================================
+  // API DATA STATE
+  // ============================================================
+
+  /**
+   * 🔧 CUSTOMIZATION: Choose ONE of these approaches:
+   *
+   * OPTION A: Mock Data (default - for development/testing)
+   * - Uses static mockData array defined above
+   * - No API calls, instant loading
+   *
+   * OPTION B: Real API (uncomment for production)
+   * - Fetches from SERVICE_ENDPOINTS.baseUrl
+   * - Shows loading spinner during fetch
+   * - Handles errors gracefully
+   */
+
+  // OPTION A: Mock Data (DEFAULT)
+  const [items] = useState<TemplateItem[]>(mockData);
+  const [isLoading] = useState(false);
+  const [apiError] = useState<string | null>(null);
+
+  // OPTION B: Real API (UNCOMMENT FOR PRODUCTION)
+  // const [items, setItems] = useState<TemplateItem[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [apiError, setApiError] = useState<string | null>(null);
+  //
+  // /**
+  //  * Fetch items from API
+  //  *
+  //  * ⚠️ IMPORTANT: Dependencies must be STABLE (primitives only)
+  //  * - DO NOT add toast, t, or other hook returns as dependencies
+  //  * - These change on every render and cause infinite loops!
+  //  */
+  // const fetchItems = useCallback(async () => {
+  //   setIsLoading(true);
+  //   setApiError(null);
+  //   try {
+  //     const response = await fetch(`${SERVICE_ENDPOINTS.baseUrl}/items/?limit=100`);
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  //     }
+  //     const data: TemplateListApiResponse = await response.json();
+  //     setItems(data.items);
+  //     if (analyticsSettings.logToConsole) {
+  //       console.log(`[Template] ✅ Loaded ${data.items.length} items from API`);
+  //     }
+  //   } catch (err) {
+  //     const errorMsg = err instanceof Error ? err.message : 'Failed to load items';
+  //     setApiError(errorMsg);
+  //     console.error('[Template] ❌ API Error:', errorMsg);
+  //     // Note: Error displayed via apiError state in UI (not toast - avoids re-render loop)
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [analyticsSettings.logToConsole]); // Only stable primitive dependencies!
+  //
+  // // Load items on mount only (empty deps = run once)
+  // useEffect(() => {
+  //   fetchItems();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []); // Empty array = run only on mount, NOT on every render
+
+  // Computed data with isActive field for FilteredDataGrid
+  const dataWithActive = items.map((item) => ({
+    ...item,
+    isActive: !item.is_deleted,  // Invert: is_deleted=true means inactive
+  }));
 
   // State management
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
@@ -649,7 +729,7 @@ export function TemplatePageDatagrid() {
   const handleBulkDelete = () => {
     if (selectedRows.size === 0) return;
 
-    const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+    const selectedItems = items.filter(item => selectedRows.has(item.id));
     const activeItems = selectedItems.filter(item => !item.is_deleted);
     const deletedItems = selectedItems.filter(item => item.is_deleted);
 
@@ -674,7 +754,7 @@ export function TemplatePageDatagrid() {
   const executeBulkDelete = async () => {
     setIsBulkDeleting(true);
     try {
-      const selectedItems = mockData.filter(item => selectedRows.has(item.id));
+      const selectedItems = items.filter(item => selectedRows.has(item.id));
       const activeItems = selectedItems.filter(item => !item.is_deleted);
       const deletedItems = selectedItems.filter(item => item.is_deleted);
 
@@ -935,7 +1015,25 @@ export function TemplatePageDatagrid() {
             { name: t('pages.template.breadcrumb'), isActive: true },
           ]}
         />
-        {/* FilteredDataGrid Component */}
+
+        {/* Loading state (for API mode) */}
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+            <Spinner size="large" />
+          </div>
+        )}
+
+        {/* Error state (for API mode) */}
+        {apiError && !isLoading && (
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-status-error)' }}>
+            <p>{t('pages.template.loadError')}: {apiError}</p>
+            {/* 🔧 CUSTOMIZATION: Add retry button when using real API */}
+            {/* <button onClick={fetchItems} style={{ marginTop: '12px' }}>{t('common.retry')}</button> */}
+          </div>
+        )}
+
+        {/* FilteredDataGrid Component - only show when not loading */}
+        {!isLoading && !apiError && (
         <FilteredDataGrid
           data={dataWithActive}
           columns={columns}
@@ -1020,6 +1118,7 @@ export function TemplatePageDatagrid() {
             </div>
           }
         />
+        )}
 
         {/* Delete Confirmation Modal (Soft Delete) */}
         {itemToDelete && (

@@ -213,7 +213,7 @@ class ContactGrpcService:
             if request.email and request.email.value:
                 existing = self.db.query(ContactEmail).filter(
                     ContactEmail.email == request.email.value,
-                    ContactEmail.is_deleted == False,
+                    ContactEmail.deleted_at.is_(None),
                 ).first()
 
                 if existing:

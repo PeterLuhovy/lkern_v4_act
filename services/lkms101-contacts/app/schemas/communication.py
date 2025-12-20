@@ -44,7 +44,7 @@ class EmailResponse(EmailBase):
     """Schema for contact email response."""
     id: UUID
     contact_id: UUID
-    is_deleted: bool = False
+    deleted_at: Optional[datetime] = None  # NULL = active, timestamp = deleted
     created_at: datetime
     updated_at: datetime
 
@@ -84,7 +84,7 @@ class PhoneResponse(PhoneBase):
     """Schema for contact phone response."""
     id: UUID
     contact_id: UUID
-    is_deleted: bool = False
+    deleted_at: Optional[datetime] = None  # NULL = active, timestamp = deleted
     created_at: datetime
     updated_at: datetime
     country_name: Optional[str] = None

@@ -35,8 +35,8 @@ class ContactEmail(Base):
     # Primary flag
     is_primary = Column(Boolean, default=False, nullable=False)
 
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False)
+    # Soft delete (NULL = active, timestamp = deleted)
+    deleted_at = Column(DateTime, nullable=True)
 
     # Audit fields
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
@@ -73,8 +73,8 @@ class ContactPhone(Base):
     # Primary flag
     is_primary = Column(Boolean, default=False, nullable=False)
 
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False)
+    # Soft delete (NULL = active, timestamp = deleted)
+    deleted_at = Column(DateTime, nullable=True)
 
     # Audit fields
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

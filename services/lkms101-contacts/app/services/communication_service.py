@@ -8,6 +8,7 @@ UPDATED: 2025-12-18
 ================================================================
 """
 
+from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 from sqlalchemy.orm import Session, joinedload
@@ -76,7 +77,7 @@ class CommunicationService:
         if not email:
             return False
 
-        email.is_deleted = True
+        email.deleted_at = datetime.utcnow()
         self.db.commit()
         return True
 
@@ -84,7 +85,7 @@ class CommunicationService:
         """Get all emails for contact."""
         query = self.db.query(ContactEmail).filter(ContactEmail.contact_id == contact_id)
         if not include_deleted:
-            query = query.filter(ContactEmail.is_deleted == False)
+            query = query.filter(ContactEmail.deleted_at.is_(None))
         return query.order_by(ContactEmail.is_primary.desc()).all()
 
     def _unset_primary_email(self, contact_id: UUID, exclude_id: Optional[UUID] = None):
@@ -92,7 +93,7 @@ class CommunicationService:
         query = self.db.query(ContactEmail).filter(
             ContactEmail.contact_id == contact_id,
             ContactEmail.is_primary == True,
-            ContactEmail.is_deleted == False,
+            ContactEmail.deleted_at.is_(None),
         )
         if exclude_id:
             query = query.filter(ContactEmail.id != exclude_id)
@@ -144,7 +145,7 @@ class CommunicationService:
         if not phone:
             return False
 
-        phone.is_deleted = True
+        phone.deleted_at = datetime.utcnow()
         self.db.commit()
         return True
 
@@ -154,7 +155,7 @@ class CommunicationService:
             joinedload(ContactPhone.country)
         ).filter(ContactPhone.contact_id == contact_id)
         if not include_deleted:
-            query = query.filter(ContactPhone.is_deleted == False)
+            query = query.filter(ContactPhone.deleted_at.is_(None))
         return query.order_by(ContactPhone.is_primary.desc()).all()
 
     def _unset_primary_phone(self, contact_id: UUID, exclude_id: Optional[UUID] = None):
@@ -162,7 +163,7 @@ class CommunicationService:
         query = self.db.query(ContactPhone).filter(
             ContactPhone.contact_id == contact_id,
             ContactPhone.is_primary == True,
-            ContactPhone.is_deleted == False,
+            ContactPhone.deleted_at.is_(None),
         )
         if exclude_id:
             query = query.filter(ContactPhone.id != exclude_id)

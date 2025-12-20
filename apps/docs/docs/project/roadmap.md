@@ -7,7 +7,7 @@ sidebar_position: 1
 
 
 :::info Roadmap Version
-This roadmap is version **9.5.0**, last updated **2025-12-19**.
+This roadmap is version **9.6.0**, last updated **2025-12-20**.
 :::
 
 :::note Full Content
@@ -690,7 +690,7 @@ start-service.bat
 
 ---
 
-### **1.60 Issues Service Extended** ⏸️ PLANNED
+### **1.60 Issues Service Extended** ✅ COMPLETED
 **Dependencies:** 1.40 (Backend Infrastructure), 1.50 (Microservice Template)
 **Estimated:** 35-45h (8-10 days) ↑ from 18-23h
 **Target:** 2025-11-21 - 2025-12-02
@@ -2580,6 +2580,11 @@ Neo4j Sync Lag > 10 minutes → ALERT: "Graph Visualization sync degraded"
 - ⏸️ 10 unit tests (tree loading, depth limits)
 
 #### **2.55.2 Frontend (4-6h)**
+- 📋 **PREREQUISITE:** Pregenerovať Issues stránku cez page-generator s `apiBaseUrl`:
+  ```bash
+  # 1. Pridať do configs/issues-page.json: "apiBaseUrl": "http://localhost:4105"
+  # 2. Spustiť: node scripts/page-generator/generate-page.js scripts/page-generator/configs/issues-page.json
+  ```
 - ⏸️ CommentThread component with recursive rendering
 - ⏸️ Visual indentation (levels 0-3: 24px per level)
 - ⏸️ Flat display for level 4+ (no indent, "↩️ replied to @user" prefix)

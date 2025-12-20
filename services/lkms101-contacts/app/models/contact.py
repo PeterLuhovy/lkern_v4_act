@@ -33,9 +33,8 @@ class Contact(Base):
     contact_code = Column(String(20), unique=True, nullable=False, index=True)
     contact_type = Column(String(20), nullable=False, index=True)  # person, company, organizational_unit
 
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False, index=True)
-    deleted_at = Column(DateTime, nullable=True)
+    # Soft delete (NULL = active, timestamp = deleted)
+    deleted_at = Column(DateTime, nullable=True, index=True)
     deleted_by_id = Column(UUID(as_uuid=True), nullable=True)
 
     # Audit fields
@@ -107,9 +106,6 @@ class ContactPerson(Base):
     gender = Column(String(10), nullable=True)  # male, female, other
     nationality_id = Column(UUID(as_uuid=True), ForeignKey("nationalities.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False)
-
     # Audit fields
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -161,9 +157,6 @@ class ContactCompany(Base):
     company_status = Column(String(20), default='active', nullable=False, index=True)
     # Values: active, inactive, suspended, liquidation, bankrupt, dissolved
 
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False)
-
     # Audit fields
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -194,9 +187,6 @@ class ContactOrganizationalUnit(Base):
 
     # Parent company
     parent_company_id = Column(UUID(as_uuid=True), ForeignKey("contacts.id", ondelete="SET NULL"), nullable=True, index=True)
-
-    # Soft delete
-    is_deleted = Column(Boolean, default=False, nullable=False)
 
     # Audit fields
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
